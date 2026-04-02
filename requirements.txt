@@ -1,0 +1,13 @@
+# PUBG Graph Prototype Requirements
+# 설치: pip install -r requirements.txt
+
+# DB
+psycopg2-binary>=2.9
+
+# 수치 계산
+numpy>=1.24
+scipy>=1.10
+
+# PyTorch (CPU 버전 - GPU 사용 시 공식 사이트에서 CUDA 버전 설치)
+torch>=2.0
+torch_geometric>=2.4

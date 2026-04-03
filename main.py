@@ -1398,9 +1398,20 @@ def print_diagnostics(graphs, snapshot_times, meta):
 # 전체 DB 매치 조회
 # ============================================================
 
-def get_all_valid_matches(cur):
+def get_all_valid_matches(cur, min_players=20, min_duration=600, max_duration=2400):
     """
-    DB에서 텔레메트리가 있는 모든 유효 매치를 조회.
+    DB에서 품질 필터를 통과한 유효 매치를 조회.
+
+    필터:
+      - telemetry_fetched = true
+      - 튜토리얼/사격장 제외
+      - player_count >= min_players (로비 해산/조기종료 제외)
+      - duration 10~40분 (비정상 매치 제외)
+
+    Args:
+        min_players: 최소 플레이어 수 (기본 20)
+        min_duration: 최소 매치 길이 초 (기본 600 = 10분)
+        max_duration: 최대 매치 길이 초 (기본 2400 = 40분)
 
     Returns:
         list[dict]: [{'match_id': ..., 'map_name': ..., 'game_mode': ...}, ...]
@@ -1409,8 +1420,11 @@ def get_all_valid_matches(cur):
         SELECT match_id, map_name, game_mode
         FROM {SCHEMA}.v_match_summary
         WHERE telemetry_fetched = true
-        ORDER BY match_id
-    """)
+          AND map_name NOT IN ('Tutorial_Main', 'Range_Main')
+          AND player_count >= %s
+          AND duration BETWEEN %s AND %s
+        ORDER BY created_at
+    """, (min_players, min_duration, max_duration))
     rows = cur.fetchall()
     return [
         {"match_id": r[0], "map_name": r[1], "game_mode": r[2]}
@@ -1436,6 +1450,12 @@ if __name__ == "__main__":
                         help="특정 모드만 처리 (e.g., squad-fpp)")
     parser.add_argument("--force", action="store_true",
                         help="기존 파일 덮어쓰기 (기본: 스킵)")
+    parser.add_argument("--min_players", type=int, default=20,
+                        help="최소 플레이어 수 (기본: 20)")
+    parser.add_argument("--min_duration", type=int, default=600,
+                        help="최소 매치 길이 초 (기본: 600=10분)")
+    parser.add_argument("--max_duration", type=int, default=2400,
+                        help="최대 매치 길이 초 (기본: 2400=40분)")
     args = parser.parse_args()
 
     print("PUBG Batch Graph Generation")
@@ -1444,10 +1464,16 @@ if __name__ == "__main__":
     conn = get_conn()
     cur = conn.cursor()
 
-    # 1. 전체 유효 매치 조회
-    all_matches = get_all_valid_matches(cur)
+    # 1. 전체 유효 매치 조회 (품질 필터 적용)
+    all_matches = get_all_valid_matches(
+        cur,
+        min_players=args.min_players,
+        min_duration=args.min_duration,
+        max_duration=args.max_duration,
+    )
     cur.close()
     print(f"전체 유효 매치: {len(all_matches)}개")
+    print(f"  필터: players≥{args.min_players}, duration={args.min_duration//60}~{args.max_duration//60}분")
 
     # 필터링 (--map, --mode)
     if args.map:

@@ -11,11 +11,11 @@ PUBG Single-Match Graph Prototype
 - 탈락 라벨: telem_kills + telem_damage(byzone) 결합
 - 팀 배치 라벨: rosters.rank
 - ID 매핑: account_id = player_id 직접 매핑
-- 자기장: game_states의 safe_zone 시계열
+- 자기장: game_states의 safe_zone(목표) + poison_zone(현재 경계) 이중 시계열
 
 사용법:
   1. DB_CONFIG를 본인 환경에 맞게 수정
-  2. python3 graph_prototype.py
+  2. python3 main.py
   3. 출력되는 진단 정보로 그래프 품질 확인
 """
 
@@ -225,7 +225,6 @@ def determine_match_time_range(game_states):
 
 def get_snapshot_times(start, end, interval=SNAPSHOT_INTERVAL):
     """interval 간격의 스냅샷 시점 리스트 생성."""
-    # 첫 스냅샷은 start 이후 첫 interval 배수
     first = int(np.ceil(start / interval)) * interval
     times = list(range(first, int(end) + 1, interval))
     return times
@@ -257,7 +256,6 @@ def determine_death_times(positions, kills, byzone_deaths):
 
     반환: {account_id: death_elapsed} (생존자는 포함 안 됨)
     """
-    # 플레이어별 마지막 position elapsed_time
     last_pos_time = {}
     for p in positions:
         aid = p["account_id"]
@@ -267,12 +265,10 @@ def determine_death_times(positions, kills, byzone_deaths):
 
     death_times = {}
 
-    # kill 기록이 있는 플레이어: 마지막 position 시점을 사망 시점으로
     for vid, kill_info in kills.items():
         if vid in last_pos_time:
             death_times[vid] = last_pos_time[vid]
 
-    # byzone 사망자 중 kills에 없는 경우 (드물지만 가능)
     for vid, death_elapsed in byzone_deaths.items():
         if vid not in death_times:
             death_times[vid] = death_elapsed
@@ -293,46 +289,20 @@ def build_player_index(positions, snapshot_time, half_window, death_times):
     window_start = snapshot_time - half_window
     window_end = snapshot_time + half_window
 
-    # 윈도우 내 레코드 필터링
     candidates = defaultdict(list)
     for p in positions:
         if window_start <= p["elapsed_time"] <= window_end:
             candidates[p["account_id"]].append(p)
 
-    # 각 플레이어의 closest position 선택 + 생존 여부 필터
     result = {}
     for aid, pos_list in candidates.items():
-        # 사망 시점 이전인지 확인
         if aid in death_times and death_times[aid] < window_start:
-            continue  # 이미 탈락
+            continue
 
-        # snapshot_time에 가장 가까운 레코드
         best = min(pos_list, key=lambda p: abs(p["elapsed_time"] - snapshot_time))
         result[aid] = best
 
     return result
-
-
-def compute_velocity(positions, account_id, snapshot_time, half_window=15):
-    """
-    이전 스냅샷과의 위치 차이로 속도 추정.
-    positions 전체에서 해당 플레이어의 이전 기록을 찾아 차분.
-    """
-    prev_window_start = snapshot_time - half_window - SNAPSHOT_INTERVAL
-    prev_window_end = snapshot_time - half_window
-
-    prev_records = [
-        p for p in positions
-        if p["account_id"] == account_id
-        and prev_window_start <= p["elapsed_time"] <= prev_window_end
-    ]
-
-    if not prev_records:
-        return 0.0, 0.0
-
-    prev = min(prev_records, key=lambda p: abs(p["elapsed_time"] - (snapshot_time - SNAPSHOT_INTERVAL)))
-    # 현재 위치는 호출자가 알고 있으므로 여기서는 이전 위치만 반환
-    return prev["pos_x"], prev["pos_y"]
 
 
 def aggregate_recent_damage(damage_events, account_id, snapshot_time, lookback=30):
@@ -366,10 +336,25 @@ def build_snapshot_graph(
 
     노드 타입: 'player'
     엣지 타입: ('player', 'ally', 'player'), ('player', 'encounter', 'player')
+
+    노드 피처 (14개):
+      0: pos_x (m)
+      1: pos_y (m)
+      2: pos_z (m) - 고도
+      3: health (0~1)
+      4: dist_to_safe_center (m) - 흰 원(목표) 중심 거리
+      5: dist_to_safe_boundary (m) - 흰 원 경계까지 거리
+      6: inside_safe - 흰 원 내부 여부
+      7: dist_to_poison_center (m) - 파란 원(현재 경계) 중심 거리
+      8: dist_to_poison_boundary (m) - 파란 원 경계까지 거리
+      9: inside_poison - 파란 원 내부 여부 (1=안전, 0=데미지)
+     10: veh_speed (m/s)
+     11: in_vehicle
+     12: dmg_dealt (최근 30초)
+     13: dmg_taken (최근 30초)
     """
     data = HeteroData()
 
-    # ★ 핵심: account_id 기준 정렬 → 프레임 간 순서 고정
     players = sorted(player_positions.keys())
     n = len(players)
 
@@ -382,12 +367,18 @@ def build_snapshot_graph(
     # 노드 피처
     # ----------------------------------------------------------
     node_feats = []
-    coords = []  # 엣지 구성용
+    coords = []
 
+    # safe_zone = 흰 원 (다음 안전 지역, 목표)
     safe_x = zone_state["safe_zone_x"] if zone_state else 0
     safe_y = zone_state["safe_zone_y"] if zone_state else 0
     safe_r = zone_state["safe_zone_radius"] if zone_state else 1
+
+    # poison_zone = 파란 원 (현재 데미지 경계)
+    poison_x = zone_state["poison_zone_x"] if zone_state else 0
+    poison_y = zone_state["poison_zone_y"] if zone_state else 0
     poison_r = zone_state["poison_zone_radius"] if zone_state else 0
+
     alive_count = zone_state["num_alive_players"] if zone_state else n
 
     for pid in players:
@@ -395,14 +386,28 @@ def build_snapshot_graph(
         px, py, pz = p["pos_x"], p["pos_y"], p["pos_z"]
         health = p["health"] if p["health"] is not None else 100.0
 
-        # 자기장 관련 피처
-        dx_zone = (px - safe_x) / CM_TO_M
-        dy_zone = (py - safe_y) / CM_TO_M
-        dist_to_zone_center = np.sqrt(dx_zone**2 + dy_zone**2)
-        dist_to_boundary = max(0, (safe_r / CM_TO_M) - dist_to_zone_center)
-        inside_zone = 1.0 if dist_to_zone_center < (safe_r / CM_TO_M) else 0.0
+        # 흰 원(목표) 관련 피처
+        dx_safe = (px - safe_x) / CM_TO_M
+        dy_safe = (py - safe_y) / CM_TO_M
+        dist_to_safe_center = np.sqrt(dx_safe**2 + dy_safe**2)
+        dist_to_safe_boundary = max(0, dist_to_safe_center - (safe_r / CM_TO_M))
+        inside_safe = 1.0 if dist_to_safe_center < (safe_r / CM_TO_M) else 0.0
 
-        # 속도 (이전 스냅샷 대비 차분)
+        # 파란 원(현재 경계) 관련 피처
+        # poison_r=0이면 아직 자기장 없음 → 전원 안전
+        if poison_r > 0:
+            dx_poison = (px - poison_x) / CM_TO_M
+            dy_poison = (py - poison_y) / CM_TO_M
+            dist_to_poison_center = np.sqrt(dx_poison**2 + dy_poison**2)
+            dist_to_poison_boundary = max(0, dist_to_poison_center - (poison_r / CM_TO_M))
+            inside_poison = 1.0 if dist_to_poison_center < (poison_r / CM_TO_M) else 0.0
+        else:
+            # 자기장 미생성: 전체 맵이 안전
+            dist_to_poison_center = 0.0
+            dist_to_poison_boundary = 0.0
+            inside_poison = 1.0
+
+        # 차량
         veh_speed = p["vehicle_speed"] if p["vehicle_speed"] else 0.0
         in_vehicle = 1.0 if p["vehicle_type"] and p["vehicle_type"] != "" else 0.0
 
@@ -412,17 +417,20 @@ def build_snapshot_graph(
         )
 
         feat = [
-            px / CM_TO_M,            # pos_x (m)
-            py / CM_TO_M,            # pos_y (m)
-            pz / CM_TO_M,            # pos_z (m) - 고도
-            health / 100.0,          # 체력 (0~1)
-            dist_to_zone_center,     # 자기장 중심 거리 (m)
-            dist_to_boundary,        # 자기장 경계까지 거리 (m)
-            inside_zone,             # 자기장 내부 여부
-            veh_speed / CM_TO_M,     # 차량 속도 (m/s)
-            in_vehicle,              # 탑승 여부
-            dmg_dealt,               # 최근 30초 가한 데미지
-            dmg_taken,               # 최근 30초 받은 데미지
+            px / CM_TO_M,                # 0: pos_x (m)
+            py / CM_TO_M,                # 1: pos_y (m)
+            pz / CM_TO_M,                # 2: pos_z (m)
+            health / 100.0,              # 3: health (0~1)
+            dist_to_safe_center,         # 4: 흰 원 중심 거리 (m)
+            dist_to_safe_boundary,       # 5: 흰 원 경계까지 (m)
+            inside_safe,                 # 6: 흰 원 내부
+            dist_to_poison_center,       # 7: 파란 원 중심 거리 (m)
+            dist_to_poison_boundary,     # 8: 파란 원 경계까지 (m)
+            inside_poison,               # 9: 파란 원 내부 (1=안전)
+            veh_speed / CM_TO_M,         # 10: 차량 속도 (m/s)
+            in_vehicle,                  # 11: 탑승 여부
+            dmg_dealt,                   # 12: 최근 30초 가한 데미지
+            dmg_taken,                   # 13: 최근 30초 받은 데미지
         ]
 
         node_feats.append(feat)
@@ -431,7 +439,6 @@ def build_snapshot_graph(
     data["player"].x = torch.tensor(node_feats, dtype=torch.float32)
     data["player"].num_nodes = n
 
-    # 시각화/분석용 메타데이터 (글로벌 매핑 사용 → 색상/ID 고정)
     team_id_list = [player_positions[pid]["team_id"] for pid in players]
     data["player"].team_idx = torch.tensor(
         [global_team_to_idx.get(t, 0) for t in team_id_list], dtype=torch.long
@@ -439,30 +446,34 @@ def build_snapshot_graph(
     data["player"].global_pid = torch.tensor(
         [global_pid_to_idx[pid] for pid in players], dtype=torch.long
     )
-    data["player"].account_ids = players  # list of str
-    data["player"].team_ids = team_id_list  # list of str
+    data["player"].account_ids = players
+    data["player"].team_ids = team_id_list
 
     # ----------------------------------------------------------
-    # 글로벌 자기장 컨텍스트
+    # 글로벌 자기장 컨텍스트 (safe + poison 모두 포함)
     # ----------------------------------------------------------
-    effective_area = np.pi * (safe_r / CM_TO_M) ** 2
+    safe_area = np.pi * (safe_r / CM_TO_M) ** 2
+    poison_area = np.pi * (poison_r / CM_TO_M) ** 2 if poison_r > 0 else 0
+    effective_area = poison_area if poison_r > 0 else safe_area
     density = alive_count / max(effective_area, 1.0)
 
     zone_context = torch.tensor([[
-        safe_x / CM_TO_M,
-        safe_y / CM_TO_M,
-        safe_r / CM_TO_M,
-        poison_r / CM_TO_M,
-        effective_area,
-        density,
-        alive_count,
-        snapshot_time,
+        safe_x / CM_TO_M,       # 0: safe center x
+        safe_y / CM_TO_M,       # 1: safe center y
+        safe_r / CM_TO_M,       # 2: safe radius
+        poison_x / CM_TO_M,     # 3: poison center x
+        poison_y / CM_TO_M,     # 4: poison center y
+        poison_r / CM_TO_M,     # 5: poison radius
+        effective_area,          # 6: effective area
+        density,                 # 7: density
+        alive_count,             # 8: alive count
+        snapshot_time,           # 9: time
     ]], dtype=torch.float32)
     data["zone"].x = zone_context
     data["zone"].num_nodes = 1
 
     # ----------------------------------------------------------
-    # ally 엣지: 같은 팀 내 모든 쌍 (양방향)
+    # ally 엣지
     # ----------------------------------------------------------
     team_groups = defaultdict(list)
     for pid in players:
@@ -480,13 +491,12 @@ def build_snapshot_graph(
                     ally_src.append(src_idx)
                     ally_dst.append(dst_idx)
 
-                    # 엣지 피처: 상호 거리, 고도차
                     sx, sy = coords[src_idx]
                     dx, dy = coords[dst_idx]
                     dist = np.sqrt((sx - dx)**2 + (sy - dy)**2) / CM_TO_M
-                    sz = node_feats[src_idx][2]  # pos_z in m
+                    sz = node_feats[src_idx][2]
                     dz = node_feats[dst_idx][2]
-                    alt_diff = sz - dz  # 양수면 src가 높음
+                    alt_diff = sz - dz
 
                     ally_feat.append([dist, alt_diff])
 
@@ -502,7 +512,7 @@ def build_snapshot_graph(
         data["player", "ally", "player"].edge_attr = torch.zeros((0, 2), dtype=torch.float32)
 
     # ----------------------------------------------------------
-    # encounter 엣지: k-NN (적 팀만, 양방향)
+    # encounter 엣지: k-NN (적 팀만)
     # ----------------------------------------------------------
     coords_arr = np.array(coords)
     team_ids = [player_positions[pid]["team_id"] for pid in players]
@@ -514,8 +524,7 @@ def build_snapshot_graph(
         tree = cKDTree(coords_arr)
 
         for i, pid in enumerate(players):
-            # 자기 포함 k+팀원수 만큼 쿼리해서 적만 필터링
-            query_k = min(n, k + 10)  # 충분히 많이 쿼리
+            query_k = min(n, k + 10)
             dists, indices = tree.query(coords_arr[i], k=query_k)
 
             enemy_count = 0
@@ -523,7 +532,7 @@ def build_snapshot_graph(
                 if j == i:
                     continue
                 if team_ids[j] == team_ids[i]:
-                    continue  # 같은 팀 스킵
+                    continue
                 if enemy_count >= k:
                     break
 
@@ -592,30 +601,22 @@ def build_match_graph_sequence(match_id, conn):
     snapshot_times = get_snapshot_times(t_start, t_end, SNAPSHOT_INTERVAL)
     print(f"  매치 범위: {t_start}~{t_end}초, 스냅샷 수: {len(snapshot_times)}")
 
-    # positions를 elapsed_time 기준 인덱싱 (속도 최적화)
-    # → 윈도우 필터링을 전체 positions에서 매번 하면 느림
-    # → 미리 정렬된 상태이므로 이진 탐색 가능하지만, 프로토타입에서는 단순 필터
     print("[4/6] 그래프 생성 중...")
 
-    # 글로벌 팀→인덱스 매핑 (전 스냅샷에서 색상 고정)
     all_team_ids = sorted(team_rank.keys())
     global_team_to_idx = {t: i for i, t in enumerate(all_team_ids)}
 
-    # 글로벌 플레이어 인덱스 (전 스냅샷에서 ID 고정)
     all_player_ids = sorted(all_players)
     global_pid_to_idx = {pid: i for i, pid in enumerate(all_player_ids)}
 
     graphs = []
     for i, st in enumerate(snapshot_times):
-        # 플레이어 스냅샷
         player_positions = build_player_index(
             positions, st, SNAPSHOT_HALF_WINDOW, death_times
         )
 
-        # 자기장 상태
         zone_state = find_closest_zone_state(game_states, st)
 
-        # 그래프 구성
         g = build_snapshot_graph(
             snapshot_time=st,
             player_positions=player_positions,
@@ -629,7 +630,6 @@ def build_match_graph_sequence(match_id, conn):
         )
 
         if g is not None:
-            # 메타데이터 추가
             g.snapshot_time = st
             g.num_alive = len(player_positions)
             graphs.append(g)
@@ -640,17 +640,15 @@ def build_match_graph_sequence(match_id, conn):
 
     # 히트맵 그리드 계산
     print("[5/6] 히트맵 생성...")
-    GRID_SIZE = 80  # 80x80 그리드
+    GRID_SIZE = 80
     MAP_MAX_CM = 816000.0
     cell_size = MAP_MAX_CM / GRID_SIZE
 
-    # 그리드 초기화
     elev_sum = np.zeros((GRID_SIZE, GRID_SIZE), dtype=np.float64)
     elev_cnt = np.zeros((GRID_SIZE, GRID_SIZE), dtype=np.int32)
     density_grid = np.zeros((GRID_SIZE, GRID_SIZE), dtype=np.int32)
     combat_grid = np.zeros((GRID_SIZE, GRID_SIZE), dtype=np.float64)
 
-    # positions에서 고도 + 밀도 수집
     for p in positions:
         gx = int(p["pos_x"] / cell_size)
         gy = int(p["pos_y"] / cell_size)
@@ -661,21 +659,17 @@ def build_match_graph_sequence(match_id, conn):
         elev_cnt[gy, gx] += 1
         density_grid[gy, gx] += 1
 
-    # 고도 평균
     elev_grid = np.zeros((GRID_SIZE, GRID_SIZE), dtype=np.float64)
     mask = elev_cnt > 0
     elev_grid[mask] = elev_sum[mask] / elev_cnt[mask]
-    # 데이터 없는 셀은 인접 셀 평균으로 보간
     if mask.sum() > 0:
         filled = uniform_filter(elev_sum, size=3) / np.maximum(uniform_filter(elev_cnt.astype(float), size=3), 1)
         elev_grid[~mask] = filled[~mask]
 
-    # damage에서 전투 히트맵 (attacker + victim 위치 기반)
     for d in damage_events:
         dmg = d.get("damage") or 0
         if dmg <= 0:
             continue
-        # attacker 위치
         ax = d.get("attacker_x")
         ay = d.get("attacker_y")
         if ax and ay:
@@ -684,7 +678,6 @@ def build_match_graph_sequence(match_id, conn):
             gx = max(0, min(GRID_SIZE - 1, gx))
             gy = max(0, min(GRID_SIZE - 1, gy))
             combat_grid[gy, gx] += dmg
-        # victim 위치
         vx = d.get("victim_x")
         vy = d.get("victim_y")
         if vx and vy:
@@ -694,10 +687,8 @@ def build_match_graph_sequence(match_id, conn):
             gy = max(0, min(GRID_SIZE - 1, gy))
             combat_grid[gy, gx] += dmg * 0.5
 
-    # cm → m 변환 (고도)
     elev_grid_m = elev_grid / CM_TO_M
 
-    # 정규화 (0~1)
     def normalize(g):
         mn, mx = g.min(), g.max()
         if mx - mn < 1e-6:
@@ -773,7 +764,8 @@ def print_diagnostics(graphs, snapshot_times, meta):
     x = g0["player"].x
     feat_names = [
         "pos_x(m)", "pos_y(m)", "pos_z(m)", "health",
-        "zone_dist", "boundary_dist", "inside_zone",
+        "safe_dist", "safe_bndry", "in_safe",
+        "poison_dist", "poison_bndry", "in_poison",
         "veh_speed", "in_vehicle", "dmg_dealt", "dmg_taken"
     ]
     print(f"\n노드 피처 통계 (첫 스냅샷, {x.shape[0]}노드):")
@@ -796,15 +788,16 @@ def print_diagnostics(graphs, snapshot_times, meta):
                   f"max={dists.max().item():.0f}, "
                   f"edges={dists.shape[0]}")
 
-    # zone context 시계열
-    print(f"\n자기장 축소 시계열:")
+    # zone context 시계열 (safe + poison 모두 출력)
+    print(f"\n자기장 시계열 (safe=흰원/목표, poison=파란원/현재경계):")
     for i in sample_indices:
         g = graphs[i]
         z = g["zone"].x[0]
         print(f"  t={g.snapshot_time:.0f}s: "
               f"safe_r={z[2].item():.0f}m, "
-              f"density={z[5].item():.6f}, "
-              f"alive={z[6].item():.0f}")
+              f"poison_r={z[5].item():.0f}m, "
+              f"density={z[7].item():.6f}, "
+              f"alive={z[8].item():.0f}")
 
     # 탈락 라벨 검증
     print(f"\n탈락 라벨:")

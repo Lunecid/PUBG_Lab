@@ -1,13 +1,13 @@
 """
-PUBG Match Graph Visualizer — 3D (OrbitControls)
-==================================================
-Three.js r128 + OrbitControls (unpkg CDN) 기반 3D 시각화.
-3d-force-graph (vasturiano) 디자인 참고.
-
-카메라: THREE.OrbitControls (검증된 라이브러리)
-- 좌클릭 드래그: 회전
-- 우클릭 드래그 / 휠 클릭 드래그: 패닝
-- 스크롤: 줌
+PUBG Match Graph Visualizer — 3D (OrbitControls) v2
+=====================================================
+수정 사항:
+1. 밝은 배경 + 높은 대비 엣지 색상
+2. safe_zone(흰원) + poison_zone(파란원) 이중 자기장
+3. 클릭 판정 수정 (mousedown/mouseup 거리 기반)
+4. Erangel 맵 텍스처 지면
+5. z축 스케일 교정 (min-max 정규화)
+6. 노드 피처 14개 (safe/poison 구분) 반영
 
 사용법:
   python visualize.py
@@ -23,8 +23,26 @@ def load_graph_data(filepath):
 
 
 def graphs_to_json(graphs, snapshot_times, meta):
-    # 글로벌 pid 기반: 노드 배열 크기 고정 (총 플레이어 수)
     total_p = meta["total_players"]
+
+    # z축 범위: 비행기 단계(z>500m) 제외, 지면 p1/p99 사용
+    z_vals = []
+    for g in graphs:
+        x = g["player"].x
+        if x.shape[0] > 0:
+            z_vals.append(x[:, 2])  # pos_z in meters
+    if z_vals:
+        all_z = torch.cat(z_vals)
+        ground_z = all_z[all_z < 500]  # 비행기 고도 제외
+        if ground_z.numel() > 10:
+            sorted_gz = ground_z.sort().values
+            z_min = sorted_gz[int(len(sorted_gz) * 0.01)].item()
+            z_max = sorted_gz[int(len(sorted_gz) * 0.99)].item()
+        else:
+            z_min = all_z.min().item()
+            z_max = all_z.max().item()
+    else:
+        z_min, z_max = 0, 1
 
     frames = []
     for g, t in zip(graphs, snapshot_times):
@@ -35,10 +53,8 @@ def graphs_to_json(graphs, snapshot_times, meta):
         account_ids = g["player"].account_ids
         team_ids = g["player"].team_ids
 
-        # pid → local index 매핑
         pid_to_local = {global_pid[i]: i for i in range(n)}
 
-        # 고정 크기 노드 배열 (pid 순서)
         nodes = []
         for pid in range(total_p):
             if pid in pid_to_local:
@@ -47,10 +63,19 @@ def graphs_to_json(graphs, snapshot_times, meta):
                     "pid": pid, "alive": 1,
                     "x": round(x[li, 0].item(), 1), "y": round(x[li, 1].item(), 1),
                     "z": round(x[li, 2].item(), 1), "hp": round(x[li, 3].item(), 3),
-                    "zd": round(x[li, 4].item(), 0), "bd": round(x[li, 5].item(), 0),
-                    "iz": int(x[li, 6].item() > 0.5), "vs": round(x[li, 7].item(), 1),
-                    "iv": int(x[li, 8].item() > 0.5),
-                    "dd": round(x[li, 9].item(), 1), "dt": round(x[li, 10].item(), 1),
+                    # safe zone features
+                    "sd": round(x[li, 4].item(), 0),   # dist_to_safe_center
+                    "sb": round(x[li, 5].item(), 0),   # dist_to_safe_boundary
+                    "is": int(x[li, 6].item() > 0.5),  # inside_safe
+                    # poison zone features
+                    "pd": round(x[li, 7].item(), 0),    # dist_to_poison_center
+                    "pb": round(x[li, 8].item(), 0),    # dist_to_poison_boundary
+                    "ip": int(x[li, 9].item() > 0.5),   # inside_poison
+                    # vehicle + combat
+                    "vs": round(x[li, 10].item(), 1),
+                    "iv": int(x[li, 11].item() > 0.5),
+                    "dd": round(x[li, 12].item(), 1),
+                    "dt": round(x[li, 13].item(), 1),
                     "t": team_idx[li],
                     "aid": account_ids[li][-8:] if account_ids[li] else "",
                     "tid": str(team_ids[li])[-6:] if team_ids[li] else "",
@@ -58,7 +83,7 @@ def graphs_to_json(graphs, snapshot_times, meta):
             else:
                 nodes.append({"pid": pid, "alive": 0})
 
-        # 엣지: local index → global pid 변환
+        # 엣지
         ally_ei = g["player", "ally", "player"].edge_index
         ally_edges = []
         for e in range(ally_ei.shape[1]):
@@ -79,71 +104,90 @@ def graphs_to_json(graphs, snapshot_times, meta):
                 dist = round(enc_attr[e,0].item(), 0) if enc_attr.shape[0]>0 else 0
                 enc_edges.append([ps, pd, dist])
 
+        # zone context: [safe_cx, safe_cy, safe_r, poison_cx, poison_cy, poison_r, area, density, alive, time]
         zv = g["zone"].x[0]
-        zone = {"cx": round(zv[0].item(),1), "cy": round(zv[1].item(),1),
-                "r": round(zv[2].item(),1), "alive": int(zv[6].item())}
+        zone = {
+            "scx": round(zv[0].item(),1), "scy": round(zv[1].item(),1),
+            "sr": round(zv[2].item(),1),
+            "pcx": round(zv[3].item(),1), "pcy": round(zv[4].item(),1),
+            "pr": round(zv[5].item(),1),
+            "alive": int(zv[8].item()),
+        }
         frames.append({"t": round(t,1), "nodes": nodes,
                        "ally": ally_edges, "enc": enc_edges, "zone": zone})
 
-    return {"match_id": meta["match_id"], "total_players": total_p,
-            "total_teams": len(meta["team_rank"]), "frames": frames,
-            "heatmaps": meta.get("heatmaps", None)}
+    return {
+        "match_id": meta["match_id"],
+        "total_players": total_p,
+        "total_teams": len(meta["team_rank"]),
+        "z_min": round(z_min, 1),
+        "z_max": round(z_max, 1),
+        "frames": frames,
+        "heatmaps": meta.get("heatmaps", None),
+    }
 
 
 HTML = r"""<!DOCTYPE html>
 <html><head><meta charset="UTF-8">
-<title>PUBG 3D Graph</title>
+<title>PUBG 3D Graph v2</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <style>
-:root{--bg:#0b0b1a;--panel:rgba(12,12,30,.88);--border:#1e1e3a;--text:#c8c8e0;--accent:#4488ff;--red:#ff4455}
+:root{
+  --bg:#e8ecf1;--panel:rgba(255,255,255,.92);--border:#c8cdd5;
+  --text:#2a2e35;--muted:#6b7280;--accent:#2563eb;--red:#dc2626;
+  --green:#16a34a;--warn:#d97706;
+}
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI',Roboto,monospace;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'SF Mono',Menlo,'Fira Code',monospace;overflow:hidden;font-size:12px}
 canvas{display:block}
 
 .panel{position:absolute;background:var(--panel);border:1px solid var(--border);
-       border-radius:10px;padding:14px 18px;backdrop-filter:blur(10px);font-size:12px;line-height:1.8}
+       border-radius:8px;padding:12px 16px;backdrop-filter:blur(8px);line-height:1.7;
+       box-shadow:0 2px 8px rgba(0,0,0,.08)}
 
-#hud{top:14px;left:14px;pointer-events:none}
-#hud b{color:var(--accent);margin-right:4px}
+#hud{top:12px;left:12px;pointer-events:none;min-width:180px}
+#hud .row{display:flex;justify-content:space-between;gap:12px}
+#hud .lbl{color:var(--muted)}
+#hud .val{font-weight:600}
 
-#info{top:14px;right:14px;min-width:240px;display:none}
-#info h3{color:var(--accent);font-size:14px;margin-bottom:6px;border-bottom:1px solid var(--border);padding-bottom:6px}
+#info{top:12px;right:12px;min-width:250px;display:none}
+#info h3{color:var(--accent);font-size:13px;margin-bottom:6px;border-bottom:1px solid var(--border);padding-bottom:5px}
 .ir{display:flex;justify-content:space-between;padding:1px 0}
-.il{color:#888}.iv{color:#e0e0f0}.ic{color:var(--red);font-weight:600}
+.il{color:var(--muted)}.iv{color:var(--text);font-weight:500}
 
-#legend{bottom:56px;right:14px;font-size:11px}
+#legend{bottom:54px;right:12px;font-size:11px}
 .lg{display:flex;align-items:center;gap:8px;margin:3px 0}
-.ll{width:20px;height:3px;border-radius:2px}
-.ld{width:9px;height:9px;border-radius:50%;border:1px solid rgba(255,255,255,.15)}
-.hm-btn{background:var(--panel);border:1px solid var(--border);color:#888;border-radius:4px;
-        padding:3px 8px;cursor:pointer;font-size:11px;margin:2px 0;font-family:inherit;
-        transition:all .2s}
-.hm-btn:hover,.hm-btn.active{color:#fff;border-color:var(--accent)}
+.ll{width:22px;height:3px;border-radius:2px}
+.ld{width:9px;height:9px;border-radius:50%;border:1px solid rgba(0,0,0,.12)}
+.hm-btn{background:var(--panel);border:1px solid var(--border);color:var(--muted);border-radius:4px;
+        padding:3px 8px;cursor:pointer;font-size:11px;margin:2px 0;font-family:inherit;transition:all .15s}
+.hm-btn:hover,.hm-btn.active{color:var(--accent);border-color:var(--accent);font-weight:600}
 
 #controls{position:absolute;bottom:0;left:0;right:0;display:flex;align-items:center;
-          gap:10px;padding:10px 16px;background:rgba(10,10,25,.92);border-top:1px solid var(--border)}
-#controls button{background:#14142a;color:#aaa;border:1px solid var(--border);border-radius:5px;
-                 padding:6px 14px;cursor:pointer;font-size:12px;font-family:inherit;transition:all .15s}
-#controls button:hover{background:#1e1e3e;color:#fff}
-#controls button.on{background:#1a3366;border-color:var(--accent);color:#fff}
+          gap:10px;padding:10px 16px;background:rgba(255,255,255,.95);border-top:1px solid var(--border)}
+#controls button{background:#f3f4f6;color:var(--muted);border:1px solid var(--border);border-radius:5px;
+                 padding:6px 14px;cursor:pointer;font-size:12px;font-family:inherit;transition:all .12s}
+#controls button:hover{background:#e5e7eb;color:var(--text)}
+#controls button.on{background:var(--accent);border-color:var(--accent);color:#fff}
 #timeline{flex:1;height:5px;-webkit-appearance:none;appearance:none;
-          background:#14142a;border-radius:3px;outline:none;cursor:pointer}
+          background:#d1d5db;border-radius:3px;outline:none;cursor:pointer}
 #timeline::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;
                                 background:var(--accent);border-radius:50%;cursor:pointer;
-                                box-shadow:0 0 6px rgba(68,136,255,.4)}
-#sp{width:50px;text-align:center;font-size:11px;color:#666}
-#tip{position:absolute;bottom:56px;left:14px;font-size:11px;color:#444;
-     background:var(--panel);padding:6px 10px;border-radius:6px;border:1px solid var(--border)}
+                                box-shadow:0 0 4px rgba(37,99,235,.3)}
+#sp{width:46px;text-align:center;font-size:11px;color:var(--muted)}
+#tip{position:absolute;bottom:54px;left:12px;font-size:11px;color:var(--muted);
+     background:var(--panel);padding:5px 10px;border-radius:6px;border:1px solid var(--border)}
 </style>
 </head><body>
 
 <div class="panel" id="hud">
-  <div><b>Time</b><span id="ht">0s</span> / <span id="htot">0s</span></div>
-  <div><b>Alive</b><span id="ha">0</span> / __TOTAL__</div>
-  <div><b>Zone R</b><span id="hz">0</span>m</div>
-  <div><b>Teams</b><span id="htm">0</span></div>
-  <div><b>Combat</b><span id="hc">0</span></div>
+  <div class="row"><span class="lbl">Time</span><span class="val" id="ht">0s</span></div>
+  <div class="row"><span class="lbl">Alive</span><span class="val" id="ha">0 / __TOTAL__</span></div>
+  <div class="row"><span class="lbl">Poison R</span><span class="val" id="hz">0m</span></div>
+  <div class="row"><span class="lbl">Safe R</span><span class="val" id="hsr">0m</span></div>
+  <div class="row"><span class="lbl">Teams</span><span class="val" id="htm">0</span></div>
+  <div class="row"><span class="lbl">Combat</span><span class="val" id="hc">0</span></div>
 </div>
 
 <div class="panel" id="info">
@@ -153,65 +197,79 @@ canvas{display:block}
   <div class="ir"><span class="il">HP</span><span class="iv" id="ni-hp">-</span></div>
   <div class="ir"><span class="il">Position</span><span class="iv" id="ni-pos">-</span></div>
   <div class="ir"><span class="il">Altitude</span><span class="iv" id="ni-alt">-</span></div>
-  <div class="ir"><span class="il">Zone Dist</span><span class="iv" id="ni-zd">-</span></div>
-  <div class="ir"><span class="il">Inside Zone</span><span class="iv" id="ni-iz">-</span></div>
+  <div style="height:1px;background:var(--border);margin:5px 0"></div>
+  <div class="ir"><span class="il">Safe Dist</span><span class="iv" id="ni-sd">-</span></div>
+  <div class="ir"><span class="il">Inside Safe</span><span class="iv" id="ni-is">-</span></div>
+  <div class="ir"><span class="il">Poison Dist</span><span class="iv" id="ni-pd">-</span></div>
+  <div class="ir"><span class="il">Inside Poison</span><span class="iv" id="ni-ip">-</span></div>
+  <div style="height:1px;background:var(--border);margin:5px 0"></div>
   <div class="ir"><span class="il">Vehicle</span><span class="iv" id="ni-veh">-</span></div>
-  <div style="height:1px;background:var(--border);margin:6px 0"></div>
-  <div class="ir"><span class="il">Dmg Dealt</span><span class="ic" id="ni-dd">-</span></div>
-  <div class="ir"><span class="il">Dmg Taken</span><span class="ic" id="ni-dt">-</span></div>
+  <div class="ir"><span class="il">Dmg Dealt</span><span class="iv" id="ni-dd" style="color:var(--red)">-</span></div>
+  <div class="ir"><span class="il">Dmg Taken</span><span class="iv" id="ni-dt" style="color:var(--warn)">-</span></div>
   <div class="ir"><span class="il">Status</span><span class="iv" id="ni-st">-</span></div>
 </div>
 
 <div class="panel" id="legend">
-  <div class="lg"><div class="ll" style="background:rgba(80,160,255,.7)"></div>Ally</div>
-  <div class="lg"><div class="ll" style="background:rgba(255,70,70,.5)"></div>Encounter</div>
+  <div class="lg"><div class="ll" style="background:rgba(37,99,235,.8)"></div>Ally</div>
+  <div class="lg"><div class="ll" style="background:rgba(220,38,38,.6)"></div>Encounter</div>
   <div class="lg"><div class="ld" style="background:var(--accent)"></div>Player</div>
-  <div class="lg"><div class="ld" style="background:var(--red);box-shadow:0 0 6px var(--red)"></div>In Combat</div>
-  <div style="height:1px;background:var(--border);margin:6px 0"></div>
-  <div style="color:#666;margin-bottom:4px">Heatmap</div>
+  <div class="lg"><div class="ld" style="background:var(--red);box-shadow:0 0 5px var(--red)"></div>In Combat</div>
+  <div style="height:1px;background:var(--border);margin:5px 0"></div>
+  <div style="color:var(--muted);margin-bottom:3px">Zone</div>
+  <div class="lg"><div class="ll" style="background:rgba(255,255,255,.9);border:1px solid #888"></div>Safe (target)</div>
+  <div class="lg"><div class="ll" style="background:rgba(59,130,246,.5)"></div>Poison (dmg)</div>
+  <div style="height:1px;background:var(--border);margin:5px 0"></div>
+  <div style="color:var(--muted);margin-bottom:3px">Heatmap</div>
   <button class="hm-btn" data-hm="elevation">Elevation</button>
   <button class="hm-btn" data-hm="density">Density</button>
   <button class="hm-btn" data-hm="combat">Combat</button>
   <button class="hm-btn active" data-hm="none">Off</button>
-  <div id="hm-range" style="font-size:10px;color:#555;margin-top:4px"></div>
+  <div id="hm-range" style="font-size:10px;color:var(--muted);margin-top:3px"></div>
 </div>
 
 <div id="tip">Left: rotate | Middle/Right: pan | Scroll: zoom | Click node (paused): details</div>
 
 <div id="controls">
-  <button id="bp" class="on">⏸</button>
-  <button class="sb" data-s="0.5">0.5×</button>
-  <button class="sb on" data-s="1">1×</button>
-  <button class="sb" data-s="2">2×</button>
-  <button class="sb" data-s="4">4×</button>
+  <button id="bp" class="on">&#x23F8;</button>
+  <button class="sb" data-s="0.5">0.5x</button>
+  <button class="sb on" data-s="1">1x</button>
+  <button class="sb" data-s="2">2x</button>
+  <button class="sb" data-s="4">4x</button>
   <input type="range" id="timeline" min="0" max="1000" value="0">
-  <span id="sp">1×</span>
+  <span id="sp">1x</span>
 </div>
 
 <script>
 const D=__JSON_DATA__;
-const TC=["#e6194b","#3cb44b","#ffe119","#4363d8","#f58231","#911eb4","#42d4f4",
-"#f032e6","#bfef45","#fabebe","#469990","#e6beff","#9A6324","#fffac8","#800000",
-"#aaffc3","#808000","#ffd8b1","#000075","#a9a9a9","#ff6961","#77dd77","#fdfd96",
-"#84b6f4","#fdcae1","#c1e1c1","#b39eb5","#fbe7c6","#a0c4ff","#caffbf"];
+const TC=["#e6194b","#3cb44b","#0077b6","#e85d04","#7209b7","#38b000","#dc2f02",
+"#4361ee","#f77f00","#2d6a4f","#9b2226","#023e8a","#ca6702","#588157","#d00000",
+"#6a040f","#0096c7","#370617","#55a630","#bc4749","#264653","#e76f51","#2a9d8f",
+"#f4a261","#1d3557","#a8dadc","#457b9d","#e63946","#6d6875","#b5838d"];
 
 const F=D.frames, NF=F.length;
+const Z_MIN=D.z_min, Z_MAX=D.z_max, Z_RANGE=Math.max(Z_MAX-Z_MIN,1);
+// z축 스케일: 지면 고도 범위(p1~p99) 기준, 맵 대비 충분히 보이도록
+// 맵이 8160m일 때 지면 고도차가 최소 200 Three.js 단위는 되어야 시각적으로 구분 가능
+const Z_SCALE = Math.max(Math.min(8160 / Z_RANGE * 0.08, 15), 2.0);
+// z값 클램프 범위 (비행기 고도가 스케일을 깨지 않도록)
+const Z_CLAMP_MAX = Z_MAX + Z_RANGE * 0.5;
+const Z_CLAMP_MIN = Z_MIN - Z_RANGE * 0.2;
+
 let playing=true, spd=1, prog=0, lt=0, selNode=-1;
-document.getElementById("htot").textContent=Math.round(F[NF-1].t)+"s";
 
 // === SCENE ===
 const W=innerWidth, H=innerHeight-40;
 const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x0b0b1a);
-scene.fog=new THREE.FogExp2(0x0b0b1a, 0.00006);
+scene.background=new THREE.Color(0xdee2e8);
+scene.fog=new THREE.FogExp2(0xdee2e8, 0.000025);
 
 const camera=new THREE.PerspectiveCamera(55, W/H, 10, 80000);
-const renderer=new THREE.WebGLRenderer({antialias:true, alpha:false});
+const renderer=new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(W,H);
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled=false;
 document.body.prepend(renderer.domElement);
 
-// === OrbitControls (라이브러리 내장) ===
 const controls=new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping=true;
 controls.dampingFactor=0.12;
@@ -222,11 +280,10 @@ controls.mouseButtons={LEFT:THREE.MOUSE.ROTATE, MIDDLE:THREE.MOUSE.PAN, RIGHT:TH
 controls.minDistance=100;
 controls.maxDistance=25000;
 
-// 초기 카메라
 if(NF>0){
   const z0=F[0].zone;
-  controls.target.set(z0.cx, 0, z0.cy);
-  camera.position.set(z0.cx+z0.r*0.8, z0.r*1.2, z0.cy+z0.r*0.8);
+  controls.target.set(z0.scx, 0, z0.scy);
+  camera.position.set(z0.scx+z0.sr*0.8, z0.sr*1.0, z0.scy+z0.sr*0.8);
   controls.update();
 }
 
@@ -237,26 +294,88 @@ addEventListener("resize",()=>{
 });
 
 // === LIGHTS ===
-scene.add(new THREE.AmbientLight(0x334466, 0.5));
-const dl=new THREE.DirectionalLight(0xffffff, 0.7);
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const dl=new THREE.DirectionalLight(0xffffff, 0.55);
 dl.position.set(5000,8000,5000); scene.add(dl);
-const hl=new THREE.HemisphereLight(0x2244aa, 0x111122, 0.3);
-scene.add(hl);
 
-// === GRID ===
-const grid=new THREE.GridHelper(8160, 16, 0x161630, 0x0e0e24);
-grid.position.set(4080,0,4080); scene.add(grid);
+// === MAP GROUND PLANE ===
+const MAP_SIZE_M = 8160;
+
+// Erangel 맵 텍스처 로드 (CDN에서 직접)
+const mapTexLoader = new THREE.TextureLoader();
+const mapUrls = [
+  "https://raw.githubusercontent.com/pubg/api-assets/master/Assets/Maps/Erangel_Main_Low_Res.png",
+  "https://raw.githubusercontent.com/pubg/api-assets/master/Assets/Maps/Erangel_Main_High_Res.png"
+];
+
+// 지면 기본 생성 (텍스처 로드 전에 색상으로)
+const groundGeo = new THREE.PlaneGeometry(MAP_SIZE_M, MAP_SIZE_M);
+const groundMat = new THREE.MeshBasicMaterial({
+  color: 0x8fbc8f, transparent: true, opacity: 0.35, side: THREE.DoubleSide
+});
+const groundMesh = new THREE.Mesh(groundGeo, groundMat);
+groundMesh.rotation.x = -Math.PI/2;
+groundMesh.position.set(MAP_SIZE_M/2, -2, MAP_SIZE_M/2);
+scene.add(groundMesh);
+
+// 텍스처 로드 시도
+function tryLoadMap(urls, idx) {
+  if (idx >= urls.length) return;
+  mapTexLoader.load(urls[idx],
+    function(tex) {
+      tex.minFilter = THREE.LinearFilter;
+      tex.magFilter = THREE.LinearFilter;
+      groundMat.map = tex;
+      groundMat.color.set(0xffffff);
+      groundMat.opacity = 0.7;
+      groundMat.needsUpdate = true;
+    },
+    undefined,
+    function() { tryLoadMap(urls, idx+1); }
+  );
+}
+tryLoadMap(mapUrls, 0);
+
+// 그리드 (맵 위에 약하게)
+const grid=new THREE.GridHelper(MAP_SIZE_M, 16, 0x999999, 0xbbbbbb);
+grid.position.set(MAP_SIZE_M/2, -1, MAP_SIZE_M/2);
+grid.material.transparent=true;
+grid.material.opacity=0.15;
+scene.add(grid);
 
 // === GROUPS ===
 const nodeGrp=new THREE.Group(); scene.add(nodeGrp);
 const allyGrp=new THREE.Group(); scene.add(allyGrp);
 const encGrp=new THREE.Group();  scene.add(encGrp);
 
-// zone ring
-const zoneGeo=new THREE.RingGeometry(0.98,1,96);
-const zoneMat=new THREE.MeshBasicMaterial({color:0x3388ff, transparent:true, opacity:0.3, side:THREE.DoubleSide});
-const zoneMesh=new THREE.Mesh(zoneGeo, zoneMat);
-zoneMesh.rotation.x=-Math.PI/2; scene.add(zoneMesh);
+// === DUAL ZONE RINGS ===
+// Safe zone = 흰 원 (목표, 다음 안전 지역)
+const safeZoneGeo = new THREE.RingGeometry(0.97, 1, 128);
+const safeZoneMat = new THREE.MeshBasicMaterial({
+  color: 0xffffff, transparent: true, opacity: 0.7, side: THREE.DoubleSide
+});
+const safeZoneMesh = new THREE.Mesh(safeZoneGeo, safeZoneMat);
+safeZoneMesh.rotation.x = -Math.PI/2;
+scene.add(safeZoneMesh);
+
+// Poison zone = 파란 원 (현재 데미지 경계)
+// 채워진 원 (안전 지역 표시) + 테두리 (경계선)
+const poisonFillGeo = new THREE.CircleGeometry(1, 128);
+const poisonFillMat = new THREE.MeshBasicMaterial({
+  color: 0x3b82f6, transparent: true, opacity: 0.06, side: THREE.DoubleSide,
+  depthWrite: false
+});
+const poisonFillMesh = new THREE.Mesh(poisonFillGeo, poisonFillMat);
+poisonFillMesh.rotation.x = -Math.PI/2;
+scene.add(poisonFillMesh);
+
+const poisonRingGeo = new THREE.RingGeometry(0.985, 1, 128);
+const poisonRingMat = new THREE.MeshBasicMaterial({
+  color: 0x3b82f6, transparent: true, opacity: 0.55, side: THREE.DoubleSide
+});
+const poisonRingMesh = new THREE.Mesh(poisonRingGeo, poisonRingMat);
+poisonRingMesh.rotation.x = -Math.PI/2;
+scene.add(poisonRingMesh);
 
 // === HEATMAPS ===
 const HM=D.heatmaps;
@@ -264,9 +383,9 @@ const hmMeshes={};
 if(HM){
   const GS=HM.grid_size, cellM=HM.cell_size_m, mapSz=GS*cellM;
   const schemes={
-    elevation:v=>{if(v<.3)return[.05+v*.3,.15+v*.8,.05+v*.1];if(v<.6){const t=(v-.3)/.3;return[.14+t*.5,.39-t*.15,.08+t*.02]};const t=(v-.6)/.4;return[.64+t*.36,.24+t*.76,.1+t*.9]},
-    density:v=>{if(v<.25){const t=v/.25;return[0,0,t*.6]};if(v<.5){const t=(v-.25)/.25;return[0,t*.7,.6-t*.1]};if(v<.75){const t=(v-.5)/.25;return[t*.9,.7+t*.2,.5-t*.5]};const t=(v-.75)/.25;return[.9+t*.1,.9+t*.1,t*.8]},
-    combat:v=>{if(v<.33){const t=v/.33;return[t*.7,0,0]};if(v<.66){const t=(v-.33)/.33;return[.7+t*.3,t*.5,0]};const t=(v-.66)/.34;return[1,.5+t*.5,t*.5]}
+    elevation:v=>{if(v<.3)return[.15+v,.35+v*.6,.12];if(v<.6){const t=(v-.3)/.3;return[.24+t*.4,.55-t*.1,.12+t*.05]};const t=(v-.6)/.4;return[.64+t*.25,.45+t*.35,.17+t*.5]},
+    density:v=>{if(v<.25){const t=v/.25;return[.1,.1,.2+t*.5]};if(v<.5){const t=(v-.25)/.25;return[.1,t*.6,.7-t*.1]};if(v<.75){const t=(v-.5)/.25;return[t*.8,.6+t*.2,.6-t*.5]};const t=(v-.75)/.25;return[.8+t*.2,.8+t*.2,t*.7]},
+    combat:v=>{if(v<.33){const t=v/.33;return[.3+t*.4,.05,.05]};if(v<.66){const t=(v-.33)/.33;return[.7+t*.2,.05+t*.4,.05]};const t=(v-.66)/.34;return[.9+t*.1,.45+t*.45,.05+t*.4]}
   };
   ["elevation","density","combat"].forEach(type=>{
     const g=HM[type], cv=document.createElement("canvas");
@@ -275,13 +394,13 @@ if(HM){
     for(let y=0;y<GS;y++)for(let x=0;x<GS;x++){
       const v=g[y][x],[r,gb,b]=fn(v), i=(y*GS+x)*4;
       img.data[i]=r*255|0; img.data[i+1]=gb*255|0; img.data[i+2]=b*255|0;
-      img.data[i+3]=v>.001?(40+v*160)|0:0;
+      img.data[i+3]=v>.001?(50+v*140)|0:0;
     }
     c2.putImageData(img,0,0);
     const tex=new THREE.CanvasTexture(cv);
     tex.minFilter=THREE.LinearFilter; tex.magFilter=THREE.LinearFilter;
     const geo=new THREE.PlaneGeometry(mapSz, mapSz);
-    const mat=new THREE.MeshBasicMaterial({map:tex, transparent:true, opacity:0.65, side:THREE.DoubleSide, depthWrite:false});
+    const mat=new THREE.MeshBasicMaterial({map:tex, transparent:true, opacity:0.55, side:THREE.DoubleSide, depthWrite:false});
     const mesh=new THREE.Mesh(geo, mat);
     mesh.rotation.x=-Math.PI/2; mesh.position.set(mapSz/2, 1, mapSz/2);
     mesh.visible=false; scene.add(mesh); hmMeshes[type]=mesh;
@@ -298,55 +417,76 @@ document.querySelectorAll(".hm-btn").forEach(b=>b.addEventListener("click",funct
   } else document.getElementById("hm-range").textContent="";
 }));
 
-// === NODE CLICK (raycaster) ===
+// === NODE CLICK (drag vs click 구분) ===
 const ray=new THREE.Raycaster();
 ray.params.Points={threshold:40};
 const mouse=new THREE.Vector2();
-renderer.domElement.addEventListener("click",e=>{
-  if(playing)return;
+let mouseDownPos={x:0,y:0};
+
+renderer.domElement.addEventListener("mousedown",e=>{
+  mouseDownPos.x=e.clientX; mouseDownPos.y=e.clientY;
+});
+renderer.domElement.addEventListener("mouseup",e=>{
+  const dx=e.clientX-mouseDownPos.x, dy=e.clientY-mouseDownPos.y;
+  const dist=Math.sqrt(dx*dx+dy*dy);
+  // 3px 미만 이동 = 클릭, 그 이상 = 드래그
+  if(dist>3) return;
+
   mouse.x=(e.clientX/renderer.domElement.clientWidth)*2-1;
   mouse.y=-(e.clientY/renderer.domElement.clientHeight)*2+1;
   ray.setFromCamera(mouse, camera);
   const hits=ray.intersectObjects(nodeGrp.children, false);
-  if(hits.length){selNode=hits[0].object.userData.pid; showInfo(selNode)}
-  else{selNode=-1; document.getElementById("info").style.display="none"}
+  if(hits.length){
+    selNode=hits[0].object.userData.pid;
+    showInfo(selNode);
+  } else {
+    selNode=-1;
+    document.getElementById("info").style.display="none";
+  }
 });
+
 function showInfo(pid){
   const fr=interp(prog);
   const n=fr.nodes[pid];
   if(!n||!n.alive) return;
   const p=document.getElementById("info");
   p.style.display="block";
+  document.getElementById("ni-title").textContent="Player #"+pid;
   document.getElementById("ni-aid").textContent=n.aid;
   document.getElementById("ni-team").textContent="Team "+n.t+" ("+n.tid+")";
   const hpEl=document.getElementById("ni-hp");
   hpEl.textContent=Math.round(n.hp*100)+"%";
-  hpEl.style.color=n.hp>.5?"#4f4":n.hp>.2?"#fa0":"#f44";
+  hpEl.style.color=n.hp>.5?"var(--green)":n.hp>.2?"var(--warn)":"var(--red)";
   document.getElementById("ni-pos").textContent=Math.round(n.x)+"m, "+Math.round(n.y)+"m";
   document.getElementById("ni-alt").textContent=Math.round(n.z)+"m";
-  document.getElementById("ni-zd").textContent=Math.round(n.zd)+"m";
-  const izEl=document.getElementById("ni-iz");
-  izEl.textContent=n.iz?"Yes":"NO"; izEl.style.color=n.iz?"#4f4":"#f44";
+  // safe zone info
+  document.getElementById("ni-sd").textContent=Math.round(n.sd)+"m";
+  const isEl=document.getElementById("ni-is");
+  isEl.textContent=n.is?"Yes":"No"; isEl.style.color=n.is?"var(--green)":"var(--warn)";
+  // poison zone info
+  document.getElementById("ni-pd").textContent=Math.round(n.pd)+"m";
+  const ipEl=document.getElementById("ni-ip");
+  ipEl.textContent=n.ip?"Safe":"DAMAGE"; ipEl.style.color=n.ip?"var(--green)":"var(--red)";
+  // vehicle + combat
   document.getElementById("ni-veh").textContent=n.iv?"Vehicle ("+Math.round(n.vs)+"m/s)":"On Foot";
   document.getElementById("ni-dd").textContent=n.dd>0?n.dd.toFixed(1):"0";
   document.getElementById("ni-dt").textContent=n.dt>0?n.dt.toFixed(1):"0";
   const combat=n.dd>0||n.dt>0;
   const st=document.getElementById("ni-st");
-  st.textContent=combat?"IN COMBAT":"Idle"; st.style.color=combat?"var(--red)":"#666";
-  document.getElementById("ni-title").textContent="Player #"+pid;
+  st.textContent=combat?"IN COMBAT":"Idle"; st.style.color=combat?"var(--red)":"var(--muted)";
 }
 
 // === CONTROLS ===
 const bp=document.getElementById("bp"), tl=document.getElementById("timeline");
-bp.addEventListener("click",()=>{playing=!playing; bp.textContent=playing?"⏸":"▶"; bp.classList.toggle("on",playing)});
+bp.addEventListener("click",()=>{playing=!playing; bp.textContent=playing?"\u23F8":"\u25B6"; bp.classList.toggle("on",playing)});
 tl.max=(NF-1)*100;
 tl.addEventListener("input",()=>{prog=parseFloat(tl.value)/100});
 document.querySelectorAll(".sb").forEach(b=>b.addEventListener("click",function(){
-  spd=parseFloat(this.dataset.s); document.getElementById("sp").textContent=spd+"×";
+  spd=parseFloat(this.dataset.s); document.getElementById("sp").textContent=spd+"x";
   document.querySelectorAll(".sb").forEach(x=>x.classList.remove("on")); this.classList.add("on");
 }));
 
-// === INTERP (pid 기반: 배열 인덱스 = 플레이어 ID, 고정) ===
+// === INTERP ===
 function lerp(a,b,t){return a+(b-a)*t}
 function interp(p){
   const i=Math.floor(p), f=p-i;
@@ -356,16 +496,17 @@ function interp(p){
   for(let j=0;j<NP;j++){
     const a=f0.nodes[j], b=f1.nodes[j];
     if(a.alive&&b.alive){
-      // 양쪽 다 생존: 보간
-      nodes.push({pid:j,alive:1,x:lerp(a.x,b.x,f),y:lerp(a.y,b.y,f),z:lerp(a.z,b.z,f),
-        hp:lerp(a.hp,b.hp,f),zd:lerp(a.zd,b.zd,f),bd:lerp(a.bd,b.bd,f),
-        iz:f<.5?a.iz:b.iz,vs:lerp(a.vs,b.vs,f),iv:f<.5?a.iv:b.iv,
-        dd:lerp(a.dd,b.dd,f),dt:lerp(a.dt,b.dt,f),t:a.t,aid:a.aid,tid:a.tid})
+      nodes.push({pid:j,alive:1,
+        x:lerp(a.x,b.x,f),y:lerp(a.y,b.y,f),z:lerp(a.z,b.z,f),
+        hp:lerp(a.hp,b.hp,f),
+        sd:lerp(a.sd,b.sd,f),sb:lerp(a.sb,b.sb,f),is:f<.5?a.is:b.is,
+        pd:lerp(a.pd,b.pd,f),pb:lerp(a.pb,b.pb,f),ip:f<.5?a.ip:b.ip,
+        vs:lerp(a.vs,b.vs,f),iv:f<.5?a.iv:b.iv,
+        dd:lerp(a.dd,b.dd,f),dt:lerp(a.dt,b.dt,f),
+        t:a.t,aid:a.aid,tid:a.tid})
     } else if(a.alive&&!b.alive){
-      // 이번 구간에서 탈락: 페이드아웃
       nodes.push({...a,alive:1,hp:a.hp*(1-f)})
     } else if(!a.alive&&b.alive){
-      // 재등장 (position 누락 후 복귀): 페이드인
       nodes.push({...b,alive:1,hp:b.hp*f})
     } else {
       nodes.push({pid:j,alive:0})
@@ -373,24 +514,33 @@ function interp(p){
   }
   return{t:lerp(f0.t,f1.t,f),nodes,
     ally:f<.5?f0.ally:f1.ally, enc:f<.5?f0.enc:f1.enc,
-    zone:{cx:lerp(f0.zone.cx,f1.zone.cx,f),cy:lerp(f0.zone.cy,f1.zone.cy,f),
-          r:lerp(f0.zone.r,f1.zone.r,f),alive:Math.round(lerp(f0.zone.alive,f1.zone.alive,f))}}
+    zone:{
+      scx:lerp(f0.zone.scx,f1.zone.scx,f), scy:lerp(f0.zone.scy,f1.zone.scy,f),
+      sr:lerp(f0.zone.sr,f1.zone.sr,f),
+      pcx:lerp(f0.zone.pcx,f1.zone.pcx,f), pcy:lerp(f0.zone.pcy,f1.zone.pcy,f),
+      pr:lerp(f0.zone.pr,f1.zone.pr,f),
+      alive:Math.round(lerp(f0.zone.alive,f1.zone.alive,f))
+    }}
 }
 
 // === COLOR UTIL ===
 function hex2c(h){return new THREE.Color(parseInt(h.slice(1,3),16)/255, parseInt(h.slice(3,5),16)/255, parseInt(h.slice(5,7),16)/255)}
-const sphereG=new THREE.SphereGeometry(1,14,10);
-const ringG=new THREE.RingGeometry(.85,1,20);
+const sphereG=new THREE.SphereGeometry(1,12,8);
+const ringG=new THREE.RingGeometry(.85,1,16);
+
+// z축 → Three.js Y 변환 (클램프 포함)
+function zToY(z_m) {
+  const clamped = Math.max(Z_CLAMP_MIN, Math.min(Z_CLAMP_MAX, z_m));
+  return (clamped - Z_MIN) * Z_SCALE;
+}
 
 // === RENDER ===
 function updateScene(fr){
   const nd=fr.nodes, NP=D.total_players, time=performance.now()*.003;
 
-  // 생존 노드만 필터링 (렌더링용)
-  const aliveNodes=[], aliveMap={};  // pid → aliveNodes index
+  const aliveNodes=[];
   for(let i=0;i<NP;i++){
     if(nd[i].alive&&nd[i].hp>0.001){
-      aliveMap[i]=aliveNodes.length;
       aliveNodes.push(nd[i]);
     }
   }
@@ -399,7 +549,7 @@ function updateScene(fr){
   // nodes
   while(nodeGrp.children.length>n) nodeGrp.remove(nodeGrp.children[nodeGrp.children.length-1]);
   while(nodeGrp.children.length<n){
-    const mat=new THREE.MeshPhongMaterial({transparent:true, shininess:60});
+    const mat=new THREE.MeshPhongMaterial({transparent:true, shininess:40});
     const m=new THREE.Mesh(sphereG, mat);
     const rm=new THREE.MeshBasicMaterial({color:0xff3333, transparent:true, opacity:0, side:THREE.DoubleSide});
     const ring=new THREE.Mesh(ringG, rm); ring.name="cr"; m.add(ring);
@@ -408,23 +558,31 @@ function updateScene(fr){
   let cc=0;
   for(let i=0;i<n;i++){
     const p=aliveNodes[i], m=nodeGrp.children[i], col=hex2c(TC[p.t%TC.length]);
-    m.position.set(p.x, p.z*0.3, p.y);
-    const sz=12+p.hp*22; m.scale.setScalar(sz);
+    // z축: 교정된 스케일 사용
+    m.position.set(p.x, zToY(p.z), p.y);
+    const sz=14+p.hp*18; m.scale.setScalar(sz);
     m.material.color.copy(col);
-    m.material.opacity=.3+p.hp*.7;
-    m.material.emissive.copy(col).multiplyScalar(.12);
+    m.material.opacity=.5+p.hp*.5;
+    m.material.emissive.copy(col).multiplyScalar(.08);
     m.userData.pid=p.pid;
     const ring=m.getObjectByName("cr");
     const combat=p.dd>0||p.dt>0;
-    if(combat){cc++; ring.material.opacity=.4+.3*Math.sin(time*3+i);
-      ring.scale.setScalar(2.2+Math.sin(time*2)*.4); ring.lookAt(camera.position);
-      m.material.emissive.set(.4,.08,.08)}
-    else ring.material.opacity=0;
-    if(!p.iz) m.material.emissive.set(.25,.04,.04);
-    if(p.pid===selNode){m.material.emissive.set(.2,.35,.6); m.scale.multiplyScalar(1.25)}
+    if(combat){
+      cc++;
+      ring.material.opacity=.5+.3*Math.sin(time*3+i);
+      ring.scale.setScalar(2.2+Math.sin(time*2)*.3);
+      ring.lookAt(camera.position);
+      m.material.emissive.set(.35,.06,.06);
+    } else {
+      ring.material.opacity=0;
+    }
+    // poison 밖 = 데미지 받는 중 (빨간 글로우)
+    if(!p.ip) m.material.emissive.set(.3,.04,.04);
+    // 선택된 노드 하이라이트
+    if(p.pid===selNode){m.material.emissive.set(.15,.25,.5); m.scale.multiplyScalar(1.3)}
   }
 
-  // ally (pid 기반 엣지 → 생존 노드만 그리기)
+  // ally 엣지 (팀 색상, 높은 불투명도)
   allyGrp.children.forEach(c=>{c.geometry.dispose(); c.material.dispose()});
   allyGrp.clear();
   const ap=[], ac=[];
@@ -432,44 +590,62 @@ function updateScene(fr){
     const sn=nd[sp], dn=nd[dp];
     if(!sn.alive||!dn.alive||sn.hp<.001||dn.hp<.001) continue;
     const col=hex2c(TC[sn.t%TC.length]);
-    ap.push(new THREE.Vector3(sn.x,sn.z*.3,sn.y), new THREE.Vector3(dn.x,dn.z*.3,dn.y));
+    ap.push(new THREE.Vector3(sn.x,zToY(sn.z),sn.y), new THREE.Vector3(dn.x,zToY(dn.z),dn.y));
     ac.push(col.r,col.g,col.b, col.r,col.g,col.b);
   }
   if(ap.length){
     const g=new THREE.BufferGeometry().setFromPoints(ap);
     g.setAttribute("color",new THREE.Float32BufferAttribute(ac,3));
-    allyGrp.add(new THREE.LineSegments(g, new THREE.LineBasicMaterial({vertexColors:true, transparent:true, opacity:.5})));
+    allyGrp.add(new THREE.LineSegments(g,
+      new THREE.LineBasicMaterial({vertexColors:true, transparent:true, opacity:0.75, linewidth:1})));
   }
 
-  // encounter (pid 기반)
+  // encounter 엣지 (빨간색, 거리 기반 투명도)
   encGrp.children.forEach(c=>{c.geometry.dispose(); c.material.dispose()});
   encGrp.clear();
   const ep=[], ec2=[];
-  const maxD=fr.zone.r*.5||1000;
+  const maxD=fr.zone.pr>0?fr.zone.pr*.4:fr.zone.sr*.4;
   for(const[sp,dp,dist]of fr.enc){
     const sn=nd[sp], dn=nd[dp];
     if(!sn.alive||!dn.alive||sn.hp<.001||dn.hp<.001) continue;
-    const a=Math.max(.03,.4*(1-dist/maxD));
-    ep.push(new THREE.Vector3(sn.x,sn.z*.3,sn.y), new THREE.Vector3(dn.x,dn.z*.3,dn.y));
-    ec2.push(a,.06,.06, a,.06,.06);
+    const a=Math.max(.08,.5*(1-dist/Math.max(maxD,100)));
+    ep.push(new THREE.Vector3(sn.x,zToY(sn.z),sn.y), new THREE.Vector3(dn.x,zToY(dn.z),dn.y));
+    ec2.push(.85*a,.12*a,.12*a, .85*a,.12*a,.12*a);
   }
   if(ep.length){
     const g=new THREE.BufferGeometry().setFromPoints(ep);
     g.setAttribute("color",new THREE.Float32BufferAttribute(ec2,3));
-    encGrp.add(new THREE.LineSegments(g, new THREE.LineBasicMaterial({vertexColors:true, transparent:true, opacity:.6})));
+    encGrp.add(new THREE.LineSegments(g,
+      new THREE.LineBasicMaterial({vertexColors:true, transparent:true, opacity:0.7, linewidth:1})));
   }
 
-  // zone
-  zoneMesh.scale.set(fr.zone.r, fr.zone.r, 1);
-  zoneMesh.position.set(fr.zone.cx, 2, fr.zone.cy);
+  // === DUAL ZONE UPDATE ===
+  // Safe zone (흰 원, 목표)
+  safeZoneMesh.scale.set(fr.zone.sr, fr.zone.sr, 1);
+  safeZoneMesh.position.set(fr.zone.scx, 3, fr.zone.scy);
 
-  // hud
+  // Poison zone (파란 원, 현재 경계)
+  if(fr.zone.pr > 0) {
+    poisonFillMesh.visible = true;
+    poisonRingMesh.visible = true;
+    poisonFillMesh.scale.set(fr.zone.pr, fr.zone.pr, 1);
+    poisonFillMesh.position.set(fr.zone.pcx, 2, fr.zone.pcy);
+    poisonRingMesh.scale.set(fr.zone.pr, fr.zone.pr, 1);
+    poisonRingMesh.position.set(fr.zone.pcx, 2, fr.zone.pcy);
+  } else {
+    // 자기장 미생성
+    poisonFillMesh.visible = false;
+    poisonRingMesh.visible = false;
+  }
+
+  // HUD
   document.getElementById("ht").textContent=Math.round(fr.t)+"s";
-  document.getElementById("ha").textContent=fr.zone.alive;
-  document.getElementById("hz").textContent=Math.round(fr.zone.r);
+  document.getElementById("ha").textContent=fr.zone.alive+" / "+D.total_players;
+  document.getElementById("hz").textContent=Math.round(fr.zone.pr)+"m";
+  document.getElementById("hsr").textContent=Math.round(fr.zone.sr)+"m";
   document.getElementById("htm").textContent=new Set(aliveNodes.map(p=>p.t)).size;
   document.getElementById("hc").textContent=cc;
-  if(selNode>=0&&!playing) showInfo(selNode);
+  if(selNode>=0) showInfo(selNode);
 }
 
 // === LOOP ===
@@ -498,6 +674,7 @@ if __name__=="__main__":
     print(f"로드: {fp}")
     graphs, st, meta=load_graph_data(fp)
     print(f"매치: {meta['match_id'][:20]}..., 스냅샷: {len(graphs)}, 플레이어: {meta['total_players']}")
+    print(f"z 범위: {meta.get('z_min','?')}~{meta.get('z_max','?')}m")
     print("JSON 변환...")
     jd=graphs_to_json(graphs, st, meta)
     js=json.dumps(jd, separators=(",",":"))

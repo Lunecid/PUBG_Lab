@@ -27,6 +27,7 @@ from datetime import datetime
 import torch
 from torch_geometric.data import HeteroData
 from scipy.spatial import cKDTree
+from scipy.ndimage import uniform_filter
 
 # ============================================================
 # 1. DB 연결 설정
@@ -195,7 +196,8 @@ def load_recent_damage(cur, match_id, match_start_time):
     """
     cur.execute(f"""
         SELECT attacker_id, victim_id, event_time, damage,
-               damage_causer, damage_type
+               damage_causer, damage_type,
+               attacker_x, attacker_y, victim_x, victim_y
         FROM {SCHEMA}.telem_damage
         WHERE match_id = %s
           AND attacker_id IS NOT NULL
@@ -355,6 +357,8 @@ def build_snapshot_graph(
     team_rank,           # {team_id: rank}
     damage_events,       # full damage list
     positions_all,       # full positions list (for velocity)
+    global_team_to_idx,  # 글로벌 팀→인덱스 매핑 (고정)
+    global_pid_to_idx,   # 글로벌 플레이어→인덱스 매핑 (고정)
     k=K_NEIGHBORS,
 ):
     """
@@ -365,7 +369,8 @@ def build_snapshot_graph(
     """
     data = HeteroData()
 
-    players = list(player_positions.keys())
+    # ★ 핵심: account_id 기준 정렬 → 프레임 간 순서 고정
+    players = sorted(player_positions.keys())
     n = len(players)
 
     if n == 0:
@@ -425,6 +430,17 @@ def build_snapshot_graph(
 
     data["player"].x = torch.tensor(node_feats, dtype=torch.float32)
     data["player"].num_nodes = n
+
+    # 시각화/분석용 메타데이터 (글로벌 매핑 사용 → 색상/ID 고정)
+    team_id_list = [player_positions[pid]["team_id"] for pid in players]
+    data["player"].team_idx = torch.tensor(
+        [global_team_to_idx.get(t, 0) for t in team_id_list], dtype=torch.long
+    )
+    data["player"].global_pid = torch.tensor(
+        [global_pid_to_idx[pid] for pid in players], dtype=torch.long
+    )
+    data["player"].account_ids = players  # list of str
+    data["player"].team_ids = team_id_list  # list of str
 
     # ----------------------------------------------------------
     # 글로벌 자기장 컨텍스트
@@ -580,6 +596,15 @@ def build_match_graph_sequence(match_id, conn):
     # → 윈도우 필터링을 전체 positions에서 매번 하면 느림
     # → 미리 정렬된 상태이므로 이진 탐색 가능하지만, 프로토타입에서는 단순 필터
     print("[4/6] 그래프 생성 중...")
+
+    # 글로벌 팀→인덱스 매핑 (전 스냅샷에서 색상 고정)
+    all_team_ids = sorted(team_rank.keys())
+    global_team_to_idx = {t: i for i, t in enumerate(all_team_ids)}
+
+    # 글로벌 플레이어 인덱스 (전 스냅샷에서 ID 고정)
+    all_player_ids = sorted(all_players)
+    global_pid_to_idx = {pid: i for i, pid in enumerate(all_player_ids)}
+
     graphs = []
     for i, st in enumerate(snapshot_times):
         # 플레이어 스냅샷
@@ -598,6 +623,8 @@ def build_match_graph_sequence(match_id, conn):
             team_rank=team_rank,
             damage_events=damage_events,
             positions_all=positions,
+            global_team_to_idx=global_team_to_idx,
+            global_pid_to_idx=global_pid_to_idx,
             k=K_NEIGHBORS,
         )
 
@@ -611,16 +638,96 @@ def build_match_graph_sequence(match_id, conn):
             alive = len(player_positions) if player_positions else 0
             print(f"  [{i+1}/{len(snapshot_times)}] t={st}s, alive={alive}")
 
+    # 히트맵 그리드 계산
+    print("[5/6] 히트맵 생성...")
+    GRID_SIZE = 80  # 80x80 그리드
+    MAP_MAX_CM = 816000.0
+    cell_size = MAP_MAX_CM / GRID_SIZE
+
+    # 그리드 초기화
+    elev_sum = np.zeros((GRID_SIZE, GRID_SIZE), dtype=np.float64)
+    elev_cnt = np.zeros((GRID_SIZE, GRID_SIZE), dtype=np.int32)
+    density_grid = np.zeros((GRID_SIZE, GRID_SIZE), dtype=np.int32)
+    combat_grid = np.zeros((GRID_SIZE, GRID_SIZE), dtype=np.float64)
+
+    # positions에서 고도 + 밀도 수집
+    for p in positions:
+        gx = int(p["pos_x"] / cell_size)
+        gy = int(p["pos_y"] / cell_size)
+        gx = max(0, min(GRID_SIZE - 1, gx))
+        gy = max(0, min(GRID_SIZE - 1, gy))
+        z_val = p["pos_z"] if p["pos_z"] else 0
+        elev_sum[gy, gx] += z_val
+        elev_cnt[gy, gx] += 1
+        density_grid[gy, gx] += 1
+
+    # 고도 평균
+    elev_grid = np.zeros((GRID_SIZE, GRID_SIZE), dtype=np.float64)
+    mask = elev_cnt > 0
+    elev_grid[mask] = elev_sum[mask] / elev_cnt[mask]
+    # 데이터 없는 셀은 인접 셀 평균으로 보간
+    if mask.sum() > 0:
+        filled = uniform_filter(elev_sum, size=3) / np.maximum(uniform_filter(elev_cnt.astype(float), size=3), 1)
+        elev_grid[~mask] = filled[~mask]
+
+    # damage에서 전투 히트맵 (attacker + victim 위치 기반)
+    for d in damage_events:
+        dmg = d.get("damage") or 0
+        if dmg <= 0:
+            continue
+        # attacker 위치
+        ax = d.get("attacker_x")
+        ay = d.get("attacker_y")
+        if ax and ay:
+            gx = int(float(ax) / cell_size)
+            gy = int(float(ay) / cell_size)
+            gx = max(0, min(GRID_SIZE - 1, gx))
+            gy = max(0, min(GRID_SIZE - 1, gy))
+            combat_grid[gy, gx] += dmg
+        # victim 위치
+        vx = d.get("victim_x")
+        vy = d.get("victim_y")
+        if vx and vy:
+            gx = int(float(vx) / cell_size)
+            gy = int(float(vy) / cell_size)
+            gx = max(0, min(GRID_SIZE - 1, gx))
+            gy = max(0, min(GRID_SIZE - 1, gy))
+            combat_grid[gy, gx] += dmg * 0.5
+
+    # cm → m 변환 (고도)
+    elev_grid_m = elev_grid / CM_TO_M
+
+    # 정규화 (0~1)
+    def normalize(g):
+        mn, mx = g.min(), g.max()
+        if mx - mn < 1e-6:
+            return np.zeros_like(g)
+        return (g - mn) / (mx - mn)
+
+    heatmaps = {
+        "grid_size": GRID_SIZE,
+        "cell_size_m": cell_size / CM_TO_M,
+        "elevation": normalize(elev_grid_m).round(3).tolist(),
+        "density": normalize(density_grid.astype(float)).round(3).tolist(),
+        "combat": normalize(combat_grid).round(3).tolist(),
+        "elev_min_m": round(float(elev_grid_m[mask].min()) if mask.sum() > 0 else 0, 1),
+        "elev_max_m": round(float(elev_grid_m[mask].max()) if mask.sum() > 0 else 0, 1),
+    }
+    print(f"  그리드: {GRID_SIZE}x{GRID_SIZE}, "
+          f"고도 범위: {heatmaps['elev_min_m']}~{heatmaps['elev_max_m']}m, "
+          f"전투 셀: {(combat_grid > 0).sum()}")
+
     # 라벨 구성
-    print("[5/6] 라벨 생성...")
+    print("[6/6] 라벨 생성...")
     meta = {
         "match_id": match_id,
-        "team_rank": team_rank,           # {team_id: rank}
-        "death_times": death_times,       # {account_id: elapsed_time}
-        "player_team": player_team,       # {player_id: team_id}
-        "survivors": survivors,           # set of account_id
+        "team_rank": team_rank,
+        "death_times": death_times,
+        "player_team": player_team,
+        "survivors": survivors,
         "total_players": len(all_players),
         "snapshot_times": snapshot_times,
+        "heatmaps": heatmaps,
     }
 
     print("[6/6] 완료.")
@@ -734,8 +841,10 @@ if __name__ == "__main__":
     graphs, snapshot_times, meta = build_match_graph_sequence(match_id, conn)
     print_diagnostics(graphs, snapshot_times, meta)
 
-    # 저장 (선택)
-    save_path = f"match_graphs_{match_id[:8]}.pt"
+    # 저장
+    import os
+    os.makedirs("data/graphs", exist_ok=True)
+    save_path = f"data/graphs/match_{match_id[:8]}.pt"
     torch.save({
         "graphs": graphs,
         "snapshot_times": snapshot_times,

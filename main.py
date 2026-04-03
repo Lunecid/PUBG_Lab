@@ -1498,7 +1498,20 @@ if __name__ == "__main__":
     for (map_name, game_mode), match_ids in sorted(grouped.items()):
         print(f"  {map_name} / {game_mode}: {len(match_ids)}개")
 
-    # 3. 그룹별 처리
+    # 3. 프로그레스 바 헬퍼
+    import sys as _sys
+    import time as _time
+
+    def progress_bar(current, total, prefix="", width=40, extra=""):
+        """터미널 인라인 프로그레스 바."""
+        filled = int(width * current / max(total, 1))
+        bar = "█" * filled + "░" * (width - filled)
+        pct = 100.0 * current / max(total, 1)
+        line = f"\r  {prefix} |{bar}| {current}/{total} ({pct:5.1f}%) {extra}"
+        _sys.stdout.write(line)
+        _sys.stdout.flush()
+
+    # 4. 그룹별 처리
     total_processed = 0
     total_skipped = 0
     total_failed = 0
@@ -1507,27 +1520,49 @@ if __name__ == "__main__":
         group_dir = os.path.join(args.output_dir, map_name, game_mode)
         os.makedirs(group_dir, exist_ok=True)
 
-        print(f"\n{'='*50}")
-        print(f"[{map_name} / {game_mode}] {len(match_ids)}개 매치 처리")
-        print(f"  저장 경로: {group_dir}")
-
-        for i, match_id in enumerate(match_ids):
+        # 사전 스캔: 스킵할 매치 수 파악
+        to_process = []
+        for match_id in match_ids:
             save_path = os.path.join(group_dir, f"match_{match_id[:8]}.pt")
-
-            # 증분 처리: 이미 존재하면 스킵
             if os.path.exists(save_path) and not args.force:
                 total_skipped += 1
-                continue
+            else:
+                to_process.append(match_id)
+
+        n_total = len(match_ids)
+        n_skip = n_total - len(to_process)
+        n_todo = len(to_process)
+
+        print(f"\n{'='*50}")
+        print(f"[{map_name} / {game_mode}] 전체={n_total}, 처리={n_todo}, 기존스킵={n_skip}")
+        print(f"  저장: {group_dir}")
+
+        if n_todo == 0:
+            print("  → 모두 처리 완료됨 (스킵)")
+            continue
+
+        t_start = _time.time()
+
+        for i, match_id in enumerate(to_process):
+            save_path = os.path.join(group_dir, f"match_{match_id[:8]}.pt")
+
+            # 경과시간 + ETA 계산
+            elapsed = _time.time() - t_start
+            if i > 0:
+                eta = elapsed / i * (n_todo - i)
+                eta_str = f"ETA {int(eta//60)}m{int(eta%60)}s"
+            else:
+                eta_str = ""
+
+            progress_bar(i, n_todo, prefix=f"{map_name[:8]}/{game_mode}", extra=eta_str)
 
             try:
                 graphs, snapshot_times, meta = build_match_graph_sequence(match_id, conn)
 
                 if not graphs:
-                    print(f"  [{i+1}/{len(match_ids)}] {match_id[:8]}: 그래프 없음 (스킵)")
                     total_failed += 1
                     continue
 
-                # map/mode 메타 정보 추가
                 meta["map_name"] = map_name
                 meta["game_mode"] = game_mode
 
@@ -1538,12 +1573,16 @@ if __name__ == "__main__":
                 }, save_path)
 
                 total_processed += 1
-                if (i + 1) % 10 == 0 or (i + 1) == len(match_ids):
-                    print(f"  [{i+1}/{len(match_ids)}] 처리 완료")
 
             except Exception as e:
-                print(f"  [{i+1}/{len(match_ids)}] {match_id[:8]}: 오류 - {e}")
                 total_failed += 1
+
+        # 완료 표시
+        elapsed = _time.time() - t_start
+        progress_bar(n_todo, n_todo,
+                     prefix=f"{map_name[:8]}/{game_mode}",
+                     extra=f"완료 {int(elapsed//60)}m{int(elapsed%60)}s")
+        print()  # 줄바꿈
 
     conn.close()
 

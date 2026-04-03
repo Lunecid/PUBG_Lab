@@ -34,58 +34,137 @@ import numpy as np
 
 @dataclass
 class AgentState:
-    """단일 에이전트의 정규화된 상태."""
+    """
+    단일 에이전트의 정규화된 상태 (V2, ~39d).
+
+    생태학 5축 프레임워크:
+      축1: Physiological State (5d)  — 생리 상태
+      축2: Mobility (8d)            — 이동/공간
+      축3: Habitat Exposure (5d)    — 서식지 노출
+      축4: Competition Pressure (13d)— 경쟁 압력
+      축5: Resource Readiness (8d)  — 자원 준비도
+    """
     agent_id: str
     group_id: str
 
-    # 공간 (0~1, 경기장 정규화)
-    arena_x: float = 0.0
-    arena_y: float = 0.0
-    arena_z: float = 0.0     # 고도 (정규화)
+    # ── 축1: Physiological State (5d) ──
+    health_ratio: float = 1.0           # 0: HP / max_HP
+    shield_ratio: float = 0.0           # 1: 쉴드 / max (PUBG=0)
+    is_groggy: float = 0.0              # 2: 다운 상태 여부
+    groggy_decay: float = 0.0           # 3: exp(-Δt/30) since last groggy
+    hp_recovery_recent: float = 0.0     # 4: 최근 회복 아이템 사용 (0~1)
 
-    # 생존
-    health_ratio: float = 1.0   # HP / max_HP
-    shield_ratio: float = 0.0   # 방어구/쉴드 / max
+    # ── 축2: Mobility (8d) ──
+    arena_x: float = 0.0                # 5: 정규화 x좌표
+    arena_y: float = 0.0                # 6: 정규화 y좌표
+    arena_z: float = 0.0                # 7: 정규화 z좌표 (고도)
+    speed_norm: float = 0.0             # 8: 이동 속도 / max_speed
+    in_vehicle: float = 0.0             # 9: 차량 탑승 여부
+    radial_speed_to_safe: float = 0.0   # 10: safe zone 접근 속도 (정규화)
+    time_to_safe_est: float = 0.0       # 11: safe zone 도달 예상 시간 (정규화)
+    time_stationary_recent: float = 0.0 # 12: 최근 30초 내 정지 비율
 
-    # 서식지
-    dist_to_boundary_norm: float = 0.0   # 현재 경계까지 / 대각선
-    dist_to_safe_norm: float = 0.0       # 다음 안전구역까지 / 경계 반경
-    inside_safe: float = 1.0             # 다음 안전구역 내부
-    inside_boundary: float = 1.0         # 현재 경계 내부 (1=안전)
+    # ── 축3: Habitat Exposure (5d) ──
+    dist_to_boundary_norm: float = 0.0  # 13: poison boundary까지 / 대각선
+    dist_to_safe_norm: float = 0.0      # 14: safe zone까지 / safe_r
+    inside_safe: float = 1.0            # 15: safe zone 내부 여부
+    inside_boundary: float = 1.0        # 16: poison boundary 내부 (1=안전)
+    zone_damage_taken_30s: float = 0.0  # 17: 30초 내 자기장 데미지 / 100
 
-    # 전투
-    recent_dmg_dealt_norm: float = 0.0   # / 기준값
-    recent_dmg_taken_norm: float = 0.0
+    # ── 축4: Competition Pressure (13d) ──
+    dmg_dealt_10s: float = 0.0          # 18: 10초 내 가한 데미지
+    dmg_taken_10s: float = 0.0          # 19: 10초 내 받은 데미지
+    dmg_dealt_30s: float = 0.0          # 20: 30초 내 가한 데미지
+    dmg_taken_30s: float = 0.0          # 21: 30초 내 받은 데미지
+    n_unique_attackers_30s: float = 0.0 # 22: 30초 내 고유 공격자 수 / 8
+    n_unique_targets_30s: float = 0.0   # 23: 30초 내 고유 공격 대상 수 / 8
+    dmg_taken_decay: float = 0.0        # 24: exp(-Δt/10) since last dmg taken
+    dmg_dealt_decay: float = 0.0        # 25: exp(-Δt/10) since last dmg dealt
+    dist_nearest_ally: float = 0.0      # 26: 가장 가까운 팀원 거리 / 대각선
+    dist_team_centroid: float = 0.0     # 27: 팀 중심까지 거리 / 대각선
+    enemy_count_100m: float = 0.0       # 28: 100m 내 적 수 / 10
+    ally_count_100m: float = 0.0        # 29: 100m 내 아군 수 / team_size
+    is_isolated: float = 0.0            # 30: 100m 내 아군 == 0
 
-    # 이동
-    speed_norm: float = 0.0    # / max_speed
-    in_vehicle: float = 0.0
-
-    # 자원 (게임별 정의)
-    resource_level: float = 0.0  # 0~1
+    # ── 축5: Resource Readiness (8d) ──
+    weapon_class_primary: float = 0.0   # 31: 주무기 점수
+    weapon_class_secondary: float = 0.0 # 32: 보조무기 점수
+    attachment_score: float = 0.0       # 33: 부착물 점수 (0~1)
+    armor_level: float = 0.0            # 34: 방어구 레벨 / 3
+    helmet_level: float = 0.0           # 35: 헬멧 레벨 / 3
+    backpack_level: float = 0.0         # 36: 배낭 레벨 / 3
+    heal_use_recent: float = 0.0        # 37: 최근 회복 아이템 사용 횟수 / 3
+    boost_use_recent: float = 0.0       # 38: 최근 부스트 사용 횟수 / 3
 
     def to_tensor(self) -> torch.Tensor:
-        """14차원 피처 벡터."""
+        """39차원 피처 벡터."""
         return torch.tensor([
-            self.arena_x, self.arena_y, self.arena_z,
-            self.health_ratio, self.shield_ratio,
-            self.dist_to_boundary_norm, self.dist_to_safe_norm,
-            self.inside_safe, self.inside_boundary,
-            self.recent_dmg_dealt_norm, self.recent_dmg_taken_norm,
-            self.speed_norm, self.in_vehicle,
-            self.resource_level,
+            # 축1: Physiological State (5d)
+            self.health_ratio,              # 0
+            self.shield_ratio,              # 1
+            self.is_groggy,                 # 2
+            self.groggy_decay,              # 3
+            self.hp_recovery_recent,        # 4
+            # 축2: Mobility (8d)
+            self.arena_x,                   # 5
+            self.arena_y,                   # 6
+            self.arena_z,                   # 7
+            self.speed_norm,                # 8
+            self.in_vehicle,                # 9
+            self.radial_speed_to_safe,      # 10
+            self.time_to_safe_est,          # 11
+            self.time_stationary_recent,    # 12
+            # 축3: Habitat Exposure (5d)
+            self.dist_to_boundary_norm,     # 13
+            self.dist_to_safe_norm,         # 14
+            self.inside_safe,               # 15
+            self.inside_boundary,           # 16
+            self.zone_damage_taken_30s,     # 17
+            # 축4: Competition Pressure (13d)
+            self.dmg_dealt_10s,             # 18
+            self.dmg_taken_10s,             # 19
+            self.dmg_dealt_30s,             # 20
+            self.dmg_taken_30s,             # 21
+            self.n_unique_attackers_30s,    # 22
+            self.n_unique_targets_30s,      # 23
+            self.dmg_taken_decay,           # 24
+            self.dmg_dealt_decay,           # 25
+            self.dist_nearest_ally,         # 26
+            self.dist_team_centroid,        # 27
+            self.enemy_count_100m,          # 28
+            self.ally_count_100m,           # 29
+            self.is_isolated,               # 30
+            # 축5: Resource Readiness (8d)
+            self.weapon_class_primary,      # 31
+            self.weapon_class_secondary,    # 32
+            self.attachment_score,          # 33
+            self.armor_level,               # 34
+            self.helmet_level,              # 35
+            self.backpack_level,            # 36
+            self.heal_use_recent,           # 37
+            self.boost_use_recent,          # 38
         ], dtype=torch.float32)
 
-    FEAT_DIM = 14
+    FEAT_DIM = 39
 
     FEAT_NAMES = [
-        "arena_x", "arena_y", "arena_z",
-        "health_ratio", "shield_ratio",
-        "dist_to_boundary", "dist_to_safe",
-        "inside_safe", "inside_boundary",
-        "dmg_dealt", "dmg_taken",
-        "speed", "in_vehicle",
-        "resource_level",
+        # 축1: Physiological State
+        "health_ratio", "shield_ratio", "is_groggy", "groggy_decay", "hp_recovery_recent",
+        # 축2: Mobility
+        "arena_x", "arena_y", "arena_z", "speed_norm", "in_vehicle",
+        "radial_speed_to_safe", "time_to_safe_est", "time_stationary_recent",
+        # 축3: Habitat Exposure
+        "dist_to_boundary", "dist_to_safe", "inside_safe", "inside_boundary",
+        "zone_dmg_30s",
+        # 축4: Competition Pressure
+        "dmg_dealt_10s", "dmg_taken_10s", "dmg_dealt_30s", "dmg_taken_30s",
+        "n_attackers_30s", "n_targets_30s", "dmg_taken_decay", "dmg_dealt_decay",
+        "dist_nearest_ally", "dist_team_centroid",
+        "enemy_100m", "ally_100m", "is_isolated",
+        # 축5: Resource Readiness
+        "weapon_primary", "weapon_secondary", "attachment_score",
+        "armor_level", "helmet_level", "backpack_level",
+        "heal_use", "boost_use",
     ]
 
 

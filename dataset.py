@@ -224,8 +224,27 @@ def build_team_graph(player_graph, team_indices, n_teams, alive_team_set):
         return _empty_team_graph()
 
     # ── 팀 노드 피처: 멤버 통계 집계 ──
-    player_x = player_graph["player"].x  # [n_players, 14]
+    player_x = player_graph["player"].x  # [n_players, feat_dim]
     n_players = player_x.shape[0]
+    feat_dim = player_x.shape[1]
+
+    # V2 (39d) vs V1 (14d) 피처 인덱스 매핑
+    if feat_dim >= 39:
+        # V2: 축별 정규화된 피처
+        IDX_HP = 0          # health_ratio
+        IDX_X, IDX_Y = 5, 6  # arena_x, arena_y
+        IDX_DIST_BNDRY = 13  # dist_to_boundary_norm
+        IDX_INSIDE_BNDRY = 16  # inside_boundary
+        IDX_DMG_DEALT = 20   # dmg_dealt_30s
+        IDX_DMG_TAKEN = 21   # dmg_taken_30s
+    else:
+        # V1 legacy
+        IDX_HP = 3
+        IDX_X, IDX_Y = 0, 1
+        IDX_DIST_BNDRY = 7   # poison_dist_center
+        IDX_INSIDE_BNDRY = 9  # inside_poison
+        IDX_DMG_DEALT = 12
+        IDX_DMG_TAKEN = 13
 
     # 플레이어 → 팀 매핑 (이 스냅샷에 존재하는 플레이어만)
     # player_graph의 account_ids와 team_ids 사용
@@ -243,17 +262,17 @@ def build_team_graph(player_graph, team_indices, n_teams, alive_team_set):
             team_feats.append(torch.zeros(8))
             continue
 
-        members = player_x[mask]  # [k, 14]
+        members = player_x[mask]  # [k, feat_dim]
 
         # 팀 집계 피처 (평균 + 최소 + 분산 기반)
-        mean_hp = members[:, 3].mean()
-        min_hp = members[:, 3].min()
+        mean_hp = members[:, IDX_HP].mean()
+        min_hp = members[:, IDX_HP].min()
         alive_count = mask.sum().float()
-        mean_zone_dist = members[:, 7].mean()      # poison center dist
-        min_zone_boundary = members[:, 8].min()     # 가장 가까운 멤버의 poison 경계 거리
-        inside_ratio = members[:, 9].mean()         # poison 내부 비율
-        total_dmg_dealt = members[:, 12].sum()
-        total_dmg_taken = members[:, 13].sum()
+        mean_zone_dist = members[:, IDX_DIST_BNDRY].mean()
+        min_zone_boundary = members[:, IDX_DIST_BNDRY].min()
+        inside_ratio = members[:, IDX_INSIDE_BNDRY].mean()
+        total_dmg_dealt = members[:, IDX_DMG_DEALT].sum()
+        total_dmg_taken = members[:, IDX_DMG_TAKEN].sum()
 
         feat = torch.tensor([
             mean_hp.item(),
@@ -270,7 +289,7 @@ def build_team_graph(player_graph, team_indices, n_teams, alive_team_set):
         # 위치 수집 (팀 중심 계산용)
         for j in range(members.shape[0]):
             team_member_positions[local_t].append(
-                (members[j, 0].item(), members[j, 1].item())
+                (members[j, IDX_X].item(), members[j, IDX_Y].item())
             )
 
     team_x = torch.stack(team_feats)  # [n_alive, 8]
@@ -419,7 +438,7 @@ class TeamSurvivalDataset(Dataset):
     """
 
     # 노드 피처 차원 (main.py 기준)
-    PLAYER_FEAT_DIM = 14
+    PLAYER_FEAT_DIM = 39  # V2: 5-axis ecological features
     ZONE_DIM = 10
     TEAM_FEAT_DIM = 8
     TEAM_EDGE_DIM = 4

@@ -1,7 +1,14 @@
 """
-PUBG Single-Match Graph Prototype
-==================================
-단일 매치의 전체 타임스텝을 PyG HeteroData로 구성하는 프로토타입.
+PUBG Single-Match Graph — V2 Feature Expansion
+================================================
+단일 매치의 전체 타임스텝을 PyG HeteroData로 구성.
+
+V2 피처 설계 (생태학 5축, ~39d agent 노드 피처):
+  축1: Physiological State (5d)  — health, groggy, recovery
+  축2: Mobility (8d)            — position, velocity, radial_speed, ETA
+  축3: Habitat Exposure (5d)    — zone distance, zone damage
+  축4: Competition Pressure (13d)— damage windows, density, isolation
+  축5: Resource Readiness (8d)  — weapon, armor, heal/boost
 
 설계 결정 (데이터 감사 결과 기반):
 - 타임스텝: 10초 간격, ±5초 윈도우 내 closest position
@@ -213,6 +220,404 @@ def load_recent_damage(cur, match_id, match_start_time):
     return rows
 
 
+def load_groggy_events(cur, match_id, match_start_time):
+    """
+    telem_groggy (LogPlayerMakeGroggy) 로드.
+    victim_id → 다운 시점 목록. groggy 상태 + decay 피처 계산에 사용.
+    테이블 없으면 빈 리스트 반환 (fallback).
+    """
+    try:
+        cur.execute(f"""
+            SELECT victim_id, event_time, attacker_id, damage_causer
+            FROM {SCHEMA}.telem_groggy
+            WHERE match_id = %s
+              AND victim_id IS NOT NULL
+            ORDER BY event_time
+        """, (match_id,))
+        cols = [d[0] for d in cur.description]
+        rows = []
+        for row in cur.fetchall():
+            d = dict(zip(cols, row))
+            d["elapsed_time"] = event_time_to_elapsed(d["event_time"], match_start_time)
+            rows.append(d)
+        return rows
+    except Exception:
+        cur.execute("ROLLBACK")
+        return []
+
+
+def load_item_equip(cur, match_id, match_start_time):
+    """
+    telem_item_equip (LogItemEquip) 로드.
+    플레이어별 장착 장비 추적. weapon_class, armor_level 피처에 사용.
+    테이블 없으면 빈 리스트 반환.
+    """
+    try:
+        cur.execute(f"""
+            SELECT account_id, event_time, item_id,
+                   item_category, item_sub_category
+            FROM {SCHEMA}.telem_item_equip
+            WHERE match_id = %s
+              AND account_id IS NOT NULL
+            ORDER BY event_time
+        """, (match_id,))
+        cols = [d[0] for d in cur.description]
+        rows = []
+        for row in cur.fetchall():
+            d = dict(zip(cols, row))
+            d["elapsed_time"] = event_time_to_elapsed(d["event_time"], match_start_time)
+            rows.append(d)
+        return rows
+    except Exception:
+        cur.execute("ROLLBACK")
+        return []
+
+
+def load_item_use(cur, match_id, match_start_time):
+    """
+    telem_item_use (LogItemUse) 로드.
+    heal/boost 사용 추적. hp_recovery_recent, heal/boost_use 피처에 사용.
+    테이블 없으면 빈 리스트 반환.
+    """
+    try:
+        cur.execute(f"""
+            SELECT account_id, event_time, item_id,
+                   item_category, item_sub_category
+            FROM {SCHEMA}.telem_item_use
+            WHERE match_id = %s
+              AND account_id IS NOT NULL
+            ORDER BY event_time
+        """, (match_id,))
+        cols = [d[0] for d in cur.description]
+        rows = []
+        for row in cur.fetchall():
+            d = dict(zip(cols, row))
+            d["elapsed_time"] = event_time_to_elapsed(d["event_time"], match_start_time)
+            rows.append(d)
+        return rows
+    except Exception:
+        cur.execute("ROLLBACK")
+        return []
+
+
+# ============================================================
+# 2b. 피처 계산 유틸리티
+# ============================================================
+
+# 무기 클래스 점수 (CLAUDE.md §4 축5)
+WEAPON_CLASS_SCORE = {
+    "AR": 0.7, "DMR": 0.75, "SR": 0.8, "SMG": 0.5,
+    "SG": 0.4, "LMG": 0.6, "Pistol": 0.2, "Melee": 0.1,
+}
+
+# item_sub_category → 무기 클래스 매핑
+WEAPON_SUBCATEGORY_MAP = {
+    "Main": None,  # 일부 아이템 일반 카테고리
+    "AssaultRifle": "AR", "Rifle": "AR",
+    "DMR": "DMR", "DesignatedMarksmanRifle": "DMR",
+    "SR": "SR", "SniperRifle": "SR",
+    "SMG": "SMG", "SubMachineGun": "SMG",
+    "Shotgun": "SG", "SG": "SG",
+    "LMG": "LMG", "LightMachineGun": "LMG",
+    "Handgun": "Pistol", "Pistol": "Pistol",
+    "Melee": "Melee",
+}
+
+# 방어구 레벨 추출: item_id에서 Lv1/Lv2/Lv3 파싱
+def parse_armor_level(item_id):
+    """item_id에서 방어구 레벨 추출 (0~3)."""
+    if not item_id:
+        return 0
+    item_id_upper = item_id.upper()
+    if "LV3" in item_id_upper or "LEVEL3" in item_id_upper or "_03" in item_id:
+        return 3
+    if "LV2" in item_id_upper or "LEVEL2" in item_id_upper or "_02" in item_id:
+        return 2
+    if "LV1" in item_id_upper or "LEVEL1" in item_id_upper or "_01" in item_id:
+        return 1
+    return 0
+
+
+def get_weapon_score(item_id, item_sub_category):
+    """무기 item_id/sub_category → 점수."""
+    # sub_category 우선
+    if item_sub_category:
+        wclass = WEAPON_SUBCATEGORY_MAP.get(item_sub_category)
+        if wclass and wclass in WEAPON_CLASS_SCORE:
+            return WEAPON_CLASS_SCORE[wclass]
+    # item_id fallback: PUBG item naming convention
+    if item_id:
+        item_upper = item_id.upper()
+        # PUBG 무기 이름 패턴 매칭 (Item_Weapon_AK47_C 등)
+        # 먼저 구체적 무기명 → 카테고리 매핑
+        WEAPON_ID_PATTERNS = {
+            # AR
+            "AK47": "AR", "M416": "AR", "SCAR": "AR", "HK416": "AR",
+            "GROZA": "AR", "AUG": "AR", "QBZ": "AR", "G36C": "AR",
+            "BERYL": "AR", "ACE32": "AR", "M16A4": "AR", "FAMAS": "AR",
+            # DMR
+            "MINI14": "DMR", "SKS": "DMR", "SLR": "DMR", "QBU": "DMR",
+            "MK47": "DMR", "MK12": "DMR", "VSS": "DMR", "MK14": "DMR",
+            # SR
+            "KAR98": "SR", "M24": "SR", "AWM": "SR", "WIN94": "SR",
+            "MOSIN": "SR", "LYNX": "SR",
+            # SMG
+            "UMP": "SMG", "VECTOR": "SMG", "UZI": "SMG", "MP5K": "SMG",
+            "BIZON": "SMG", "THOMPSON": "SMG", "P90": "SMG", "MP9": "SMG",
+            # SG
+            "S12K": "SG", "S1897": "SG", "S686": "SG", "DBS": "SG",
+            # LMG
+            "DP28": "LMG", "M249": "LMG", "MG3": "LMG",
+            # Pistol
+            "P92": "Pistol", "P1911": "Pistol", "R45": "Pistol",
+            "DEAGLE": "Pistol", "P18C": "Pistol", "R1895": "Pistol",
+            "SKORPION": "Pistol", "FLARE": "Pistol",
+        }
+        for wname, wclass in WEAPON_ID_PATTERNS.items():
+            if wname in item_upper:
+                return WEAPON_CLASS_SCORE.get(wclass, 0.0)
+        # generic fallback
+        if "WEAPON" in item_upper:
+            return 0.3  # 알 수 없는 무기 기본 점수
+    return 0.0
+
+
+def build_equipment_state(item_equip_events, snapshot_time):
+    """
+    장비 이벤트 → 스냅샷 시점의 플레이어별 장비 상태.
+
+    반환: {account_id: {
+        "weapons": [score1, score2],  # 상위 2개 무기 점수
+        "armor_level": int,
+        "helmet_level": int,
+        "backpack_level": int,
+        "attachment_count": int,
+    }}
+    """
+    # 시점까지의 최신 장비 상태 추적
+    player_weapons = defaultdict(list)     # 현재 무기 목록
+    player_armor = defaultdict(int)
+    player_helmet = defaultdict(int)
+    player_backpack = defaultdict(int)
+
+    for evt in item_equip_events:
+        if evt["elapsed_time"] is None or evt["elapsed_time"] > snapshot_time:
+            continue
+        aid = evt["account_id"]
+        cat = (evt.get("item_category") or "").lower()
+        subcat = evt.get("item_sub_category") or ""
+        item_id = evt.get("item_id") or ""
+
+        if cat == "weapon" or "weapon" in cat:
+            score = get_weapon_score(item_id, subcat)
+            if score > 0:
+                player_weapons[aid].append(score)
+        elif cat == "equipment" or "armor" in cat.lower() or "vest" in item_id.lower():
+            if "vest" in item_id.lower() or "armor" in cat.lower():
+                player_armor[aid] = max(player_armor[aid], parse_armor_level(item_id))
+            elif "helmet" in item_id.lower() or "head" in item_id.lower():
+                player_helmet[aid] = max(player_helmet[aid], parse_armor_level(item_id))
+            elif "backpack" in item_id.lower() or "bag" in item_id.lower():
+                player_backpack[aid] = max(player_backpack[aid], parse_armor_level(item_id))
+        elif "helmet" in item_id.lower():
+            player_helmet[aid] = max(player_helmet[aid], parse_armor_level(item_id))
+        elif "backpack" in item_id.lower() or "bag" in item_id.lower():
+            player_backpack[aid] = max(player_backpack[aid], parse_armor_level(item_id))
+
+    result = {}
+    all_aids = set(player_weapons.keys()) | set(player_armor.keys()) | \
+               set(player_helmet.keys()) | set(player_backpack.keys())
+    for aid in all_aids:
+        weapons = sorted(player_weapons.get(aid, []), reverse=True)
+        result[aid] = {
+            "weapons": weapons[:2] + [0.0] * (2 - len(weapons[:2])),
+            "armor_level": player_armor.get(aid, 0),
+            "helmet_level": player_helmet.get(aid, 0),
+            "backpack_level": player_backpack.get(aid, 0),
+        }
+    return result
+
+
+def build_item_use_state(item_use_events, snapshot_time, lookback=60):
+    """
+    아이템 사용 이벤트 → 최근 heal/boost 사용 횟수.
+
+    반환: {account_id: {"heal_count": int, "boost_count": int}}
+    """
+    window_start = snapshot_time - lookback
+    result = defaultdict(lambda: {"heal_count": 0, "boost_count": 0})
+
+    for evt in item_use_events:
+        et = evt.get("elapsed_time")
+        if et is None or et < window_start or et > snapshot_time:
+            continue
+        aid = evt["account_id"]
+        cat = (evt.get("item_category") or "").lower()
+        subcat = (evt.get("item_sub_category") or "").lower()
+        item_id = (evt.get("item_id") or "").lower()
+
+        is_heal = any(k in item_id for k in ["firstaid", "medkit", "bandage", "healthkit"])
+        is_boost = any(k in item_id for k in ["painkiller", "energydrink", "adrenaline"])
+
+        if is_heal or "heal" in cat:
+            result[aid]["heal_count"] += 1
+        elif is_boost or "boost" in cat:
+            result[aid]["boost_count"] += 1
+
+    return dict(result)
+
+
+def build_groggy_state(groggy_events, snapshot_time):
+    """
+    groggy 이벤트 → 현재 groggy 상태 + decay 피처.
+
+    반환: {victim_id: {"is_groggy": 0/1, "groggy_decay": float}}
+
+    판정 로직:
+    - 최근 30초 내 groggy 발생 → is_groggy 후보 (실제로는 revive로 풀릴 수 있음)
+    - groggy_decay = exp(-Δt/30) — 마지막 groggy 이후 시간 경과
+    """
+    result = {}
+    for evt in groggy_events:
+        et = evt.get("elapsed_time")
+        if et is None or et > snapshot_time:
+            continue
+        vid = evt["victim_id"]
+        dt = snapshot_time - et
+        decay = np.exp(-dt / 30.0)
+
+        # 가장 최근 이벤트 기준
+        if vid not in result or et > result[vid]["_last_time"]:
+            result[vid] = {
+                "is_groggy": 1.0 if dt < 30.0 else 0.0,
+                "groggy_decay": decay,
+                "_last_time": et,
+            }
+
+    # 내부 키 제거
+    for vid in result:
+        del result[vid]["_last_time"]
+
+    return result
+
+
+def compute_velocity(positions_all, account_id, snapshot_time, lookback=10):
+    """
+    position 차분으로 속도 벡터 계산.
+
+    반환: (vx, vy, speed_m_s) — m/s 단위.
+    이전 위치가 없으면 (0, 0, 0).
+    """
+    prev_pos = None
+    curr_pos = None
+    prev_time = None
+    curr_time = None
+
+    for p in positions_all:
+        if p["account_id"] != account_id:
+            continue
+        et = p["elapsed_time"]
+        if et is None:
+            continue
+
+        # snapshot_time 이하의 가장 최근 두 위치
+        if et <= snapshot_time:
+            if curr_pos is None or et > curr_time:
+                prev_pos = curr_pos
+                prev_time = curr_time
+                curr_pos = p
+                curr_time = et
+            elif prev_pos is None or et > prev_time:
+                prev_pos = p
+                prev_time = et
+
+    if prev_pos is None or curr_pos is None or curr_time == prev_time:
+        return 0.0, 0.0, 0.0
+
+    dt = curr_time - prev_time
+    if dt <= 0 or dt > lookback * 2:
+        return 0.0, 0.0, 0.0
+
+    vx = (curr_pos["pos_x"] - prev_pos["pos_x"]) / CM_TO_M / dt
+    vy = (curr_pos["pos_y"] - prev_pos["pos_y"]) / CM_TO_M / dt
+    speed = np.sqrt(vx**2 + vy**2)
+    return vx, vy, speed
+
+
+def aggregate_damage_detailed(damage_events, account_id, snapshot_time):
+    """
+    10s/30s 윈도우 + unique attacker/target + decay 피처를 한번에 계산.
+
+    반환: dict with keys:
+      dealt_10s, taken_10s, dealt_30s, taken_30s,
+      n_attackers_30s, n_targets_30s,
+      dmg_taken_decay, dmg_dealt_decay,
+      zone_dmg_30s
+    """
+    result = {
+        "dealt_10s": 0.0, "taken_10s": 0.0,
+        "dealt_30s": 0.0, "taken_30s": 0.0,
+        "n_attackers_30s": 0, "n_targets_30s": 0,
+        "dmg_taken_decay": 0.0, "dmg_dealt_decay": 0.0,
+        "zone_dmg_30s": 0.0,
+    }
+
+    w10_start = snapshot_time - 10
+    w30_start = snapshot_time - 30
+    attackers_30s = set()
+    targets_30s = set()
+    last_dmg_taken_time = None
+    last_dmg_dealt_time = None
+
+    for d in damage_events:
+        et = d.get("elapsed_time")
+        if et is None or et > snapshot_time:
+            continue
+
+        dmg = d.get("damage") or 0
+        if dmg <= 0:
+            continue
+
+        causer = d.get("damage_causer") or ""
+        is_zone_dmg = "bluezonebomb" in causer.lower()
+
+        # victim 측
+        if d["victim_id"] == account_id:
+            if is_zone_dmg:
+                if et >= w30_start:
+                    result["zone_dmg_30s"] += dmg
+            else:
+                if et >= w30_start:
+                    result["taken_30s"] += dmg
+                    if d["attacker_id"]:
+                        attackers_30s.add(d["attacker_id"])
+                if et >= w10_start:
+                    result["taken_10s"] += dmg
+                if last_dmg_taken_time is None or et > last_dmg_taken_time:
+                    last_dmg_taken_time = et
+
+        # attacker 측
+        if d["attacker_id"] == account_id and not is_zone_dmg:
+            if et >= w30_start:
+                result["dealt_30s"] += dmg
+                if d["victim_id"]:
+                    targets_30s.add(d["victim_id"])
+            if et >= w10_start:
+                result["dealt_10s"] += dmg
+            if last_dmg_dealt_time is None or et > last_dmg_dealt_time:
+                last_dmg_dealt_time = et
+
+    result["n_attackers_30s"] = len(attackers_30s)
+    result["n_targets_30s"] = len(targets_30s)
+
+    if last_dmg_taken_time is not None:
+        result["dmg_taken_decay"] = np.exp(-(snapshot_time - last_dmg_taken_time) / 10.0)
+    if last_dmg_dealt_time is not None:
+        result["dmg_dealt_decay"] = np.exp(-(snapshot_time - last_dmg_dealt_time) / 10.0)
+
+    return result
+
+
 # ============================================================
 # 3. 타임스텝 구성
 # ============================================================
@@ -329,29 +734,24 @@ def build_snapshot_graph(
     positions_all,       # full positions list (for velocity)
     global_team_to_idx,  # 글로벌 팀→인덱스 매핑 (고정)
     global_pid_to_idx,   # 글로벌 플레이어→인덱스 매핑 (고정)
+    groggy_events=None,  # V2: groggy 이벤트
+    equip_state=None,    # V2: {aid: equipment_dict}
+    item_use_state=None, # V2: {aid: {heal_count, boost_count}}
+    prev_positions=None, # V2: 이전 스냅샷 {aid: pos_dict} (정지 비율용)
     k=K_NEIGHBORS,
 ):
     """
-    단일 스냅샷에서 PyG HeteroData 그래프 구성.
+    단일 스냅샷에서 PyG HeteroData 그래프 구성 (V2).
 
     노드 타입: 'player'
     엣지 타입: ('player', 'ally', 'player'), ('player', 'encounter', 'player')
 
-    노드 피처 (14개):
-      0: pos_x (m)
-      1: pos_y (m)
-      2: pos_z (m) - 고도
-      3: health (0~1)
-      4: dist_to_safe_center (m) - 흰 원(목표) 중심 거리
-      5: dist_to_safe_boundary (m) - 흰 원 경계까지 거리
-      6: inside_safe - 흰 원 내부 여부
-      7: dist_to_poison_center (m) - 파란 원(현재 경계) 중심 거리
-      8: dist_to_poison_boundary (m) - 파란 원 경계까지 거리
-      9: inside_poison - 파란 원 내부 여부 (1=안전, 0=데미지)
-     10: veh_speed (m/s)
-     11: in_vehicle
-     12: dmg_dealt (최근 30초)
-     13: dmg_taken (최근 30초)
+    노드 피처 (39d, 생태학 5축):
+      축1 Physiological:  health, shield, groggy, groggy_decay, hp_recovery
+      축2 Mobility:       x, y, z, speed, in_vehicle, radial_speed, eta, stationary
+      축3 Habitat:        dist_boundary, dist_safe, inside_safe, inside_boundary, zone_dmg
+      축4 Competition:    dmg_dealt/taken 10s/30s, attackers, targets, decay, ally/enemy density
+      축5 Resource:       weapons, attachment, armor, helmet, backpack, heal, boost
     """
     data = HeteroData()
 
@@ -361,85 +761,250 @@ def build_snapshot_graph(
     if n == 0:
         return None
 
+    if groggy_events is None:
+        groggy_events = []
+    if equip_state is None:
+        equip_state = {}
+    if item_use_state is None:
+        item_use_state = {}
+
     pid_to_idx = {pid: i for i, pid in enumerate(players)}
 
-    # ----------------------------------------------------------
-    # 노드 피처
-    # ----------------------------------------------------------
-    node_feats = []
-    coords = []
-
-    # safe_zone = 흰 원 (다음 안전 지역, 목표)
+    # ── zone 기본 데이터 ──
     safe_x = zone_state["safe_zone_x"] if zone_state else 0
     safe_y = zone_state["safe_zone_y"] if zone_state else 0
     safe_r = zone_state["safe_zone_radius"] if zone_state else 1
-
-    # poison_zone = 파란 원 (현재 데미지 경계)
     poison_x = zone_state["poison_zone_x"] if zone_state else 0
     poison_y = zone_state["poison_zone_y"] if zone_state else 0
     poison_r = zone_state["poison_zone_radius"] if zone_state else 0
-
     alive_count = zone_state["num_alive_players"] if zone_state else n
+
+    ARENA_SIZE = 816000.0    # cm (8160m)
+    ARENA_DIAG = ARENA_SIZE * np.sqrt(2)
+    MAX_SPEED = 130.0        # m/s (차량 최대)
+    COMBAT_NORM = 200.0      # 30초 데미지 정규화 기준
+
+    # V2: groggy 상태 계산
+    groggy_state = build_groggy_state(groggy_events, snapshot_time)
+
+    # ── 좌표 배열 (팀별 그루핑, 밀도 계산용) ──
+    coords_m = []       # meters
+    coords_cm = []      # cm (원본)
+    team_id_list = []
 
     for pid in players:
         p = player_positions[pid]
+        coords_cm.append([p["pos_x"], p["pos_y"]])
+        coords_m.append([p["pos_x"] / CM_TO_M, p["pos_y"] / CM_TO_M])
+        team_id_list.append(p["team_id"])
+
+    coords_cm_arr = np.array(coords_cm)
+    coords_m_arr = np.array(coords_m)
+
+    # ── 팀 그루핑 (밀도/거리 계산용) ──
+    team_members_idx = defaultdict(list)  # team_id → [player indices]
+    for i, pid in enumerate(players):
+        team_members_idx[player_positions[pid]["team_id"]].append(i)
+
+    # ── KD-tree for spatial queries ──
+    tree = cKDTree(coords_cm_arr) if n > 1 else None
+    RADIUS_100M_CM = 100.0 * CM_TO_M  # 100m in cm
+
+    # ----------------------------------------------------------
+    # 노드 피처 (39d)
+    # ----------------------------------------------------------
+    node_feats = []
+
+    for idx, pid in enumerate(players):
+        p = player_positions[pid]
         px, py, pz = p["pos_x"], p["pos_y"], p["pos_z"]
         health = p["health"] if p["health"] is not None else 100.0
+        tid = team_id_list[idx]
 
-        # 흰 원(목표) 관련 피처
-        dx_safe = (px - safe_x) / CM_TO_M
-        dy_safe = (py - safe_y) / CM_TO_M
-        dist_to_safe_center = np.sqrt(dx_safe**2 + dy_safe**2)
-        dist_to_safe_boundary = max(0, dist_to_safe_center - (safe_r / CM_TO_M))
-        inside_safe = 1.0 if dist_to_safe_center < (safe_r / CM_TO_M) else 0.0
+        # ── 축1: Physiological State (5d) ──
+        health_ratio = np.clip(health / 100.0, 0, 1)
+        shield_ratio = 0.0  # PUBG: 방탄복은 축5에서 처리
 
-        # 파란 원(현재 경계) 관련 피처
-        # poison_r=0이면 아직 자기장 없음 → 전원 안전
-        if poison_r > 0:
-            dx_poison = (px - poison_x) / CM_TO_M
-            dy_poison = (py - poison_y) / CM_TO_M
-            dist_to_poison_center = np.sqrt(dx_poison**2 + dy_poison**2)
-            dist_to_poison_boundary = max(0, dist_to_poison_center - (poison_r / CM_TO_M))
-            inside_poison = 1.0 if dist_to_poison_center < (poison_r / CM_TO_M) else 0.0
-        else:
-            # 자기장 미생성: 전체 맵이 안전
-            dist_to_poison_center = 0.0
-            dist_to_poison_boundary = 0.0
-            inside_poison = 1.0
+        gs = groggy_state.get(pid, {})
+        is_groggy = gs.get("is_groggy", 0.0)
+        groggy_decay = gs.get("groggy_decay", 0.0)
 
-        # 차량
+        use_state = item_use_state.get(pid, {})
+        hp_recovery = min((use_state.get("heal_count", 0)) / 3.0, 1.0)
+
+        # ── 축2: Mobility (8d) ──
+        arena_x = np.clip(px / ARENA_SIZE, 0, 1)
+        arena_y = np.clip(py / ARENA_SIZE, 0, 1)
+        arena_z = np.clip((pz / CM_TO_M) / 400.0, 0, 1)  # Erangel 0~400m
+
+        # 속도 (position 차분)
+        vx, vy, speed_ms = compute_velocity(positions_all, pid, snapshot_time)
+        speed_norm = min(speed_ms / MAX_SPEED, 1.0)
+
         veh_speed = p["vehicle_speed"] if p["vehicle_speed"] else 0.0
         in_vehicle = 1.0 if p["vehicle_type"] and p["vehicle_type"] != "" else 0.0
 
-        # 최근 데미지
-        dmg_dealt, dmg_taken = aggregate_recent_damage(
-            damage_events, pid, snapshot_time, lookback=30
-        )
+        # radial_speed_to_safe: -(p-c)·v / |p-c|
+        safe_cx_m = safe_x / CM_TO_M
+        safe_cy_m = safe_y / CM_TO_M
+        px_m = px / CM_TO_M
+        py_m = py / CM_TO_M
+        dp_x = px_m - safe_cx_m
+        dp_y = py_m - safe_cy_m
+        dp_dist = np.sqrt(dp_x**2 + dp_y**2)
+        if dp_dist > 1.0 and speed_ms > 0.1:
+            radial_speed = -(dp_x * vx + dp_y * vy) / dp_dist
+            radial_speed_norm = np.clip(radial_speed / MAX_SPEED, -1, 1)
+        else:
+            radial_speed_norm = 0.0
 
+        # time_to_safe_est: d_boundary / (|v| + ε)
+        safe_r_m = safe_r / CM_TO_M
+        dist_to_safe_boundary = max(0, dp_dist - safe_r_m)
+        if dist_to_safe_boundary > 0 and speed_ms > 0.1:
+            eta = dist_to_safe_boundary / speed_ms
+            time_to_safe = min(eta / 120.0, 1.0)  # 120초 cap
+        else:
+            time_to_safe = 0.0
+
+        # time_stationary_recent: 이전 스냅샷과 비교해서 정지 판단
+        if prev_positions and pid in prev_positions:
+            pp = prev_positions[pid]
+            move_dist = np.sqrt(
+                (px - pp["pos_x"])**2 + (py - pp["pos_y"])**2
+            ) / CM_TO_M
+            time_stationary = 1.0 if move_dist < 2.0 else 0.0  # 2m 미만 = 정지
+        else:
+            time_stationary = 0.0
+
+        # ── 축3: Habitat Exposure (5d) ──
+        # poison boundary 거리 (정규화)
+        if poison_r > 0:
+            dp_poison_x = (px - poison_x) / CM_TO_M
+            dp_poison_y = (py - poison_y) / CM_TO_M
+            dist_poison_center = np.sqrt(dp_poison_x**2 + dp_poison_y**2)
+            dist_boundary = max(0, dist_poison_center - poison_r / CM_TO_M)
+            inside_boundary = 1.0 if dist_poison_center < poison_r / CM_TO_M else 0.0
+        else:
+            dist_boundary = 0.0
+            inside_boundary = 1.0
+
+        dist_boundary_norm = min(dist_boundary / (ARENA_DIAG / CM_TO_M), 1.0)
+
+        # safe zone 거리 (정규화)
+        inside_safe = 1.0 if dp_dist < safe_r_m else 0.0
+        dist_safe_norm = min(dist_to_safe_boundary / max(safe_r_m, 1), 1.0)
+
+        # V2: 축4 상세 데미지 + zone damage
+        dmg_detail = aggregate_damage_detailed(damage_events, pid, snapshot_time)
+        zone_dmg_30s = min(dmg_detail["zone_dmg_30s"] / 100.0, 1.0)
+
+        # ── 축4: Competition Pressure (13d) ──
+        dmg_dealt_10s = min(dmg_detail["dealt_10s"] / COMBAT_NORM, 1.0)
+        dmg_taken_10s = min(dmg_detail["taken_10s"] / COMBAT_NORM, 1.0)
+        dmg_dealt_30s = min(dmg_detail["dealt_30s"] / COMBAT_NORM, 1.0)
+        dmg_taken_30s = min(dmg_detail["taken_30s"] / COMBAT_NORM, 1.0)
+        n_attackers = min(dmg_detail["n_attackers_30s"] / 8.0, 1.0)
+        n_targets = min(dmg_detail["n_targets_30s"] / 8.0, 1.0)
+        dmg_taken_decay = dmg_detail["dmg_taken_decay"]
+        dmg_dealt_decay = dmg_detail["dmg_dealt_decay"]
+
+        # dist_nearest_ally, dist_team_centroid
+        my_team_indices = [j for j in team_members_idx[tid] if j != idx]
+        if my_team_indices:
+            ally_coords = coords_cm_arr[my_team_indices]
+            ally_dists = np.sqrt(((ally_coords - coords_cm_arr[idx])**2).sum(axis=1))
+            dist_nearest_ally = (ally_dists.min() / CM_TO_M) / (ARENA_DIAG / CM_TO_M)
+            centroid = ally_coords.mean(axis=0)
+            centroid = np.append(centroid, coords_cm_arr[idx])  # include self
+            team_all_coords = np.vstack([ally_coords, coords_cm_arr[idx:idx+1]])
+            team_centroid = team_all_coords.mean(axis=0)
+            dist_centroid = np.sqrt(((coords_cm_arr[idx] - team_centroid)**2).sum())
+            dist_team_centroid = min(dist_centroid / CM_TO_M / (ARENA_DIAG / CM_TO_M), 1.0)
+            dist_nearest_ally = min(dist_nearest_ally, 1.0)
+        else:
+            dist_nearest_ally = 1.0
+            dist_team_centroid = 1.0
+
+        # enemy_count_100m, ally_count_100m, is_isolated
+        if tree is not None:
+            nearby = tree.query_ball_point(coords_cm_arr[idx], RADIUS_100M_CM)
+            enemy_100m = sum(1 for j in nearby if j != idx and team_id_list[j] != tid)
+            ally_100m = sum(1 for j in nearby if j != idx and team_id_list[j] == tid)
+        else:
+            enemy_100m = 0
+            ally_100m = 0
+
+        team_size = len(team_members_idx[tid])
+        enemy_count_100m = min(enemy_100m / 10.0, 1.0)
+        ally_count_100m = min(ally_100m / max(team_size - 1, 1), 1.0)
+        is_isolated = 1.0 if ally_100m == 0 and team_size > 1 else 0.0
+
+        # ── 축5: Resource Readiness (8d) ──
+        eq = equip_state.get(pid, {})
+        weapons = eq.get("weapons", [0.0, 0.0])
+        weapon_primary = weapons[0] if len(weapons) > 0 else 0.0
+        weapon_secondary = weapons[1] if len(weapons) > 1 else 0.0
+        attachment_score = 0.0  # TODO: 부착물 데이터 상세 추적 시 구현
+        armor_level = eq.get("armor_level", 0) / 3.0
+        helmet_level = eq.get("helmet_level", 0) / 3.0
+        backpack_level = eq.get("backpack_level", 0) / 3.0
+        heal_use = min(use_state.get("heal_count", 0) / 3.0, 1.0)
+        boost_use = min(use_state.get("boost_count", 0) / 3.0, 1.0)
+
+        # ── 39d 피처 벡터 조립 ──
         feat = [
-            px / CM_TO_M,                # 0: pos_x (m)
-            py / CM_TO_M,                # 1: pos_y (m)
-            pz / CM_TO_M,                # 2: pos_z (m)
-            health / 100.0,              # 3: health (0~1)
-            dist_to_safe_center,         # 4: 흰 원 중심 거리 (m)
-            dist_to_safe_boundary,       # 5: 흰 원 경계까지 (m)
-            inside_safe,                 # 6: 흰 원 내부
-            dist_to_poison_center,       # 7: 파란 원 중심 거리 (m)
-            dist_to_poison_boundary,     # 8: 파란 원 경계까지 (m)
-            inside_poison,               # 9: 파란 원 내부 (1=안전)
-            veh_speed / CM_TO_M,         # 10: 차량 속도 (m/s)
-            in_vehicle,                  # 11: 탑승 여부
-            dmg_dealt,                   # 12: 최근 30초 가한 데미지
-            dmg_taken,                   # 13: 최근 30초 받은 데미지
+            # 축1: Physiological State (5d)
+            health_ratio,           # 0
+            shield_ratio,           # 1
+            is_groggy,              # 2
+            groggy_decay,           # 3
+            hp_recovery,            # 4
+            # 축2: Mobility (8d)
+            arena_x,                # 5
+            arena_y,                # 6
+            arena_z,                # 7
+            speed_norm,             # 8
+            in_vehicle,             # 9
+            radial_speed_norm,      # 10
+            time_to_safe,           # 11
+            time_stationary,        # 12
+            # 축3: Habitat Exposure (5d)
+            dist_boundary_norm,     # 13
+            dist_safe_norm,         # 14
+            inside_safe,            # 15
+            inside_boundary,        # 16
+            zone_dmg_30s,           # 17
+            # 축4: Competition Pressure (13d)
+            dmg_dealt_10s,          # 18
+            dmg_taken_10s,          # 19
+            dmg_dealt_30s,          # 20
+            dmg_taken_30s,          # 21
+            n_attackers,            # 22
+            n_targets,              # 23
+            dmg_taken_decay,        # 24
+            dmg_dealt_decay,        # 25
+            dist_nearest_ally,      # 26
+            dist_team_centroid,     # 27
+            enemy_count_100m,       # 28
+            ally_count_100m,        # 29
+            is_isolated,            # 30
+            # 축5: Resource Readiness (8d)
+            weapon_primary,         # 31
+            weapon_secondary,       # 32
+            attachment_score,       # 33
+            armor_level,            # 34
+            helmet_level,           # 35
+            backpack_level,         # 36
+            heal_use,               # 37
+            boost_use,              # 38
         ]
 
         node_feats.append(feat)
-        coords.append([px, py])
 
     data["player"].x = torch.tensor(node_feats, dtype=torch.float32)
     data["player"].num_nodes = n
 
-    team_id_list = [player_positions[pid]["team_id"] for pid in players]
     data["player"].team_idx = torch.tensor(
         [global_team_to_idx.get(t, 0) for t in team_id_list], dtype=torch.long
     )
@@ -475,29 +1040,18 @@ def build_snapshot_graph(
     # ----------------------------------------------------------
     # ally 엣지
     # ----------------------------------------------------------
-    team_groups = defaultdict(list)
-    for pid in players:
-        tid = player_positions[pid]["team_id"]
-        team_groups[tid].append(pid_to_idx[pid])
-
     ally_src, ally_dst = [], []
     ally_feat = []
-    for tid, members in team_groups.items():
+    for tid, members in team_members_idx.items():
         for i in range(len(members)):
             for j in range(len(members)):
                 if i != j:
-                    src_idx = members[i]
-                    dst_idx = members[j]
-                    ally_src.append(src_idx)
-                    ally_dst.append(dst_idx)
+                    si, di = members[i], members[j]
+                    ally_src.append(si)
+                    ally_dst.append(di)
 
-                    sx, sy = coords[src_idx]
-                    dx, dy = coords[dst_idx]
-                    dist = np.sqrt((sx - dx)**2 + (sy - dy)**2) / CM_TO_M
-                    sz = node_feats[src_idx][2]
-                    dz = node_feats[dst_idx][2]
-                    alt_diff = sz - dz
-
+                    dist = np.sqrt(((coords_cm_arr[si] - coords_cm_arr[di])**2).sum()) / CM_TO_M
+                    alt_diff = (node_feats[si][7] - node_feats[di][7]) * 400.0  # z 역정규화 → m
                     ally_feat.append([dist, alt_diff])
 
     if ally_src:
@@ -514,36 +1068,31 @@ def build_snapshot_graph(
     # ----------------------------------------------------------
     # encounter 엣지: k-NN (적 팀만)
     # ----------------------------------------------------------
-    coords_arr = np.array(coords)
-    team_ids = [player_positions[pid]["team_id"] for pid in players]
-
     enc_src, enc_dst = [], []
     enc_feat = []
 
-    if n > 1:
-        tree = cKDTree(coords_arr)
-
+    if n > 1 and tree is not None:
         for i, pid in enumerate(players):
             query_k = min(n, k + 10)
-            dists, indices = tree.query(coords_arr[i], k=query_k)
+            dists, indices = tree.query(coords_cm_arr[i], k=query_k)
 
-            enemy_count = 0
+            enemy_count_k = 0
             for d, j in zip(dists, indices):
                 if j == i:
                     continue
-                if team_ids[j] == team_ids[i]:
+                if team_id_list[j] == team_id_list[i]:
                     continue
-                if enemy_count >= k:
+                if enemy_count_k >= k:
                     break
 
                 enc_src.append(i)
                 enc_dst.append(j)
 
                 dist_m = d / CM_TO_M
-                alt_diff = node_feats[i][2] - node_feats[j][2]
+                alt_diff = (node_feats[i][7] - node_feats[j][7]) * 400.0
                 enc_feat.append([dist_m, alt_diff])
 
-                enemy_count += 1
+                enemy_count_k += 1
 
     if enc_src:
         data["player", "encounter", "player"].edge_index = torch.tensor(
@@ -582,11 +1131,18 @@ def build_match_graph_sequence(match_id, conn):
     byzone_deaths = load_byzone_deaths(cur, match_id, match_start_time)
     team_rank, player_team = load_rosters(cur, match_id)
     damage_events = load_recent_damage(cur, match_id, match_start_time)
+
+    # V2: 추가 텔레메트리 (테이블 없으면 빈 리스트)
+    groggy_events = load_groggy_events(cur, match_id, match_start_time)
+    item_equip_events = load_item_equip(cur, match_id, match_start_time)
+    item_use_events = load_item_use(cur, match_id, match_start_time)
     cur.close()
 
     print(f"  positions: {len(positions):,}, game_states: {len(game_states)}")
     print(f"  kills: {len(kills)}, byzone_deaths: {len(byzone_deaths)}")
     print(f"  teams: {len(team_rank)}, damage_events: {len(damage_events):,}")
+    print(f"  V2: groggy={len(groggy_events)}, equip={len(item_equip_events)}, "
+          f"item_use={len(item_use_events)}")
 
     # 탈락 시점 결정
     print("[2/6] 탈락 시점 계산...")
@@ -610,12 +1166,18 @@ def build_match_graph_sequence(match_id, conn):
     global_pid_to_idx = {pid: i for i, pid in enumerate(all_player_ids)}
 
     graphs = []
+    prev_positions = None  # V2: 이전 스냅샷 위치 (정지 비율용)
+
     for i, st in enumerate(snapshot_times):
         player_positions = build_player_index(
             positions, st, SNAPSHOT_HALF_WINDOW, death_times
         )
 
         zone_state = find_closest_zone_state(game_states, st)
+
+        # V2: 장비/아이템 상태 계산
+        equip_state = build_equipment_state(item_equip_events, st)
+        item_use_state = build_item_use_state(item_use_events, st, lookback=60)
 
         g = build_snapshot_graph(
             snapshot_time=st,
@@ -626,6 +1188,10 @@ def build_match_graph_sequence(match_id, conn):
             positions_all=positions,
             global_team_to_idx=global_team_to_idx,
             global_pid_to_idx=global_pid_to_idx,
+            groggy_events=groggy_events,
+            equip_state=equip_state,
+            item_use_state=item_use_state,
+            prev_positions=prev_positions,
             k=K_NEIGHBORS,
         )
 
@@ -633,6 +1199,8 @@ def build_match_graph_sequence(match_id, conn):
             g.snapshot_time = st
             g.num_alive = len(player_positions)
             graphs.append(g)
+
+        prev_positions = player_positions  # V2: 다음 스냅샷 정지 비율용
 
         if (i + 1) % 20 == 0 or i == len(snapshot_times) - 1:
             alive = len(player_positions) if player_positions else 0
@@ -763,18 +1331,28 @@ def print_diagnostics(graphs, snapshot_times, meta):
     g0 = graphs[0]
     x = g0["player"].x
     feat_names = [
-        "pos_x(m)", "pos_y(m)", "pos_z(m)", "health",
-        "safe_dist", "safe_bndry", "in_safe",
-        "poison_dist", "poison_bndry", "in_poison",
-        "veh_speed", "in_vehicle", "dmg_dealt", "dmg_taken"
+        # 축1: Physiological (5d)
+        "health", "shield", "groggy", "groggy_decay", "hp_recovery",
+        # 축2: Mobility (8d)
+        "arena_x", "arena_y", "arena_z", "speed", "in_vehicle",
+        "radial_spd", "eta_safe", "stationary",
+        # 축3: Habitat (5d)
+        "dist_bndry", "dist_safe", "in_safe", "in_bndry", "zone_dmg",
+        # 축4: Competition (13d)
+        "dmg_d_10s", "dmg_t_10s", "dmg_d_30s", "dmg_t_30s",
+        "n_atk", "n_tgt", "dmg_t_dec", "dmg_d_dec",
+        "d_ally", "d_centroid", "enemy100", "ally100", "isolated",
+        # 축5: Resource (8d)
+        "wpn_1", "wpn_2", "attach", "armor", "helmet", "backpk",
+        "heal", "boost",
     ]
-    print(f"\n노드 피처 통계 (첫 스냅샷, {x.shape[0]}노드):")
+    print(f"\n노드 피처 통계 (첫 스냅샷, {x.shape[0]}노드, {x.shape[1]}d):")
     print(f"{'피처':<15} {'min':>10} {'max':>10} {'mean':>10} {'std':>10}")
     print("-" * 57)
-    for j, name in enumerate(feat_names):
+    for j, name in enumerate(feat_names[:x.shape[1]]):
         col = x[:, j]
-        print(f"{name:<15} {col.min().item():10.1f} {col.max().item():10.1f} "
-              f"{col.mean().item():10.1f} {col.std().item():10.1f}")
+        print(f"{name:<15} {col.min().item():10.3f} {col.max().item():10.3f} "
+              f"{col.mean().item():10.3f} {col.std().item():10.3f}")
 
     # encounter 엣지 거리 통계
     print(f"\nencounter 엣지 거리 (m):")

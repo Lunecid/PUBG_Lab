@@ -73,7 +73,7 @@ def get_conn():
 # ============================================================
 
 def pick_sample_match(cur):
-    """Erangel 스쿼드 매치 중 텔레메트리가 있는 첫 매치 선택."""
+    """Erangel 스쿼드 매치 중 텔레메트리가 있는 첫 매치 선택. (V1 호환용)"""
     cur.execute(f"""
         SELECT match_id
         FROM {SCHEMA}.v_match_summary
@@ -1395,32 +1395,131 @@ def print_diagnostics(graphs, snapshot_times, meta):
 
 
 # ============================================================
-# 메인
+# 전체 DB 매치 조회
+# ============================================================
+
+def get_all_valid_matches(cur):
+    """
+    DB에서 텔레메트리가 있는 모든 유효 매치를 조회.
+
+    Returns:
+        list[dict]: [{'match_id': ..., 'map_name': ..., 'game_mode': ...}, ...]
+    """
+    cur.execute(f"""
+        SELECT match_id, map_name, game_mode
+        FROM {SCHEMA}.v_match_summary
+        WHERE telemetry_fetched = true
+        ORDER BY match_id
+    """)
+    rows = cur.fetchall()
+    return [
+        {"match_id": r[0], "map_name": r[1], "game_mode": r[2]}
+        for r in rows
+    ]
+
+
+# ============================================================
+# 메인: 전체 DB 배치 처리 (map/mode 분리)
 # ============================================================
 
 if __name__ == "__main__":
-    print("PUBG Single-Match Graph Prototype")
-    print("=" * 40)
+    import os
+    import argparse
+    from collections import defaultdict
+
+    parser = argparse.ArgumentParser(description="PUBG 그래프 생성 (전체 DB 배치)")
+    parser.add_argument("--output_dir", type=str, default="data/graphs",
+                        help="그래프 저장 루트 디렉토리")
+    parser.add_argument("--map", type=str, default=None,
+                        help="특정 맵만 처리 (e.g., Baltic_Main)")
+    parser.add_argument("--mode", type=str, default=None,
+                        help="특정 모드만 처리 (e.g., squad-fpp)")
+    parser.add_argument("--force", action="store_true",
+                        help="기존 파일 덮어쓰기 (기본: 스킵)")
+    args = parser.parse_args()
+
+    print("PUBG Batch Graph Generation")
+    print("=" * 50)
 
     conn = get_conn()
     cur = conn.cursor()
 
-    match_id = pick_sample_match(cur)
+    # 1. 전체 유효 매치 조회
+    all_matches = get_all_valid_matches(cur)
     cur.close()
-    print(f"선택된 매치: {match_id}")
+    print(f"전체 유효 매치: {len(all_matches)}개")
 
-    graphs, snapshot_times, meta = build_match_graph_sequence(match_id, conn)
-    print_diagnostics(graphs, snapshot_times, meta)
+    # 필터링 (--map, --mode)
+    if args.map:
+        all_matches = [m for m in all_matches if m["map_name"] == args.map]
+        print(f"  → 맵 필터 ({args.map}): {len(all_matches)}개")
+    if args.mode:
+        all_matches = [m for m in all_matches if m["game_mode"] == args.mode]
+        print(f"  → 모드 필터 ({args.mode}): {len(all_matches)}개")
 
-    # 저장
-    import os
-    os.makedirs("data/graphs", exist_ok=True)
-    save_path = f"data/graphs/match_{match_id[:8]}.pt"
-    torch.save({
-        "graphs": graphs,
-        "snapshot_times": snapshot_times,
-        "meta": meta,
-    }, save_path)
-    print(f"\n저장: {save_path}")
+    if not all_matches:
+        print("처리할 매치가 없습니다.")
+        conn.close()
+        exit(0)
+
+    # 2. map_name / game_mode 별 그룹핑
+    grouped = defaultdict(list)
+    for m in all_matches:
+        key = (m["map_name"], m["game_mode"])
+        grouped[key].append(m["match_id"])
+
+    print(f"\n맵/모드별 매치 수:")
+    for (map_name, game_mode), match_ids in sorted(grouped.items()):
+        print(f"  {map_name} / {game_mode}: {len(match_ids)}개")
+
+    # 3. 그룹별 처리
+    total_processed = 0
+    total_skipped = 0
+    total_failed = 0
+
+    for (map_name, game_mode), match_ids in sorted(grouped.items()):
+        group_dir = os.path.join(args.output_dir, map_name, game_mode)
+        os.makedirs(group_dir, exist_ok=True)
+
+        print(f"\n{'='*50}")
+        print(f"[{map_name} / {game_mode}] {len(match_ids)}개 매치 처리")
+        print(f"  저장 경로: {group_dir}")
+
+        for i, match_id in enumerate(match_ids):
+            save_path = os.path.join(group_dir, f"match_{match_id[:8]}.pt")
+
+            # 증분 처리: 이미 존재하면 스킵
+            if os.path.exists(save_path) and not args.force:
+                total_skipped += 1
+                continue
+
+            try:
+                graphs, snapshot_times, meta = build_match_graph_sequence(match_id, conn)
+
+                if not graphs:
+                    print(f"  [{i+1}/{len(match_ids)}] {match_id[:8]}: 그래프 없음 (스킵)")
+                    total_failed += 1
+                    continue
+
+                # map/mode 메타 정보 추가
+                meta["map_name"] = map_name
+                meta["game_mode"] = game_mode
+
+                torch.save({
+                    "graphs": graphs,
+                    "snapshot_times": snapshot_times,
+                    "meta": meta,
+                }, save_path)
+
+                total_processed += 1
+                if (i + 1) % 10 == 0 or (i + 1) == len(match_ids):
+                    print(f"  [{i+1}/{len(match_ids)}] 처리 완료")
+
+            except Exception as e:
+                print(f"  [{i+1}/{len(match_ids)}] {match_id[:8]}: 오류 - {e}")
+                total_failed += 1
 
     conn.close()
+
+    print(f"\n{'='*50}")
+    print(f"완료: 처리={total_processed}, 스킵(기존)={total_skipped}, 실패={total_failed}")

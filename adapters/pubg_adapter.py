@@ -106,8 +106,9 @@ class PUBGAdapter(ArenaAdapter):
 
     def _convert_snapshot(self, g, elapsed, diag, initial_area, total_phases):
         """HeteroData → CanonicalSnapshot."""
-        x = g["player"].x          # [n, 14]
+        x = g["player"].x          # [n, 39] (V2) or [n, 14] (V1 legacy)
         n = x.shape[0]
+        feat_dim = x.shape[1]
         account_ids = g["player"].account_ids
         team_ids = g["player"].team_ids
         team_idx = g["player"].team_idx
@@ -120,47 +121,84 @@ class PUBGAdapter(ArenaAdapter):
         area = zv[6].item()
         alive_count = zv[8].item()
 
+        is_v2 = (feat_dim >= 39)
+
         # ── 에이전트 변환 ──
         agents = []
         for i in range(n):
-            # main.py 피처: [pos_x, pos_y, pos_z, health,
-            #   safe_dist, safe_bndry, in_safe,
-            #   poison_dist, poison_bndry, in_poison,
-            #   veh_speed, in_vehicle, dmg_dealt, dmg_taken]
-            pos_x = x[i, 0].item()
-            pos_y = x[i, 1].item()
-            pos_z = x[i, 2].item()
-
-            ax, ay = normalize_position(pos_x, pos_y, self.ARENA_SIZE_M)
-            az = self._normalize_altitude(pos_z)
-
-            a = AgentState(
-                agent_id=account_ids[i],
-                group_id=str(team_ids[i]),
-
-                arena_x=np.clip(ax, 0, 1),
-                arena_y=np.clip(ay, 0, 1),
-                arena_z=az,
-
-                health_ratio=np.clip(x[i, 3].item(), 0, 1),
-                shield_ratio=0.0,  # PUBG: 방탄복은 resource_level로
-
-                dist_to_boundary_norm=normalize_distance(x[i, 7].item(), diag),
-                dist_to_safe_norm=normalize_distance(x[i, 4].item(),
-                                                      max(safe_r, 1)),
-                inside_safe=x[i, 6].item(),
-                inside_boundary=x[i, 9].item(),
-
-                recent_dmg_dealt_norm=normalize_combat(x[i, 12].item(),
-                                                        self.COMBAT_NORM),
-                recent_dmg_taken_norm=normalize_combat(x[i, 13].item(),
-                                                        self.COMBAT_NORM),
-
-                speed_norm=min(x[i, 10].item() / self.MAX_SPEED_M_S, 1.0),
-                in_vehicle=x[i, 11].item(),
-
-                resource_level=0.0,  # TODO: item telemetry 반영
-            )
+            if is_v2:
+                # V2 피처 (39d): main.py에서 이미 정규화됨 → 직접 매핑
+                a = AgentState(
+                    agent_id=account_ids[i],
+                    group_id=str(team_ids[i]),
+                    # 축1: Physiological State
+                    health_ratio=np.clip(x[i, 0].item(), 0, 1),
+                    shield_ratio=x[i, 1].item(),
+                    is_groggy=x[i, 2].item(),
+                    groggy_decay=x[i, 3].item(),
+                    hp_recovery_recent=x[i, 4].item(),
+                    # 축2: Mobility
+                    arena_x=np.clip(x[i, 5].item(), 0, 1),
+                    arena_y=np.clip(x[i, 6].item(), 0, 1),
+                    arena_z=np.clip(x[i, 7].item(), 0, 1),
+                    speed_norm=x[i, 8].item(),
+                    in_vehicle=x[i, 9].item(),
+                    radial_speed_to_safe=x[i, 10].item(),
+                    time_to_safe_est=x[i, 11].item(),
+                    time_stationary_recent=x[i, 12].item(),
+                    # 축3: Habitat Exposure
+                    dist_to_boundary_norm=x[i, 13].item(),
+                    dist_to_safe_norm=x[i, 14].item(),
+                    inside_safe=x[i, 15].item(),
+                    inside_boundary=x[i, 16].item(),
+                    zone_damage_taken_30s=x[i, 17].item(),
+                    # 축4: Competition Pressure
+                    dmg_dealt_10s=x[i, 18].item(),
+                    dmg_taken_10s=x[i, 19].item(),
+                    dmg_dealt_30s=x[i, 20].item(),
+                    dmg_taken_30s=x[i, 21].item(),
+                    n_unique_attackers_30s=x[i, 22].item(),
+                    n_unique_targets_30s=x[i, 23].item(),
+                    dmg_taken_decay=x[i, 24].item(),
+                    dmg_dealt_decay=x[i, 25].item(),
+                    dist_nearest_ally=x[i, 26].item(),
+                    dist_team_centroid=x[i, 27].item(),
+                    enemy_count_100m=x[i, 28].item(),
+                    ally_count_100m=x[i, 29].item(),
+                    is_isolated=x[i, 30].item(),
+                    # 축5: Resource Readiness
+                    weapon_class_primary=x[i, 31].item(),
+                    weapon_class_secondary=x[i, 32].item(),
+                    attachment_score=x[i, 33].item(),
+                    armor_level=x[i, 34].item(),
+                    helmet_level=x[i, 35].item(),
+                    backpack_level=x[i, 36].item(),
+                    heal_use_recent=x[i, 37].item(),
+                    boost_use_recent=x[i, 38].item(),
+                )
+            else:
+                # V1 legacy (14d): 기존 변환 로직 유지
+                pos_x = x[i, 0].item()
+                pos_y = x[i, 1].item()
+                pos_z = x[i, 2].item()
+                ax, ay = normalize_position(pos_x, pos_y, self.ARENA_SIZE_M)
+                az = self._normalize_altitude(pos_z)
+                a = AgentState(
+                    agent_id=account_ids[i],
+                    group_id=str(team_ids[i]),
+                    arena_x=np.clip(ax, 0, 1),
+                    arena_y=np.clip(ay, 0, 1),
+                    arena_z=az,
+                    health_ratio=np.clip(x[i, 3].item(), 0, 1),
+                    dist_to_boundary_norm=normalize_distance(x[i, 7].item(), diag),
+                    dist_to_safe_norm=normalize_distance(x[i, 4].item(), max(safe_r, 1)),
+                    inside_safe=x[i, 6].item(),
+                    inside_boundary=x[i, 9].item(),
+                    dmg_dealt_30s=normalize_combat(x[i, 12].item(), self.COMBAT_NORM),
+                    dmg_taken_30s=normalize_combat(x[i, 13].item(), self.COMBAT_NORM),
+                    speed_norm=min(x[i, 10].item() / self.MAX_SPEED_M_S, 1.0),
+                    in_vehicle=x[i, 11].item(),
+                )
             agents.append(a)
 
         # ── 아레나 상태 ──
@@ -325,8 +363,10 @@ if __name__ == "__main__":
     if s0.agents:
         a0 = s0.agents[0]
         t = a0.to_tensor()
-        print(f"    sample agent: {AgentState.FEAT_NAMES}")
-        print(f"    values: {[round(v, 3) for v in t.tolist()]}")
+        print(f"    agent feat_dim: {t.shape[0]} (expected {AgentState.FEAT_DIM})")
+        # 축별 요약 출력
+        for name, val in zip(AgentState.FEAT_NAMES, t.tolist()):
+            print(f"      {name:<20s} = {val:.3f}")
     print(f"    arena: area_ratio={s0.arena.safe_area_ratio:.3f}, "
           f"progress={s0.arena.game_progress:.3f}")
 

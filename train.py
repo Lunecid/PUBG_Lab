@@ -11,7 +11,7 @@ ArenaSurvivalNet 학습 파이프라인.
   - 재현성: seed 고정
 
 사용법:
-  python3 train.py --pt_dir data/graphs --epochs 50 --hidden_dim 128
+  python3 train.py --map Baltic_Main --mode squad-fpp --epochs 50 --hidden_dim 128
 
 CLAUDE.md §15 하이퍼파라미터 시작점:
   hidden_dim=64~128, GNN 2~3층, GRU 1층, L=5, k=5
@@ -51,6 +51,61 @@ def set_seed(seed=42):
 # ============================================================
 # 2. Match 단위 Split
 # ============================================================
+
+def ask_split_ratios():
+    """
+    사용자에게 train/val/test 비율을 대화형으로 입력받음.
+
+    Returns:
+        (train_ratio, val_ratio, test_ratio)
+    """
+    print("\n[데이터 분할 설정]")
+    print("  train / val / test 비율을 입력하세요.")
+    print("  예: 0.7 0.15 0.15  또는  70 15 15")
+    print("  (Enter만 누르면 기본값 70/15/15 사용)")
+
+    while True:
+        try:
+            user_input = input("  비율 입력 > ").strip()
+
+            if not user_input:
+                print("  → 기본값 사용: train=0.70, val=0.15, test=0.15")
+                return 0.70, 0.15, 0.15
+
+            parts = user_input.replace(",", " ").split()
+            if len(parts) != 3:
+                print("  ⚠ 3개 숫자를 입력하세요 (예: 0.7 0.15 0.15)")
+                continue
+
+            values = [float(p) for p in parts]
+
+            # 정수 형태 (예: 70 15 15) → 비율로 변환
+            if all(v >= 1 for v in values):
+                total = sum(values)
+                values = [v / total for v in values]
+
+            train_r, val_r, test_r = values
+            total = train_r + val_r + test_r
+
+            if abs(total - 1.0) > 0.01:
+                print(f"  ⚠ 합이 1.0이어야 합니다 (현재: {total:.2f})")
+                continue
+
+            if any(v < 0 for v in [train_r, val_r, test_r]):
+                print("  ⚠ 음수 비율은 불가합니다.")
+                continue
+
+            # 정규화
+            train_r, val_r, test_r = train_r / total, val_r / total, test_r / total
+            print(f"  → 설정: train={train_r:.2f}, val={val_r:.2f}, test={test_r:.2f}")
+            return train_r, val_r, test_r
+
+        except ValueError:
+            print("  ⚠ 숫자만 입력하세요.")
+        except EOFError:
+            print("  → 기본값 사용: train=0.70, val=0.15, test=0.15")
+            return 0.70, 0.15, 0.15
+
 
 def split_dataset_by_match(dataset, train_ratio=0.7, val_ratio=0.15, seed=42):
     """
@@ -240,8 +295,12 @@ def train(
         print("ERROR: 데이터셋이 비어 있습니다.")
         return None, None
 
-    # ── Split ──
-    train_idx, val_idx, test_idx = split_dataset_by_match(dataset, seed=seed)
+    # ── 사용자 대화형 Split 비율 입력 ──
+    train_ratio, val_ratio, _ = ask_split_ratios()
+
+    train_idx, val_idx, test_idx = split_dataset_by_match(
+        dataset, train_ratio=train_ratio, val_ratio=val_ratio, seed=seed
+    )
     print(f"  Split: train={len(train_idx)}, val={len(val_idx)}, test={len(test_idx)}")
 
     train_loader = DataLoader(
@@ -435,9 +494,13 @@ def parse_args():
 
     # 데이터
     parser.add_argument("--pt_dir", type=str, default="data/graphs",
-                        help=".pt 파일 디렉토리")
+                        help=".pt 파일 루트 디렉토리")
     parser.add_argument("--output_dir", type=str, default="checkpoints",
                         help="체크포인트 저장 디렉토리")
+    parser.add_argument("--map", type=str, required=True,
+                        help="맵 이름 (e.g., Baltic_Main, Desert_Main, Savage_Main, DihorOtok_Main)")
+    parser.add_argument("--mode", type=str, required=True,
+                        help="게임 모드 (e.g., squad, squad-fpp, duo, duo-fpp, solo, solo-fpp)")
 
     # 모델
     parser.add_argument("--hidden_dim", type=int, default=128)
@@ -471,12 +534,33 @@ def parse_args():
 
 if __name__ == "__main__":
     args = parse_args()
+
+    # map/mode 기반 경로 구성 (다른 종류의 데이터 혼합 방지)
+    pt_dir = os.path.join(args.pt_dir, args.map, args.mode)
+    output_dir = os.path.join(args.output_dir, args.map, args.mode)
+
+    if not os.path.isdir(pt_dir):
+        print(f"ERROR: 데이터 디렉토리가 없습니다: {pt_dir}")
+        print(f"  먼저 main.py로 해당 맵/모드의 그래프를 생성하세요:")
+        print(f"    python3 main.py --map {args.map} --mode {args.mode}")
+        sys.exit(1)
+
     print("Arena Survival Network 학습")
     print("=" * 50)
-    print(f"Config: {vars(args)}")
+    print(f"  맵: {args.map}")
+    print(f"  모드: {args.mode}")
+    print(f"  데이터: {pt_dir}")
+    print(f"  체크포인트: {output_dir}")
     print()
 
-    model, history = train(**vars(args))
+    # args에서 map/mode 제거 후 pt_dir/output_dir 교체
+    train_kwargs = vars(args).copy()
+    del train_kwargs["map"]
+    del train_kwargs["mode"]
+    train_kwargs["pt_dir"] = pt_dir
+    train_kwargs["output_dir"] = output_dir
+
+    model, history = train(**train_kwargs)
 
     if model is not None:
         print("\n학습 완료!")

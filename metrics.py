@@ -317,6 +317,87 @@ def phase_wise_concordance(hazard_preds, events, times, phases):
 
 
 # ============================================================
+# 2b. Phase-matched AUC (신규 primary)
+# ============================================================
+
+def phase_matched_auc(hazard_preds, events, phases):
+    """
+    Phase별 AUC: 같은 phase 내에서 event=1 vs event=0 분류 성능.
+    시간 축 혼동 없이 순수 팀 상태 판별력 측정.
+
+    Returns:
+        dict: {phase: auc, "mean_auc": weighted_mean}
+    """
+    from sklearn.metrics import roc_auc_score
+
+    result = {}
+    weighted_sum = 0
+    total_weight = 0
+
+    for p in sorted(set(phases)):
+        mask = phases == p
+        e = events[mask]
+        h = hazard_preds[mask]
+
+        if e.sum() < 1 or (1 - e).sum() < 1:
+            continue
+
+        try:
+            auc = roc_auc_score(e, h)
+            n = int(mask.sum())
+            result[int(p)] = auc
+            weighted_sum += auc * n
+            total_weight += n
+        except ValueError:
+            continue
+
+    result["mean_auc"] = weighted_sum / max(total_weight, 1)
+    return result
+
+
+def per_match_hazard_rank(hazard_preds, events, times, final_ranks, match_ids):
+    """
+    매치별로 마지막 생존 시점의 hazard를 팀별로 집계 → 최종 순위와 비교.
+    팀별 aggregation으로 repeated-measures 문제 해결.
+
+    Returns:
+        dict: {spearman_rho, n_matches}
+    """
+    # 팀별 마지막 hazard 집계
+    # (match_id, final_rank)로 그룹핑 — final_rank는 팀 고유값
+    team_hazards = defaultdict(list)
+    for i in range(len(hazard_preds)):
+        key = (match_ids[i], final_ranks[i])
+        team_hazards[key].append((times[i], hazard_preds[i]))
+
+    # 매치별 (team_rank, max_time_hazard) 쌍 구성
+    match_data = defaultdict(list)
+    for (mid, rank), time_haz_list in team_hazards.items():
+        # 마지막 시점의 hazard (가장 최신 상태)
+        last_time, last_haz = max(time_haz_list, key=lambda x: x[0])
+        match_data[mid].append((rank, last_haz))
+
+    spearman_list = []
+    for mid, pairs in match_data.items():
+        if len(pairs) < 3:
+            continue
+        ranks = np.array([p[0] for p in pairs])
+        haz = np.array([p[1] for p in pairs])
+
+        if np.std(haz) < 1e-8:
+            continue
+
+        sp = scipy_stats.spearmanr(haz, ranks)
+        rho = float(sp.statistic) if hasattr(sp, 'statistic') else float(sp[0])
+        spearman_list.append(rho)
+
+    return {
+        "spearman_rho": float(np.mean(spearman_list)) if spearman_list else 0.0,
+        "n_matches": len(spearman_list),
+    }
+
+
+# ============================================================
 # 3. 최종 순위 상관
 # ============================================================
 
@@ -424,12 +505,22 @@ def evaluate_survival_model(
     # ── Rank correlation ──
     results["rank_correlation"] = rank_correlation(risk_scores, final_ranks, match_ids)
 
+    # ── Phase-matched AUC (신규 primary) ──
+    results["phase_auc"] = phase_matched_auc(hazard_probs, events, phases)
+
+    # ── Per-match hazard rank (team-level aggregation) ──
+    results["team_rank_correlation"] = per_match_hazard_rank(
+        hazard_probs, events, times, final_ranks, match_ids
+    )
+
     # ── Summary ──
     results["summary"] = {
         "c_index": results["concordance"]["c_index"],
         "ipcw_c_index": results["ipcw"].get("ipcw_c_index", results["concordance"]["c_index"]),
         "mean_auc": results["dynamic_auc"]["mean_auc"],
         "spearman_rho": results["rank_correlation"]["spearman_rho"],
+        "phase_auc": results["phase_auc"].get("mean_auc", 0.5),
+        "team_rank_rho": results["team_rank_correlation"]["spearman_rho"],
         "n_samples": len(events),
         "n_events": int(events.sum()),
         "event_rate": float(events.mean()),
@@ -448,6 +539,8 @@ def format_eval_results(results, prefix=""):
     lines.append(f"{prefix}  IPCW C-index: {s.get('ipcw_c_index', 0):.4f}")
     lines.append(f"{prefix}  Dynamic AUC:  {s.get('mean_auc', 0):.4f}")
     lines.append(f"{prefix}  Spearman ρ:   {s.get('spearman_rho', 0):.4f}")
+    lines.append(f"{prefix}  Phase AUC:    {s.get('phase_auc', 0):.4f}")
+    lines.append(f"{prefix}  Team Rank ρ:  {s.get('team_rank_rho', 0):.4f}")
     lines.append(f"{prefix}  Samples:      {s.get('n_samples', 0)}, "
                  f"Events: {s.get('n_events', 0)} "
                  f"({100*s.get('event_rate', 0):.1f}%)")
@@ -466,5 +559,11 @@ def format_eval_results(results, prefix=""):
         lines.append(f"{prefix}  Phase C-index:")
         for phase, ci in sorted(pci.items()):
             lines.append(f"{prefix}    Phase {phase}: {ci:.4f}")
+
+    pa = results.get("phase_auc", {})
+    if pa:
+        lines.append(f"{prefix}  Phase-matched AUC:")
+        for phase, auc in sorted((k, v) for k, v in pa.items() if isinstance(k, int)):
+            lines.append(f"{prefix}    Phase {phase}: {auc:.4f}")
 
     return "\n".join(lines)

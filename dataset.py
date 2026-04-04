@@ -615,22 +615,16 @@ def collate_survival_batch(batch):
 # 5. 생존 분석 손실함수
 # ============================================================
 
-def discrete_survival_nll(hazard_logits, events, at_risks):
+def discrete_survival_nll(hazard_logits, events, at_risks, pos_weight=None):
     """
-    Discrete-time survival negative log-likelihood.
-
-    h_i(k) = sigmoid(logit_i(k)) = P(T_i = k | T_i >= k)
-
-    NLL = -Σ [event * log(h) + (1 - event) * log(1 - h)]
-    at_risk 샘플만 사용.
+    Discrete-time survival NLL with optional pos_weight for class imbalance.
 
     Parameters:
-        hazard_logits: Tensor [B] — 모델 출력 (sigmoid 전)
+        hazard_logits: Tensor [B]
         events: Tensor [B] — 0 or 1
         at_risks: Tensor [B] — 0 or 1
-
-    Returns:
-        loss: scalar
+        pos_weight: float or None — event=1 가중치.
+                    None이면 배치 내 자동 계산 (n_neg / n_pos).
     """
     mask = at_risks > 0.5
     if mask.sum() == 0:
@@ -639,45 +633,76 @@ def discrete_survival_nll(hazard_logits, events, at_risks):
     h_logits = hazard_logits[mask]
     y = events[mask]
 
-    # Binary cross-entropy (numerically stable)
+    if pos_weight is None:
+        # 배치 내 자동 계산
+        n_pos = y.sum().clamp(min=1)
+        n_neg = (1 - y).sum().clamp(min=1)
+        pw = (n_neg / n_pos).clamp(max=50.0)  # 상한 50
+    else:
+        pw = torch.tensor(pos_weight, device=h_logits.device)
+
     loss = torch.nn.functional.binary_cross_entropy_with_logits(
-        h_logits, y, reduction="mean"
+        h_logits, y, pos_weight=pw, reduction="mean"
     )
     return loss
 
 
-def pairwise_rank_loss(risk_scores, final_ranks, margin=0.1):
+def pairwise_rank_loss(risk_scores, final_ranks, match_ids=None, margin=0.1):
     """
-    보조 손실: 팀 순위 기반 pairwise ranking loss.
-    risk score가 높은 팀이 먼저 탈락해야 함 (rank 숫자가 큼 = 일찍 탈락).
+    match_ids가 주어지면 같은 매치 내에서만 페어를 구성.
 
     Parameters:
         risk_scores: Tensor [B] — 모델이 출력한 위험 점수
         final_ranks: Tensor [B] — 최종 순위 (1=치킨디너, 높을수록 일찍 탈락)
+        match_ids: list[str] or None — 각 샘플의 매치 ID
         margin: float
-
-    Returns:
-        loss: scalar
     """
     B = risk_scores.shape[0]
     if B < 2:
         return torch.tensor(0.0, requires_grad=True)
 
-    # 같은 매치 내에서만 비교해야 하지만,
-    # 프로토타입에서는 배치 내 랜덤 페어로 근사
-    n_pairs = min(B * 2, B * (B - 1) // 2)
-    idx = torch.randint(0, B, (n_pairs, 2))
+    if match_ids is None:
+        # fallback: 기존 동작
+        n_pairs = min(B * 2, B * (B - 1) // 2)
+        idx = torch.randint(0, B, (n_pairs, 2))
+    else:
+        # 같은 매치 내에서만 페어 구성
+        match_to_indices = {}
+        for i, mid in enumerate(match_ids):
+            match_to_indices.setdefault(mid, []).append(i)
+
+        pairs_i, pairs_j = [], []
+        for indices in match_to_indices.values():
+            if len(indices) < 2:
+                continue
+            n = len(indices)
+            n_pairs_match = min(n * 2, n * (n - 1) // 2)
+            for _ in range(n_pairs_match):
+                a, b = torch.randint(0, n, (2,)).tolist()
+                if a != b:
+                    pairs_i.append(indices[a])
+                    pairs_j.append(indices[b])
+
+        if len(pairs_i) == 0:
+            return torch.tensor(0.0, requires_grad=True)
+
+        idx = torch.stack([
+            torch.tensor(pairs_i, dtype=torch.long),
+            torch.tensor(pairs_j, dtype=torch.long),
+        ], dim=1)  # [n_pairs, 2]
 
     ri, rj = final_ranks[idx[:, 0]], final_ranks[idx[:, 1]]
     si, sj = risk_scores[idx[:, 0]], risk_scores[idx[:, 1]]
 
-    # rank가 큰 (일찍 탈락) 쪽이 risk score가 높아야 함
-    # → ri > rj이면 si > sj + margin 이어야 함
     target = torch.sign(ri.float() - rj.float())
-    diff = si - sj
+
+    # target=0인 쌍 제거 (같은 순위)
+    valid = target != 0
+    if valid.sum() == 0:
+        return torch.tensor(0.0, requires_grad=True)
 
     loss = torch.nn.functional.margin_ranking_loss(
-        si, sj, target, margin=margin, reduction="mean"
+        si[valid], sj[valid], target[valid], margin=margin, reduction="mean"
     )
     return loss
 

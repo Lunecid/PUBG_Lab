@@ -344,7 +344,7 @@ def train(
         model.parameters(), lr=lr, weight_decay=weight_decay
     )
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, mode="min", factor=0.5, patience=patience // 2,
+        optimizer, mode="max", factor=0.5, patience=patience // 2,
     )
 
     # ── 학습 ──
@@ -355,10 +355,11 @@ def train(
     history = {
         "train_loss": [], "val_loss": [],
         "val_c_index": [], "val_spearman": [],
-        "best_epoch": 0, "best_c_index": 0,
+        "val_phase_auc": [], "val_team_rank_rho": [],
+        "best_epoch": 0, "best_phase_auc": 0,
     }
 
-    best_val_loss = float("inf")
+    best_val_metric = 0.0  # phase_auc, 높을수록 좋음
     epochs_no_improve = 0
     train_start = time.time()
 
@@ -421,21 +422,25 @@ def train(
         val_loss = val_losses.get("total", float("inf"))
         val_c_index = val_metrics.get("summary", {}).get("c_index", 0)
         val_spearman = val_metrics.get("summary", {}).get("spearman_rho", 0)
+        val_phase_auc = val_metrics.get("summary", {}).get("phase_auc", 0)
+        val_team_rank_rho = val_metrics.get("summary", {}).get("team_rank_rho", 0)
 
-        scheduler.step(val_loss)
+        scheduler.step(val_phase_auc)
 
         # History
         history["train_loss"].append(avg_train_loss)
         history["val_loss"].append(val_loss)
         history["val_c_index"].append(val_c_index)
         history["val_spearman"].append(val_spearman)
+        history["val_phase_auc"].append(val_phase_auc)
+        history["val_team_rank_rho"].append(val_team_rank_rho)
 
         elapsed_epoch = time.time() - t0
         elapsed_total = time.time() - train_start
         eta_total = elapsed_total / epoch * (epochs - epoch)
 
-        # best 마커
-        is_best = val_loss < best_val_loss
+        # best 마커 (phase_auc 기준)
+        is_best = val_phase_auc > best_val_metric
         best_marker = " *" if is_best else ""
 
         # 에포크 결과 한 줄 출력 (프로그레스 바 덮어쓰기)
@@ -443,18 +448,18 @@ def train(
             f"\r  Epoch {epoch:3d}/{epochs} |{_bar(epoch, epochs)}| "
             f"{elapsed_epoch:.0f}s "
             f"train={avg_train_loss:.4f} val={val_loss:.4f} "
-            f"C={val_c_index:.4f} ρ={val_spearman:.3f}"
+            f"phAUC={val_phase_auc:.4f} ρ={val_spearman:.3f}"
             f"{best_marker}  "
             f"[ETA {int(eta_total//60)}m{int(eta_total%60):02d}s]\n"
         )
         sys.stdout.flush()
 
-        # ── Early stopping + checkpoint ──
+        # ── Early stopping + checkpoint (phase_auc 기준) ──
         if is_best:
-            best_val_loss = val_loss
+            best_val_metric = val_phase_auc
             epochs_no_improve = 0
             history["best_epoch"] = epoch
-            history["best_c_index"] = val_c_index
+            history["best_phase_auc"] = val_phase_auc
 
             ckpt_path = os.path.join(output_dir, "best_model.pt")
             torch.save({
@@ -462,7 +467,7 @@ def train(
                 "model_state_dict": model.state_dict(),
                 "optimizer_state_dict": optimizer.state_dict(),
                 "val_loss": val_loss,
-                "val_c_index": val_c_index,
+                "val_phase_auc": val_phase_auc,
                 "config": {
                     "hidden_dim": hidden_dim,
                     "n_encoder_layers": n_encoder_layers,
@@ -487,7 +492,7 @@ def train(
     # ── 최종 평가 (Test) ──
     print(f"\n[4/4] 최종 평가...")
     print(f"  Best epoch: {history['best_epoch']}, "
-          f"best val C-index: {history['best_c_index']:.4f}")
+          f"best val phase AUC: {history['best_phase_auc']:.4f}")
 
     # 최적 모델 로드
     ckpt = torch.load(os.path.join(output_dir, "best_model.pt"),

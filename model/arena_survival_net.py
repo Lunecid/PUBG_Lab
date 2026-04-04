@@ -269,3 +269,171 @@ class ArenaSurvivalNet(nn.Module):
             "hazard_logits": hazard_logits.detach(),
             "risk_scores": risk_scores.detach(),
         }
+
+    # ================================================================
+    # Snapshot-level forward (모든 생존 팀을 한번에 처리)
+    # ================================================================
+
+    def forward_snapshot(self, sample):
+        """
+        스냅샷 단위 forward: 한 시점의 모든 생존 팀을 한번에 처리.
+        GNN이 그래프당 1회만 실행되고, 모든 팀 임베딩이 동시에 계산됨.
+
+        Parameters:
+            sample: SnapshotDataset.__getitem__ 출력 (단일 샘플)
+
+        Returns:
+            hazard_logits: Tensor [n_alive]
+            risk_scores: Tensor [n_alive]
+            alphas: list — GroupGNN 경쟁 계수
+        """
+        player_graphs = sample["player_graphs"]
+        team_graph = sample["team_graph"]
+        zone_seq = sample["zone_seq"]
+        alive_teams = sample["alive_teams"]
+        meta = sample["meta"]
+
+        L = len(player_graphs)
+        n_alive = len(alive_teams)
+        device = zone_seq.device
+
+        if n_alive == 0:
+            return (torch.zeros(0, device=device),
+                    torch.zeros(0, device=device), [])
+
+        # ── L 스텝: AgentEncoder + GroupPooling ──
+        all_team_h = []  # [step] → [n_alive, hidden_dim]
+        cached_agent_h_last = None
+
+        for step_i in range(L):
+            pg = player_graphs[step_i]
+            n_players = pg["player"].x.shape[0]
+
+            if n_players == 0:
+                all_team_h.append(
+                    torch.zeros(n_alive, self.hidden_dim, device=device)
+                )
+                continue
+
+            agent_h = self.agent_encoder(pg)  # [n_players, hidden_dim]
+
+            if step_i == L - 1:
+                cached_agent_h_last = agent_h
+
+            p_team_idx = pg["player"].team_idx
+            n_teams_total = p_team_idx.max().item() + 1
+            team_h_all, _ = self.group_pooling(
+                agent_h, p_team_idx, n_teams_total
+            )  # [n_teams_total, hidden_dim]
+
+            # alive 팀만 추출
+            alive_h = []
+            for tidx in alive_teams:
+                if tidx < team_h_all.shape[0]:
+                    alive_h.append(team_h_all[tidx])
+                else:
+                    alive_h.append(torch.zeros(self.hidden_dim, device=device))
+
+            all_team_h.append(torch.stack(alive_h))  # [n_alive, hidden_dim]
+
+        # ── GroupGNN (마지막 스텝) ──
+        alphas = []
+        if team_graph.num_nodes > 0 and cached_agent_h_last is not None:
+            pg_last = player_graphs[-1]
+            p_team_idx_last = pg_last["player"].team_idx
+            n_teams_last = p_team_idx_last.max().item() + 1
+            team_h_pooled_last, _ = self.group_pooling(
+                cached_agent_h_last, p_team_idx_last, n_teams_last
+            )
+
+            team_h_gnn, alphas = self.group_gnn(
+                team_h_pooled_last, team_graph
+            )
+
+            # GNN 출력을 마지막 스텝에 더하기
+            graph_alive = team_graph.alive_teams
+            if isinstance(graph_alive, list):
+                for i, tidx in enumerate(alive_teams):
+                    if tidx in graph_alive:
+                        gnn_local = graph_alive.index(tidx)
+                        if gnn_local < team_h_gnn.shape[0]:
+                            all_team_h[-1][i] = (
+                                all_team_h[-1][i] + team_h_gnn[gnn_local]
+                            )
+
+        # ── Temporal: 팀별 GRU (배치 처리) ──
+        team_seqs = torch.stack(all_team_h, dim=1)  # [n_alive, L, hidden_dim]
+        zone_expanded = zone_seq.unsqueeze(0).expand(n_alive, -1, -1)
+
+        h_temporal = self.temporal.forward_batch(
+            team_seqs, zone_expanded
+        )  # [n_alive, hidden_dim]
+
+        # ── HazardHead (배치 처리) ──
+        zone_phase = meta.get("zone_phase", 0)
+        zone_phases = torch.full(
+            (n_alive,), zone_phase, dtype=torch.long, device=device
+        )
+
+        norm_zone_area = meta.get("norm_zone_area", 1.0)
+        ctx_base = torch.tensor([
+            norm_zone_area,
+            n_alive / 25.0,
+            meta.get("elapsed", 0) / 1800.0,
+            norm_zone_area * (n_alive / 25.0),
+        ], device=device, dtype=torch.float32)
+        context = ctx_base.unsqueeze(0).expand(n_alive, -1)  # [n_alive, 4]
+
+        hazard_logits, risk_scores = self.hazard_head.forward_batch(
+            h_temporal, zone_phases, context
+        )
+
+        return hazard_logits, risk_scores, alphas
+
+    def compute_snapshot_loss(self, batch):
+        """
+        스냅샷 배치에 대한 loss 계산.
+
+        Returns:
+            dict: total, hazard_logits list, risk_scores list, dying_teams list
+        """
+        from dataset import snapshot_ranking_loss
+
+        B = len(batch["player_graphs"])
+        device = batch["zone_seqs"][0].device
+
+        total_loss = torch.tensor(0.0, device=device)
+        all_hazard_logits = []
+        all_risk_scores = []
+        all_dying = []
+        n_valid = 0
+
+        for b in range(B):
+            sample = {
+                "player_graphs": batch["player_graphs"][b],
+                "team_graph": batch["team_graphs"][b],
+                "zone_seq": batch["zone_seqs"][b],
+                "alive_teams": batch["alive_teams"][b],
+                "meta": batch["metas"][b],
+            }
+
+            hazard_logits, risk_scores, _ = self.forward_snapshot(sample)
+            dying_teams = batch["dying_teams"][b]
+
+            loss = snapshot_ranking_loss(hazard_logits, dying_teams)
+            total_loss = total_loss + loss
+            n_valid += 1
+
+            all_hazard_logits.append(hazard_logits.detach())
+            all_risk_scores.append(risk_scores.detach())
+            all_dying.append(dying_teams)
+
+        if n_valid > 0:
+            total_loss = total_loss / n_valid
+
+        return {
+            "total": total_loss,
+            "hazard_logits": all_hazard_logits,
+            "risk_scores": all_risk_scores,
+            "dying_teams": all_dying,
+        }

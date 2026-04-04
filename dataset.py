@@ -708,6 +708,192 @@ def pairwise_rank_loss(risk_scores, final_ranks, match_ids=None, margin=0.1):
 
 
 # ============================================================
+# 5b. 스냅샷 레벨 데이터셋 + Loss
+# ============================================================
+
+class SnapshotDataset(Dataset):
+    """
+    (match, death_step) 단위 생존 분석 데이터셋.
+    팀 탈락이 발생한 스냅샷만 수집.
+    각 샘플은 해당 시점의 모든 생존 팀을 포함.
+    """
+
+    PLAYER_FEAT_DIM = 39
+    ZONE_DIM = 10
+    TEAM_FEAT_DIM = 8
+    TEAM_EDGE_DIM = 4
+
+    def __init__(
+        self,
+        pt_dir,
+        window_size=5,
+        min_alive_teams=3,
+        skip_first_steps=10,
+    ):
+        super().__init__()
+        self.window_size = window_size
+        self.min_alive_teams = min_alive_teams
+        self.skip_first_steps = skip_first_steps
+
+        pt_files = sorted(glob.glob(os.path.join(pt_dir, "*.pt")))
+        if not pt_files:
+            raise FileNotFoundError(f"No .pt files in {pt_dir}")
+
+        print(f"[SnapshotDataset] {len(pt_files)}개 매치 로딩...")
+        self.matches = []
+        for fp in pt_files:
+            try:
+                m = MatchSurvivalData(fp)
+                if m.n_steps >= window_size + skip_first_steps:
+                    self.matches.append(m)
+            except Exception as e:
+                print(f"  스킵: {fp} ({e})")
+
+        print(f"  유효 매치: {len(self.matches)}개")
+
+        # 샘플 인덱스: (match_idx, step) — 탈락 발생 스텝만
+        self.samples = []
+        for mi, match in enumerate(self.matches):
+            start_step = max(self.skip_first_steps, self.window_size - 1)
+            end_step = match.n_steps - 1
+
+            for step in range(start_step, end_step):
+                alive_teams = match.get_alive_teams_at(step)
+                if len(alive_teams) < self.min_alive_teams:
+                    continue
+
+                # 이 스텝에서 탈락하는 팀이 있는가?
+                has_death = False
+                for tidx in alive_teams:
+                    if tidx in match.team_death_step:
+                        ds = match.team_death_step[tidx]
+                        if ds == step or ds == step + 1:
+                            has_death = True
+                            break
+
+                if has_death:
+                    self.samples.append((mi, step))
+
+        print(f"  탈락 이벤트 샘플: {len(self.samples):,}개")
+
+        total_dying = sum(
+            self._count_dying(mi, step) for mi, step in self.samples
+        )
+        print(f"  총 탈락 팀 수: {total_dying:,}")
+
+    def _count_dying(self, mi, step):
+        match = self.matches[mi]
+        alive = match.get_alive_teams_at(step)
+        count = 0
+        for tidx in alive:
+            if tidx in match.team_death_step:
+                ds = match.team_death_step[tidx]
+                if ds == step or ds == step + 1:
+                    count += 1
+        return count
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, idx):
+        mi, step = self.samples[idx]
+        match = self.matches[mi]
+
+        # 윈도우 그래프 시퀀스
+        w_start = max(0, step - self.window_size + 1)
+        w_end = step + 1
+        player_graphs = match.graphs[w_start:w_end]
+
+        while len(player_graphs) < self.window_size:
+            player_graphs.insert(0, player_graphs[0])
+
+        # Zone 시퀀스
+        zone_seq = torch.stack([g["zone"].x[0] for g in player_graphs])
+
+        # 생존 팀
+        alive_teams = sorted(match.get_alive_teams_at(step))
+
+        # 팀-팀 그래프
+        last_graph = player_graphs[-1]
+        alive_set = set(alive_teams)
+        team_graph = build_team_graph(
+            last_graph,
+            last_graph["player"].team_idx,
+            match.n_teams,
+            alive_set,
+        )
+
+        # 탈락 라벨 (alive_teams 내 로컬 인덱스)
+        dying_teams = []
+        for local_idx, tidx in enumerate(alive_teams):
+            if tidx in match.team_death_step:
+                ds = match.team_death_step[tidx]
+                if ds == step or ds == step + 1:
+                    dying_teams.append(local_idx)
+
+        # 메타데이터
+        elapsed = match.snapshot_times[step]
+        norm_zone_area = match.get_zone_area_normalized(step)
+        zone_phase = int(match.zone_phases[step])
+        team_ranks = [match.team_ranks.get(t, -1) for t in alive_teams]
+
+        meta = {
+            "match_id": match.match_id,
+            "step": step,
+            "elapsed": elapsed,
+            "zone_phase": zone_phase,
+            "norm_zone_area": norm_zone_area,
+            "n_alive": len(alive_teams),
+            "team_ranks": team_ranks,
+            "alive_teams": alive_teams,
+        }
+
+        return {
+            "player_graphs": player_graphs,
+            "team_graph": team_graph,
+            "zone_seq": zone_seq,
+            "alive_teams": alive_teams,
+            "dying_teams": dying_teams,
+            "n_alive": len(alive_teams),
+            "meta": meta,
+        }
+
+
+def collate_snapshot_batch(batch):
+    """SnapshotDataset용 collate. n_alive가 가변이므로 리스트 유지."""
+    return {
+        "player_graphs": [b["player_graphs"] for b in batch],
+        "team_graphs": [b["team_graph"] for b in batch],
+        "zone_seqs": [b["zone_seq"] for b in batch],
+        "alive_teams": [b["alive_teams"] for b in batch],
+        "dying_teams": [b["dying_teams"] for b in batch],
+        "n_alive": [b["n_alive"] for b in batch],
+        "metas": [b["meta"] for b in batch],
+    }
+
+
+def snapshot_ranking_loss(hazard_logits, dying_teams):
+    """
+    Softmax CE: 생존 팀들 중 실제 탈락 팀에 가장 높은 hazard를 부여.
+
+    Parameters:
+        hazard_logits: Tensor [n_alive] — 전체 생존 팀의 hazard logit
+        dying_teams: list[int] — 탈락 팀의 로컬 인덱스
+    """
+    if len(dying_teams) == 0:
+        return torch.tensor(0.0, device=hazard_logits.device, requires_grad=True)
+
+    total = torch.tensor(0.0, device=hazard_logits.device)
+    logits = hazard_logits.unsqueeze(0)  # [1, n_alive]
+
+    for target_idx in dying_teams:
+        target = torch.tensor([target_idx], device=hazard_logits.device, dtype=torch.long)
+        total = total + torch.nn.functional.cross_entropy(logits, target)
+
+    return total / len(dying_teams)
+
+
+# ============================================================
 # 6. 검증 유틸리티
 # ============================================================
 

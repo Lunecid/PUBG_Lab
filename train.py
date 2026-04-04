@@ -349,6 +349,7 @@ def train(
 
     # ── 학습 ──
     print(f"\n[3/4] 학습 시작 (epochs={epochs}, batch={batch_size}, lr={lr})...")
+    print(f"  train 배치: {len(train_loader)}, val 배치: {len(val_loader)}")
     os.makedirs(output_dir, exist_ok=True)
 
     history = {
@@ -359,6 +360,11 @@ def train(
 
     best_val_loss = float("inf")
     epochs_no_improve = 0
+    train_start = time.time()
+
+    def _bar(cur, total, width=30):
+        filled = int(width * cur / max(total, 1))
+        return "█" * filled + "░" * (width - filled)
 
     for epoch in range(1, epochs + 1):
         t0 = time.time()
@@ -368,8 +374,9 @@ def train(
         epoch_survival = 0
         epoch_rank = 0
         n_batches = 0
+        total_batches = len(train_loader)
 
-        for batch in train_loader:
+        for bi, batch in enumerate(train_loader):
             batch["zone_seqs"] = batch["zone_seqs"].to(device)
             batch["events"] = batch["events"].to(device)
             batch["at_risks"] = batch["at_risks"].to(device)
@@ -392,11 +399,24 @@ def train(
             epoch_rank += loss_dict["rank"].item()
             n_batches += 1
 
+            # 배치 프로그레스
+            cur_loss = epoch_loss / n_batches
+            sys.stdout.write(
+                f"\r  Epoch {epoch:3d}/{epochs} |{_bar(bi+1, total_batches)}| "
+                f"batch {bi+1}/{total_batches} loss={cur_loss:.4f}"
+            )
+            sys.stdout.flush()
+
         avg_train_loss = epoch_loss / max(n_batches, 1)
         avg_train_surv = epoch_survival / max(n_batches, 1)
         avg_train_rank = epoch_rank / max(n_batches, 1)
 
         # ── Validation ──
+        sys.stdout.write(
+            f"\r  Epoch {epoch:3d}/{epochs} |{_bar(epoch, epochs)}| validating...          "
+        )
+        sys.stdout.flush()
+
         val_losses, val_metrics = evaluate(model, val_loader, device)
         val_loss = val_losses.get("total", float("inf"))
         val_c_index = val_metrics.get("summary", {}).get("c_index", 0)
@@ -410,14 +430,27 @@ def train(
         history["val_c_index"].append(val_c_index)
         history["val_spearman"].append(val_spearman)
 
-        elapsed = time.time() - t0
+        elapsed_epoch = time.time() - t0
+        elapsed_total = time.time() - train_start
+        eta_total = elapsed_total / epoch * (epochs - epoch)
 
-        print(f"  Epoch {epoch:3d}/{epochs} ({elapsed:.1f}s) | "
-              f"train: {avg_train_loss:.4f} (surv={avg_train_surv:.4f}, rank={avg_train_rank:.4f}) | "
-              f"val: {val_loss:.4f}, C={val_c_index:.4f}, ρ={val_spearman:.3f}")
+        # best 마커
+        is_best = val_loss < best_val_loss
+        best_marker = " *" if is_best else ""
+
+        # 에포크 결과 한 줄 출력 (프로그레스 바 덮어쓰기)
+        sys.stdout.write(
+            f"\r  Epoch {epoch:3d}/{epochs} |{_bar(epoch, epochs)}| "
+            f"{elapsed_epoch:.0f}s "
+            f"train={avg_train_loss:.4f} val={val_loss:.4f} "
+            f"C={val_c_index:.4f} ρ={val_spearman:.3f}"
+            f"{best_marker}  "
+            f"[ETA {int(eta_total//60)}m{int(eta_total%60):02d}s]\n"
+        )
+        sys.stdout.flush()
 
         # ── Early stopping + checkpoint ──
-        if val_loss < best_val_loss:
+        if is_best:
             best_val_loss = val_loss
             epochs_no_improve = 0
             history["best_epoch"] = epoch
@@ -443,9 +476,13 @@ def train(
         else:
             epochs_no_improve += 1
             if epochs_no_improve >= patience:
-                print(f"\n  Early stopping at epoch {epoch} "
+                print(f"  Early stopping at epoch {epoch} "
                       f"(no improvement for {patience} epochs)")
                 break
+
+    total_time = time.time() - train_start
+    print(f"\n  학습 완료: {int(total_time//60)}m{int(total_time%60):02d}s, "
+          f"{epoch} epochs")
 
     # ── 최종 평가 (Test) ──
     print(f"\n[4/4] 최종 평가...")

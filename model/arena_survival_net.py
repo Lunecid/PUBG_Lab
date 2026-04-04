@@ -244,16 +244,17 @@ class ArenaSurvivalNet(nn.Module):
         events = batch["events"]
         at_risks = batch["at_risks"]
 
-        # L_survival: discrete-time NLL
+        # L_survival: discrete-time NLL (pos_weight 자동 계산)
         l_survival = discrete_survival_nll(hazard_logits, events, at_risks)
 
-        # L_rank: pairwise ranking loss
+        # L_rank: match-aware pairwise ranking
         final_ranks = torch.tensor(
             [m["final_rank"] for m in batch["metas"]],
             dtype=torch.float32,
             device=hazard_logits.device,
         )
-        l_rank = pairwise_rank_loss(risk_scores, final_ranks)
+        match_ids = [m["match_id"] for m in batch["metas"]]
+        l_rank = pairwise_rank_loss(risk_scores, final_ranks, match_ids=match_ids)
 
         # L_encounter: attention 고정 (TODO: 교전 발생 예측)
         l_encounter = torch.tensor(0.0, device=hazard_logits.device)

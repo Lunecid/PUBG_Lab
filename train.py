@@ -29,7 +29,9 @@ from torch.utils.data import DataLoader, Subset
 
 from model.arena_survival_net import ArenaSurvivalNet
 from dataset import TeamSurvivalDataset, collate_survival_batch
+from dataset import SnapshotDataset, collate_snapshot_batch
 from metrics import evaluate_survival_model, format_eval_results
+from metrics import evaluate_snapshot_model, format_snapshot_eval
 
 
 # ============================================================
@@ -117,7 +119,9 @@ def split_dataset_by_match(dataset, train_ratio=0.7, val_ratio=0.15, seed=42):
     """
     # 매치별 샘플 인덱스 그룹핑
     match_to_indices = {}
-    for idx, (mi, tidx, step) in enumerate(dataset.samples):
+    for idx, sample_tuple in enumerate(dataset.samples):
+        # TeamSurvivalDataset: (mi, tidx, step), SnapshotDataset: (mi, step)
+        mi = sample_tuple[0]
         if mi not in match_to_indices:
             match_to_indices[mi] = []
         match_to_indices[mi].append(idx)
@@ -235,6 +239,38 @@ def evaluate(model, dataloader, device):
     return loss_means, eval_results
 
 
+@torch.no_grad()
+def evaluate_snapshot(model, dataloader, device):
+    """스냅샷 레벨 평가."""
+    model.eval()
+
+    all_hazard_logits = []
+    all_dying_teams = []
+    all_metas = []
+    total_loss = 0
+    n_batches = 0
+
+    for batch in dataloader:
+        batch["zone_seqs"] = [z.to(device) for z in batch["zone_seqs"]]
+
+        loss_dict = model.compute_snapshot_loss(batch)
+
+        total_loss += loss_dict["total"].item()
+        n_batches += 1
+
+        all_hazard_logits.extend(loss_dict["hazard_logits"])
+        all_dying_teams.extend(loss_dict["dying_teams"])
+        all_metas.extend(batch["metas"])
+
+    loss_mean = total_loss / max(n_batches, 1)
+
+    eval_results = evaluate_snapshot_model(
+        all_hazard_logits, all_dying_teams, all_metas
+    )
+
+    return loss_mean, eval_results
+
+
 # ============================================================
 # 4. 학습 루프
 # ============================================================
@@ -265,6 +301,7 @@ def train(
     patience=10,
     seed=42,
     device=None,
+    model_mode="snapshot",
 ):
     """
     전체 학습 파이프라인.
@@ -281,15 +318,30 @@ def train(
         device = torch.device(device)
     print(f"Device: {device}")
 
+    use_snapshot = (model_mode == "snapshot")
+    print(f"  모드: {'snapshot' if use_snapshot else 'legacy'}")
+
     # ── 데이터셋 로드 ──
     print("\n[1/4] 데이터셋 구성...")
-    dataset = TeamSurvivalDataset(
-        pt_dir=pt_dir,
-        window_size=window_size,
-        min_alive_teams=min_alive_teams,
-        skip_first_steps=skip_first_steps,
-        stride=stride,
-    )
+    if use_snapshot:
+        dataset = SnapshotDataset(
+            pt_dir=pt_dir,
+            window_size=window_size,
+            min_alive_teams=min_alive_teams,
+            skip_first_steps=skip_first_steps,
+        )
+        collate_fn = collate_snapshot_batch
+        effective_batch_size = min(batch_size, 8)  # 각 샘플이 ~20팀
+    else:
+        dataset = TeamSurvivalDataset(
+            pt_dir=pt_dir,
+            window_size=window_size,
+            min_alive_teams=min_alive_teams,
+            skip_first_steps=skip_first_steps,
+            stride=stride,
+        )
+        collate_fn = collate_survival_batch
+        effective_batch_size = batch_size
 
     if len(dataset) == 0:
         print("ERROR: 데이터셋이 비어 있습니다.")
@@ -305,23 +357,23 @@ def train(
 
     train_loader = DataLoader(
         Subset(dataset, train_idx),
-        batch_size=batch_size,
+        batch_size=effective_batch_size,
         shuffle=True,
-        collate_fn=collate_survival_batch,
+        collate_fn=collate_fn,
         num_workers=0,
     )
     val_loader = DataLoader(
         Subset(dataset, val_idx),
-        batch_size=batch_size,
+        batch_size=effective_batch_size,
         shuffle=False,
-        collate_fn=collate_survival_batch,
+        collate_fn=collate_fn,
         num_workers=0,
     )
     test_loader = DataLoader(
         Subset(dataset, test_idx),
-        batch_size=batch_size,
+        batch_size=effective_batch_size,
         shuffle=False,
-        collate_fn=collate_survival_batch,
+        collate_fn=collate_fn,
         num_workers=0,
     ) if test_idx else None
 
@@ -348,18 +400,26 @@ def train(
     )
 
     # ── 학습 ──
-    print(f"\n[3/4] 학습 시작 (epochs={epochs}, batch={batch_size}, lr={lr})...")
+    print(f"\n[3/4] 학습 시작 (epochs={epochs}, batch={effective_batch_size}, lr={lr})...")
     print(f"  train 배치: {len(train_loader)}, val 배치: {len(val_loader)}")
     os.makedirs(output_dir, exist_ok=True)
 
-    history = {
-        "train_loss": [], "val_loss": [],
-        "val_c_index": [], "val_spearman": [],
-        "val_phase_auc": [], "val_team_rank_rho": [],
-        "best_epoch": 0, "best_phase_auc": 0,
-    }
+    if use_snapshot:
+        history = {
+            "train_loss": [], "val_loss": [],
+            "val_mrr": [], "val_hit1": [], "val_hit3": [],
+            "val_spearman": [],
+            "best_epoch": 0, "best_mrr": 0,
+        }
+    else:
+        history = {
+            "train_loss": [], "val_loss": [],
+            "val_c_index": [], "val_spearman": [],
+            "val_phase_auc": [], "val_team_rank_rho": [],
+            "best_epoch": 0, "best_phase_auc": 0,
+        }
 
-    best_val_metric = 0.0  # phase_auc, 높을수록 좋음
+    best_val_metric = 0.0  # 높을수록 좋음 (snapshot: MRR, legacy: phase_auc)
     epochs_no_improve = 0
     train_start = time.time()
 
@@ -372,45 +432,59 @@ def train(
         model.train()
 
         epoch_loss = 0
-        epoch_survival = 0
-        epoch_rank = 0
         n_batches = 0
         total_batches = len(train_loader)
 
-        for bi, batch in enumerate(train_loader):
-            batch["zone_seqs"] = batch["zone_seqs"].to(device)
-            batch["events"] = batch["events"].to(device)
-            batch["at_risks"] = batch["at_risks"].to(device)
+        if use_snapshot:
+            # ── Snapshot 학습 루프 ──
+            for bi, batch in enumerate(train_loader):
+                batch["zone_seqs"] = [z.to(device) for z in batch["zone_seqs"]]
 
-            optimizer.zero_grad()
+                optimizer.zero_grad()
+                loss_dict = model.compute_snapshot_loss(batch)
+                loss_dict["total"].backward()
+                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=5.0)
+                optimizer.step()
 
-            loss_dict = model.compute_loss(
-                batch, lambda_rank=lambda_rank, lambda_encounter=lambda_encounter
-            )
+                epoch_loss += loss_dict["total"].item()
+                n_batches += 1
 
-            loss_dict["total"].backward()
+                cur_loss = epoch_loss / n_batches
+                sys.stdout.write(
+                    f"\r  Epoch {epoch:3d}/{epochs} |{_bar(bi+1, total_batches)}| "
+                    f"batch {bi+1}/{total_batches} loss={cur_loss:.4f}"
+                )
+                sys.stdout.flush()
+        else:
+            # ── Legacy 학습 루프 ──
+            epoch_survival = 0
+            epoch_rank = 0
+            for bi, batch in enumerate(train_loader):
+                batch["zone_seqs"] = batch["zone_seqs"].to(device)
+                batch["events"] = batch["events"].to(device)
+                batch["at_risks"] = batch["at_risks"].to(device)
 
-            # gradient clipping
-            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=5.0)
+                optimizer.zero_grad()
+                loss_dict = model.compute_loss(
+                    batch, lambda_rank=lambda_rank, lambda_encounter=lambda_encounter
+                )
+                loss_dict["total"].backward()
+                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=5.0)
+                optimizer.step()
 
-            optimizer.step()
+                epoch_loss += loss_dict["total"].item()
+                epoch_survival += loss_dict["survival"].item()
+                epoch_rank += loss_dict["rank"].item()
+                n_batches += 1
 
-            epoch_loss += loss_dict["total"].item()
-            epoch_survival += loss_dict["survival"].item()
-            epoch_rank += loss_dict["rank"].item()
-            n_batches += 1
-
-            # 배치 프로그레스
-            cur_loss = epoch_loss / n_batches
-            sys.stdout.write(
-                f"\r  Epoch {epoch:3d}/{epochs} |{_bar(bi+1, total_batches)}| "
-                f"batch {bi+1}/{total_batches} loss={cur_loss:.4f}"
-            )
-            sys.stdout.flush()
+                cur_loss = epoch_loss / n_batches
+                sys.stdout.write(
+                    f"\r  Epoch {epoch:3d}/{epochs} |{_bar(bi+1, total_batches)}| "
+                    f"batch {bi+1}/{total_batches} loss={cur_loss:.4f}"
+                )
+                sys.stdout.flush()
 
         avg_train_loss = epoch_loss / max(n_batches, 1)
-        avg_train_surv = epoch_survival / max(n_batches, 1)
-        avg_train_rank = epoch_rank / max(n_batches, 1)
 
         # ── Validation ──
         sys.stdout.write(
@@ -418,48 +492,68 @@ def train(
         )
         sys.stdout.flush()
 
-        val_losses, val_metrics = evaluate(model, val_loader, device)
-        val_loss = val_losses.get("total", float("inf"))
-        val_c_index = val_metrics.get("summary", {}).get("c_index", 0)
-        val_spearman = val_metrics.get("summary", {}).get("spearman_rho", 0)
-        val_phase_auc = val_metrics.get("summary", {}).get("phase_auc", 0)
-        val_team_rank_rho = val_metrics.get("summary", {}).get("team_rank_rho", 0)
+        if use_snapshot:
+            val_loss, val_metrics = evaluate_snapshot(model, val_loader, device)
+            val_primary = val_metrics.get("summary", {}).get("mrr", 0)
+            val_hit1 = val_metrics.get("summary", {}).get("hit_1", 0)
+            val_hit3 = val_metrics.get("summary", {}).get("hit_3", 0)
+            val_spearman = val_metrics.get("summary", {}).get("spearman_rho", 0)
 
-        scheduler.step(val_phase_auc)
+            scheduler.step(val_primary)
 
-        # History
-        history["train_loss"].append(avg_train_loss)
-        history["val_loss"].append(val_loss)
-        history["val_c_index"].append(val_c_index)
-        history["val_spearman"].append(val_spearman)
-        history["val_phase_auc"].append(val_phase_auc)
-        history["val_team_rank_rho"].append(val_team_rank_rho)
+            history["train_loss"].append(avg_train_loss)
+            history["val_loss"].append(val_loss)
+            history["val_mrr"].append(val_primary)
+            history["val_hit1"].append(val_hit1)
+            history["val_hit3"].append(val_hit3)
+            history["val_spearman"].append(val_spearman)
+
+            primary_label = f"MRR={val_primary:.4f} H@1={val_hit1:.4f}"
+        else:
+            val_losses, val_metrics = evaluate(model, val_loader, device)
+            val_loss = val_losses.get("total", float("inf"))
+            val_phase_auc = val_metrics.get("summary", {}).get("phase_auc", 0)
+            val_spearman = val_metrics.get("summary", {}).get("spearman_rho", 0)
+            val_team_rank_rho = val_metrics.get("summary", {}).get("team_rank_rho", 0)
+            val_primary = val_phase_auc
+
+            scheduler.step(val_primary)
+
+            history["train_loss"].append(avg_train_loss)
+            history["val_loss"].append(val_loss)
+            history["val_c_index"].append(val_metrics.get("summary", {}).get("c_index", 0))
+            history["val_spearman"].append(val_spearman)
+            history["val_phase_auc"].append(val_phase_auc)
+            history["val_team_rank_rho"].append(val_team_rank_rho)
+
+            primary_label = f"phAUC={val_phase_auc:.4f} ρ={val_spearman:.3f}"
 
         elapsed_epoch = time.time() - t0
         elapsed_total = time.time() - train_start
         eta_total = elapsed_total / epoch * (epochs - epoch)
 
-        # best 마커 (phase_auc 기준)
-        is_best = val_phase_auc > best_val_metric
+        is_best = val_primary > best_val_metric
         best_marker = " *" if is_best else ""
 
-        # 에포크 결과 한 줄 출력 (프로그레스 바 덮어쓰기)
         sys.stdout.write(
             f"\r  Epoch {epoch:3d}/{epochs} |{_bar(epoch, epochs)}| "
             f"{elapsed_epoch:.0f}s "
             f"train={avg_train_loss:.4f} val={val_loss:.4f} "
-            f"phAUC={val_phase_auc:.4f} ρ={val_spearman:.3f}"
+            f"{primary_label}"
             f"{best_marker}  "
             f"[ETA {int(eta_total//60)}m{int(eta_total%60):02d}s]\n"
         )
         sys.stdout.flush()
 
-        # ── Early stopping + checkpoint (phase_auc 기준) ──
+        # ── Early stopping + checkpoint ──
         if is_best:
-            best_val_metric = val_phase_auc
+            best_val_metric = val_primary
             epochs_no_improve = 0
             history["best_epoch"] = epoch
-            history["best_phase_auc"] = val_phase_auc
+            if use_snapshot:
+                history["best_mrr"] = val_primary
+            else:
+                history["best_phase_auc"] = val_primary
 
             ckpt_path = os.path.join(output_dir, "best_model.pt")
             torch.save({
@@ -467,7 +561,8 @@ def train(
                 "model_state_dict": model.state_dict(),
                 "optimizer_state_dict": optimizer.state_dict(),
                 "val_loss": val_loss,
-                "val_phase_auc": val_phase_auc,
+                "val_primary": val_primary,
+                "model_mode": model_mode,
                 "config": {
                     "hidden_dim": hidden_dim,
                     "n_encoder_layers": n_encoder_layers,
@@ -491,23 +586,35 @@ def train(
 
     # ── 최종 평가 (Test) ──
     print(f"\n[4/4] 최종 평가...")
+    metric_name = "MRR" if use_snapshot else "phase AUC"
     print(f"  Best epoch: {history['best_epoch']}, "
-          f"best val phase AUC: {history['best_phase_auc']:.4f}")
+          f"best val {metric_name}: {best_val_metric:.4f}")
 
     # 최적 모델 로드
     ckpt = torch.load(os.path.join(output_dir, "best_model.pt"),
                        map_location=device, weights_only=False)
     model.load_state_dict(ckpt["model_state_dict"])
 
-    # Validation 최종 평가
-    val_losses, val_results = evaluate(model, val_loader, device)
-    print(format_eval_results(val_results, prefix="  [Val] "))
+    if use_snapshot:
+        # Validation 최종 평가
+        _, val_results = evaluate_snapshot(model, val_loader, device)
+        print(format_snapshot_eval(val_results, prefix="  [Val] "))
 
-    # Test 평가
-    if test_loader:
-        test_losses, test_results = evaluate(model, test_loader, device)
-        print(format_eval_results(test_results, prefix="  [Test] "))
-        history["test_results"] = test_results.get("summary", {})
+        # Test 평가
+        if test_loader:
+            _, test_results = evaluate_snapshot(model, test_loader, device)
+            print(format_snapshot_eval(test_results, prefix="  [Test] "))
+            history["test_results"] = test_results.get("summary", {})
+    else:
+        # Validation 최종 평가
+        val_losses, val_results = evaluate(model, val_loader, device)
+        print(format_eval_results(val_results, prefix="  [Val] "))
+
+        # Test 평가
+        if test_loader:
+            test_losses, test_results = evaluate(model, test_loader, device)
+            print(format_eval_results(test_results, prefix="  [Test] "))
+            history["test_results"] = test_results.get("summary", {})
 
     # History 저장
     history_path = os.path.join(output_dir, "training_history.json")
@@ -570,6 +677,9 @@ def parse_args():
     parser.add_argument("--patience", type=int, default=10)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--device", type=str, default=None)
+    parser.add_argument("--model_mode", type=str, default="snapshot",
+                        choices=["snapshot", "legacy"],
+                        help="snapshot: 스냅샷 레벨 (권장), legacy: 기존 팀 레벨")
 
     return parser.parse_args()
 

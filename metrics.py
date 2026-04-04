@@ -567,3 +567,124 @@ def format_eval_results(results, prefix=""):
             lines.append(f"{prefix}    Phase {phase}: {auc:.4f}")
 
     return "\n".join(lines)
+
+
+# ============================================================
+# 6. 스냅샷 레벨 메트릭
+# ============================================================
+
+def snapshot_hit_rate(all_hazard_logits, all_dying_teams, k=1):
+    """
+    Top-k hit rate: hazard 상위 k개 팀 안에 실제 탈락 팀이 포함되는 비율.
+    """
+    import torch
+
+    hits = 0
+    total = 0
+
+    for logits, dying in zip(all_hazard_logits, all_dying_teams):
+        if len(dying) == 0 or len(logits) == 0:
+            continue
+        topk_indices = torch.topk(
+            logits, k=min(k, len(logits))
+        ).indices.tolist()
+
+        for dt in dying:
+            total += 1
+            if dt in topk_indices:
+                hits += 1
+
+    return {
+        "hit_rate": hits / max(total, 1),
+        "n_events": total,
+    }
+
+
+def snapshot_mrr(all_hazard_logits, all_dying_teams):
+    """
+    Mean Reciprocal Rank: 탈락 팀의 hazard 순위의 역수 평균.
+    MRR=1.0이면 매번 탈락 팀이 가장 높은 hazard.
+    """
+    import torch
+
+    rr_sum = 0.0
+    total = 0
+
+    for logits, dying in zip(all_hazard_logits, all_dying_teams):
+        if len(dying) == 0 or len(logits) == 0:
+            continue
+        sorted_indices = torch.argsort(logits, descending=True).tolist()
+
+        for dt in dying:
+            rank = sorted_indices.index(dt) + 1
+            rr_sum += 1.0 / rank
+            total += 1
+
+    return {
+        "mrr": rr_sum / max(total, 1),
+        "n_events": total,
+    }
+
+
+def snapshot_rank_correlation(all_hazard_logits, all_metas):
+    """
+    스냅샷별 alive 팀 hazard rank vs final_rank Spearman 상관.
+    """
+    rho_list = []
+
+    for logits, meta in zip(all_hazard_logits, all_metas):
+        ranks = meta.get("team_ranks", [])
+        if len(ranks) < 3 or len(logits) < 3:
+            continue
+
+        haz = logits.cpu().numpy()
+        final = np.array(ranks, dtype=float)
+
+        if np.std(haz) < 1e-8:
+            continue
+
+        sp = scipy_stats.spearmanr(haz, final)
+        rho = float(sp.statistic) if hasattr(sp, 'statistic') else float(sp[0])
+        rho_list.append(rho)
+
+    return {
+        "spearman_rho": float(np.mean(rho_list)) if rho_list else 0.0,
+        "n_snapshots": len(rho_list),
+    }
+
+
+def evaluate_snapshot_model(all_hazard_logits, all_dying_teams, all_metas):
+    """스냅샷 레벨 종합 평가."""
+    results = {}
+
+    results["hit_1"] = snapshot_hit_rate(all_hazard_logits, all_dying_teams, k=1)
+    results["hit_3"] = snapshot_hit_rate(all_hazard_logits, all_dying_teams, k=3)
+    results["hit_5"] = snapshot_hit_rate(all_hazard_logits, all_dying_teams, k=5)
+    results["mrr"] = snapshot_mrr(all_hazard_logits, all_dying_teams)
+    results["rank_corr"] = snapshot_rank_correlation(all_hazard_logits, all_metas)
+
+    results["summary"] = {
+        "hit_1": results["hit_1"]["hit_rate"],
+        "hit_3": results["hit_3"]["hit_rate"],
+        "hit_5": results["hit_5"]["hit_rate"],
+        "mrr": results["mrr"]["mrr"],
+        "spearman_rho": results["rank_corr"]["spearman_rho"],
+        "n_events": results["mrr"]["n_events"],
+    }
+
+    return results
+
+
+def format_snapshot_eval(results, prefix=""):
+    """스냅샷 평가 결과 포맷."""
+    s = results.get("summary", {})
+    lines = [
+        f"{prefix}=== Snapshot Model Evaluation ===",
+        f"{prefix}  Hit@1:      {s.get('hit_1', 0):.4f}",
+        f"{prefix}  Hit@3:      {s.get('hit_3', 0):.4f}",
+        f"{prefix}  Hit@5:      {s.get('hit_5', 0):.4f}",
+        f"{prefix}  MRR:        {s.get('mrr', 0):.4f}",
+        f"{prefix}  Spearman ρ: {s.get('spearman_rho', 0):.4f}",
+        f"{prefix}  Events:     {s.get('n_events', 0)}",
+    ]
+    return "\n".join(lines)

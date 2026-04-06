@@ -392,9 +392,19 @@ def train(
     n_params = sum(p.numel() for p in model.parameters())
     print(f"  파라미터: {n_params:,}")
 
-    optimizer = torch.optim.Adam(
-        model.parameters(), lr=lr, weight_decay=weight_decay
-    )
+    # Parameter group별 learning rate: GNN backbone 3x lr
+    upstream_params = []
+    downstream_params = []
+    for name, param in model.named_parameters():
+        if name.startswith(('agent_encoder', 'group_pooling', 'group_gnn')):
+            upstream_params.append(param)
+        else:
+            downstream_params.append(param)
+
+    optimizer = torch.optim.Adam([
+        {'params': upstream_params, 'lr': lr * 3},
+        {'params': downstream_params, 'lr': lr},
+    ], weight_decay=weight_decay)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode="max", factor=0.5, patience=patience // 2,
     )

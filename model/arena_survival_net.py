@@ -421,14 +421,14 @@ class ArenaSurvivalNet(nn.Module):
 
         return hazard_logits, risk_scores, alphas
 
-    def compute_snapshot_loss(self, batch):
+    def compute_snapshot_loss(self, batch, lambda_survival=0.5):
         """
-        스냅샷 배치에 대한 loss 계산.
+        Multi-task loss: L_ranking + λ · L_survival.
 
         Returns:
             dict: total, hazard_logits list, risk_scores list, dying_teams list
         """
-        from dataset import snapshot_ranking_loss
+        from dataset import snapshot_ranking_loss, snapshot_survival_nll
 
         B = len(batch["player_graphs"])
         device = batch["zone_seqs"][0].device
@@ -451,7 +451,11 @@ class ArenaSurvivalNet(nn.Module):
             hazard_logits, risk_scores, _ = self.forward_snapshot(sample)
             dying_teams = batch["dying_teams"][b]
 
-            loss = snapshot_ranking_loss(hazard_logits, dying_teams)
+            # Multi-task loss
+            l_ranking = snapshot_ranking_loss(hazard_logits, dying_teams)
+            l_survival = snapshot_survival_nll(hazard_logits, dying_teams)
+            loss = l_ranking + lambda_survival * l_survival
+
             total_loss = total_loss + loss
             n_valid += 1
 

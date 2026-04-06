@@ -653,38 +653,244 @@ def snapshot_rank_correlation(all_hazard_logits, all_metas):
     }
 
 
+# ============================================================
+# 7. Dual-Axis 메트릭 (Survival + Winner Prediction)
+# ============================================================
+
+def snapshot_brier_score(all_hazard_logits, all_dying_teams):
+    """
+    스냅샷별 Brier Score: sigmoid(hazard)와 실제 탈락 여부의 MSE.
+    calibration 품질 측정. 낮을수록 좋음.
+    """
+    import torch
+
+    brier_sum = 0.0
+    n_total = 0
+
+    for logits, dying in zip(all_hazard_logits, all_dying_teams):
+        n_alive = len(logits)
+        if n_alive == 0:
+            continue
+
+        probs = torch.sigmoid(logits).cpu().numpy()
+        labels = np.zeros(n_alive)
+        for idx in dying:
+            labels[idx] = 1.0
+
+        brier_sum += np.sum((probs - labels) ** 2)
+        n_total += n_alive
+
+    return brier_sum / max(n_total, 1)
+
+
+def snapshot_calibration_error(all_hazard_logits, all_dying_teams, n_bins=10):
+    """
+    Expected Calibration Error (ECE).
+    sigmoid(hazard)를 n_bins개 구간으로 나눠 예측 확률 vs 실제 비율 비교.
+    """
+    import torch
+
+    all_probs = []
+    all_labels = []
+
+    for logits, dying in zip(all_hazard_logits, all_dying_teams):
+        n_alive = len(logits)
+        if n_alive == 0:
+            continue
+        probs = torch.sigmoid(logits).cpu().numpy()
+        labels = np.zeros(n_alive)
+        for idx in dying:
+            labels[idx] = 1.0
+        all_probs.extend(probs.tolist())
+        all_labels.extend(labels.tolist())
+
+    if len(all_probs) == 0:
+        return {"ece": 0.0, "bins": {}}
+
+    all_probs = np.array(all_probs)
+    all_labels = np.array(all_labels)
+
+    bin_edges = np.linspace(0, 1, n_bins + 1)
+    ece = 0.0
+    bins_detail = {}
+
+    for i in range(n_bins):
+        mask = (all_probs >= bin_edges[i]) & (all_probs < bin_edges[i + 1])
+        if mask.sum() == 0:
+            continue
+        bin_pred = all_probs[mask].mean()
+        bin_obs = all_labels[mask].mean()
+        bin_n = int(mask.sum())
+        ece += (abs(bin_pred - bin_obs) * bin_n) / len(all_probs)
+        bins_detail[i] = {
+            "predicted": float(bin_pred),
+            "observed": float(bin_obs),
+            "n_samples": bin_n,
+        }
+
+    return {"ece": float(ece), "bins": bins_detail}
+
+
+def snapshot_td_c_index(all_hazard_logits, all_dying_teams):
+    """
+    Time-dependent C-index (스냅샷 레벨).
+    각 스냅샷에서 dying 팀이 surviving 팀보다 높은 hazard를 가지는 비율.
+    """
+    concordant = 0
+    discordant = 0
+    tied = 0
+
+    for logits, dying in zip(all_hazard_logits, all_dying_teams):
+        n_alive = len(logits)
+        if n_alive == 0 or len(dying) == 0:
+            continue
+
+        dying_set = set(dying)
+        surviving = [i for i in range(n_alive) if i not in dying_set]
+
+        if len(surviving) == 0:
+            continue
+
+        for d_idx in dying:
+            h_d = logits[d_idx].item()
+            for s_idx in surviving:
+                h_s = logits[s_idx].item()
+                if h_d > h_s:
+                    concordant += 1
+                elif h_d < h_s:
+                    discordant += 1
+                else:
+                    tied += 1
+
+    total = concordant + discordant + tied
+    if total == 0:
+        return 0.5
+    return (concordant + 0.5 * tied) / total
+
+
+def snapshot_topk_precision(all_hazard_logits, all_metas, k=3):
+    """
+    상위권 예측 정밀도.
+    hazard 하위 k팀 (= 가장 안전한 팀)이 실제 최종 상위 k등 안에 포함되는 비율.
+    """
+    import torch
+
+    hits = 0
+    total = 0
+
+    for logits, meta in zip(all_hazard_logits, all_metas):
+        ranks = meta.get("team_ranks", [])
+        n_alive = len(logits)
+
+        if n_alive < k + 1 or len(ranks) != n_alive:
+            continue
+
+        # hazard 가장 낮은 k팀 (= 상위권 예측)
+        topk_safe = torch.topk(logits, k=min(k, n_alive), largest=False).indices.tolist()
+
+        # 실제 상위 k등 (rank 값이 가장 낮은 k팀)
+        rank_arr = np.array(ranks)
+        actual_topk = set(np.argsort(rank_arr)[:k].tolist())
+
+        for idx in topk_safe:
+            total += 1
+            if idx in actual_topk:
+                hits += 1
+
+    return hits / max(total, 1)
+
+
+def snapshot_winner_hit_rate(all_hazard_logits, all_metas):
+    """
+    치킨디너 예측 적중률.
+    hazard 최저 팀이 실제 1위(rank=1)인 비율.
+    """
+    import torch
+
+    hits = 0
+    total = 0
+
+    for logits, meta in zip(all_hazard_logits, all_metas):
+        ranks = meta.get("team_ranks", [])
+        n_alive = len(logits)
+
+        if n_alive < 2 or len(ranks) != n_alive:
+            continue
+
+        # hazard 최저 팀
+        predicted_winner = torch.argmin(logits).item()
+
+        # 실제 1위 (rank 값이 가장 낮은 팀)
+        actual_winner = int(np.argmin(ranks))
+
+        total += 1
+        if predicted_winner == actual_winner:
+            hits += 1
+
+    return hits / max(total, 1)
+
+
 def evaluate_snapshot_model(all_hazard_logits, all_dying_teams, all_metas):
-    """스냅샷 레벨 종합 평가."""
+    """스냅샷 레벨 종합 평가. (dual-axis 확장)"""
     results = {}
 
+    # ── Ranking 축 (기존) ──
     results["hit_1"] = snapshot_hit_rate(all_hazard_logits, all_dying_teams, k=1)
     results["hit_3"] = snapshot_hit_rate(all_hazard_logits, all_dying_teams, k=3)
     results["hit_5"] = snapshot_hit_rate(all_hazard_logits, all_dying_teams, k=5)
     results["mrr"] = snapshot_mrr(all_hazard_logits, all_dying_teams)
     results["rank_corr"] = snapshot_rank_correlation(all_hazard_logits, all_metas)
 
+    # ── Survival 축 (신규) ──
+    results["td_c_index"] = snapshot_td_c_index(all_hazard_logits, all_dying_teams)
+    results["brier_score"] = snapshot_brier_score(all_hazard_logits, all_dying_teams)
+    results["calibration"] = snapshot_calibration_error(all_hazard_logits, all_dying_teams)
+
+    # ── Winner 축 (신규) ──
+    results["topk_precision_3"] = snapshot_topk_precision(all_hazard_logits, all_metas, k=3)
+    results["topk_precision_5"] = snapshot_topk_precision(all_hazard_logits, all_metas, k=5)
+    results["winner_hit"] = snapshot_winner_hit_rate(all_hazard_logits, all_metas)
+
     results["summary"] = {
+        # Ranking
         "hit_1": results["hit_1"]["hit_rate"],
         "hit_3": results["hit_3"]["hit_rate"],
         "hit_5": results["hit_5"]["hit_rate"],
         "mrr": results["mrr"]["mrr"],
         "spearman_rho": results["rank_corr"]["spearman_rho"],
         "n_events": results["mrr"]["n_events"],
+        # Survival
+        "td_c_index": results["td_c_index"],
+        "brier_score": results["brier_score"],
+        "ece": results["calibration"]["ece"],
+        # Winner
+        "topk_precision_3": results["topk_precision_3"],
+        "topk_precision_5": results["topk_precision_5"],
+        "winner_hit": results["winner_hit"],
     }
 
     return results
 
 
 def format_snapshot_eval(results, prefix=""):
-    """스냅샷 평가 결과 포맷."""
+    """스냅샷 평가 결과 포맷. (dual-axis 확장)"""
     s = results.get("summary", {})
     lines = [
         f"{prefix}=== Snapshot Model Evaluation ===",
-        f"{prefix}  Hit@1:      {s.get('hit_1', 0):.4f}",
-        f"{prefix}  Hit@3:      {s.get('hit_3', 0):.4f}",
-        f"{prefix}  Hit@5:      {s.get('hit_5', 0):.4f}",
-        f"{prefix}  MRR:        {s.get('mrr', 0):.4f}",
-        f"{prefix}  Spearman ρ: {s.get('spearman_rho', 0):.4f}",
-        f"{prefix}  Events:     {s.get('n_events', 0)}",
+        f"{prefix}  [Ranking]",
+        f"{prefix}    Hit@1:      {s.get('hit_1', 0):.4f}",
+        f"{prefix}    Hit@3:      {s.get('hit_3', 0):.4f}",
+        f"{prefix}    Hit@5:      {s.get('hit_5', 0):.4f}",
+        f"{prefix}    MRR:        {s.get('mrr', 0):.4f}",
+        f"{prefix}    Spearman ρ: {s.get('spearman_rho', 0):.4f}",
+        f"{prefix}  [Survival]",
+        f"{prefix}    TD C-index: {s.get('td_c_index', 0):.4f}",
+        f"{prefix}    Brier:      {s.get('brier_score', 0):.4f}",
+        f"{prefix}    ECE:        {s.get('ece', 0):.4f}",
+        f"{prefix}  [Winner]",
+        f"{prefix}    Top3 Prec:  {s.get('topk_precision_3', 0):.4f}",
+        f"{prefix}    Top5 Prec:  {s.get('topk_precision_5', 0):.4f}",
+        f"{prefix}    Winner Hit: {s.get('winner_hit', 0):.4f}",
+        f"{prefix}  Events: {s.get('n_events', 0)}",
     ]
     return "\n".join(lines)

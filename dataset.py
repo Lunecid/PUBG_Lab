@@ -893,6 +893,39 @@ def snapshot_ranking_loss(hazard_logits, dying_teams):
     return total / len(dying_teams)
 
 
+def snapshot_survival_nll(hazard_logits, dying_teams):
+    """
+    Snapshot-level discrete-time survival NLL.
+
+    각 alive 팀에 대해 sigmoid(h_i)로 탈락 확률을 구하고,
+    dying_teams에는 -log(p), 생존 팀에는 -log(1-p)를 적용.
+
+    Parameters:
+        hazard_logits: Tensor [n_alive] — hazard head 출력 (sigmoid 전)
+        dying_teams: list[int] — 탈락 팀의 로컬 인덱스
+
+    Returns:
+        loss: Tensor scalar
+    """
+    n_alive = hazard_logits.shape[0]
+    if n_alive == 0:
+        return torch.tensor(0.0, device=hazard_logits.device, requires_grad=True)
+
+    labels = torch.zeros(n_alive, device=hazard_logits.device)
+    for idx in dying_teams:
+        labels[idx] = 1.0
+
+    # pos_weight: class imbalance 보정
+    n_pos = max(len(dying_teams), 1)
+    n_neg = n_alive - n_pos
+    pos_weight = torch.tensor([n_neg / n_pos], device=hazard_logits.device)
+
+    loss = torch.nn.functional.binary_cross_entropy_with_logits(
+        hazard_logits, labels, pos_weight=pos_weight, reduction='mean'
+    )
+    return loss
+
+
 # ============================================================
 # 6. 검증 유틸리티
 # ============================================================

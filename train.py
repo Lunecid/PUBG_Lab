@@ -240,7 +240,7 @@ def evaluate(model, dataloader, device):
 
 
 @torch.no_grad()
-def evaluate_snapshot(model, dataloader, device):
+def evaluate_snapshot(model, dataloader, device, lambda_survival=0.5):
     """스냅샷 레벨 평가."""
     model.eval()
 
@@ -253,7 +253,7 @@ def evaluate_snapshot(model, dataloader, device):
     for batch in dataloader:
         batch["zone_seqs"] = [z.to(device) for z in batch["zone_seqs"]]
 
-        loss_dict = model.compute_snapshot_loss(batch)
+        loss_dict = model.compute_snapshot_loss(batch, lambda_survival=lambda_survival)
 
         total_loss += loss_dict["total"].item()
         n_batches += 1
@@ -292,6 +292,7 @@ def train(
     batch_size=32,
     lambda_rank=0.1,
     lambda_encounter=0.05,
+    lambda_survival=0.5,
     # 데이터
     window_size=5,
     skip_first_steps=10,
@@ -419,6 +420,9 @@ def train(
             "train_loss": [], "val_loss": [],
             "val_mrr": [], "val_hit1": [], "val_hit3": [],
             "val_spearman": [],
+            # dual-axis
+            "val_td_c_index": [], "val_brier": [], "val_ece": [],
+            "val_topk3": [], "val_winner_hit": [],
             "best_epoch": 0, "best_mrr": 0,
         }
     else:
@@ -451,7 +455,7 @@ def train(
                 batch["zone_seqs"] = [z.to(device) for z in batch["zone_seqs"]]
 
                 optimizer.zero_grad()
-                loss_dict = model.compute_snapshot_loss(batch)
+                loss_dict = model.compute_snapshot_loss(batch, lambda_survival=lambda_survival)
                 loss_dict["total"].backward()
                 torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=5.0)
                 optimizer.step()
@@ -511,12 +515,23 @@ def train(
 
             scheduler.step(val_primary)
 
+            val_td_c = val_metrics.get("summary", {}).get("td_c_index", 0)
+            val_brier = val_metrics.get("summary", {}).get("brier_score", 0)
+            val_ece = val_metrics.get("summary", {}).get("ece", 0)
+            val_topk3 = val_metrics.get("summary", {}).get("topk_precision_3", 0)
+            val_winner = val_metrics.get("summary", {}).get("winner_hit", 0)
+
             history["train_loss"].append(avg_train_loss)
             history["val_loss"].append(val_loss)
             history["val_mrr"].append(val_primary)
             history["val_hit1"].append(val_hit1)
             history["val_hit3"].append(val_hit3)
             history["val_spearman"].append(val_spearman)
+            history["val_td_c_index"].append(val_td_c)
+            history["val_brier"].append(val_brier)
+            history["val_ece"].append(val_ece)
+            history["val_topk3"].append(val_topk3)
+            history["val_winner_hit"].append(val_winner)
 
             primary_label = f"MRR={val_primary:.4f} H@1={val_hit1:.4f}"
         else:
@@ -676,6 +691,8 @@ def parse_args():
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--lambda_rank", type=float, default=0.1)
     parser.add_argument("--lambda_encounter", type=float, default=0.05)
+    parser.add_argument("--lambda_survival", type=float, default=0.5,
+                        help="survival NLL loss 가중치 (multi-task)")
 
     # 데이터 처리
     parser.add_argument("--window_size", type=int, default=5)

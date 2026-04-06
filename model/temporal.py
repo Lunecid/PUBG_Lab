@@ -31,6 +31,9 @@ class TemporalEncoder(nn.Module):
         super().__init__()
         self.hidden_dim = hidden_dim
 
+        # team embedding 정규화 (zone_proj와 scale 맞춤)
+        self.team_norm = nn.LayerNorm(hidden_dim)
+
         # zone context 프로젝션
         self.zone_proj = nn.Linear(zone_dim, hidden_dim // 4)
 
@@ -57,11 +60,12 @@ class TemporalEncoder(nn.Module):
         """
         L = team_h_seq.shape[0]
 
-        # zone 프로젝션
+        # team embedding 정규화 + zone 프로젝션
+        team_h_normed = self.team_norm(team_h_seq)
         z = self.zone_proj(zone_seq)  # [L, hidden_dim//4]
 
         # GRU 입력 조립
-        gru_input = torch.cat([team_h_seq, z], dim=-1)  # [L, gru_input_dim]
+        gru_input = torch.cat([team_h_normed, z], dim=-1)  # [L, gru_input_dim]
         gru_input = gru_input.unsqueeze(0)  # [1, L, gru_input_dim]
 
         output, h_n = self.gru(gru_input)  # output: [1, L, hidden_dim]
@@ -80,8 +84,9 @@ class TemporalEncoder(nn.Module):
         Returns:
             h_out: Tensor [B, hidden_dim]
         """
+        team_h_normed = self.team_norm(team_h_seqs)
         z = self.zone_proj(zone_seqs)  # [B, L, hidden_dim//4]
-        gru_input = torch.cat([team_h_seqs, z], dim=-1)  # [B, L, gru_input_dim]
+        gru_input = torch.cat([team_h_normed, z], dim=-1)  # [B, L, gru_input_dim]
 
         output, h_n = self.gru(gru_input)  # h_n: [n_layers, B, hidden_dim]
         h_out = h_n[-1]  # [B, hidden_dim]

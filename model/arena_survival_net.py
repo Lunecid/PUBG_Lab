@@ -83,6 +83,12 @@ class ArenaSurvivalNet(nn.Module):
             dropout=dropout,
         )
 
+        # 5a. GNN skip-connection gate (gradient highway)
+        self.gnn_gate = nn.Sequential(
+            nn.Linear(hidden_dim * 2, hidden_dim),
+            nn.Sigmoid(),
+        )
+
         # 5. Hazard Head: Phase-conditioned
         self.hazard_head = HazardHead(
             hidden_dim=hidden_dim,
@@ -150,6 +156,7 @@ class ArenaSurvivalNet(nn.Module):
         last_pg = player_graphs[-1]
         n_players_last = last_pg["player"].x.shape[0]
         alphas = []
+        target_gnn_h = None
 
         if n_players_last > 0 and team_graph.num_nodes > 0:
             agent_h_last = self.agent_encoder(last_pg)
@@ -165,10 +172,18 @@ class ArenaSurvivalNet(nn.Module):
                 if team_idx_target in alive_teams:
                     local_idx = alive_teams.index(team_idx_target)
                     team_h_seq[-1] = team_h_seq[-1] + team_h_gnn[local_idx]
+                    target_gnn_h = team_h_gnn[local_idx]
 
         # 3. Temporal: GRU
         team_h_seq_t = torch.stack(team_h_seq)  # [L, hidden_dim]
         h_temporal = self.temporal(team_h_seq_t, zone_seq)  # [hidden_dim]
+
+        # GNN gradient highway
+        if target_gnn_h is not None:
+            gate = self.gnn_gate(torch.cat([h_temporal, target_gnn_h], dim=-1))
+            h_final = h_temporal + gate * target_gnn_h
+        else:
+            h_final = h_temporal
 
         # 4. Hazard Head
         zone_phase = meta.get("zone_phase", 0)
@@ -180,9 +195,9 @@ class ArenaSurvivalNet(nn.Module):
             alive_teams_count / 25.0,  # ~25팀 기준 정규화
             meta.get("elapsed", 0) / 1800.0,  # 30분 기준
             norm_zone_area * (alive_teams_count / 25.0),  # density proxy
-        ], device=h_temporal.device, dtype=torch.float32)
+        ], device=h_final.device, dtype=torch.float32)
 
-        hazard_logit, risk_score = self.hazard_head(h_temporal, zone_phase, context)
+        hazard_logit, risk_score = self.hazard_head(h_final, zone_phase, context)
 
         return hazard_logit, risk_score, alphas, last_attn
 
@@ -338,6 +353,7 @@ class ArenaSurvivalNet(nn.Module):
 
         # ── GroupGNN (마지막 스텝) ──
         alphas = []
+        gnn_aligned = None  # [n_alive, hidden_dim] aligned to alive_teams order
         if team_graph.num_nodes > 0 and cached_agent_h_last is not None:
             pg_last = player_graphs[-1]
             p_team_idx_last = pg_last["player"].team_idx
@@ -350,9 +366,11 @@ class ArenaSurvivalNet(nn.Module):
                 team_h_pooled_last, team_graph
             )
 
-            # GNN 출력을 마지막 스텝에 더하기
+            # GNN 출력을 마지막 스텝에 더하기 (기존 경로 유지)
             graph_alive = team_graph.alive_teams
             if isinstance(graph_alive, list):
+                # GNN 출력을 alive_teams 순서에 맞게 정렬
+                gnn_parts = []
                 for i, tidx in enumerate(alive_teams):
                     if tidx in graph_alive:
                         gnn_local = graph_alive.index(tidx)
@@ -360,6 +378,12 @@ class ArenaSurvivalNet(nn.Module):
                             all_team_h[-1][i] = (
                                 all_team_h[-1][i] + team_h_gnn[gnn_local]
                             )
+                            gnn_parts.append(team_h_gnn[gnn_local])
+                        else:
+                            gnn_parts.append(torch.zeros(self.hidden_dim, device=device))
+                    else:
+                        gnn_parts.append(torch.zeros(self.hidden_dim, device=device))
+                gnn_aligned = torch.stack(gnn_parts)  # [n_alive, hidden_dim]
 
         # ── Temporal: 팀별 GRU (배치 처리) ──
         team_seqs = torch.stack(all_team_h, dim=1)  # [n_alive, L, hidden_dim]
@@ -368,6 +392,13 @@ class ArenaSurvivalNet(nn.Module):
         h_temporal = self.temporal.forward_batch(
             team_seqs, zone_expanded
         )  # [n_alive, hidden_dim]
+
+        # ── GNN gradient highway: gated skip connection ──
+        if gnn_aligned is not None:
+            gate = self.gnn_gate(torch.cat([h_temporal, gnn_aligned], dim=-1))
+            h_final = h_temporal + gate * gnn_aligned
+        else:
+            h_final = h_temporal
 
         # ── HazardHead (배치 처리) ──
         zone_phase = meta.get("zone_phase", 0)
@@ -385,7 +416,7 @@ class ArenaSurvivalNet(nn.Module):
         context = ctx_base.unsqueeze(0).expand(n_alive, -1)  # [n_alive, 4]
 
         hazard_logits, risk_scores = self.hazard_head.forward_batch(
-            h_temporal, zone_phases, context
+            h_final, zone_phases, context
         )
 
         return hazard_logits, risk_scores, alphas

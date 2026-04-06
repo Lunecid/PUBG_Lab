@@ -36,6 +36,7 @@ class CompetitionConv(MessagePassing):
         self.W_v = nn.Linear(hidden_dim, hidden_dim, bias=False)
         self.edge_proj = nn.Linear(edge_dim, n_heads)
 
+        self.attn_scale = nn.Parameter(torch.tensor(1.0))
         self.out_proj = nn.Linear(hidden_dim, hidden_dim)
 
     def forward(self, x, edge_index, edge_attr):
@@ -56,8 +57,10 @@ class CompetitionConv(MessagePassing):
         k = self.W_k(x_j).view(-1, self.n_heads, self.head_dim)
         v = self.W_v(x_j).view(-1, self.n_heads, self.head_dim)
 
-        # attention score: dot-product + edge bias
-        attn = (q * k).sum(dim=-1) / (self.head_dim ** 0.5)  # [E, n_heads]
+        # attention score: dot-product with learned temperature
+        base_scale = self.head_dim ** 0.5
+        effective_scale = base_scale * self.attn_scale.abs().clamp(min=0.01)
+        attn = (q * k).sum(dim=-1) / effective_scale  # [E, n_heads]
         edge_bias = self.edge_proj(edge_attr)  # [E, n_heads]
         attn = attn + edge_bias
 

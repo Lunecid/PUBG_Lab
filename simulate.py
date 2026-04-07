@@ -117,7 +117,7 @@ def simulate_match(model, match_data, window_size=5, min_alive=3):
                 dying_teams.append(local_idx)
 
         # 메타
-        zone_phase = match_data.get_zone_phase(step)
+        zone_phase = int(match_data.zone_phases[step])
         elapsed = match_data.snapshot_times[step] if step < len(match_data.snapshot_times) else 0
         norm_zone_area = match_data.get_zone_area_normalized(step)
 

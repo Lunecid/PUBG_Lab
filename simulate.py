@@ -80,7 +80,7 @@ def simulate_match(model, match_data, window_size=5, min_alive=3):
     """
     graphs = match_data.graphs
     n_steps = match_data.n_steps
-    team_rank = match_data.team_rank
+    team_rank = match_data.team_ranks
     n_teams = match_data.n_teams
 
     frames = []

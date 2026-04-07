@@ -194,6 +194,24 @@ class MatchSurvivalData:
         return min(area / self.initial_zone_area, 1.0)
 
 
+def load_match_meta(pt_path):
+    """
+    매치 .pt 파일에서 메타데이터만 경량 로드.
+    MatchSurvivalData 전체 구축 없이 match_id, n_teams, n_steps만 추출.
+
+    Returns:
+        dict: {"match_id", "n_teams", "n_steps", "path"}
+    """
+    raw = torch.load(pt_path, map_location="cpu", weights_only=False)
+    meta = raw["meta"]
+    return {
+        "match_id": meta["match_id"],
+        "n_teams": len(meta["team_rank"]),
+        "n_steps": len(raw["graphs"]),
+        "path": pt_path,
+    }
+
+
 # ============================================================
 # 2. 팀-팀 상호작용 그래프 구성
 # ============================================================

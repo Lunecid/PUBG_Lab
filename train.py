@@ -32,6 +32,7 @@ from dataset import TeamSurvivalDataset, collate_survival_batch
 from dataset import SnapshotDataset, collate_snapshot_batch
 from metrics import evaluate_survival_model, format_eval_results
 from metrics import evaluate_snapshot_model, format_snapshot_eval
+from run_meta import make_run_id, make_run_meta, make_output_dir
 
 
 # ============================================================
@@ -410,10 +411,33 @@ def train(
         optimizer, mode="max", factor=0.5, patience=patience // 2,
     )
 
+    # ── Run ID + 타임스탬프 출력 디렉토리 ──
+    run_id = make_run_id()
+    output_dir, run_id = make_output_dir(output_dir, run_id)
+    run_meta = make_run_meta(
+        model_mode=model_mode,
+        hidden_dim=hidden_dim,
+        n_encoder_layers=n_encoder_layers,
+        n_group_gnn_layers=n_group_gnn_layers,
+        n_gru_layers=n_gru_layers,
+        n_heads=n_heads,
+        dropout=dropout,
+        epochs=epochs,
+        lr=lr,
+        weight_decay=weight_decay,
+        batch_size=batch_size,
+        lambda_rank=lambda_rank,
+        lambda_survival=lambda_survival,
+        window_size=window_size,
+        seed=seed,
+        pt_dir=pt_dir,
+    )
+
     # ── 학습 ──
     print(f"\n[3/4] 학습 시작 (epochs={epochs}, batch={effective_batch_size}, lr={lr})...")
+    print(f"  run_id: {run_id}")
+    print(f"  출력: {output_dir}")
     print(f"  train 배치: {len(train_loader)}, val 배치: {len(val_loader)}")
-    os.makedirs(output_dir, exist_ok=True)
 
     if use_snapshot:
         history = {
@@ -588,6 +612,7 @@ def train(
                 "val_loss": val_loss,
                 "val_primary": val_primary,
                 "model_mode": model_mode,
+                "run_meta": run_meta,
                 "config": {
                     "hidden_dim": hidden_dim,
                     "n_encoder_layers": n_encoder_layers,
@@ -641,7 +666,8 @@ def train(
             print(format_eval_results(test_results, prefix="  [Test] "))
             history["test_results"] = test_results.get("summary", {})
 
-    # History 저장
+    # History 저장 (run_meta 포함)
+    history["run_meta"] = run_meta
     history_path = os.path.join(output_dir, "training_history.json")
     # numpy → python 변환
     history_serializable = {}

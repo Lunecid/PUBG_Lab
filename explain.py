@@ -27,6 +27,7 @@ import argparse
 
 from model.arena_survival_net import ArenaSurvivalNet
 from dataset import build_team_graph
+from run_meta import make_run_meta, stamp_filename
 
 # 39d 플레이어 피처 → 5개 카테고리 매핑
 # main.py build_snapshot_graph 피처 순서 기준
@@ -311,8 +312,18 @@ if __name__ == "__main__":
     if ckpt_path is None or match_path is None:
         sys.exit(1)
 
+    # Run metadata
+    run_meta = make_run_meta(
+        match=match_path,
+        checkpoint=ckpt_path,
+        step=args.step,
+        team=args.team,
+        ig_steps=args.ig_steps,
+    )
+
     print(f"매치: {match_path}")
     print(f"체크포인트: {ckpt_path}")
+    print(f"run_id: {run_meta['run_id']}")
 
     # 모델 로드
     ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=False)
@@ -433,8 +444,22 @@ if __name__ == "__main__":
                 bar = "█" * bar_len
                 print(f"    {bar:<20s} {name:<24s} {pct:.1f}%")
 
-        # JSON 저장
-        output_path = args.output or match_path.replace(".pt", "_attribution.json")
+        # JSON 저장 (run_meta 포함)
+        if args.output:
+            output_path = args.output
+        else:
+            base_name = os.path.basename(match_path).replace(".pt", "_attribution.json")
+            output_path = stamp_filename(base_name, run_meta["run_id"])
+            output_path = os.path.join(os.path.dirname(match_path), output_path)
+
+        # 체크포인트에 저장된 학습 조건도 포함
+        train_run_meta = ckpt.get("run_meta", None)
+
         with open(output_path, "w") as f:
-            json.dump({"events": events, "summary": summary}, f, indent=2)
+            json.dump({
+                "run_meta": run_meta,
+                "train_run_meta": train_run_meta,
+                "events": events,
+                "summary": summary,
+            }, f, indent=2)
         print(f"\n결과 저장: {output_path}")

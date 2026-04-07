@@ -17,6 +17,7 @@ import argparse
 
 from model.arena_survival_net import ArenaSurvivalNet
 from dataset import MatchSurvivalData, build_team_graph
+from run_meta import make_run_meta, stamp_filename
 
 
 def extract_team_centroids(graph, alive_teams):
@@ -172,12 +173,14 @@ def simulate_match(model, match_data, window_size=5, min_alive=3):
     }
 
 
-def save_simulation(frames, sim_meta, output_path):
+def save_simulation(frames, sim_meta, output_path, run_meta=None):
     """시뮬레이션 결과 JSON 저장."""
     result = {
         "meta": sim_meta,
         "frames": frames,
     }
+    if run_meta is not None:
+        result["run_meta"] = run_meta
     with open(output_path, "w") as f:
         json.dump(result, f, indent=2)
     print(f"시뮬레이션 저장: {output_path} ({len(frames)} frames)")
@@ -208,12 +211,29 @@ if __name__ == "__main__":
     model.load_state_dict(ckpt["model_state_dict"])
     model.eval()
 
+    # Run metadata
+    run_meta = make_run_meta(
+        match=args.match,
+        checkpoint=args.checkpoint,
+        window_size=args.window_size,
+        min_alive=args.min_alive,
+    )
+    # 체크포인트에 저장된 run_meta가 있으면 학습 조건도 포함
+    if "run_meta" in ckpt:
+        run_meta["train_run_meta"] = ckpt["run_meta"]
+
+    # 출력 파일명에 타임스탬프 적용
+    output_path = args.output
+    if output_path == "simulation_result.json":
+        output_path = stamp_filename(output_path, run_meta["run_id"])
+
     # 매치 로드 + 시뮬레이션
     match_data = MatchSurvivalData(args.match)
     print(f"매치: {match_data.match_id}")
     print(f"  팀: {match_data.n_teams}, 스텝: {match_data.n_steps}")
+    print(f"  run_id: {run_meta['run_id']}")
 
     frames, sim_meta = simulate_match(
         model, match_data, args.window_size, args.min_alive
     )
-    save_simulation(frames, sim_meta, args.output)
+    save_simulation(frames, sim_meta, output_path, run_meta=run_meta)

@@ -19,7 +19,6 @@ Integrated Gradients로 스냅샷 내 각 팀의 탈락/생존 요인을 분석.
 
 import os
 import sys
-import glob
 import json
 import torch
 import numpy as np
@@ -27,7 +26,8 @@ import argparse
 
 from model.arena_survival_net import ArenaSurvivalNet
 from dataset import build_team_graph
-from run_meta import make_run_meta, stamp_filename
+from run_meta import (make_run_meta, stamp_filename,
+                      discover_checkpoints, discover_matches)
 
 # 39d 플레이어 피처 → 5개 카테고리 매핑
 # main.py build_snapshot_graph 피처 순서 기준
@@ -265,28 +265,23 @@ def find_default_paths():
     """
     인자 없이 실행 시 기본 경로 자동 탐색.
     checkpoints/에서 가장 최근 best_model.pt,
-    data/graphs/에서 첫 번째 .pt 매치 파일.
+    해당 map/mode의 첫 번째 .pt 매치 파일.
     """
-    # 체크포인트 탐색
-    ckpt_candidates = glob.glob("checkpoints/**/best_model.pt", recursive=True)
-    if not ckpt_candidates:
+    checkpoints = discover_checkpoints()
+    if not checkpoints:
         print("ERROR: checkpoints/ 에서 best_model.pt를 찾을 수 없습니다.")
         print("  먼저 train.py로 학습을 실행하세요.")
         return None, None
-    ckpt_path = sorted(ckpt_candidates)[-1]  # 가장 최근
 
-    # 매치 파일 탐색 (체크포인트 경로에서 map/mode 추출)
-    # checkpoints/Baltic_Main/squad-fpp/best_model.pt
-    #           → data/graphs/Baltic_Main/squad-fpp/*.pt
-    parts = ckpt_path.replace("checkpoints/", "").replace("/best_model.pt", "")
-    data_dir = os.path.join("data/graphs", parts)
+    ckpt = checkpoints[0]  # 최신
+    ckpt_path = ckpt["path"]
 
-    match_candidates = glob.glob(os.path.join(data_dir, "*.pt"))
-    if not match_candidates:
-        print(f"ERROR: {data_dir} 에서 매치 파일을 찾을 수 없습니다.")
+    matches = discover_matches(map_filter=ckpt["map"], mode_filter=ckpt["mode"])
+    if not matches:
+        print(f"ERROR: data/graphs/{ckpt['map']}/{ckpt['mode']}/ 에서 매치 파일을 찾을 수 없습니다.")
         return ckpt_path, None
-    match_path = sorted(match_candidates)[0]
 
+    match_path = matches[0]["path"]
     return ckpt_path, match_path
 
 

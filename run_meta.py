@@ -6,6 +6,7 @@ Run Metadata Utility
 """
 
 import os
+import glob
 import subprocess
 from datetime import datetime
 
@@ -129,3 +130,101 @@ def stamp_filename(base_name, run_id=None, ext=None):
         ext = orig_ext
 
     return f"{name}_{run_id}{ext}"
+
+
+# ============================================================
+# 탐색 유틸리티
+# ============================================================
+
+def discover_checkpoints(base_dir="checkpoints"):
+    """
+    사용 가능한 체크포인트 목록 탐색.
+
+    경로 구조:
+      checkpoints/{MAP}/{MODE}/{TIMESTAMP}/best_model.pt   (신규)
+      checkpoints/{MAP}/{MODE}/best_model.pt               (레거시)
+
+    Returns:
+        list[dict]: [{"path", "map", "mode", "run_id"}, ...] — run_id 역순
+    """
+    candidates = glob.glob(
+        os.path.join(base_dir, "**", "best_model.pt"), recursive=True
+    )
+    if not candidates:
+        return []
+
+    results = []
+    for path in candidates:
+        # checkpoints/ 이후의 경로를 파싱
+        rel = os.path.relpath(path, base_dir)
+        parts = rel.replace("\\", "/").split("/")
+        # parts 예: ["Baltic_Main", "squad-fpp", "20260407_..", "best_model.pt"]
+        #       또는 ["Baltic_Main", "squad-fpp", "best_model.pt"]
+
+        if len(parts) >= 4:
+            # 타임스탬프 서브디렉토리 있음
+            map_name, mode, run_id = parts[0], parts[1], parts[2]
+        elif len(parts) == 3:
+            # 레거시: 타임스탬프 없음
+            map_name, mode = parts[0], parts[1]
+            run_id = "legacy"
+        else:
+            continue
+
+        results.append({
+            "path": path,
+            "map": map_name,
+            "mode": mode,
+            "run_id": run_id,
+        })
+
+    # run_id 역순 (최신이 먼저)
+    results.sort(key=lambda x: x["run_id"], reverse=True)
+    return results
+
+
+def discover_matches(base_dir="data/graphs", map_filter=None, mode_filter=None):
+    """
+    사용 가능한 매치 .pt 파일 목록 탐색.
+
+    경로 구조: data/graphs/{MAP}/{MODE}/match_XXX.pt
+
+    Parameters:
+        base_dir: 그래프 데이터 루트
+        map_filter: 특정 맵만 필터 (e.g., "Baltic_Main")
+        mode_filter: 특정 모드만 필터 (e.g., "squad-fpp")
+
+    Returns:
+        list[dict]: [{"path", "map", "mode", "filename"}, ...] — 파일명순
+    """
+    candidates = glob.glob(
+        os.path.join(base_dir, "**", "*.pt"), recursive=True
+    )
+    if not candidates:
+        return []
+
+    results = []
+    for path in candidates:
+        rel = os.path.relpath(path, base_dir)
+        parts = rel.replace("\\", "/").split("/")
+        # parts 예: ["Baltic_Main", "squad-fpp", "match_001.pt"]
+
+        if len(parts) < 3:
+            continue
+
+        map_name, mode, filename = parts[0], parts[1], parts[-1]
+
+        if map_filter and map_name != map_filter:
+            continue
+        if mode_filter and mode != mode_filter:
+            continue
+
+        results.append({
+            "path": path,
+            "map": map_name,
+            "mode": mode,
+            "filename": filename,
+        })
+
+    results.sort(key=lambda x: x["filename"])
+    return results

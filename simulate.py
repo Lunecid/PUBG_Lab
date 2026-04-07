@@ -5,19 +5,25 @@ Match Simulation
 결과를 JSON으로 저장하여 시각화에 사용.
 
 사용법:
+  # 대화형 모드 (인자 없이 — 목록에서 선택)
+  python3 simulate.py
+
+  # 직접 지정
   python3 simulate.py --match data/graphs/Baltic_Main/squad-fpp/match_xxx.pt \
                       --checkpoint checkpoints/Baltic_Main/squad-fpp/best_model.pt \
                       --output simulation_result.json
 """
 
+import sys
 import torch
 import numpy as np
 import json
 import argparse
 
 from model.arena_survival_net import ArenaSurvivalNet
-from dataset import MatchSurvivalData, build_team_graph
-from run_meta import make_run_meta, stamp_filename
+from dataset import MatchSurvivalData, load_match_meta, build_team_graph
+from run_meta import (make_run_meta, stamp_filename,
+                      discover_checkpoints, discover_matches)
 
 
 def extract_team_centroids(graph, alive_teams):
@@ -186,17 +192,159 @@ def save_simulation(frames, sim_meta, output_path, run_meta=None):
     print(f"시뮬레이션 저장: {output_path} ({len(frames)} frames)")
 
 
+# ============================================================
+# 대화형 선택
+# ============================================================
+
+def _ask_choice(items, prompt_msg, format_fn):
+    """
+    번호 목록을 출력하고 사용자 선택을 받는 공통 함수.
+
+    Parameters:
+        items: list — 선택 대상
+        prompt_msg: str — 입력 프롬프트
+        format_fn: callable(idx, item) → str — 항목 표시 함수
+
+    Returns:
+        선택된 item, 또는 items가 비어있으면 None
+    """
+    if not items:
+        return None
+
+    if len(items) == 1:
+        print(f"  [1] {format_fn(0, items[0])}")
+        print(f"  → 자동 선택 (1개)")
+        return items[0]
+
+    for i, item in enumerate(items):
+        marker = "  ← 최신" if i == 0 else ""
+        print(f"  [{i+1}] {format_fn(i, item)}{marker}")
+
+    while True:
+        try:
+            user_input = input(f"\n  {prompt_msg} (번호, Enter=1) > ").strip()
+            if not user_input:
+                return items[0]
+            idx = int(user_input) - 1
+            if 0 <= idx < len(items):
+                return items[idx]
+            print(f"  ⚠ 1~{len(items)} 범위의 번호를 입력하세요.")
+        except ValueError:
+            print("  ⚠ 숫자를 입력하세요.")
+        except EOFError:
+            print("  → 자동 선택: 1")
+            return items[0]
+
+
+def ask_checkpoint(checkpoints):
+    """대화형 체크포인트 선택."""
+    print("\n사용 가능한 체크포인트:")
+    return _ask_choice(
+        checkpoints,
+        "체크포인트 선택",
+        lambda i, c: f"{c['map']} / {c['mode']}  ({c['run_id']})",
+    )
+
+
+def ask_match(matches):
+    """대화형 매치 선택. 메타데이터(팀 수, 스텝 수) 표시."""
+    if not matches:
+        return None
+
+    # 매치 메타 로드 (경량)
+    print("\n  매치 정보 로딩 중...")
+    enriched = []
+    for m in matches:
+        try:
+            meta = load_match_meta(m["path"])
+            m["n_teams"] = meta["n_teams"]
+            m["n_steps"] = meta["n_steps"]
+            m["match_id"] = meta["match_id"]
+        except Exception:
+            m["n_teams"] = "?"
+            m["n_steps"] = "?"
+            m["match_id"] = m["filename"]
+        enriched.append(m)
+
+    def fmt(i, m):
+        mid = m.get("match_id", m["filename"])
+        # match_id가 길면 앞 8자 + ...
+        if isinstance(mid, str) and len(mid) > 20:
+            mid = mid[:17] + "..."
+        return f"{m['filename']:<30s} ({m['n_teams']} teams, {m['n_steps']} steps)"
+
+    print(f"\n매치 파일 ({enriched[0]['map']} / {enriched[0]['mode']}):")
+    return _ask_choice(enriched, "매치 선택", fmt)
+
+
+def interactive_select(ckpt_path=None, match_path=None):
+    """
+    미지정 인자를 대화형으로 보완.
+
+    Returns:
+        (ckpt_path, match_path) — 선택된 경로 tuple
+    """
+    # ── 체크포인트 선택 ──
+    if ckpt_path is None:
+        checkpoints = discover_checkpoints()
+        if not checkpoints:
+            print("ERROR: checkpoints/ 에서 best_model.pt를 찾을 수 없습니다.")
+            print("  먼저 train.py로 학습을 실행하세요.")
+            return None, None
+        selected_ckpt = ask_checkpoint(checkpoints)
+        if selected_ckpt is None:
+            return None, None
+        ckpt_path = selected_ckpt["path"]
+        ckpt_map = selected_ckpt["map"]
+        ckpt_mode = selected_ckpt["mode"]
+    else:
+        # 주어진 체크포인트에서 map/mode 추출
+        ckpt_map, ckpt_mode = None, None
+        checkpoints = discover_checkpoints()
+        for c in checkpoints:
+            if c["path"] == ckpt_path:
+                ckpt_map, ckpt_mode = c["map"], c["mode"]
+                break
+
+    # ── 매치 선택 ──
+    if match_path is None:
+        matches = discover_matches(map_filter=ckpt_map, mode_filter=ckpt_mode)
+        if not matches:
+            print(f"ERROR: 매치 파일을 찾을 수 없습니다.")
+            if ckpt_map and ckpt_mode:
+                print(f"  경로: data/graphs/{ckpt_map}/{ckpt_mode}/")
+            return ckpt_path, None
+        selected_match = ask_match(matches)
+        if selected_match is None:
+            return ckpt_path, None
+        match_path = selected_match["path"]
+
+    return ckpt_path, match_path
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="매치 시뮬레이션")
-    parser.add_argument("--match", required=True, help=".pt 매치 파일 경로")
-    parser.add_argument("--checkpoint", required=True, help="모델 체크포인트 경로")
+    parser.add_argument("--match", default=None,
+                        help=".pt 매치 파일 경로 (미지정 시 대화형 선택)")
+    parser.add_argument("--checkpoint", default=None,
+                        help="모델 체크포인트 (미지정 시 대화형 선택)")
     parser.add_argument("--output", default="simulation_result.json")
     parser.add_argument("--window_size", type=int, default=5)
     parser.add_argument("--min_alive", type=int, default=3)
     args = parser.parse_args()
 
-    # 모델 로드
-    ckpt = torch.load(args.checkpoint, map_location="cpu", weights_only=False)
+    # ── 대화형 선택 (인자 미지정 시) ──
+    ckpt_path = args.checkpoint
+    match_path = args.match
+
+    if ckpt_path is None or match_path is None:
+        ckpt_path, match_path = interactive_select(ckpt_path, match_path)
+
+    if ckpt_path is None or match_path is None:
+        sys.exit(1)
+
+    # ── 모델 로드 ──
+    ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=False)
     config = ckpt["config"]
 
     model = ArenaSurvivalNet(
@@ -211,14 +359,13 @@ if __name__ == "__main__":
     model.load_state_dict(ckpt["model_state_dict"])
     model.eval()
 
-    # Run metadata
+    # ── Run metadata ──
     run_meta = make_run_meta(
-        match=args.match,
-        checkpoint=args.checkpoint,
+        match=match_path,
+        checkpoint=ckpt_path,
         window_size=args.window_size,
         min_alive=args.min_alive,
     )
-    # 체크포인트에 저장된 run_meta가 있으면 학습 조건도 포함
     if "run_meta" in ckpt:
         run_meta["train_run_meta"] = ckpt["run_meta"]
 
@@ -227,9 +374,9 @@ if __name__ == "__main__":
     if output_path == "simulation_result.json":
         output_path = stamp_filename(output_path, run_meta["run_id"])
 
-    # 매치 로드 + 시뮬레이션
-    match_data = MatchSurvivalData(args.match)
-    print(f"매치: {match_data.match_id}")
+    # ── 매치 로드 + 시뮬레이션 ──
+    match_data = MatchSurvivalData(match_path)
+    print(f"\n매치: {match_data.match_id}")
     print(f"  팀: {match_data.n_teams}, 스텝: {match_data.n_steps}")
     print(f"  run_id: {run_meta['run_id']}")
 

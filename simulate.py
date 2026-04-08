@@ -19,6 +19,7 @@ import torch
 import numpy as np
 import json
 import argparse
+from collections import defaultdict
 
 from model.arena_survival_net import ArenaSurvivalNet
 from dataset import MatchSurvivalData, load_match_meta, build_team_graph
@@ -193,6 +194,111 @@ def save_simulation(frames, sim_meta, output_path, run_meta=None):
 
 
 # ============================================================
+# Combat network 계산
+# ============================================================
+
+def _aggregate_team_combat_snapshot(graph):
+    """한 스냅샷의 팀-팀 encounter 집계 + 팀별 instantaneous combat 강도."""
+    x = graph["player"].x
+    if x.shape[0] == 0:
+        return {}, {}
+    team_idx = graph["player"].team_idx.tolist()
+
+    enc_ei = graph["player", "encounter", "player"].edge_index
+    team_edges = defaultdict(int)
+    seen = set()
+    for e in range(enc_ei.shape[1]):
+        ls, ld = enc_ei[0, e].item(), enc_ei[1, e].item()
+        key = (min(ls, ld), max(ls, ld))
+        if key in seen:
+            continue
+        seen.add(key)
+        ti, tj = team_idx[ls], team_idx[ld]
+        if ti != tj:
+            tkey = (min(ti, tj), max(ti, tj))
+            team_edges[tkey] += 1
+
+    # dd (feat 12) + dt (feat 13)
+    team_combat = defaultdict(float)
+    for li in range(x.shape[0]):
+        ti = team_idx[li]
+        team_combat[ti] += x[li, 12].item() + x[li, 13].item()
+
+    return dict(team_edges), dict(team_combat)
+
+
+def compute_team_combat_networks(graphs):
+    """
+    매 스냅샷에서 팀 combat 네트워크와 노드 역할/클러스터 계산.
+
+    Returns:
+        list[dict]: 스냅샷별 네트워크 — {nodes, edges, n_clusters}
+            nodes: {team_idx_str: {cc, ic, deg, bet, role, cl}}
+            edges: [[t_i, t_j, weight], ...]
+    """
+    try:
+        import networkx as nx
+    except ImportError:
+        print("⚠ networkx 미설치 — pip install networkx")
+        return []
+
+    cum_combat = defaultdict(float)
+    networks = []
+
+    for g in graphs:
+        edges, combat = _aggregate_team_combat_snapshot(g)
+
+        for t, c in combat.items():
+            cum_combat[t] += c
+
+        if g["player"].x.shape[0] == 0:
+            networks.append({"nodes": {}, "edges": [], "n_clusters": 0})
+            continue
+
+        alive_teams = sorted(set(g["player"].team_idx.tolist()))
+
+        G = nx.Graph()
+        G.add_nodes_from(alive_teams)
+        for (i, j), w in edges.items():
+            G.add_edge(i, j, weight=w)
+
+        degree = dict(G.degree())
+        betw = nx.betweenness_centrality(G) if len(G) >= 3 else {n: 0.0 for n in G.nodes()}
+
+        components = list(nx.connected_components(G))
+        cluster_map = {n: ci for ci, comp in enumerate(components) for n in comp}
+
+        nodes = {}
+        for n in alive_teams:
+            d = degree.get(n, 0)
+            b = betw.get(n, 0.0)
+            if d == 0:
+                role = "isolated"
+            elif b > 0.20:
+                role = "mediator"
+            elif d >= 3:
+                role = "hub"
+            else:
+                role = "peripheral"
+            nodes[str(n)] = {
+                "cc": round(cum_combat[n], 1),
+                "ic": round(combat.get(n, 0.0), 1),
+                "deg": d,
+                "bet": round(b, 3),
+                "role": role,
+                "cl": cluster_map.get(n, -1),
+            }
+
+        networks.append({
+            "nodes": nodes,
+            "edges": [[i, j, w] for (i, j), w in edges.items()],
+            "n_clusters": len(components),
+        })
+
+    return networks
+
+
+# ============================================================
 # HTML 시각화 (visualize.py 파이프라인 재사용)
 # ============================================================
 
@@ -343,6 +449,149 @@ def _patch_html_with_hazard(viz_html):
     return viz_html
 
 
+def _patch_html_with_combat_network(viz_html):
+    """Combat network 3D 렌더링 패치 (centroids + edges + sprite labels)."""
+
+    # (1) View mode 버튼 추가
+    viz_html = _safe_replace(
+        viz_html,
+        '<button class="hm-btn vm-btn" data-vm="hazard">Hazard</button>',
+        '<button class="hm-btn vm-btn" data-vm="hazard">Hazard</button>\n'
+        '  <button class="hm-btn vm-btn" data-vm="combat">Combat Net</button>\n'
+        '  <div id="cn-legend" style="display:none;margin-top:4px">\n'
+        '    <div class="lg"><div class="ld" style="background:#ff8800"></div>Hub</div>\n'
+        '    <div class="lg"><div class="ld" style="background:#a855f7"></div>Mediator</div>\n'
+        '    <div class="lg"><div class="ld" style="background:#3b82f6"></div>Peripheral</div>\n'
+        '    <div class="lg"><div class="ld" style="background:#6b7280"></div>Isolated</div>\n'
+        '    <div class="lg" style="margin-top:3px"><span style="color:var(--muted)">Clusters:&nbsp;</span><span id="cn-nc">0</span></div>\n'
+        '  </div>',
+        "vm-combat-button",
+    )
+
+    # (2) Three.js 그룹 + sprite 헬퍼 — DUAL ZONE 다음에 삽입
+    viz_html = _safe_replace(
+        viz_html,
+        'scene.add(poisonRingMesh);\n\n// === HEATMAPS ===',
+        'scene.add(poisonRingMesh);\n\n'
+        '// === COMBAT NETWORK GROUPS ===\n'
+        'const tnNodeGrp=new THREE.Group(); scene.add(tnNodeGrp);\n'
+        'const tnEdgeGrp=new THREE.Group(); scene.add(tnEdgeGrp);\n'
+        'const tnLabelGrp=new THREE.Group(); scene.add(tnLabelGrp);\n'
+        'const ROLE_COLORS={hub:0xff8800, mediator:0xa855f7, isolated:0x6b7280, peripheral:0x3b82f6};\n'
+        'function makeLabel(text, color){\n'
+        '  const cv=document.createElement("canvas"); cv.width=256; cv.height=128;\n'
+        '  const ctx=cv.getContext("2d");\n'
+        '  ctx.fillStyle="rgba(255,255,255,0.88)";\n'
+        '  ctx.fillRect(0,0,256,128);\n'
+        '  ctx.strokeStyle=color; ctx.lineWidth=4; ctx.strokeRect(2,2,252,124);\n'
+        '  ctx.font="bold 56px monospace"; ctx.fillStyle=color;\n'
+        '  ctx.textAlign="center"; ctx.textBaseline="middle";\n'
+        '  ctx.fillText(text, 128, 64);\n'
+        '  const tex=new THREE.CanvasTexture(cv);\n'
+        '  const mat=new THREE.SpriteMaterial({map:tex, transparent:true, depthTest:false});\n'
+        '  const s=new THREE.Sprite(mat); s.scale.set(320, 160, 1);\n'
+        '  return s;\n'
+        '}\n\n'
+        '// === HEATMAPS ===',
+        "combat-net-init",
+    )
+
+    # (3) interp에서 tn 전달
+    viz_html = _safe_replace(
+        viz_html,
+        'th:(f<.5?(f0.th||{}):(f1.th||{})),',
+        'th:(f<.5?(f0.th||{}):(f1.th||{})),\n'
+        '    tn:(f<.5?(f0.tn||null):(f1.tn||null)),',
+        "interp-tn",
+    )
+
+    # (4) updateScene 끝에 combat network 렌더링 — Top Hazard 출력 다음
+    viz_html = _safe_replace(
+        viz_html,
+        'document.getElementById("hth").textContent=topT;',
+        'document.getElementById("hth").textContent=topT;\n'
+        '  // === COMBAT NETWORK RENDER ===\n'
+        '  const tnVisible = (vizMode==="combat" && fr.tn);\n'
+        '  tnNodeGrp.visible=tnVisible;\n'
+        '  tnEdgeGrp.visible=tnVisible;\n'
+        '  tnLabelGrp.visible=tnVisible;\n'
+        '  if(tnVisible){\n'
+        '    const teamCent={}, teamCnt={}, teamMaxZ={};\n'
+        '    for(const p of aliveNodes){\n'
+        '      if(!teamCent[p.t]){teamCent[p.t]=[0,0]; teamCnt[p.t]=0; teamMaxZ[p.t]=p.z}\n'
+        '      teamCent[p.t][0]+=p.x; teamCent[p.t][1]+=p.y;\n'
+        '      teamCnt[p.t]++; if(p.z>teamMaxZ[p.t]) teamMaxZ[p.t]=p.z;\n'
+        '    }\n'
+        '    while(tnNodeGrp.children.length>0){\n'
+        '      const c=tnNodeGrp.children[0];\n'
+        '      if(c.material) c.material.dispose();\n'
+        '      tnNodeGrp.remove(c);\n'
+        '    }\n'
+        '    while(tnLabelGrp.children.length>0){\n'
+        '      const c=tnLabelGrp.children[0];\n'
+        '      if(c.material&&c.material.map) c.material.map.dispose();\n'
+        '      if(c.material) c.material.dispose();\n'
+        '      tnLabelGrp.remove(c);\n'
+        '    }\n'
+        '    const tnPos={};\n'
+        '    for(const tStr in fr.tn.nodes){\n'
+        '      const t=parseInt(tStr); if(!(t in teamCent)) continue;\n'
+        '      const info=fr.tn.nodes[tStr];\n'
+        '      const cx=teamCent[t][0]/teamCnt[t], cy=teamCent[t][1]/teamCnt[t];\n'
+        '      const cz=zToY(teamMaxZ[t])+180;\n'
+        '      tnPos[t]=[cx,cz,cy];\n'
+        '      const r=Math.max(22, Math.min(95, Math.sqrt(info.cc+1)*4.5));\n'
+        '      const mat=new THREE.MeshPhongMaterial({\n'
+        '        color:ROLE_COLORS[info.role]||0x888888,\n'
+        '        transparent:true, opacity:0.85, shininess:60,\n'
+        '        emissive:ROLE_COLORS[info.role]||0x888888, emissiveIntensity:0.15\n'
+        '      });\n'
+        '      const m=new THREE.Mesh(sphereG, mat); m.scale.setScalar(r);\n'
+        '      m.position.set(cx, cz, cy);\n'
+        '      tnNodeGrp.add(m);\n'
+        '      const lblColor = info.role==="hub"?"#c2410c":info.role==="mediator"?"#7e22ce":info.role==="isolated"?"#374151":"#1d4ed8";\n'
+        '      const lbl=makeLabel("T"+t+"  "+Math.round(info.cc), lblColor);\n'
+        '      lbl.position.set(cx, cz+r+50, cy);\n'
+        '      tnLabelGrp.add(lbl);\n'
+        '    }\n'
+        '    tnEdgeGrp.children.forEach(c=>{c.geometry.dispose(); c.material.dispose()});\n'
+        '    tnEdgeGrp.clear();\n'
+        '    const ep=[], ec=[];\n'
+        '    let maxW=1; for(const e of fr.tn.edges) if(e[2]>maxW) maxW=e[2];\n'
+        '    for(const [ti,tj,w] of fr.tn.edges){\n'
+        '      if(!(ti in tnPos)||!(tj in tnPos)) continue;\n'
+        '      const a=tnPos[ti], b=tnPos[tj];\n'
+        '      const ci=fr.tn.nodes[ti].cl, cj=fr.tn.nodes[tj].cl;\n'
+        '      const intensity=0.4+0.6*(w/maxW);\n'
+        '      const col=(ci===cj)?new THREE.Color(0.95,0.45,0.1):new THREE.Color(0.55,0.55,0.6);\n'
+        '      ep.push(new THREE.Vector3(a[0],a[1],a[2]), new THREE.Vector3(b[0],b[1],b[2]));\n'
+        '      ec.push(col.r*intensity,col.g*intensity,col.b*intensity, col.r*intensity,col.g*intensity,col.b*intensity);\n'
+        '    }\n'
+        '    if(ep.length){\n'
+        '      const g=new THREE.BufferGeometry().setFromPoints(ep);\n'
+        '      g.setAttribute("color",new THREE.Float32BufferAttribute(ec,3));\n'
+        '      tnEdgeGrp.add(new THREE.LineSegments(g,\n'
+        '        new THREE.LineBasicMaterial({vertexColors:true, transparent:true, opacity:0.85})));\n'
+        '    }\n'
+        '    for(const c of nodeGrp.children){c.material.opacity*=0.22}\n'
+        '    document.getElementById("cn-nc").textContent=fr.tn.n_clusters;\n'
+        '  }',
+        "combat-net-render",
+    )
+
+    # (5) view mode 토글 시 cn-legend 표시 갱신
+    viz_html = _safe_replace(
+        viz_html,
+        '  vizMode=this.dataset.vm;\n}));',
+        '  vizMode=this.dataset.vm;\n'
+        '  document.getElementById("cn-legend").style.display=(vizMode==="combat")?"block":"none";\n'
+        '}));',
+        "cn-legend-toggle",
+    )
+
+    return viz_html
+
+
 def build_simulation_html(match_path, frames, ckpt_meta=None):
     """
     visualize.py 파이프라인으로 그래프 JSON을 만들고
@@ -361,7 +610,7 @@ def build_simulation_html(match_path, frames, ckpt_meta=None):
     graphs, snapshot_times, meta = load_graph_data(match_path)
     viz_json = graphs_to_json(graphs, snapshot_times, meta)
 
-    # step → {team_idx(str): [hazard, rank, is_dying]}
+    # ── Hazard 주입 ──
     hazards_by_step = {}
     for fr in frames:
         step = fr["step"]
@@ -375,18 +624,29 @@ def build_simulation_html(match_path, frames, ckpt_meta=None):
             ]
         hazards_by_step[step] = haz_map
 
-    n_injected = 0
+    # ── Combat network 계산 ──
+    print("  combat network 계산 중...")
+    combat_nets = compute_team_combat_networks(graphs)
+
+    n_haz, n_tn = 0, 0
     for step_idx, vfr in enumerate(viz_json["frames"]):
         if step_idx in hazards_by_step:
             vfr["th"] = hazards_by_step[step_idx]
-            n_injected += 1
+            n_haz += 1
         else:
             vfr["th"] = {}
+        if step_idx < len(combat_nets) and combat_nets[step_idx]["nodes"]:
+            vfr["tn"] = combat_nets[step_idx]
+            n_tn += 1
+        else:
+            vfr["tn"] = None
 
-    print(f"  hazard 주입: {n_injected}/{len(viz_json['frames'])} frames")
+    print(f"  hazard 주입: {n_haz}/{len(viz_json['frames'])} frames")
+    print(f"  combat net 주입: {n_tn}/{len(viz_json['frames'])} frames")
 
-    # HTML 패치
+    # ── HTML 패치: hazard + combat network ──
     html = _patch_html_with_hazard(VIZ_HTML)
+    html = _patch_html_with_combat_network(html)
     js = json.dumps(viz_json, separators=(",", ":"))
     html = html.replace("__JSON_DATA__", js).replace(
         "__TOTAL__", str(meta["total_players"])

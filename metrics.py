@@ -654,6 +654,140 @@ def snapshot_rank_correlation(all_hazard_logits, all_metas):
 
 
 # ============================================================
+# 6-b. Post-hoc Calibration (Platt / Isotonic)
+# ============================================================
+
+def _flatten_snapshot_probs_labels(all_hazard_logits, all_dying_teams):
+    """스냅샷 logits/dying_teams → (probs_1d, labels_1d) numpy 배열로 평탄화."""
+    import torch
+    probs_list, labels_list = [], []
+    for logits, dying in zip(all_hazard_logits, all_dying_teams):
+        n_alive = len(logits)
+        if n_alive == 0:
+            continue
+        probs = torch.sigmoid(logits).cpu().numpy()
+        labels = np.zeros(n_alive)
+        for idx in dying:
+            labels[idx] = 1.0
+        probs_list.append(probs)
+        labels_list.append(labels)
+    if not probs_list:
+        return np.array([]), np.array([])
+    return np.concatenate(probs_list), np.concatenate(labels_list)
+
+
+def fit_calibrator(all_hazard_logits, all_dying_teams, method="isotonic"):
+    """
+    Validation set에서 post-hoc calibrator를 fit.
+
+    Parameters
+    ----------
+    method : str
+        "isotonic" → IsotonicRegression (non-parametric, 권장)
+        "platt"   → Platt scaling (logistic regression on logits)
+
+    Returns
+    -------
+    calibrator : fitted sklearn estimator  (.predict / .predict_proba)
+    method     : str (사용된 방법)
+    """
+    probs, labels = _flatten_snapshot_probs_labels(
+        all_hazard_logits, all_dying_teams
+    )
+    if len(probs) == 0:
+        return None, method
+
+    if method == "isotonic":
+        from sklearn.isotonic import IsotonicRegression
+        cal = IsotonicRegression(y_min=0.0, y_max=1.0, out_of_bounds="clip")
+        cal.fit(probs, labels)
+    elif method == "platt":
+        from sklearn.linear_model import LogisticRegression
+        # Platt scaling: fit logistic on raw probs (or logits)
+        cal = LogisticRegression(C=1e10, solver="lbfgs", max_iter=1000)
+        cal.fit(probs.reshape(-1, 1), labels)
+    else:
+        raise ValueError(f"Unknown calibration method: {method}")
+
+    return cal, method
+
+
+def apply_calibrator(probs, calibrator, method="isotonic"):
+    """
+    Raw sigmoid 확률에 calibrator 적용 → calibrated 확률 반환.
+    """
+    if calibrator is None:
+        return probs
+    if method == "isotonic":
+        return calibrator.predict(probs)
+    elif method == "platt":
+        return calibrator.predict_proba(probs.reshape(-1, 1))[:, 1]
+    return probs
+
+
+def calibrated_snapshot_brier_ece(all_hazard_logits, all_dying_teams,
+                                   calibrator, cal_method="isotonic",
+                                   n_bins=10):
+    """
+    Calibrated 확률로 Brier Score, ECE 재계산.
+
+    Returns
+    -------
+    dict with keys: brier_score, ece, bins
+    """
+    import torch
+
+    all_probs, all_labels = [], []
+    brier_sum = 0.0
+    n_total = 0
+
+    for logits, dying in zip(all_hazard_logits, all_dying_teams):
+        n_alive = len(logits)
+        if n_alive == 0:
+            continue
+        raw_probs = torch.sigmoid(logits).cpu().numpy()
+        cal_probs = apply_calibrator(raw_probs, calibrator, cal_method)
+        cal_probs = np.clip(cal_probs, 0.0, 1.0)
+
+        labels = np.zeros(n_alive)
+        for idx in dying:
+            labels[idx] = 1.0
+
+        brier_sum += np.sum((cal_probs - labels) ** 2)
+        n_total += n_alive
+        all_probs.extend(cal_probs.tolist())
+        all_labels.extend(labels.tolist())
+
+    brier = brier_sum / max(n_total, 1)
+
+    # ECE
+    all_probs = np.array(all_probs)
+    all_labels = np.array(all_labels)
+
+    if len(all_probs) == 0:
+        return {"brier_score": 0.0, "ece": 0.0, "bins": {}}
+
+    bin_edges = np.linspace(0, 1, n_bins + 1)
+    ece = 0.0
+    bins_detail = {}
+    for i in range(n_bins):
+        mask = (all_probs >= bin_edges[i]) & (all_probs < bin_edges[i + 1])
+        if mask.sum() == 0:
+            continue
+        bin_pred = all_probs[mask].mean()
+        bin_obs = all_labels[mask].mean()
+        bin_n = int(mask.sum())
+        ece += (abs(bin_pred - bin_obs) * bin_n) / len(all_probs)
+        bins_detail[i] = {
+            "predicted": float(bin_pred),
+            "observed": float(bin_obs),
+            "n_samples": bin_n,
+        }
+
+    return {"brier_score": float(brier), "ece": float(ece), "bins": bins_detail}
+
+
+# ============================================================
 # 7. Dual-Axis 메트릭 (Survival + Winner Prediction)
 # ============================================================
 
@@ -830,8 +964,9 @@ def snapshot_winner_hit_rate(all_hazard_logits, all_metas):
     return hits / max(total, 1)
 
 
-def evaluate_snapshot_model(all_hazard_logits, all_dying_teams, all_metas):
-    """스냅샷 레벨 종합 평가. (dual-axis 확장)"""
+def evaluate_snapshot_model(all_hazard_logits, all_dying_teams, all_metas,
+                            calibrator=None, cal_method="isotonic"):
+    """스냅샷 레벨 종합 평가. (dual-axis 확장 + post-hoc calibration)"""
     results = {}
 
     # ── Ranking 축 (기존) ──
@@ -841,10 +976,22 @@ def evaluate_snapshot_model(all_hazard_logits, all_dying_teams, all_metas):
     results["mrr"] = snapshot_mrr(all_hazard_logits, all_dying_teams)
     results["rank_corr"] = snapshot_rank_correlation(all_hazard_logits, all_metas)
 
-    # ── Survival 축 (신규) ──
+    # ── Survival 축 (raw) ──
     results["td_c_index"] = snapshot_td_c_index(all_hazard_logits, all_dying_teams)
     results["brier_score"] = snapshot_brier_score(all_hazard_logits, all_dying_teams)
     results["calibration"] = snapshot_calibration_error(all_hazard_logits, all_dying_teams)
+
+    # ── Survival 축 (calibrated) ──
+    if calibrator is not None:
+        cal = calibrated_snapshot_brier_ece(
+            all_hazard_logits, all_dying_teams,
+            calibrator, cal_method,
+        )
+        results["cal_brier_score"] = cal["brier_score"]
+        results["cal_calibration"] = {"ece": cal["ece"], "bins": cal["bins"]}
+    else:
+        results["cal_brier_score"] = None
+        results["cal_calibration"] = None
 
     # ── Winner 축 (신규) ──
     results["topk_precision_3"] = snapshot_topk_precision(all_hazard_logits, all_metas, k=3)
@@ -859,10 +1006,13 @@ def evaluate_snapshot_model(all_hazard_logits, all_dying_teams, all_metas):
         "mrr": results["mrr"]["mrr"],
         "spearman_rho": results["rank_corr"]["spearman_rho"],
         "n_events": results["mrr"]["n_events"],
-        # Survival
+        # Survival (raw)
         "td_c_index": results["td_c_index"],
         "brier_score": results["brier_score"],
         "ece": results["calibration"]["ece"],
+        # Survival (calibrated)
+        "cal_brier_score": results["cal_brier_score"],
+        "cal_ece": results["cal_calibration"]["ece"] if results["cal_calibration"] else None,
         # Winner
         "topk_precision_3": results["topk_precision_3"],
         "topk_precision_5": results["topk_precision_5"],
@@ -873,8 +1023,9 @@ def evaluate_snapshot_model(all_hazard_logits, all_dying_teams, all_metas):
 
 
 def format_snapshot_eval(results, prefix=""):
-    """스냅샷 평가 결과 포맷. (dual-axis 확장)"""
+    """스냅샷 평가 결과 포맷. (dual-axis 확장 + calibration)"""
     s = results.get("summary", {})
+
     lines = [
         f"{prefix}=== Snapshot Model Evaluation ===",
         f"{prefix}  [Ranking]",
@@ -883,10 +1034,23 @@ def format_snapshot_eval(results, prefix=""):
         f"{prefix}    Hit@5:      {s.get('hit_5', 0):.4f}",
         f"{prefix}    MRR:        {s.get('mrr', 0):.4f}",
         f"{prefix}    Spearman ρ: {s.get('spearman_rho', 0):.4f}",
-        f"{prefix}  [Survival]",
+        f"{prefix}  [Survival — raw]",
         f"{prefix}    TD C-index: {s.get('td_c_index', 0):.4f}",
         f"{prefix}    Brier:      {s.get('brier_score', 0):.4f}",
         f"{prefix}    ECE:        {s.get('ece', 0):.4f}",
+    ]
+
+    # Calibrated metrics (표시할 수 있으면 추가)
+    cal_brier = s.get("cal_brier_score")
+    cal_ece = s.get("cal_ece")
+    if cal_brier is not None and cal_ece is not None:
+        lines += [
+            f"{prefix}  [Survival — calibrated]",
+            f"{prefix}    Brier*:     {cal_brier:.4f}",
+            f"{prefix}    ECE*:       {cal_ece:.4f}",
+        ]
+
+    lines += [
         f"{prefix}  [Winner]",
         f"{prefix}    Top3 Prec:  {s.get('topk_precision_3', 0):.4f}",
         f"{prefix}    Top5 Prec:  {s.get('topk_precision_5', 0):.4f}",

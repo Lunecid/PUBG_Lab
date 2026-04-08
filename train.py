@@ -32,6 +32,7 @@ from dataset import TeamSurvivalDataset, collate_survival_batch
 from dataset import SnapshotDataset, collate_snapshot_batch
 from metrics import evaluate_survival_model, format_eval_results
 from metrics import evaluate_snapshot_model, format_snapshot_eval
+from metrics import fit_calibrator
 from run_meta import make_run_id, make_run_meta, make_output_dir
 
 
@@ -241,7 +242,8 @@ def evaluate(model, dataloader, device):
 
 
 @torch.no_grad()
-def evaluate_snapshot(model, dataloader, device, lambda_survival=0.5):
+def evaluate_snapshot(model, dataloader, device, lambda_survival=0.5,
+                      calibrator=None, cal_method="isotonic"):
     """스냅샷 레벨 평가."""
     model.eval()
 
@@ -266,7 +268,8 @@ def evaluate_snapshot(model, dataloader, device, lambda_survival=0.5):
     loss_mean = total_loss / max(n_batches, 1)
 
     eval_results = evaluate_snapshot_model(
-        all_hazard_logits, all_dying_teams, all_metas
+        all_hazard_logits, all_dying_teams, all_metas,
+        calibrator=calibrator, cal_method=cal_method,
     )
 
     return loss_mean, eval_results
@@ -646,13 +649,35 @@ def train(
     model.load_state_dict(ckpt["model_state_dict"])
 
     if use_snapshot:
-        # Validation 최종 평가
+        # Validation 최종 평가 (raw only — calibrator는 val에서 fit하므로 self-eval 안 함)
         _, val_results = evaluate_snapshot(model, val_loader, device)
         print(format_snapshot_eval(val_results, prefix="  [Val] "))
 
-        # Test 평가
+        # Post-hoc calibrator fit (val set 기반)
+        print("\n  Post-hoc calibration (isotonic) fitting on val set...")
+        val_logits_for_cal = []
+        val_dying_for_cal = []
+        model.eval()
+        with torch.no_grad():
+            for batch in val_loader:
+                batch["zone_seqs"] = [z.to(device) for z in batch["zone_seqs"]]
+                loss_dict = model.compute_snapshot_loss(batch, lambda_survival=lambda_survival)
+                val_logits_for_cal.extend(loss_dict["hazard_logits"])
+                val_dying_for_cal.extend(loss_dict["dying_teams"])
+        calibrator, cal_method = fit_calibrator(
+            val_logits_for_cal, val_dying_for_cal, method="isotonic"
+        )
+        if calibrator is not None:
+            print("  Calibrator fitted successfully.")
+        else:
+            print("  Warning: calibrator fitting failed (empty val data).")
+
+        # Test 평가 (raw + calibrated)
         if test_loader:
-            _, test_results = evaluate_snapshot(model, test_loader, device)
+            _, test_results = evaluate_snapshot(
+                model, test_loader, device,
+                calibrator=calibrator, cal_method=cal_method,
+            )
             print(format_snapshot_eval(test_results, prefix="  [Test] "))
             history["test_results"] = test_results.get("summary", {})
     else:

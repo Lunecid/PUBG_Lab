@@ -17,32 +17,72 @@ PUBG Match Graph Visualizer — 3D (OrbitControls) v2
 import sys, os, json, torch, numpy as np
 
 
+PUBG_MAP_SIZES = {
+    "Baltic_Main": 8160,      # Erangel
+    "Erangel_Main": 8160,
+    "Desert_Main": 8160,      # Miramar
+    "Savage_Main": 4096,      # Sanhok
+    "DihorOtok_Main": 6144,   # Vikendi
+    "Summerland_Main": 2048,  # Karakin
+    "Chimera_Main": 3072,     # Paramo
+    "Heaven_Main": 1024,      # Haven
+    "Tiger_Main": 8160,       # Taego
+    "Kiki_Main": 8160,        # Deston
+    "Neon_Main": 8160,        # Rondo
+    "Range_Main": 8160,
+}
+
+
+def infer_map_size(meta):
+    """
+    .pt 메타에서 맵 크기 추출.
+    우선순위: heatmap 역산 > map_name 룩업 > 8160 폴백.
+    """
+    hm = meta.get("heatmaps")
+    if hm and "cell_size_m" in hm and "grid_size" in hm:
+        size = float(hm["cell_size_m"]) * int(hm["grid_size"])
+        if size > 0:
+            return size
+
+    map_name = meta.get("map_name", "")
+    if map_name in PUBG_MAP_SIZES:
+        return float(PUBG_MAP_SIZES[map_name])
+
+    print(f"  ⚠ map size 추정 실패 (map_name={map_name!r}) — 8160m 폴백")
+    return 8160.0
+
+
 def load_graph_data(filepath):
     data = torch.load(filepath, map_location="cpu", weights_only=False)
     return data["graphs"], data["snapshot_times"], data["meta"]
 
 
 def graphs_to_json(graphs, snapshot_times, meta):
-    total_p = meta["total_players"]
+    """
+    그래프 스냅샷 → JSON dict 변환.
 
-    # z축 범위: 비행기 단계(z>500m) 제외, 지면 p1/p99 사용
-    z_vals = []
+    새 39차원 스키마 기준:
+      - x[:, 0] = hp (0~1 정규화)
+      - x[:, 5] = pos_x / map_size (0~1 정규화)
+      - x[:, 6] = pos_y / map_size (0~1 정규화)
+    좌표는 map_size를 곱해 raw meter로 복원.
+    3D 고도(pos_z) 인덱스 미확정 → 0 고정 (평면 처리).
+    info panel 부가 필드(sd, sb, dd, dt 등)는 매핑 미확정 → 0.
+    """
+    total_p = meta["total_players"]
+    map_size = infer_map_size(meta)
+
+    # 옛 스키마 경고
+    sample_dim = 0
     for g in graphs:
-        x = g["player"].x
-        if x.shape[0] > 0:
-            z_vals.append(x[:, 2])  # pos_z in meters
-    if z_vals:
-        all_z = torch.cat(z_vals)
-        ground_z = all_z[all_z < 500]  # 비행기 고도 제외
-        if ground_z.numel() > 10:
-            sorted_gz = ground_z.sort().values
-            z_min = sorted_gz[int(len(sorted_gz) * 0.01)].item()
-            z_max = sorted_gz[int(len(sorted_gz) * 0.99)].item()
-        else:
-            z_min = all_z.min().item()
-            z_max = all_z.max().item()
-    else:
-        z_min, z_max = 0, 1
+        if g["player"].x.shape[0] > 0:
+            sample_dim = g["player"].x.shape[1]
+            break
+    if 0 < sample_dim < 7:
+        print(f"  ⚠ player feature 차원이 {sample_dim} — 옛 스키마 .pt일 수 있음. 재생성 권장.")
+
+    # z축: 평면 처리 (고도 인덱스 미확정)
+    z_min, z_max = 0.0, 1.0
 
     frames = []
     for g, t in zip(graphs, snapshot_times):
@@ -59,23 +99,19 @@ def graphs_to_json(graphs, snapshot_times, meta):
         for pid in range(total_p):
             if pid in pid_to_local:
                 li = pid_to_local[pid]
+                px = x[li, 5].item() * map_size if x.shape[1] > 6 else 0.0
+                py = x[li, 6].item() * map_size if x.shape[1] > 6 else 0.0
+                hp = x[li, 0].item()
                 nodes.append({
                     "pid": pid, "alive": 1,
-                    "x": round(x[li, 0].item(), 1), "y": round(x[li, 1].item(), 1),
-                    "z": round(x[li, 2].item(), 1), "hp": round(x[li, 3].item(), 3),
-                    # safe zone features
-                    "sd": round(x[li, 4].item(), 0),   # dist_to_safe_center
-                    "sb": round(x[li, 5].item(), 0),   # dist_to_safe_boundary
-                    "is": int(x[li, 6].item() > 0.5),  # inside_safe
-                    # poison zone features
-                    "pd": round(x[li, 7].item(), 0),    # dist_to_poison_center
-                    "pb": round(x[li, 8].item(), 0),    # dist_to_poison_boundary
-                    "ip": int(x[li, 9].item() > 0.5),   # inside_poison
-                    # vehicle + combat
-                    "vs": round(x[li, 10].item(), 1),
-                    "iv": int(x[li, 11].item() > 0.5),
-                    "dd": round(x[li, 12].item(), 1),
-                    "dt": round(x[li, 13].item(), 1),
+                    "x": round(px, 1), "y": round(py, 1),
+                    "z": 0.0, "hp": round(hp, 3),
+                    # 부가 필드 — 매핑 미확정, 0 처리
+                    "sd": 0, "sb": 0, "is": 1,
+                    "pd": 0, "pb": 0, "ip": 1,
+                    "vs": 0, "iv": 0,
+                    "dd": round(x[li, 12].item(), 1) if x.shape[1] > 13 else 0,
+                    "dt": round(x[li, 13].item(), 1) if x.shape[1] > 13 else 0,
                     "t": team_idx[li],
                     "aid": account_ids[li][-8:] if account_ids[li] else "",
                     "tid": str(team_ids[li])[-6:] if team_ids[li] else "",
@@ -120,6 +156,8 @@ def graphs_to_json(graphs, snapshot_times, meta):
         "match_id": meta["match_id"],
         "total_players": total_p,
         "total_teams": len(meta["team_rank"]),
+        "map_name": meta.get("map_name", ""),
+        "map_size": map_size,
         "z_min": round(z_min, 1),
         "z_max": round(z_max, 1),
         "frames": frames,
@@ -250,7 +288,8 @@ const F=D.frames, NF=F.length;
 const Z_MIN=D.z_min, Z_MAX=D.z_max, Z_RANGE=Math.max(Z_MAX-Z_MIN,1);
 // z축 스케일: 지면 고도 범위(p1~p99) 기준, 맵 대비 충분히 보이도록
 // 맵이 8160m일 때 지면 고도차가 최소 200 Three.js 단위는 되어야 시각적으로 구분 가능
-const Z_SCALE = Math.max(Math.min(8160 / Z_RANGE * 0.08, 15), 2.0);
+const MAP_SIZE = D.map_size || 8160;
+const Z_SCALE = Math.max(Math.min(MAP_SIZE / Z_RANGE * 0.08, 15), 2.0);
 // z값 클램프 범위 (비행기 고도가 스케일을 깨지 않도록)
 const Z_CLAMP_MAX = Z_MAX + Z_RANGE * 0.5;
 const Z_CLAMP_MIN = Z_MIN - Z_RANGE * 0.2;
@@ -299,7 +338,7 @@ const dl=new THREE.DirectionalLight(0xffffff, 0.55);
 dl.position.set(5000,8000,5000); scene.add(dl);
 
 // === MAP GROUND PLANE ===
-const MAP_SIZE_M = 8160;
+const MAP_SIZE_M = MAP_SIZE;
 
 // Erangel 맵 텍스처 로드 (CDN에서 직접)
 const mapTexLoader = new THREE.TextureLoader();

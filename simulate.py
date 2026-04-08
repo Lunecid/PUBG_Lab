@@ -27,9 +27,9 @@ from run_meta import (make_run_meta, stamp_filename,
                       discover_checkpoints, discover_matches)
 
 
-def extract_team_centroids(graph, alive_teams):
+def extract_team_centroids(graph, alive_teams, map_size=8160.0):
     """
-    그래프에서 alive 팀별 중심 좌표 추출.
+    그래프에서 alive 팀별 중심 좌표 추출 (raw meter).
 
     Returns:
         dict: {team_idx: (x, y)}
@@ -43,9 +43,9 @@ def extract_team_centroids(graph, alive_teams):
         if mask.sum() == 0:
             continue
         members = x[mask]
-        # 피처 인덱스 5=arena_x, 6=arena_y (main.py build_snapshot_graph 기준)
-        cx = members[:, 5].mean().item()
-        cy = members[:, 6].mean().item()
+        # 피처 인덱스 5=pos_x/map_size, 6=pos_y/map_size (정규화 좌표 → raw meter)
+        cx = members[:, 5].mean().item() * map_size
+        cy = members[:, 6].mean().item() * map_size
         positions[tidx] = (cx, cy)
 
     return positions
@@ -79,10 +79,13 @@ def simulate_match(model, match_data, window_size=5, min_alive=3):
         frames: list[dict] -- 각 프레임의 예측 결과
         meta: dict -- 매치 메타데이터
     """
+    from visualize import infer_map_size
+
     graphs = match_data.graphs
     n_steps = match_data.n_steps
     team_rank = match_data.team_ranks
     n_teams = match_data.n_teams
+    map_size = infer_map_size(getattr(match_data, "meta", {}))
 
     frames = []
     model.eval()
@@ -139,7 +142,7 @@ def simulate_match(model, match_data, window_size=5, min_alive=3):
             hazard_logits, risk_scores, alphas = model.forward_snapshot(sample)
 
         # 팀 위치 추출
-        positions = extract_team_centroids(graphs[step], alive_teams)
+        positions = extract_team_centroids(graphs[step], alive_teams, map_size=map_size)
         zone_info = extract_zone_info(graphs[step])
 
         # hazard 순위

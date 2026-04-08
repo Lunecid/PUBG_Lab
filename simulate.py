@@ -193,6 +193,218 @@ def save_simulation(frames, sim_meta, output_path, run_meta=None):
 
 
 # ============================================================
+# HTML 시각화 (visualize.py 파이프라인 재사용)
+# ============================================================
+
+def _safe_replace(html, anchor, replacement, label):
+    """anchor가 없으면 경고만 출력하고 원본 반환."""
+    if anchor not in html:
+        print(f"  ⚠ HTML 패치 '{label}': anchor 매칭 실패 — 건너뜀")
+        return html
+    return html.replace(anchor, replacement, 1)
+
+
+def _patch_html_with_hazard(viz_html):
+    """
+    visualize.py의 HTML 템플릿에 hazard overlay UI/로직 주입.
+
+    데이터 측은 frame마다 'th' 필드 (team_idx → [hazard, rank, is_dying])를
+    가진다고 가정. 'th'가 비어 있으면 hazard 모드는 폴백으로 팀 색상을 보여줌.
+    """
+    # (1) info 패널에 Hazard / Hazard Rank 행
+    viz_html = _safe_replace(
+        viz_html,
+        '<div class="ir"><span class="il">Status</span><span class="iv" id="ni-st">-</span></div>\n</div>',
+        '<div class="ir"><span class="il">Status</span><span class="iv" id="ni-st">-</span></div>\n'
+        '  <div style="height:1px;background:var(--border);margin:5px 0"></div>\n'
+        '  <div class="ir"><span class="il">Hazard</span><span class="iv" id="ni-hz">-</span></div>\n'
+        '  <div class="ir"><span class="il">Hazard Rank</span><span class="iv" id="ni-hr">-</span></div>\n'
+        '</div>',
+        "info-panel-hazard-rows",
+    )
+
+    # (2) HUD에 Top Hazard 행
+    viz_html = _safe_replace(
+        viz_html,
+        '<div class="row"><span class="lbl">Combat</span><span class="val" id="hc">0</span></div>\n</div>',
+        '<div class="row"><span class="lbl">Combat</span><span class="val" id="hc">0</span></div>\n'
+        '  <div class="row"><span class="lbl">Top Hazard</span><span class="val" id="hth">-</span></div>\n'
+        '</div>',
+        "hud-top-hazard",
+    )
+
+    # (3) Legend에 view mode 토글
+    viz_html = _safe_replace(
+        viz_html,
+        '<div style="color:var(--muted);margin-bottom:3px">Heatmap</div>',
+        '<div style="height:1px;background:var(--border);margin:5px 0"></div>\n'
+        '  <div style="color:var(--muted);margin-bottom:3px">View Mode</div>\n'
+        '  <button class="hm-btn vm-btn active" data-vm="team">Team Color</button>\n'
+        '  <button class="hm-btn vm-btn" data-vm="hazard">Hazard</button>\n'
+        '  <div style="color:var(--muted);margin-bottom:3px">Heatmap</div>',
+        "legend-view-mode",
+    )
+
+    # (4) vizMode 변수 선언
+    viz_html = _safe_replace(
+        viz_html,
+        'let playing=true, spd=1, prog=0, lt=0, selNode=-1;',
+        'let playing=true, spd=1, prog=0, lt=0, selNode=-1, vizMode="team";',
+        "vizmode-var",
+    )
+
+    # (5) hazardColor 함수 (COLOR UTIL 직전 삽입)
+    viz_html = _safe_replace(
+        viz_html,
+        '// === COLOR UTIL ===',
+        '// === HAZARD COLOR (green→yellow→red) ===\n'
+        'function hazardColor(h){\n'
+        '  if(h<.5){const t=h*2; return new THREE.Color(.2+t*.8,.75+t*.05,.1)}\n'
+        '  const t=(h-.5)*2; return new THREE.Color(1,.8-t*.75,.1)\n'
+        '}\n\n'
+        '// === COLOR UTIL ===',
+        "hazard-color-fn",
+    )
+
+    # (6) interp에서 th 전달 (nearest neighbor)
+    viz_html = _safe_replace(
+        viz_html,
+        'return{t:lerp(f0.t,f1.t,f),nodes,\n'
+        '    ally:f<.5?f0.ally:f1.ally, enc:f<.5?f0.enc:f1.enc,',
+        'return{t:lerp(f0.t,f1.t,f),nodes,\n'
+        '    th:(f<.5?(f0.th||{}):(f1.th||{})),\n'
+        '    ally:f<.5?f0.ally:f1.ally, enc:f<.5?f0.enc:f1.enc,',
+        "interp-th",
+    )
+
+    # (7) 노드 색상 결정 (vizMode 분기)
+    viz_html = _safe_replace(
+        viz_html,
+        'const p=aliveNodes[i], m=nodeGrp.children[i], col=hex2c(TC[p.t%TC.length]);',
+        'const p=aliveNodes[i], m=nodeGrp.children[i];\n'
+        '    const teamCol=hex2c(TC[p.t%TC.length]);\n'
+        '    const hazInfo=(fr.th||{})[p.t];\n'
+        '    const col=(vizMode==="hazard"&&hazInfo)?hazardColor(hazInfo[0]):teamCol;',
+        "node-color-mode",
+    )
+
+    # (8) HUD에 top hazard 출력
+    viz_html = _safe_replace(
+        viz_html,
+        'document.getElementById("hc").textContent=cc;',
+        'document.getElementById("hc").textContent=cc;\n'
+        '  let topT="-";\n'
+        '  if(fr.th){\n'
+        '    let bestT=null, bestH=-1;\n'
+        '    for(const t in fr.th){if(fr.th[t][0]>bestH){bestH=fr.th[t][0]; bestT=t}}\n'
+        '    if(bestT!==null) topT="T"+bestT+" ("+(bestH*100).toFixed(0)+"%)";\n'
+        '  }\n'
+        '  document.getElementById("hth").textContent=topT;',
+        "hud-update",
+    )
+
+    # (9) showInfo에 hazard 표시
+    viz_html = _safe_replace(
+        viz_html,
+        'st.textContent=combat?"IN COMBAT":"Idle"; st.style.color=combat?"var(--red)":"var(--muted)";\n}',
+        'st.textContent=combat?"IN COMBAT":"Idle"; st.style.color=combat?"var(--red)":"var(--muted)";\n'
+        '  const fr2=interp(prog);\n'
+        '  const haz=(fr2.th||{})[n.t];\n'
+        '  const hzEl=document.getElementById("ni-hz");\n'
+        '  const hrEl=document.getElementById("ni-hr");\n'
+        '  if(haz){\n'
+        '    hzEl.textContent=(haz[0]*100).toFixed(1)+"%";\n'
+        '    hzEl.style.color=haz[0]>.66?"var(--red)":haz[0]>.33?"var(--warn)":"var(--green)";\n'
+        '    hrEl.textContent="#"+haz[1];\n'
+        '  }else{hzEl.textContent="-"; hzEl.style.color="var(--muted)"; hrEl.textContent="-"}\n'
+        '}',
+        "showinfo-hazard",
+    )
+
+    # (10) view mode 토글 이벤트
+    viz_html = _safe_replace(
+        viz_html,
+        'document.querySelectorAll(".sb").forEach(b=>b.addEventListener("click",function(){\n'
+        '  spd=parseFloat(this.dataset.s); document.getElementById("sp").textContent=spd+"x";\n'
+        '  document.querySelectorAll(".sb").forEach(x=>x.classList.remove("on")); this.classList.add("on");\n'
+        '}));',
+        'document.querySelectorAll(".sb").forEach(b=>b.addEventListener("click",function(){\n'
+        '  spd=parseFloat(this.dataset.s); document.getElementById("sp").textContent=spd+"x";\n'
+        '  document.querySelectorAll(".sb").forEach(x=>x.classList.remove("on")); this.classList.add("on");\n'
+        '}));\n'
+        'document.querySelectorAll(".vm-btn").forEach(b=>b.addEventListener("click",function(){\n'
+        '  document.querySelectorAll(".vm-btn").forEach(x=>x.classList.remove("active"));\n'
+        '  this.classList.add("active");\n'
+        '  vizMode=this.dataset.vm;\n'
+        '}));',
+        "vm-toggle-event",
+    )
+
+    return viz_html
+
+
+def build_simulation_html(match_path, frames, ckpt_meta=None):
+    """
+    visualize.py 파이프라인으로 그래프 JSON을 만들고
+    여기에 모델 hazard 예측을 frame마다 주입한 뒤 HTML로 반환.
+
+    Parameters:
+        match_path: .pt 매치 파일 경로
+        frames: simulate_match()가 반환한 list[dict]
+        ckpt_meta: dict (선택) — HTML title용 체크포인트 메타
+
+    Returns:
+        html_string
+    """
+    from visualize import load_graph_data, graphs_to_json, HTML as VIZ_HTML
+
+    graphs, snapshot_times, meta = load_graph_data(match_path)
+    viz_json = graphs_to_json(graphs, snapshot_times, meta)
+
+    # step → {team_idx(str): [hazard, rank, is_dying]}
+    hazards_by_step = {}
+    for fr in frames:
+        step = fr["step"]
+        dying_local_set = set(fr["dying_teams"])
+        haz_map = {}
+        for local_idx, td in enumerate(fr["teams"]):
+            haz_map[str(td["team_idx"])] = [
+                round(td["hazard"], 4),
+                td["hazard_rank"],
+                1 if local_idx in dying_local_set else 0,
+            ]
+        hazards_by_step[step] = haz_map
+
+    n_injected = 0
+    for step_idx, vfr in enumerate(viz_json["frames"]):
+        if step_idx in hazards_by_step:
+            vfr["th"] = hazards_by_step[step_idx]
+            n_injected += 1
+        else:
+            vfr["th"] = {}
+
+    print(f"  hazard 주입: {n_injected}/{len(viz_json['frames'])} frames")
+
+    # HTML 패치
+    html = _patch_html_with_hazard(VIZ_HTML)
+    js = json.dumps(viz_json, separators=(",", ":"))
+    html = html.replace("__JSON_DATA__", js).replace(
+        "__TOTAL__", str(meta["total_players"])
+    )
+    return html
+
+
+def save_simulation_html(html_str, output_path):
+    """HTML 파일 저장."""
+    import os
+    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(html_str)
+    size_kb = len(html_str) // 1024
+    print(f"HTML 저장: {output_path} ({size_kb} KB)")
+
+
+# ============================================================
 # 대화형 선택
 # ============================================================
 
@@ -384,3 +596,16 @@ if __name__ == "__main__":
         model, match_data, args.window_size, args.min_alive
     )
     save_simulation(frames, sim_meta, output_path, run_meta=run_meta)
+
+    # ── HTML 시각화 (visualize.py 파이프라인 재사용) ──
+    if output_path.endswith(".json"):
+        html_path = output_path[:-5] + ".html"
+    else:
+        html_path = output_path + ".html"
+
+    html_str = build_simulation_html(
+        match_path,
+        frames,
+        ckpt_meta={"path": ckpt_path, "run_id": run_meta.get("run_id")},
+    )
+    save_simulation_html(html_str, html_path)

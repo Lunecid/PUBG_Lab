@@ -144,6 +144,15 @@ class GroupGNN(nn.Module):
         # team_graph.alive_teams로 alive 팀만 추출
         alive_teams = team_graph.alive_teams
         if len(alive_teams) > 0 and team_h_pooled.shape[0] > n_alive:
+            max_idx = max(alive_teams) if alive_teams else -1
+            if max_idx >= team_h_pooled.shape[0]:
+                # alive_teams에 pooled 범위를 초과하는 팀 ID가 있으면 패딩
+                pad_size = max_idx + 1 - team_h_pooled.shape[0]
+                team_h_pooled = torch.cat([
+                    team_h_pooled,
+                    torch.zeros(pad_size, team_h_pooled.shape[1],
+                                device=team_h_pooled.device),
+                ], dim=0)
             pooled_alive = team_h_pooled[alive_teams]
         else:
             pooled_alive = team_h_pooled[:n_alive]

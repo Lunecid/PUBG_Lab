@@ -161,7 +161,11 @@ class ArenaSurvivalNet(nn.Module):
         if n_players_last > 0 and team_graph.num_nodes > 0:
             agent_h_last = self.agent_encoder(last_pg)
             p_team_idx_last = last_pg["player"].team_idx
-            n_teams_last = p_team_idx_last.max().item() + 1
+            alive_teams_list = team_graph.alive_teams
+            n_teams_last = max(
+                p_team_idx_last.max().item() + 1,
+                (max(alive_teams_list) + 1) if alive_teams_list else 0,
+            )
             team_h_pooled, _ = self.group_pooling(agent_h_last, p_team_idx_last, n_teams_last)
 
             team_h_gnn, alphas = self.group_gnn(team_h_pooled, team_graph)
@@ -357,7 +361,10 @@ class ArenaSurvivalNet(nn.Module):
         if team_graph.num_nodes > 0 and cached_agent_h_last is not None:
             pg_last = player_graphs[-1]
             p_team_idx_last = pg_last["player"].team_idx
-            n_teams_last = p_team_idx_last.max().item() + 1
+            n_teams_last = max(
+                p_team_idx_last.max().item() + 1,
+                max(alive_teams) + 1 if alive_teams else 0,
+            )
             team_h_pooled_last, _ = self.group_pooling(
                 cached_agent_h_last, p_team_idx_last, n_teams_last
             )

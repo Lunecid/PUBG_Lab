@@ -96,6 +96,30 @@ class ArenaSurvivalNet(nn.Module):
             dropout=dropout,
         )
 
+    def _pool_alive_teams(self, agent_h, p_team_idx, alive_teams):
+        """글로벌 팀 ID 공간에서 풀링한 뒤 alive_teams 순서(팀 그래프 노드 순서)로 정렬.
+
+        풀링 텐서 크기를 플레이어/생존팀 양쪽 최대 인덱스로 잡으므로, 스냅샷
+        윈도우에 위치 row가 없는 생존 팀도 항상 유효한 행을 갖는다
+        (과거 GroupGNN IndexError의 근본 원인 제거 — CODE_REVIEW B3).
+
+        Returns:
+            pooled_alive: Tensor [n_alive, hidden_dim] — team_graph 노드 순서
+            attn_w: Tensor [n_agents] — agent attention (해석용)
+        """
+        device = agent_h.device
+        alive_teams = list(alive_teams)
+        if not alive_teams:
+            return torch.zeros(0, self.hidden_dim, device=device), None
+
+        n_teams = max(
+            int(p_team_idx.max().item()) + 1 if p_team_idx.numel() > 0 else 0,
+            max(alive_teams) + 1,
+        )
+        team_h_all, attn_w = self.group_pooling(agent_h, p_team_idx, n_teams)
+        idx = torch.as_tensor(alive_teams, dtype=torch.long, device=team_h_all.device)
+        return team_h_all.index_select(0, idx), attn_w
+
     def forward_single(self, sample):
         """
         단일 샘플 forward.
@@ -160,23 +184,18 @@ class ArenaSurvivalNet(nn.Module):
 
         if n_players_last > 0 and team_graph.num_nodes > 0:
             agent_h_last = self.agent_encoder(last_pg)
-            p_team_idx_last = last_pg["player"].team_idx
-            alive_teams_list = team_graph.alive_teams
-            n_teams_last = max(
-                p_team_idx_last.max().item() + 1,
-                (max(alive_teams_list) + 1) if alive_teams_list else 0,
+            alive_teams = list(team_graph.alive_teams)
+            pooled_alive, _ = self._pool_alive_teams(
+                agent_h_last, last_pg["player"].team_idx, alive_teams
             )
-            team_h_pooled, _ = self.group_pooling(agent_h_last, p_team_idx_last, n_teams_last)
 
-            team_h_gnn, alphas = self.group_gnn(team_h_pooled, team_graph)
+            team_h_gnn, alphas = self.group_gnn(pooled_alive, team_graph)
 
-            # GNN 출력에서 타겟 팀 추출
-            alive_teams = team_graph.alive_teams
-            if isinstance(alive_teams, list):
-                if team_idx_target in alive_teams:
-                    local_idx = alive_teams.index(team_idx_target)
-                    team_h_seq[-1] = team_h_seq[-1] + team_h_gnn[local_idx]
-                    target_gnn_h = team_h_gnn[local_idx]
+            # GNN 출력에서 타겟 팀 추출 (team_h_gnn은 alive_teams 순서)
+            if team_idx_target in alive_teams:
+                local_idx = alive_teams.index(team_idx_target)
+                team_h_seq[-1] = team_h_seq[-1] + team_h_gnn[local_idx]
+                target_gnn_h = team_h_gnn[local_idx]
 
         # 3. Temporal: GRU
         team_h_seq_t = torch.stack(team_h_seq)  # [L, hidden_dim]
@@ -242,7 +261,7 @@ class ArenaSurvivalNet(nn.Module):
 
         return torch.stack(hazard_logits), torch.stack(risk_scores)
 
-    def compute_loss(self, batch, lambda_rank=0.1, lambda_encounter=0.05):
+    def compute_loss(self, batch, lambda_rank=0.1):
         """
         3-loss 계산.
 
@@ -251,7 +270,6 @@ class ArenaSurvivalNet(nn.Module):
         Parameters:
             batch: collate_survival_batch 출력
             lambda_rank: float — ranking loss 가중치
-            lambda_encounter: float — encounter loss 가중치 (현재 미구현, placeholder)
 
         Returns:
             loss_dict: dict with total, survival, rank, encounter
@@ -275,16 +293,12 @@ class ArenaSurvivalNet(nn.Module):
         match_ids = [m["match_id"] for m in batch["metas"]]
         l_rank = pairwise_rank_loss(risk_scores, final_ranks, match_ids=match_ids)
 
-        # L_encounter: attention 고정 (TODO: 교전 발생 예측)
-        l_encounter = torch.tensor(0.0, device=hazard_logits.device)
-
-        total = l_survival + lambda_rank * l_rank + lambda_encounter * l_encounter
+        total = l_survival + lambda_rank * l_rank
 
         return {
             "total": total,
             "survival": l_survival,
             "rank": l_rank,
-            "encounter": l_encounter,
             "hazard_logits": hazard_logits.detach(),
             "risk_scores": risk_scores.detach(),
         }
@@ -339,58 +353,33 @@ class ArenaSurvivalNet(nn.Module):
             if step_i == L - 1:
                 cached_agent_h_last = agent_h
 
-            p_team_idx = pg["player"].team_idx
-            n_teams_total = p_team_idx.max().item() + 1
-            team_h_all, _ = self.group_pooling(
-                agent_h, p_team_idx, n_teams_total
-            )  # [n_teams_total, hidden_dim]
-
-            # alive 팀만 추출
-            alive_h = []
-            for tidx in alive_teams:
-                if tidx < team_h_all.shape[0]:
-                    alive_h.append(team_h_all[tidx])
-                else:
-                    alive_h.append(torch.zeros(self.hidden_dim, device=device))
-
-            all_team_h.append(torch.stack(alive_h))  # [n_alive, hidden_dim]
+            pooled_alive, _ = self._pool_alive_teams(
+                agent_h, pg["player"].team_idx, alive_teams
+            )
+            all_team_h.append(pooled_alive)  # [n_alive, hidden_dim]
 
         # ── GroupGNN (마지막 스텝) ──
         alphas = []
         gnn_aligned = None  # [n_alive, hidden_dim] aligned to alive_teams order
         if team_graph.num_nodes > 0 and cached_agent_h_last is not None:
             pg_last = player_graphs[-1]
-            p_team_idx_last = pg_last["player"].team_idx
-            n_teams_last = max(
-                p_team_idx_last.max().item() + 1,
-                max(alive_teams) + 1 if alive_teams else 0,
-            )
-            team_h_pooled_last, _ = self.group_pooling(
-                cached_agent_h_last, p_team_idx_last, n_teams_last
-            )
+            graph_alive = list(team_graph.alive_teams)
+            # 데이터셋 불변식: sample["alive_teams"]와 team_graph.alive_teams는
+            # 같은 스냅샷의 같은 alive set에서 sorted로 생성된다 (dataset.py)
+            if graph_alive != list(alive_teams):
+                raise ValueError(
+                    f"alive_teams mismatch: sample={list(alive_teams)[:5]}… "
+                    f"graph={graph_alive[:5]}…"
+                )
 
-            team_h_gnn, alphas = self.group_gnn(
-                team_h_pooled_last, team_graph
+            pooled_alive, _ = self._pool_alive_teams(
+                cached_agent_h_last, pg_last["player"].team_idx, alive_teams
             )
+            team_h_gnn, alphas = self.group_gnn(pooled_alive, team_graph)
 
-            # GNN 출력을 마지막 스텝에 더하기 (기존 경로 유지)
-            graph_alive = team_graph.alive_teams
-            if isinstance(graph_alive, list):
-                # GNN 출력을 alive_teams 순서에 맞게 정렬
-                gnn_parts = []
-                for i, tidx in enumerate(alive_teams):
-                    if tidx in graph_alive:
-                        gnn_local = graph_alive.index(tidx)
-                        if gnn_local < team_h_gnn.shape[0]:
-                            all_team_h[-1][i] = (
-                                all_team_h[-1][i] + team_h_gnn[gnn_local]
-                            )
-                            gnn_parts.append(team_h_gnn[gnn_local])
-                        else:
-                            gnn_parts.append(torch.zeros(self.hidden_dim, device=device))
-                    else:
-                        gnn_parts.append(torch.zeros(self.hidden_dim, device=device))
-                gnn_aligned = torch.stack(gnn_parts)  # [n_alive, hidden_dim]
+            # GNN 출력을 마지막 스텝에 더하기 (기존 경로 유지, 양쪽 다 alive 순서)
+            all_team_h[-1] = all_team_h[-1] + team_h_gnn
+            gnn_aligned = team_h_gnn  # [n_alive, hidden_dim]
 
         # ── Temporal: 팀별 GRU (배치 처리) ──
         team_seqs = torch.stack(all_team_h, dim=1)  # [n_alive, L, hidden_dim]

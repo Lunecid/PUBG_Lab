@@ -213,10 +213,49 @@ def load_match_meta(pt_path):
 
 
 # ============================================================
-# 2. 팀-팀 상호작용 그래프 구성
+# 2. 맵 크기 추정 + 팀-팀 상호작용 그래프 구성
 # ============================================================
 
-def build_team_graph(player_graph, team_indices, n_teams, alive_team_set):
+PUBG_MAP_SIZES = {
+    "Baltic_Main": 8160,      # Erangel
+    "Erangel_Main": 8160,
+    "Desert_Main": 8160,      # Miramar
+    "Savage_Main": 4096,      # Sanhok
+    "DihorOtok_Main": 6144,   # Vikendi
+    "Summerland_Main": 2048,  # Karakin
+    "Chimera_Main": 3072,     # Paramo
+    "Heaven_Main": 1024,      # Haven
+    "Tiger_Main": 8160,       # Taego
+    "Kiki_Main": 8160,        # Deston
+    "Neon_Main": 8160,        # Rondo
+    "Range_Main": 8160,
+}
+
+
+def infer_map_size(meta):
+    """
+    .pt 메타에서 맵 크기 추출.
+    우선순위: heatmap 역산 > map_name 룩업 > 8160 폴백.
+    """
+    hm = meta.get("heatmaps")
+    if hm and "cell_size_m" in hm and "grid_size" in hm:
+        size = float(hm["cell_size_m"]) * int(hm["grid_size"])
+        if size > 0:
+            return size
+
+    map_name = meta.get("map_name", "")
+    if map_name in PUBG_MAP_SIZES:
+        return float(PUBG_MAP_SIZES[map_name])
+
+    print(f"  ⚠ map size 추정 실패 (map_name={map_name!r}) — 8160m 폴백")
+    return 8160.0
+
+
+
+# ============================================================
+
+def build_team_graph(player_graph, team_indices, n_teams, alive_team_set,
+                     map_size_m=None, fallback_edge_dist_ratio=None):
     """
     플레이어 그래프의 encounter 엣지를 집계해서
     팀-팀 상호작용 그래프를 구성.
@@ -226,6 +265,15 @@ def build_team_graph(player_graph, team_indices, n_teams, alive_team_set):
         team_indices: tensor [n_players] (각 플레이어의 팀 인덱스)
         n_teams: int
         alive_team_set: set of alive team indices
+        map_size_m: float | None — 맵 한 변 길이(m). fallback_edge_dist_ratio와
+            함께 주면 V2(39d) 정규화 좌표를 미터로 환산해 거리 임계를 적용한다.
+        fallback_edge_dist_ratio: float | None — 비교전 팀 쌍 fallback 연결
+            반경을 map_size_m 대비 비율로 지정 (예: 0.25 → Baltic 기준 ~2km).
+
+    주의 (CODE_REVIEW C8): 두 파라미터가 None(기본)이면 기존 동작을 유지한다.
+    V2(39d) 피처의 좌표는 0~1 정규화라서 기존 `cd < 2000` 검사는 사실상 항상
+    참 — 비교전 생존 팀 쌍이 전부 연결된다. 기존 체크포인트가 이 분포로
+    학습됐기 때문에 기본값을 바꾸지 않는다. 새로 학습할 때는 ratio를 명시할 것.
 
     Returns:
         Data with:
@@ -388,13 +436,23 @@ def build_team_graph(player_graph, team_indices, n_teams, alive_team_set):
 
     # 완전 연결 추가 (encounter 없는 팀 쌍에도 최소 연결)
     # → 가까운 팀은 encounter 없어도 위협이 될 수 있으므로
+    use_metric_threshold = map_size_m is not None and fallback_edge_dist_ratio is not None
+    if use_metric_threshold:
+        # V2(39d) 좌표는 0~1 정규화 → 미터 환산 후 맵 비례 임계 적용
+        coord_scale = map_size_m if feat_dim >= 39 else 1.0
+        fallback_dist_m = fallback_edge_dist_ratio * map_size_m
+    else:
+        # 레거시 동작 유지: V2에서는 정규화 좌표 vs 2000 비교 → 사실상 전 쌍 연결
+        coord_scale = 1.0
+        fallback_dist_m = 2000.0
+
     for i in range(n_alive):
         for j in range(i + 1, n_alive):
             if (i, j) not in pair_stats:
                 if i in team_centers and j in team_centers:
                     ci, cj = team_centers[i], team_centers[j]
-                    cd = np.sqrt((ci[0]-cj[0])**2 + (ci[1]-cj[1])**2)
-                    if cd < 2000:  # 2km 이내만
+                    cd = np.sqrt((ci[0]-cj[0])**2 + (ci[1]-cj[1])**2) * coord_scale
+                    if cd < fallback_dist_m:
                         feat = [cd, cd, 0.0, 0.0]
                         edge_src.extend([i, j])
                         edge_dst.extend([j, i])
@@ -468,8 +526,11 @@ class TeamSurvivalDataset(Dataset):
         min_alive_teams=3,
         skip_first_steps=10,
         stride=1,
+        team_edge_ratio=None,
     ):
         super().__init__()
+        # 비교전 팀 쌍 fallback 연결 반경 (map_size 대비 비율, None=레거시 동작)
+        self.team_edge_ratio = team_edge_ratio
         self.window_size = window_size
         self.min_alive_teams = min_alive_teams
         self.skip_first_steps = skip_first_steps
@@ -553,6 +614,8 @@ class TeamSurvivalDataset(Dataset):
             last_graph["player"].team_idx,
             match.n_teams,
             alive_set,
+            map_size_m=infer_map_size(match.meta) if self.team_edge_ratio else None,
+            fallback_edge_dist_ratio=self.team_edge_ratio,
         )
 
         # ── 라벨 ──
@@ -747,8 +810,10 @@ class SnapshotDataset(Dataset):
         window_size=5,
         min_alive_teams=3,
         skip_first_steps=10,
+        team_edge_ratio=None,
     ):
         super().__init__()
+        self.team_edge_ratio = team_edge_ratio
         self.window_size = window_size
         self.min_alive_teams = min_alive_teams
         self.skip_first_steps = skip_first_steps
@@ -839,6 +904,8 @@ class SnapshotDataset(Dataset):
             last_graph["player"].team_idx,
             match.n_teams,
             alive_set,
+            map_size_m=infer_map_size(match.meta) if self.team_edge_ratio else None,
+            fallback_edge_dist_ratio=self.team_edge_ratio,
         )
 
         # 탈락 라벨 (alive_teams 내 로컬 인덱스)

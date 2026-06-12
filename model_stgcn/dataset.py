@@ -92,17 +92,23 @@ class CachedMatchDataset(Dataset):
 
 
 class LazyPhaseMatchDataset(Dataset):
-    """Lazy dataset for phase-level DynamicSTGNN tensors."""
+    """Lazy dataset for phase-level DynamicSTGNN tensors.
 
-    def __init__(self, match_ids: Iterable[str]) -> None:
+    include_combat_in: fetch the 4-channel directed edge layout
+    (proximity, combat, copressure, combat_in).  Must match the
+    edge_types the model checkpoint was trained with.
+    """
+
+    def __init__(self, match_ids: Iterable[str], *, include_combat_in: bool = False) -> None:
         self.match_ids = list(match_ids)
+        self.include_combat_in = include_combat_in
 
     def __len__(self) -> int:
         return len(self.match_ids)
 
     def __getitem__(self, idx: int) -> dict:
         mid = self.match_ids[idx]
-        mt = fetch_phase_match_tensors(mid)
+        mt = fetch_phase_match_tensors(mid, include_combat_in=self.include_combat_in)
         if mt is None:
             raise RuntimeError(f"match {mid} not phase-ready")
         return _phase_to_torch(mt)
@@ -111,10 +117,10 @@ class LazyPhaseMatchDataset(Dataset):
 class CachedPhaseMatchDataset(Dataset):
     """In-memory dataset for phase-level tensors. Use for smoke tests/small runs."""
 
-    def __init__(self, match_ids: Iterable[str]) -> None:
+    def __init__(self, match_ids: Iterable[str], *, include_combat_in: bool = False) -> None:
         self.items: list[dict] = []
         for mid in match_ids:
-            mt = fetch_phase_match_tensors(mid)
+            mt = fetch_phase_match_tensors(mid, include_combat_in=include_combat_in)
             if mt is None:
                 logger.warning("skip %s — not phase-ready", mid)
                 continue

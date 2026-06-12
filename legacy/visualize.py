@@ -17,39 +17,7 @@ PUBG Match Graph Visualizer — 3D (OrbitControls) v2
 import sys, os, json, torch, numpy as np
 
 
-PUBG_MAP_SIZES = {
-    "Baltic_Main": 8160,      # Erangel
-    "Erangel_Main": 8160,
-    "Desert_Main": 8160,      # Miramar
-    "Savage_Main": 4096,      # Sanhok
-    "DihorOtok_Main": 6144,   # Vikendi
-    "Summerland_Main": 2048,  # Karakin
-    "Chimera_Main": 3072,     # Paramo
-    "Heaven_Main": 1024,      # Haven
-    "Tiger_Main": 8160,       # Taego
-    "Kiki_Main": 8160,        # Deston
-    "Neon_Main": 8160,        # Rondo
-    "Range_Main": 8160,
-}
-
-
-def infer_map_size(meta):
-    """
-    .pt 메타에서 맵 크기 추출.
-    우선순위: heatmap 역산 > map_name 룩업 > 8160 폴백.
-    """
-    hm = meta.get("heatmaps")
-    if hm and "cell_size_m" in hm and "grid_size" in hm:
-        size = float(hm["cell_size_m"]) * int(hm["grid_size"])
-        if size > 0:
-            return size
-
-    map_name = meta.get("map_name", "")
-    if map_name in PUBG_MAP_SIZES:
-        return float(PUBG_MAP_SIZES[map_name])
-
-    print(f"  ⚠ map size 추정 실패 (map_name={map_name!r}) — 8160m 폴백")
-    return 8160.0
+from dataset import PUBG_MAP_SIZES, infer_map_size  # 단일 정의 (CODE_REVIEW C8)
 
 
 def load_graph_data(filepath):

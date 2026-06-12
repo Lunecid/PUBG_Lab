@@ -171,7 +171,7 @@ def _prediction_rows(
     map_name, mode = _domain_parts(domain_dir)
     model, edge_types, active_mask = _load_model(checkpoint, edge_mode, device)
     loader = DataLoader(
-        LazyPhaseMatchDataset(test_ids),
+        LazyPhaseMatchDataset(test_ids, include_combat_in="combat_in" in edge_types),
         batch_size=batch_size,
         shuffle=False,
         collate_fn=phase_collate,
@@ -190,6 +190,7 @@ def _prediction_rows(
                 batch["X"].float(),
                 A,
                 edge_active_mask=active_mask,
+                phase_mask=batch["phase_mask"],
             )
             probs = torch.sigmoid(hazard_logits).detach().cpu().numpy()
             y_true = batch["y_hazard"].detach().cpu().numpy()

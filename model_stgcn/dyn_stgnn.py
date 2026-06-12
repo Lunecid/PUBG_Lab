@@ -172,13 +172,38 @@ class DynamicSTGNN(nn.Module):
             nn.Dropout(dropout),
             nn.Linear(hidden // 2, 2),
         )
+        self._adjacency_checked = False
+
+    def _validate_adjacency(self, A: torch.Tensor) -> None:
+        """첫 forward에서 1회만: A가 row-stochastic(또는 zero-row)인지 검사.
+
+        stdb.queries._fetch_phase_edges가 보장하는 불변식이 ETL/캐시 변경으로
+        조용히 깨지는 것을 학습 시작 시점에 잡는다 (CODE_REVIEW C6).
+        """
+        if A.dim() != 5:
+            raise ValueError(f"A must be (B,T,E,N,N), got {tuple(A.shape)}")
+        rs = A.sum(dim=-1)
+        ok = torch.isclose(rs, torch.ones_like(rs), atol=1e-3) | torch.isclose(
+            rs, torch.zeros_like(rs), atol=1e-6
+        )
+        if not bool(ok.all()):
+            bad = (~ok).nonzero()[0].tolist()
+            raise ValueError(
+                f"adjacency rows must sum to 1 (or 0 for edge-less rows); "
+                f"first violation at (b,t,e,n)={bad}, row_sum={rs[tuple(bad)]:.4f}"
+            )
 
     def forward(
         self,
         X: torch.Tensor,
         A: torch.Tensor,
         edge_active_mask: torch.Tensor | None = None,
+        phase_mask: torch.Tensor | None = None,
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        if not self._adjacency_checked:
+            self._validate_adjacency(A)
+            self._adjacency_checked = True
+
         # X: (B,T,N,F) -> embed -> (B,C,T,N)
         h = self.input(X)
         h = h.permute(0, 3, 1, 2)
@@ -189,8 +214,15 @@ class DynamicSTGNN(nn.Module):
         # hidden[t] only observes X<=t because temporal convs are causal.
         hazard_logits = self.hazard_head(htnc[:, :-1]).squeeze(-1)
 
-        # Auxiliary heads use observed sequence summary. Masking is handled in loss.
-        pooled = htnc.mean(dim=1)
+        # Auxiliary heads use observed sequence summary.  Padded phases carry
+        # bias-driven garbage (input(0) != 0), so average only real phases when
+        # phase_mask (B,T) is given; per-node target masking stays in the loss.
+        if phase_mask is not None:
+            m = phase_mask.to(dtype=htnc.dtype, device=htnc.device)
+            m = m.view(m.shape[0], m.shape[1], 1, 1)  # (B,T,1,1)
+            pooled = (htnc * m).sum(dim=1) / m.sum(dim=1).clamp(min=1.0)
+        else:
+            pooled = htnc.mean(dim=1)
         rank_pred = self.rank_head(pooled).squeeze(-1)
         topk_logits = self.topk_head(pooled)
         return hazard_logits, rank_pred, topk_logits
@@ -247,16 +279,45 @@ def dynamic_stgnn_loss(
         "l_hazard": float(l_hazard.detach().item()),
         "l_rank": float(l_rank.detach().item()),
         "l_topk": float(l_topk.detach().item()),
+        # 타겟이 전무한 배치(denom clamp로 loss=0)를 학습 곡선에서 식별하기 위함
+        "hazard_denom": float(target_f.sum().detach().item()),
     }
     return total, parts
 
 
 if __name__ == "__main__":
+    # 실제 파이프라인 분포를 흉내낸 스모크: 희소 A, zero-row 허용, alive에만
+    # self-loop, 패딩 노드/phase는 전부 0 (stdb.queries._fetch_phase_edges 참조)
     torch.manual_seed(0)
     B, T, E, N, F_ = 2, 8, 3, 128, 66
-    X = torch.randn(B, T, N, F_)
-    A = torch.rand(B, T, E, N, N)
-    A = A / A.sum(dim=-1, keepdim=True).clamp(min=1e-6)
-    model = DynamicSTGNN(in_features=F_)
-    yh, yr, yk = model(X, A)
+    n_alive, n_phase = 24, 6  # 실 노드 24팀, 실 phase 6개
+
+    X = torch.zeros(B, T, N, F_)
+    X[:, :n_phase, :n_alive] = torch.randn(B, n_phase, n_alive, F_)
+
+    A = torch.zeros(B, T, E, N, N)
+    dense = torch.rand(B, n_phase, E, n_alive, n_alive)
+    dense = dense * (torch.rand_like(dense) < 0.2)          # ~80% 희소
+    eye = torch.eye(n_alive)
+    dense[:, :, 0] = dense[:, :, 0] + eye                    # proximity self-loop
+    rs = dense.sum(dim=-1, keepdim=True)
+    dense = torch.where(rs > 0, dense / rs.clamp(min=1e-9), dense)  # zero-row 유지
+    A[:, :n_phase, :, :n_alive, :n_alive] = dense
+
+    phase_mask = torch.zeros(B, T, dtype=torch.bool)
+    phase_mask[:, :n_phase] = True
+
+    model = DynamicSTGNN(in_features=F_).eval()
+    with torch.no_grad():
+        yh, yr, yk = model(X, A, phase_mask=phase_mask)
     print(tuple(yh.shape), tuple(yr.shape), tuple(yk.shape))
+
+    # 정규화 위반 시 명확히 실패하는지 확인
+    try:
+        bad = A.clone()
+        bad[:, 0, 0, 0, :n_alive] = 0.5
+        model._adjacency_checked = False
+        model(X, bad)
+        raise SystemExit("validation should have failed")
+    except ValueError as e:
+        print("adjacency validation OK:", str(e)[:60])

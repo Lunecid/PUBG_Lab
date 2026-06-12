@@ -188,7 +188,8 @@ def dynamic_hazard_predictions(
 ) -> pd.DataFrame:
     model, _ckpt, edge_mode, edge_types = _load_dynamic_model(checkpoint, device)
     active_mask = edge_active_mask(edge_mode, edge_types=edge_types, device=device)
-    ds = CachedPhaseMatchDataset(match_ids) if cached else LazyPhaseMatchDataset(match_ids)
+    ds_cls = CachedPhaseMatchDataset if cached else LazyPhaseMatchDataset
+    ds = ds_cls(match_ids, include_combat_in="combat_in" in edge_types)
     loader = DataLoader(ds, batch_size=batch_size, shuffle=False, collate_fn=phase_collate, num_workers=0)
     rows: list[dict[str, Any]] = []
 
@@ -196,7 +197,7 @@ def dynamic_hazard_predictions(
         for batch in loader:
             batch = _move_batch(batch, device)
             A = apply_edge_mode(batch["A"].float(), edge_mode, edge_types=edge_types)
-            yh, _yr, _yk = model(batch["X"].float(), A, edge_active_mask=active_mask)
+            yh, _yr, _yk = model(batch["X"].float(), A, edge_active_mask=active_mask, phase_mask=batch["phase_mask"])
             probs = torch.sigmoid(yh).detach().cpu().numpy()
             y = batch["y_hazard"].detach().cpu().numpy()
             mask = batch["target_mask"].detach().cpu().numpy().astype(bool)

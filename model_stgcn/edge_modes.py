@@ -15,12 +15,25 @@ EDGE_MODE_CHOICES = (
     "proximity_copressure",
     "combat_only",
     "copressure_only",
+    # Directed-combat ablation modes — require the 4-channel layout
+    # (--combat-in / include_combat_in), i.e. "combat_in" in edge_types.
+    "proximity_combat_in",
+    "full_combat_in",
 )
 
 
 def active_edge_indices(edge_mode: str, edge_types: list[str] | tuple[str, ...] = PHASE_EDGE_TYPES) -> list[int]:
     """Return channel indices kept for an ablation mode."""
     edge_index = {name: i for i, name in enumerate(edge_types)}
+
+    def _require(name: str) -> int:
+        if name not in edge_index:
+            raise ValueError(
+                f"edge_mode '{edge_mode}' needs channel '{name}' but edge_types={list(edge_types)} "
+                "— train/eval with --combat-in (include_combat_in=True)"
+            )
+        return edge_index[name]
+
     if edge_mode == "full":
         return list(range(len(edge_types)))
     if edge_mode == "none":
@@ -35,6 +48,13 @@ def active_edge_indices(edge_mode: str, edge_types: list[str] | tuple[str, ...] 
         return [edge_index["combat"]]
     if edge_mode == "copressure_only":
         return [edge_index["copressure"]]
+    if edge_mode == "proximity_combat_in":
+        return [edge_index["proximity"], _require("combat_in")]
+    if edge_mode == "full_combat_in":
+        _require("combat_in")
+        # everything except the attacker-receives channel: isolates the
+        # victim-receives direction against the default "full" (E=3) run
+        return [i for name, i in edge_index.items() if name != "combat"]
     raise ValueError(f"unknown edge_mode: {edge_mode}")
 
 

@@ -30,7 +30,12 @@ from model_stgcn.dataset import (
 from model_stgcn.dyn_stgnn import DynamicSTGNN, dynamic_stgnn_loss
 from model_stgcn.edge_modes import EDGE_MODE_CHOICES, apply_edge_mode, edge_active_mask
 from model_stgcn.splits import load_or_create_split
-from stdb.queries import PHASE_EDGE_TYPES, PHASE_FEATURE_DIM, list_phase_eligible_match_ids
+from stdb.queries import (
+    PHASE_EDGE_TYPES,
+    PHASE_EDGE_TYPES_DIRECTED,
+    PHASE_FEATURE_DIM,
+    list_phase_eligible_match_ids,
+)
 
 logger = logging.getLogger("model_stgcn.train_phase")
 
@@ -81,11 +86,11 @@ def evaluate(model: DynamicSTGNN, loader: DataLoader, device: torch.device, args
     n = 0
     sums = {"l_hazard": 0.0, "l_rank": 0.0, "l_topk": 0.0, "hazard_acc": 0.0, "hazard_pos_rate": 0.0}
     with torch.no_grad():
-        active_mask = edge_active_mask(args.edge_mode, device=device)
+        active_mask = edge_active_mask(args.edge_mode, args.edge_types, device=device)
         for batch in loader:
             batch = _move_batch(batch, device)
-            A = apply_edge_mode(batch["A"].float(), args.edge_mode)
-            yh, yr, yk = model(batch["X"].float(), A, edge_active_mask=active_mask)
+            A = apply_edge_mode(batch["A"].float(), args.edge_mode, args.edge_types)
+            yh, yr, yk = model(batch["X"].float(), A, edge_active_mask=active_mask, phase_mask=batch["phase_mask"])
             loss, parts = dynamic_stgnn_loss(
                 yh,
                 yr,
@@ -113,14 +118,18 @@ def evaluate(model: DynamicSTGNN, loader: DataLoader, device: torch.device, args
     return total / n, {k: v / n for k, v in sums.items()}
 
 
-def _make_dataset(ids: list[str], *, cached: bool):
-    return CachedPhaseMatchDataset(ids) if cached else LazyPhaseMatchDataset(ids)
+def _make_dataset(ids: list[str], *, cached: bool, include_combat_in: bool = False):
+    cls = CachedPhaseMatchDataset if cached else LazyPhaseMatchDataset
+    return cls(ids, include_combat_in=include_combat_in)
 
 
 def train_loop(args: argparse.Namespace) -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
+
+    # 엣지 채널 레이아웃: --combat-in이면 E=4 (combat_in 추가)
+    args.edge_types = list(PHASE_EDGE_TYPES_DIRECTED if args.combat_in else PHASE_EDGE_TYPES)
 
     ids = list_phase_eligible_match_ids(args.map, args.mode, args.limit)
     if len(ids) < 2:
@@ -154,8 +163,8 @@ def train_loop(args: argparse.Namespace) -> None:
         args.overfit,
     )
 
-    train_ds = _make_dataset(train_ids, cached=args.cached)
-    val_ds = _make_dataset(val_ids, cached=True)
+    train_ds = _make_dataset(train_ids, cached=args.cached, include_combat_in=args.combat_in)
+    val_ds = _make_dataset(val_ids, cached=True, include_combat_in=args.combat_in)
     train_loader = DataLoader(
         train_ds,
         batch_size=args.batch,
@@ -177,12 +186,12 @@ def train_loop(args: argparse.Namespace) -> None:
         hidden=args.hidden,
         mid=args.mid,
         num_blocks=args.num_blocks,
-        num_edge_types=len(PHASE_EDGE_TYPES),
+        num_edge_types=len(args.edge_types),
         dropout=args.dropout,
     ).to(device)
     logger.info("device=%s params=%.3fM", device, sum(p.numel() for p in model.parameters()) / 1e6)
-    logger.info("edge_mode=%s edge_types=%s", args.edge_mode, PHASE_EDGE_TYPES)
-    active_mask = edge_active_mask(args.edge_mode, device=device)
+    logger.info("edge_mode=%s edge_types=%s", args.edge_mode, args.edge_types)
+    active_mask = edge_active_mask(args.edge_mode, args.edge_types, device=device)
 
     opt = AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     sched = CosineAnnealingLR(opt, T_max=max(args.epochs, 1))
@@ -201,8 +210,8 @@ def train_loop(args: argparse.Namespace) -> None:
         sums = {"l_hazard": 0.0, "l_rank": 0.0, "l_topk": 0.0}
         for batch in train_loader:
             batch = _move_batch(batch, device)
-            A = apply_edge_mode(batch["A"].float(), args.edge_mode)
-            yh, yr, yk = model(batch["X"].float(), A, edge_active_mask=active_mask)
+            A = apply_edge_mode(batch["A"].float(), args.edge_mode, args.edge_types)
+            yh, yr, yk = model(batch["X"].float(), A, edge_active_mask=active_mask, phase_mask=batch["phase_mask"])
             loss, parts = dynamic_stgnn_loss(
                 yh,
                 yr,
@@ -272,7 +281,7 @@ def train_loop(args: argparse.Namespace) -> None:
                     "best_val": best_val,
                     "args": vars(args),
                     "feature_dim": PHASE_FEATURE_DIM,
-                    "edge_types": PHASE_EDGE_TYPES,
+                    "edge_types": list(args.edge_types),
                     "train_ids": train_ids,
                     "val_ids": val_ids,
                     "test_ids": test_ids,
@@ -304,6 +313,11 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--gamma", type=float, default=0.3)
     ap.add_argument("--hazard-pos-weight", type=float, default=1.0)
     ap.add_argument("--edge-mode", default="full", choices=EDGE_MODE_CHOICES)
+    ap.add_argument(
+        "--combat-in",
+        action="store_true",
+        help="add transposed combat channel (E=4) so victims aggregate attacker state (CODE_REVIEW C5)",
+    )
     ap.add_argument("--grad-clip", type=float, default=5.0)
     ap.add_argument("--val-frac", type=float, default=0.1)
     ap.add_argument("--test-frac", type=float, default=0.1)

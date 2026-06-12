@@ -62,6 +62,11 @@ PHASE_T_MAX: int = 8
 # based truncation, which would leak the label into the input.
 PHASE_N_MAX: int = 128
 PHASE_EDGE_TYPES = ["proximity", "combat", "copressure"]
+# Directed variant: adds a transposed combat channel so the VICTIM aggregates
+# the attacker's state (matmul(A, x) is row-receives).  With the base channel
+# only, the attacker receives the victim's features and the victim hears
+# nothing — see docs/CODE_REVIEW_2026-06-12.md C5.
+PHASE_EDGE_TYPES_DIRECTED = ["proximity", "combat", "copressure", "combat_in"]
 
 
 PHASE_NODE_FEATURE_SPECS = [
@@ -545,14 +550,19 @@ def _fetch_phase_edges(
     team_ids: list[int],
     phase_indices: list[int],
     node_mask: np.ndarray,
+    edge_types: list[str] = PHASE_EDGE_TYPES,
 ) -> np.ndarray:
     A = np.zeros(
-        (PHASE_T_MAX, len(PHASE_EDGE_TYPES), PHASE_N_MAX, PHASE_N_MAX),
+        (PHASE_T_MAX, len(edge_types), PHASE_N_MAX, PHASE_N_MAX),
         dtype=np.float32,
     )
     team_index = {tid: i for i, tid in enumerate(team_ids)}
     phase_index = {p: i for i, p in enumerate(phase_indices)}
-    edge_index = {e: i for i, e in enumerate(PHASE_EDGE_TYPES)}
+    edge_index = {e: i for i, e in enumerate(edge_types)}
+    # combat_in: transposed RAW combat weights (victim row receives attacker).
+    # Built from raw weights BEFORE normalization so its row-normalization is
+    # exact, not a renormalized transpose of an already-normalized matrix.
+    combat_in_e = edge_index.get("combat_in")
 
     if team_ids and phase_indices:
         cur.execute(
@@ -578,7 +588,11 @@ def _fetch_phase_edges(
             e = edge_index[edge_type]
             i = team_index[src]
             j = team_index[dst]
+            # (match,phase,type,src,dst)는 PK라 중복이 없어야 정상 — max는
+            # 혹시 모를 중복 행에 대한 멱등 방어 (sum이면 중복 시 가중치 증폭)
             A[t, e, i, j] = max(A[t, e, i, j], float(weight))
+            if combat_in_e is not None and edge_type == "combat":
+                A[t, combat_in_e, j, i] = max(A[t, combat_in_e, j, i], float(weight))
 
     # Proximity channel gets self-loops for alive nodes. Combat/copressure remain
     # interaction-only; the model's residual path carries each node's own state.
@@ -588,9 +602,9 @@ def _fetch_phase_edges(
         A[t, prox_e, alive_idx, alive_idx] = 1.0
 
     # Row-normalize each edge type independently. Rows with no outgoing edge stay
-    # zero, which is intentional for combat/copressure.
+    # zero, which is intentional for combat/copressure/combat_in.
     for t in range(PHASE_T_MAX):
-        for e in range(len(PHASE_EDGE_TYPES)):
+        for e in range(len(edge_types)):
             rs = A[t, e].sum(axis=1, keepdims=True)
             np.divide(A[t, e], rs, out=A[t, e], where=rs > 0)
 
@@ -656,8 +670,17 @@ def fetch_match_tensors(match_id: str) -> MatchTensors | None:
         cur.close(); conn.close()
 
 
-def fetch_phase_match_tensors(match_id: str) -> PhaseMatchTensors | None:
+def fetch_phase_match_tensors(
+    match_id: str,
+    *,
+    include_combat_in: bool = False,
+) -> PhaseMatchTensors | None:
     """Build phase-level tensors for DynamicSTGNN.
+
+    include_combat_in: add a 4th edge channel "combat_in" (transposed raw
+    combat weights, independently row-normalized) so victims aggregate
+    attacker state.  Default False keeps the E=3 layout of all existing
+    checkpoints.
 
     Shapes:
         X           (8, PHASE_N_MAX, F)
@@ -695,7 +718,12 @@ def fetch_phase_match_tensors(match_id: str) -> PhaseMatchTensors | None:
         y_hazard, target_mask = _fetch_phase_targets(
             cur, match_id, team_ids, phase_indices
         )
-        A = _fetch_phase_edges(cur, match_id, team_ids, phase_indices, node_mask)
+        edge_types = (
+            PHASE_EDGE_TYPES_DIRECTED if include_combat_in else PHASE_EDGE_TYPES
+        )
+        A = _fetch_phase_edges(
+            cur, match_id, team_ids, phase_indices, node_mask, edge_types=edge_types
+        )
 
         padded_team_ids = team_ids + [0] * (PHASE_N_MAX - len(team_ids))
         padded_phase_indices = phase_indices + [0] * (PHASE_T_MAX - len(phase_indices))
@@ -714,7 +742,7 @@ def fetch_phase_match_tensors(match_id: str) -> PhaseMatchTensors | None:
             team_ids=padded_team_ids,
             phase_indices=padded_phase_indices,
             feature_names=PHASE_NODE_FEATURE_NAMES.copy(),
-            edge_types=PHASE_EDGE_TYPES.copy(),
+            edge_types=list(edge_types),
         )
     finally:
         cur.close()

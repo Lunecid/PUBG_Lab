@@ -125,7 +125,10 @@ class GroupGNN(nn.Module):
     def forward(self, team_h_pooled, team_graph):
         """
         Parameters:
-            team_h_pooled: Tensor [n_teams_alive, hidden_dim] — group pooling 출력
+            team_h_pooled: Tensor [n_teams_alive, hidden_dim]
+                — team_graph 노드 순서(alive_teams 정렬 순)로 이미 정렬된 팀 임베딩.
+                  글로벌 팀 ID → 로컬 노드 순서 정렬은 호출자
+                  (ArenaSurvivalNet._pool_alive_teams)가 책임진다.
             team_graph: Data with:
                 - x: [n_teams_alive, team_feat_dim]
                 - edge_index: [2, n_edges]
@@ -139,25 +142,14 @@ class GroupGNN(nn.Module):
         if n_alive == 0:
             return team_h_pooled, []
 
-        # pooled 임베딩 + team_graph 노드 피처 결합
-        # team_h_pooled가 전체 팀(alive+dead) 포함할 수 있으므로,
-        # team_graph.alive_teams로 alive 팀만 추출
-        alive_teams = team_graph.alive_teams
-        if len(alive_teams) > 0 and team_h_pooled.shape[0] > n_alive:
-            max_idx = max(alive_teams) if alive_teams else -1
-            if max_idx >= team_h_pooled.shape[0]:
-                # alive_teams에 pooled 범위를 초과하는 팀 ID가 있으면 패딩
-                pad_size = max_idx + 1 - team_h_pooled.shape[0]
-                team_h_pooled = torch.cat([
-                    team_h_pooled,
-                    torch.zeros(pad_size, team_h_pooled.shape[1],
-                                device=team_h_pooled.device),
-                ], dim=0)
-            pooled_alive = team_h_pooled[alive_teams]
-        else:
-            pooled_alive = team_h_pooled[:n_alive]
+        if team_h_pooled.shape[0] != n_alive:
+            raise ValueError(
+                f"team_h_pooled rows ({team_h_pooled.shape[0]}) != "
+                f"team_graph.num_nodes ({n_alive}) — 호출자가 pooled 임베딩을 "
+                "팀 그래프 노드 순서로 정렬해 전달해야 한다"
+            )
 
-        h = self.input_proj(torch.cat([pooled_alive, team_graph.x], dim=-1))
+        h = self.input_proj(torch.cat([team_h_pooled, team_graph.x], dim=-1))
 
         edge_index = team_graph.edge_index
         edge_attr = team_graph.edge_attr

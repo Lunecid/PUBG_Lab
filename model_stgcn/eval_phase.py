@@ -18,6 +18,7 @@ from sklearn.metrics import (
 )
 from torch.utils.data import DataLoader
 
+from model_stgcn.bootstrap_ci import cluster_bootstrap_ci
 from model_stgcn.dataset import CachedPhaseMatchDataset, LazyPhaseMatchDataset, phase_collate
 from model_stgcn.dyn_stgnn import DynamicSTGNN, dynamic_stgnn_loss
 from model_stgcn.edge_modes import EDGE_MODE_CHOICES, apply_edge_mode, edge_active_mask
@@ -63,8 +64,9 @@ def _binary_metrics(y_true: np.ndarray, y_prob: np.ndarray) -> dict[str, float]:
     return out
 
 
-def _dataset(ids: list[str], cached: bool):
-    return CachedPhaseMatchDataset(ids) if cached else LazyPhaseMatchDataset(ids)
+def _dataset(ids: list[str], cached: bool, *, include_combat_in: bool = False):
+    cls = CachedPhaseMatchDataset if cached else LazyPhaseMatchDataset
+    return cls(ids, include_combat_in=include_combat_in)
 
 
 def _checkpoint_splits(ckpt: dict[str, Any], available_ids: list[str]) -> tuple[list[str], list[str], list[str]] | None:
@@ -151,11 +153,12 @@ def run(args: argparse.Namespace) -> dict:
     model.eval()
     active_mask = edge_active_mask(edge_mode, edge_types=edge_types, device=device)
 
-    ds = _dataset(eval_ids, cached=args.cached)
+    ds = _dataset(eval_ids, cached=args.cached, include_combat_in="combat_in" in edge_types)
     loader = DataLoader(ds, batch_size=args.batch, shuffle=False, collate_fn=phase_collate, num_workers=0)
 
     hazard_prob: list[np.ndarray] = []
     hazard_true: list[np.ndarray] = []
+    hazard_match: list[np.ndarray] = []
     top5_prob: list[np.ndarray] = []
     top5_true: list[np.ndarray] = []
     top10_prob: list[np.ndarray] = []
@@ -170,7 +173,7 @@ def run(args: argparse.Namespace) -> dict:
         for batch in loader:
             batch = _move_batch(batch, device)
             A = apply_edge_mode(batch["A"].float(), edge_mode, edge_types=edge_types)
-            yh, yr, yk = model(batch["X"].float(), A, edge_active_mask=active_mask)
+            yh, yr, yk = model(batch["X"].float(), A, edge_active_mask=active_mask, phase_mask=batch["phase_mask"])
             loss, parts = dynamic_stgnn_loss(
                 yh,
                 yr,
@@ -196,6 +199,9 @@ def run(args: argparse.Namespace) -> dict:
             tmask = batch["team_mask"].bool()
             hazard_prob.append(torch.sigmoid(yh)[hmask].detach().cpu().numpy())
             hazard_true.append(batch["y_hazard"][hmask].detach().cpu().numpy())
+            # match-level bootstrap용: hmask 선택 순서(row-major)에 맞춘 match_id
+            cell_counts = hmask.reshape(hmask.shape[0], -1).sum(dim=1).cpu().numpy()
+            hazard_match.append(np.repeat(np.asarray(batch["match_id"]), cell_counts))
 
             topk_prob = torch.sigmoid(yk)
             top5_prob.append(topk_prob[:, :, 0][tmask].detach().cpu().numpy())
@@ -207,6 +213,7 @@ def run(args: argparse.Namespace) -> dict:
 
     yh_true = np.concatenate(hazard_true) if hazard_true else np.array([])
     yh_prob = np.concatenate(hazard_prob) if hazard_prob else np.array([])
+    yh_match = np.concatenate(hazard_match) if hazard_match else np.array([])
     y5_true = np.concatenate(top5_true) if top5_true else np.array([])
     y5_prob = np.concatenate(top5_prob) if top5_prob else np.array([])
     y10_true = np.concatenate(top10_true) if top10_true else np.array([])
@@ -233,6 +240,16 @@ def run(args: argparse.Namespace) -> dict:
         "checkpoint_epoch": ckpt.get("epoch"),
         "checkpoint_best_val": ckpt.get("best_val"),
     }
+
+    if args.bootstrap > 0 and yh_true.size:
+        from sklearn.metrics import average_precision_score, brier_score_loss, roc_auc_score
+
+        result["hazard_ci"] = {
+            "n_boot": args.bootstrap,
+            "auc": cluster_bootstrap_ci(yh_true, yh_prob, yh_match, roc_auc_score, n_boot=args.bootstrap, seed=args.seed),
+            "ap": cluster_bootstrap_ci(yh_true, yh_prob, yh_match, average_precision_score, n_boot=args.bootstrap, seed=args.seed),
+            "brier": cluster_bootstrap_ci(yh_true, yh_prob, yh_match, brier_score_loss, n_boot=args.bootstrap, seed=args.seed),
+        }
 
     if args.out:
         out_path = Path(args.out)
@@ -266,6 +283,12 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--gamma", type=float, default=0.3)
     ap.add_argument("--hazard-pos-weight", type=float, default=1.0)
     ap.add_argument("--edge-mode", default=None, choices=EDGE_MODE_CHOICES)
+    ap.add_argument(
+        "--bootstrap",
+        type=int,
+        default=0,
+        help="match-level bootstrap 반복 수 (0=off); hazard AUC/AP/Brier 95%% CI 산출",
+    )
     ap.add_argument("--out", default="model_stgcn/checkpoints/eval_phase.json")
     return ap.parse_args()
 

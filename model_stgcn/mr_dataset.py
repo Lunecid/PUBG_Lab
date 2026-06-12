@@ -36,7 +36,10 @@ def fetch_mr(match_id: str, *, include_v2: bool = True) -> dict | None:
         return None
     d = _phase_to_torch(pt)
     d["X_s"] = torch.from_numpy(st.X_s.copy())
-    d["A_s"] = torch.from_numpy(st.A_s.copy())
+    # A_s is ~99% zero (sparse graph). Store as COO so a cached match costs
+    # ~1-2MB instead of 26MB dense; mr_collate re-densifies per batch only.
+    # Phase A ("A") stays dense — it is small (8x3x128x128).
+    d["A_s"] = torch.from_numpy(st.A_s.copy()).to_sparse()
     d["phase_of_snap"] = torch.from_numpy(st.phase_of_snap.copy())
     d["node_mask_s"] = torch.from_numpy(st.node_mask.copy())
     d["death_snap_idx"] = torch.from_numpy(st.death_snap_idx.copy())
@@ -80,7 +83,10 @@ def mr_collate(batch: list[dict]) -> dict:
     out: dict = {}
     sample = batch[0]
     for k, v in sample.items():
-        if torch.is_tensor(v):
+        if k == "A_s":
+            # re-densify the sparse snapshot adjacency for this batch only
+            out[k] = torch.stack([b[k].to_dense() for b in batch])
+        elif torch.is_tensor(v):
             out[k] = torch.stack([b[k] for b in batch])
         else:
             out[k] = [b[k] for b in batch]

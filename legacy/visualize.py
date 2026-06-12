@@ -320,9 +320,11 @@ controls.minDistance=100;
 controls.maxDistance=25000;
 
 if(NF>0){
-  const z0=F[0].zone;
-  controls.target.set(z0.scx, 0, z0.scy);
-  camera.position.set(z0.scx+z0.sr*0.8, z0.sr*1.0, z0.scy+z0.sr*0.8);
+  // Map-centred aerial view — robust to matches where the first frame's zone
+  // is uninitialised (scx=scy=sr=0).  Snap once to the centre of the map.
+  const cx = MAP_SIZE / 2, cz = MAP_SIZE / 2;
+  controls.target.set(cx, 200, cz);
+  camera.position.set(cx + MAP_SIZE * 0.40, MAP_SIZE * 0.55, cz + MAP_SIZE * 0.40);
   controls.update();
 }
 
@@ -337,43 +339,112 @@ scene.add(new THREE.AmbientLight(0xffffff, 0.65));
 const dl=new THREE.DirectionalLight(0xffffff, 0.55);
 dl.position.set(5000,8000,5000); scene.add(dl);
 
-// === MAP GROUND PLANE ===
+// === MAP GROUND PLANE — 3D TERRAIN MESH ===
 const MAP_SIZE_M = MAP_SIZE;
 
-// Erangel 맵 텍스처 로드 (CDN에서 직접)
-const mapTexLoader = new THREE.TextureLoader();
-const mapUrls = [
-  "https://raw.githubusercontent.com/pubg/api-assets/master/Assets/Maps/Erangel_Main_Low_Res.png",
-  "https://raw.githubusercontent.com/pubg/api-assets/master/Assets/Maps/Erangel_Main_High_Res.png"
-];
+// === TERRAIN MESH ===
+// Build a displaced PlaneGeometry whose Y per-vertex comes from D.heatmaps.elevation
+// (when available) and falls back to a flat plane otherwise.  An external DEM
+// can override the embedded grid by supplying D.terrain = {grid, elev_min_m,
+// elev_max_m, flip_y, rot_deg} from the Python side.
+const TERR = D.terrain || (D.heatmaps && D.heatmaps.elevation ? {
+  grid:      D.heatmaps.elevation,
+  elev_min_m: (D.heatmaps.elev_min_m ?? 0),
+  elev_max_m: (D.heatmaps.elev_max_m ?? 400),
+  flip_y:    false,
+  rot_deg:   0
+} : null);
 
-// 지면 기본 생성 (텍스처 로드 전에 색상으로)
-const groundGeo = new THREE.PlaneGeometry(MAP_SIZE_M, MAP_SIZE_M);
-const groundMat = new THREE.MeshBasicMaterial({
-  color: 0x8fbc8f, transparent: true, opacity: 0.35, side: THREE.DoubleSide
-});
-const groundMesh = new THREE.Mesh(groundGeo, groundMat);
-groundMesh.rotation.x = -Math.PI/2;
-groundMesh.position.set(MAP_SIZE_M/2, -2, MAP_SIZE_M/2);
-scene.add(groundMesh);
-
-// 텍스처 로드 시도
-function tryLoadMap(urls, idx) {
-  if (idx >= urls.length) return;
-  mapTexLoader.load(urls[idx],
-    function(tex) {
-      tex.minFilter = THREE.LinearFilter;
-      tex.magFilter = THREE.LinearFilter;
-      groundMat.map = tex;
-      groundMat.color.set(0xffffff);
-      groundMat.opacity = 0.7;
-      groundMat.needsUpdate = true;
-    },
-    undefined,
-    function() { tryLoadMap(urls, idx+1); }
-  );
+let groundMesh;
+function sampleZ(x_m, y_m) {
+  if (!TERR) return 0;
+  const G = TERR.grid;
+  const GS = G.length;
+  const cell = MAP_SIZE_M / GS;
+  let ix = Math.floor(x_m / cell);
+  let iy = Math.floor(y_m / cell);
+  ix = Math.max(0, Math.min(GS - 1, ix));
+  iy = Math.max(0, Math.min(GS - 1, iy));
+  const v = G[iy][ix];
+  return TERR.elev_min_m + v * (TERR.elev_max_m - TERR.elev_min_m);
 }
-tryLoadMap(mapUrls, 0);
+
+if (TERR) {
+  const GS = TERR.grid.length;
+  const tgGeo = new THREE.PlaneGeometry(MAP_SIZE_M, MAP_SIZE_M, GS - 1, GS - 1);
+  // PlaneGeometry default orientation: XY plane.  Displace local Z by elevation,
+  // then rotate -π/2 about X so local-Z becomes world-Y (height).
+  const pos = tgGeo.attributes.position;
+  for (let i = 0; i < pos.count; i++) {
+    // local x/y of the vertex (centered) → world x/y (uncentered)
+    const lx = pos.getX(i) + MAP_SIZE_M / 2;
+    const ly = pos.getY(i) + MAP_SIZE_M / 2;
+    // honour optional flip / rotation hints supplied with the DEM
+    let mx = lx, my = ly;
+    if (TERR.rot_deg === 90)  { mx = ly; my = MAP_SIZE_M - lx; }
+    if (TERR.rot_deg === 180) { mx = MAP_SIZE_M - lx; my = MAP_SIZE_M - ly; }
+    if (TERR.rot_deg === 270) { mx = MAP_SIZE_M - ly; my = lx; }
+    if (TERR.flip_y) my = MAP_SIZE_M - my;
+    const z = sampleZ(mx, my);
+    pos.setZ(i, z);
+  }
+  pos.needsUpdate = true;
+  tgGeo.computeVertexNormals();
+
+  // Vertex colors: elevation ramp (low = green-tan, high = brown-white)
+  const colors = new Float32Array(pos.count * 3);
+  const minZ = TERR.elev_min_m, maxZ = TERR.elev_max_m, span = Math.max(1, maxZ - minZ);
+  for (let i = 0; i < pos.count; i++) {
+    const z = pos.getZ(i);
+    const t = (z - minZ) / span;
+    let r, g, b;
+    if (t < 0.3)      { r = 0.30 + t*0.30; g = 0.45 + t*0.30; b = 0.20; }
+    else if (t < 0.6) { const u = (t-0.3)/0.3; r = 0.40 + u*0.30; g = 0.55 - u*0.15; b = 0.20 + u*0.10; }
+    else              { const u = (t-0.6)/0.4; r = 0.65 + u*0.25; g = 0.40 + u*0.40; b = 0.25 + u*0.50; }
+    colors[i*3+0] = r; colors[i*3+1] = g; colors[i*3+2] = b;
+  }
+  tgGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+  const tgMat = new THREE.MeshLambertMaterial({
+    vertexColors: true, side: THREE.DoubleSide
+  });
+  groundMesh = new THREE.Mesh(tgGeo, tgMat);
+  groundMesh.rotation.x = -Math.PI / 2;
+  groundMesh.position.set(MAP_SIZE_M / 2, 0, MAP_SIZE_M / 2);
+  scene.add(groundMesh);
+} else {
+  // Fallback: flat textured plane (legacy behaviour)
+  const groundGeo = new THREE.PlaneGeometry(MAP_SIZE_M, MAP_SIZE_M);
+  const groundMat = new THREE.MeshBasicMaterial({
+    color: 0x8fbc8f, transparent: true, opacity: 0.35, side: THREE.DoubleSide
+  });
+  groundMesh = new THREE.Mesh(groundGeo, groundMat);
+  groundMesh.rotation.x = -Math.PI/2;
+  groundMesh.position.set(MAP_SIZE_M/2, -2, MAP_SIZE_M/2);
+  scene.add(groundMesh);
+
+  const mapTexLoader = new THREE.TextureLoader();
+  const mapUrls = [
+    "https://raw.githubusercontent.com/pubg/api-assets/master/Assets/Maps/Erangel_Main_Low_Res.png",
+    "https://raw.githubusercontent.com/pubg/api-assets/master/Assets/Maps/Erangel_Main_High_Res.png"
+  ];
+  function tryLoadMap(urls, idx) {
+    if (idx >= urls.length) return;
+    mapTexLoader.load(urls[idx],
+      function(tex) {
+        tex.minFilter = THREE.LinearFilter;
+        tex.magFilter = THREE.LinearFilter;
+        groundMat.map = tex;
+        groundMat.color.set(0xffffff);
+        groundMat.opacity = 0.7;
+        groundMat.needsUpdate = true;
+      },
+      undefined,
+      function() { tryLoadMap(urls, idx+1); }
+    );
+  }
+  tryLoadMap(mapUrls, 0);
+}
 
 // 그리드 (맵 위에 약하게)
 const grid=new THREE.GridHelper(MAP_SIZE_M, 16, 0x999999, 0xbbbbbb);
@@ -387,30 +458,28 @@ const nodeGrp=new THREE.Group(); scene.add(nodeGrp);
 const allyGrp=new THREE.Group(); scene.add(allyGrp);
 const encGrp=new THREE.Group();  scene.add(encGrp);
 
-// === DUAL ZONE RINGS ===
-// Safe zone = 흰 원 (목표, 다음 안전 지역)
-const safeZoneGeo = new THREE.RingGeometry(0.97, 1, 128);
+// === DUAL ZONE CYLINDERS (3D walls) ===
+// Safe zone = 흰 cylinder (목표, 다음 안전 지역)
+const safeZoneGeo = new THREE.CylinderGeometry(1, 1, 800, 64, 1, true);
 const safeZoneMat = new THREE.MeshBasicMaterial({
-  color: 0xffffff, transparent: true, opacity: 0.7, side: THREE.DoubleSide
+  color: 0xffffff, transparent: true, opacity: 0.22, side: THREE.DoubleSide
 });
 const safeZoneMesh = new THREE.Mesh(safeZoneGeo, safeZoneMat);
-safeZoneMesh.rotation.x = -Math.PI/2;
 scene.add(safeZoneMesh);
 
-// Poison zone = 파란 원 (현재 데미지 경계)
-// 채워진 원 (안전 지역 표시) + 테두리 (경계선)
-const poisonFillGeo = new THREE.CircleGeometry(1, 128);
-const poisonFillMat = new THREE.MeshBasicMaterial({
-  color: 0x3b82f6, transparent: true, opacity: 0.06, side: THREE.DoubleSide,
+// Poison zone = 파란 내벽 cylinder (현재 데미지 경계, 닫혀오는 벽 효과)
+const poisonWallGeo = new THREE.CylinderGeometry(1, 1, 1200, 64, 1, true);
+const poisonWallMat = new THREE.MeshBasicMaterial({
+  color: 0x3b82f6, transparent: true, opacity: 0.18, side: THREE.BackSide,
   depthWrite: false
 });
-const poisonFillMesh = new THREE.Mesh(poisonFillGeo, poisonFillMat);
-poisonFillMesh.rotation.x = -Math.PI/2;
+const poisonFillMesh = new THREE.Mesh(poisonWallGeo, poisonWallMat);
 scene.add(poisonFillMesh);
 
+// Poison ring marker on the ground (thin ring at ground level for orientation)
 const poisonRingGeo = new THREE.RingGeometry(0.985, 1, 128);
 const poisonRingMat = new THREE.MeshBasicMaterial({
-  color: 0x3b82f6, transparent: true, opacity: 0.55, side: THREE.DoubleSide
+  color: 0x3b82f6, transparent: true, opacity: 0.6, side: THREE.DoubleSide
 });
 const poisonRingMesh = new THREE.Mesh(poisonRingGeo, poisonRingMat);
 poisonRingMesh.rotation.x = -Math.PI/2;
@@ -598,7 +667,7 @@ function updateScene(fr){
   for(let i=0;i<n;i++){
     const p=aliveNodes[i], m=nodeGrp.children[i], col=hex2c(TC[p.t%TC.length]);
     // z축: 교정된 스케일 사용
-    m.position.set(p.x, zToY(p.z), p.y);
+    m.position.set(p.x, sampleZ(p.x, p.y) + 25, p.y);
     const sz=14+p.hp*18; m.scale.setScalar(sz);
     m.material.color.copy(col);
     m.material.opacity=.5+p.hp*.5;
@@ -629,7 +698,7 @@ function updateScene(fr){
     const sn=nd[sp], dn=nd[dp];
     if(!sn.alive||!dn.alive||sn.hp<.001||dn.hp<.001) continue;
     const col=hex2c(TC[sn.t%TC.length]);
-    ap.push(new THREE.Vector3(sn.x,zToY(sn.z),sn.y), new THREE.Vector3(dn.x,zToY(dn.z),dn.y));
+    ap.push(new THREE.Vector3(sn.x,sampleZ(sn.x,sn.y)+25,sn.y), new THREE.Vector3(dn.x,sampleZ(dn.x,dn.y)+25,dn.y));
     ac.push(col.r,col.g,col.b, col.r,col.g,col.b);
   }
   if(ap.length){
@@ -648,7 +717,7 @@ function updateScene(fr){
     const sn=nd[sp], dn=nd[dp];
     if(!sn.alive||!dn.alive||sn.hp<.001||dn.hp<.001) continue;
     const a=Math.max(.08,.5*(1-dist/Math.max(maxD,100)));
-    ep.push(new THREE.Vector3(sn.x,zToY(sn.z),sn.y), new THREE.Vector3(dn.x,zToY(dn.z),dn.y));
+    ep.push(new THREE.Vector3(sn.x,sampleZ(sn.x,sn.y)+25,sn.y), new THREE.Vector3(dn.x,sampleZ(dn.x,dn.y)+25,dn.y));
     ec2.push(.85*a,.12*a,.12*a, .85*a,.12*a,.12*a);
   }
   if(ep.length){
@@ -658,19 +727,19 @@ function updateScene(fr){
       new THREE.LineBasicMaterial({vertexColors:true, transparent:true, opacity:0.7, linewidth:1})));
   }
 
-  // === DUAL ZONE UPDATE ===
-  // Safe zone (흰 원, 목표)
-  safeZoneMesh.scale.set(fr.zone.sr, fr.zone.sr, 1);
-  safeZoneMesh.position.set(fr.zone.scx, 3, fr.zone.scy);
+  // === DUAL ZONE UPDATE (cylinders) ===
+  // Safe zone (흰 cylinder, 목표) — y=400 keeps the 800m-tall cylinder centred above terrain
+  safeZoneMesh.scale.set(fr.zone.sr, 1, fr.zone.sr);
+  safeZoneMesh.position.set(fr.zone.scx, 400, fr.zone.scy);
 
-  // Poison zone (파란 원, 현재 경계)
+  // Poison zone (파란 내벽 cylinder + 지면 ring)
   if(fr.zone.pr > 0) {
     poisonFillMesh.visible = true;
     poisonRingMesh.visible = true;
-    poisonFillMesh.scale.set(fr.zone.pr, fr.zone.pr, 1);
-    poisonFillMesh.position.set(fr.zone.pcx, 2, fr.zone.pcy);
+    poisonFillMesh.scale.set(fr.zone.pr, 1, fr.zone.pr);
+    poisonFillMesh.position.set(fr.zone.pcx, 600, fr.zone.pcy);
     poisonRingMesh.scale.set(fr.zone.pr, fr.zone.pr, 1);
-    poisonRingMesh.position.set(fr.zone.pcx, 2, fr.zone.pcy);
+    poisonRingMesh.position.set(fr.zone.pcx, sampleZ(fr.zone.pcx, fr.zone.pcy) + 4, fr.zone.pcy);
   } else {
     // 자기장 미생성
     poisonFillMesh.visible = false;

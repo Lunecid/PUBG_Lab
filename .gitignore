@@ -199,3 +199,24 @@ venv/
 
 # Output
 *.html
+
+# ── PUBG project: data & generated artifacts (docs/CODE_REVIEW_2026-06-12.md B1) ──
+.DS_Store
+.env
+.claude/
+data/
+logs/
+outputs/
+checkpoints/
+network_analysis/output/
+webapp/node_modules/
+webapp/public/data/
+webapp/dist/
+presentation_build/node_modules/
+presentation_build/intro_en_png/
+prev_pptx_png/
+*.pt
+*.zip
+*.pptx
+*.pdf
+/pubg_survival - pubg_survival - pubg.png

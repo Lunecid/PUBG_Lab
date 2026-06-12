@@ -26,6 +26,8 @@ V2 피처 설계 (생태학 5축, ~39d agent 노드 피처):
   3. 출력되는 진단 정보로 그래프 품질 확인
 """
 
+import os
+
 import psycopg2
 import psycopg2.extras
 import numpy as np
@@ -41,12 +43,21 @@ from scipy.ndimage import uniform_filter
 # ============================================================
 
 DB_CONFIG = {
-    "host": "localhost",
-    "port": 5432,
-    "dbname": "pubg_survival",
-    "user": "postgres",       # ← 수정
-    "password": "104204",   # ← 수정
+    "host": os.environ.get("PG_HOST", "localhost"),
+    "port": int(os.environ.get("PG_PORT", "5432")),
+    "dbname": os.environ.get("PG_DBNAME", "pubg_survival"),
+    "user": os.environ.get("PG_USER", "postgres"),
 }
+
+
+def _require_pg_password() -> str:
+    pw = os.environ.get("PG_PASSWORD")
+    if not pw:
+        raise RuntimeError(
+            "PG_PASSWORD 환경변수가 설정되지 않았습니다. "
+            "DB 접속 전 export PG_PASSWORD='<비밀번호>' 를 실행하세요 (.env.example 참조)."
+        )
+    return pw
 
 SCHEMA = "pubg"
 SNAPSHOT_INTERVAL = 10    # 초
@@ -65,7 +76,7 @@ def get_conn():
         lambda value, curs: float(value) if value is not None else None
     )
     psycopg2.extensions.register_type(DEC2FLOAT)
-    return psycopg2.connect(**DB_CONFIG)
+    return psycopg2.connect(password=_require_pg_password(), **DB_CONFIG)
 
 
 # ============================================================

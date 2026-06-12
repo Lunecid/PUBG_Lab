@@ -26,6 +26,9 @@ from dataset import MatchSurvivalData, load_match_meta, build_team_graph
 from run_meta import (make_run_meta, stamp_filename,
                       discover_checkpoints, discover_matches)
 
+# 시뮬레이션 산출물은 repo 루트가 아니라 outputs/ 아래로 (CODE_REVIEW D11)
+DEFAULT_SIM_OUTPUT = "outputs/legacy_sim/simulation_result.json"
+
 
 def extract_team_centroids(graph, alive_teams, map_size=8160.0):
     """
@@ -191,6 +194,7 @@ def save_simulation(frames, sim_meta, output_path, run_meta=None):
     }
     if run_meta is not None:
         result["run_meta"] = run_meta
+    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
     with open(output_path, "w") as f:
         json.dump(result, f, indent=2)
     print(f"시뮬레이션 저장: {output_path} ({len(frames)} frames)")
@@ -803,7 +807,7 @@ if __name__ == "__main__":
                         help=".pt 매치 파일 경로 (미지정 시 대화형 선택)")
     parser.add_argument("--checkpoint", default=None,
                         help="모델 체크포인트 (미지정 시 대화형 선택)")
-    parser.add_argument("--output", default="simulation_result.json")
+    parser.add_argument("--output", default=DEFAULT_SIM_OUTPUT)
     parser.add_argument("--window_size", type=int, default=5)
     parser.add_argument("--min_alive", type=int, default=3)
     args = parser.parse_args()
@@ -846,7 +850,7 @@ if __name__ == "__main__":
 
     # 출력 파일명에 타임스탬프 적용
     output_path = args.output
-    if output_path == "simulation_result.json":
+    if output_path == DEFAULT_SIM_OUTPUT:
         output_path = stamp_filename(output_path, run_meta["run_id"])
 
     # ── 매치 로드 + 시뮬레이션 ──

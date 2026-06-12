@@ -1,0 +1,42 @@
+{
+  "created_at": "2026-06-09T08:39:25.874866+00:00",
+  "seed": 42,
+  "val_frac": 0.1,
+  "test_frac": 0.1,
+  "n_matches": 15,
+  "ids_sha1": "53c470acdd0fc855f54b99509d5983cd51a426bf",
+  "metadata": {
+    "map_name": "Kiki_Main",
+    "perspective": "FPP",
+    "team_size": "solo",
+    "game_mode": "solo-fpp",
+    "raw_count": 15,
+    "feature_eligible_count": 15,
+    "graph_eligible_count": 15,
+    "source": "scripts/build_experiment_domain_datasets.py",
+    "split_type": "graph"
+  },
+  "splits": {
+    "train": [
+      "fa7ead89-921e-479b-a059-7eefba829d29",
+      "e8a1a041-b773-4db5-93bf-6f085c019787",
+      "ec3aa643-e4c2-4b89-bb41-8e3181c0c75a",
+      "9c7ac36c-befe-49ff-b692-806873b074cc",
+      "4f7dcbe5-70dc-476d-85dc-e1b2b2ebbe93",
+      "bdb408f9-316d-4989-af98-578cd9403966",
+      "e99b3999-fc5e-4832-bd08-3e9fbc33dbd0",
+      "297aad87-15a2-4f34-bf25-ff88c9a8828d",
+      "b95b365f-20f9-4b43-b38a-2161ff8910cb",
+      "5b961b86-e614-4a03-97d4-ca81d16b43d3",
+      "449b652b-bbc3-48ff-a811-2fd14f11d452",
+      "7ebcbc28-dc2a-40a8-a6d5-2b559e0d9b40",
+      "4813ad18-49b1-4ecd-ac27-4bf7854ee5f4"
+    ],
+    "val": [
+      "4a3bd518-07e2-41fc-8f8f-071f03e2d333"
+    ],
+    "test": [
+      "55305de9-4743-4fc2-8e22-d2db2854a289"
+    ]
+  }
+}

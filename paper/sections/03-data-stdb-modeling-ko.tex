@@ -1,0 +1,226 @@
+\subsection{Phase-정렬 STDB 구성 (RQ1)}
+\label{sec:methods-data}
+
+본 연구는 공식 PUBG Developer API에서 match record를 수집한다
+\cite{pubgDeveloperPortal,pubgTelemetryGuide}. Telemetry file은 time, actor,
+location, game-state context를 가진 event stream이다
+\cite{pubgTelemetryEvents,pubgTelemetryObjects}. 연구 모집단은 21,824개
+match이며, 12개 map과 모든 표준 team mode---1인칭·3인칭의 solo, duo,
+squad---를 포괄한다. 그중 3인칭 squad match가 가장 큰 비중(15,213)을
+차지한다. 표~\ref{tab:api-fields}는 raw record를 어떻게 사용하는지 요약한다.
+
+\begin{table*}[t]
+\centering
+\caption{Raw telemetry의 의미와 분석 표현.}
+\label{tab:api-fields}
+\small
+\begin{tabular}{p{0.27\linewidth}p{0.31\linewidth}p{0.34\linewidth}}
+\toprule
+Raw information & Match 안에서의 의미 & 표현 \\
+\midrule
+Match 및 roster context & Map, mode, duration, team membership, outcome. &
+Match/team record와 auxiliary placement target. \\
+Timestamped player state & Location, health, alive status, vehicle state. &
+Moving player, team centroid, state/movement feature. \\
+시간에 따른 zone state & Safe-zone/blue-zone center, radius, timing. &
+Dynamic region, phase interval, exposure feature. \\
+Combat 및 elimination event & Attacker-victim interaction과 time, place,
+damage context. & Spatial event, elimination time, combat relation. \\
+Resource 및 support event & Equipment, resource use, healing, boosting. &
+Team-phase readiness summary. \\
+공통 time/location metadata & 분리된 record를 연결하는 coordinate. &
+Trajectory, region, event, edge의 공통 축. \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+API는 event를 제공하지만 analysis object를 제공하지 않는다. 따라서 event
+stream을 elapsed match time과 공통 map plane이라는 두 공유 축 위에서 네 가지
+object type으로 변환한다. Player position은 10초 격자로 재표집된 뒤 team
+centroid, 즉 moving object가 된다. Safe/blue-zone state는 phase-indexed
+dynamic region이 된다. Combat과 elimination record는 특정 time과 place에
+결합된 spatial event가 된다. Phase 경계는 명시적 interval
+\([a_k,b_k]\)가 되며, 자기장 제시 전의 landing interval은 phase 0으로
+indexing한다. 구체적으로 STDB는 표~\ref{tab:stdb-schema}의 relation
+집합이며, team-phase feature·label·edge는 interval 집계---team state,
+spatial event, zone geometry를 \([a_k,b_k]\)로 제한한 join---이다.
+
+\begin{table}[t]
+\centering
+\caption{개념적 STDB schema. \(m\): match, \(i,j\): team, \(k\): phase,
+\(t\): time, \(r\): relation type.}
+\label{tab:stdb-schema}
+\small
+\begin{tabular}{llp{0.45\linewidth}}
+\toprule
+Relation & Key & 내용 \\
+\midrule
+Match & \(m\) & map, mode, duration \\
+Team & \(m,i\) & roster 크기, outcome \\
+Phase & \(m,k\) & interval \([a_k,b_k]\); safe/blue-zone geometry \\
+Team state & \(m,i,t\) & centroid, 생존 인원, health, vehicle \\
+Spatial event & \(m,e\) & time, place, attacker/victim team, kind, damage \\
+Team-phase & \(m,i,k\) & 66 feature; hazard label \\
+Edge & \(m,k,r,i,j\) & relation \(r\)의 weight \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+표~\ref{tab:data-funnel}는 변환 funnel을 보고한다. 수집된 match와
+graph-ready match 사이의 차이는 거의 전부 tutorial 및 training-range
+session(5,658개)으로, 경쟁 플레이가 아니므로 설계상 제외한다. 그 외에는
+위치 기록이 없거나 next-phase label을 정의할 phase가 부족한 비정상
+telemetry로 인해 9개 match만이 추가로 제외된다.
+
+\begin{table}[t]
+\centering
+\caption{Raw telemetry에서 graph-ready match까지의 data funnel.}
+\label{tab:data-funnel}
+\small
+\begin{tabular}{lr}
+\toprule
+단계 & Matches \\
+\midrule
+Official telemetry retrieved & 27,491 \\
+Converted to STDB & 21,833 \\
+Team positions available & 21,830 \\
+Team-phase features available & 21,830 \\
+Next-phase labels available & 21,824 \\
+Team-relation edges available & 21,830 \\
+Graph-ready matches, \(N_{\max}=128\) & 21,824 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Team-Phase Feature (RQ1)}
+\label{sec:methods-features}
+
+모델링 단위는 team-phase tuple \((m,i,k)\), 즉 match \(m\), team \(i\),
+phase \(k\)이다. 각 row는 한 phase 동안 한 team의 trajectory, 구역 노출,
+전투, 준비 상태를 요약하며, row의 모든 수치는 해당 phase 안의 관측만으로
+계산되고 phase의 종료 시점을 넘는 정보는 사용하지 않는다. Team 위치는 아직
+탈락하지 않은 팀원들의 centroid,
+\(c_{i,t}=|P_{i,t}|^{-1}\sum_{p\in P_{i,t}}\ell_{p,t}\)이다. 여기서
+\(\ell_{p,t}\)는 player \(p\)의 위치이다. Centroid는 흩어진 squad를
+단순화하므로, 같은 row에 team spread와 최근접 적 거리 feature를 두어 이를
+보완한다. Zone에 상대적인 모든 수치(이동 정렬, zone 진입 시점, zone 밖
+체류 시간)는 phase \(k\) 동안 이미 공개되어 플레이어가 관측 가능한 그
+phase의 target safe zone을 기준으로 하며, 미래의 zone은 사용하지 않는다.
+그림~\ref{fig:team-phase-feature-example}은 하나의 row가 담는 시점을
+보여준다. Section~\ref{sec:related-work}의 habitat-contraction 관점에서
+safe-zone 노출과 주변 팀 압박은 배경이 아니라 team risk state의 일부이다.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.48\textwidth]{figures/team_phase_feature_example.png}
+\caption{시공간 과정으로서의 PUBG gameplay 예시. 실선은 선택된 phase에서 한
+team의 centroid movement를 나타내며, 같은 색의 점선 원은 해당 phase의 target
+safe-zone boundary를 Erangel 전장 위에 표시한다. Phase 0은 자기장 target이
+제시되기 전의 landing interval을 의미하며, 노란 마름모는 landing point, 빨간
+marker는 elimination을 나타낸다.}
+\label{fig:team-phase-feature-example}
+\end{figure}
+
+표~\ref{tab:feature-groups}는 특징 원천을 기존 telemetry 집계와 본 연구에서
+추가한 STDB 시공간 특징으로 구분한다. 66개 node feature 전체의 정의와
+scaling은 Appendix~\ref{app:features}의 사전(dictionary)에 제시한다. 표의
+\(d\)는 HGB 표현 ablation에 사용한 tabular 변수 수이며, DynamicSTGNN은 같은
+원천을 정규화한 66차원 수치 vector를 node feature로 사용한다. STDB 단독
+\(d=16\)에는 공통 phase index가 포함되고, 결합 표현에서는 이 중복 항목을
+한 번만 센다. 각 수치는 특징별 고정 scale 상수로 나눈다. 피해량, item
+획득, combat event 횟수처럼 드물게 큰 값이 나타나는 변수에는 log 압축을
+적용한다. 이 scale은 training data에 적합(fit)한 통계량이 아니라 표현
+자체의 상수이다.
+
+\begin{table}[t]
+\centering
+\caption{기존 telemetry 집계와 추가 STDB 시공간 feature.}
+\label{tab:feature-groups}
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{p{0.18\linewidth}p{0.22\linewidth}rp{0.42\linewidth}}
+\toprule
+구분 & 특징군 & \(d\) & 대표 수치 \\
+\midrule
+기존 집계 & 페이즈/팀 상태, 교전, 준비도 & 57 &
+페이즈 인덱스와 길이, 생존 팀/플레이어 수, 존 반경과 중심 이동, 체력,
+팀 분산, 차량, 피해량, 기절, 처치, 아이템, 회복/부스트. \\
+추가 STDB 시공간 & 궤적, 존/적 노출 & 16 &
+팀 centroid 이동 거리, 순변위, 경로 굴곡도, 속도, 회전 시점, 안전 구역
+방향 정렬과 진입 시점, 경계 거리, 블루존 밖 체류 비율, 주변 적 밀도,
+최근접 적 거리, 교전 지역 통과. \\
+결합 표현 & 기존+추가 STDB & 72 &
+기존 집계에 STDB 궤적/노출 특징을 결합한 탈락 위험 예측용 tabular 표현. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Dynamic Team Graph (RQ1)}
+\label{sec:team-graphs}
+
+세 번째 표현 객체는 팀 간 관계를 명시적으로 만든다. Phase \(k\)에 대해 가중
+이질 graph \(G_k=(V_k,X_k,\{A_k^r\}_{r\in R})\)를 정의한다. \(V_k\)는 함께
+관측된 team의 집합, \(X_k\)는 절~\ref{sec:methods-features}의 team-phase
+feature matrix, \(A_k^r\)는 relation \(r\)의 가중 adjacency
+matrix이다~\cite{sanchezLengeling2021gnnIntro}. 따라서 하나의 match는 이산
+시간 동적 graph가 된다. Phase마다 하나씩 만들어지는 snapshot의 sequence
+\(G_1,\dots,G_T\)이며, team이 탈락하면 node도 빠진다. 모든 edge는 phase
+\(k\)의 관측만으로 계산한다.
+
+Relation set \(R\)는 세 channel로 구성된다.
+\[
+A^{\mathrm{prox}}_{ij,k}=e^{-\bar d_{ij,k}/\lambda},\qquad
+A^{\mathrm{comb}}_{ij,k}=\log\!\big(1+D_{ij,k}+\gamma_e E_{ij,k}+\gamma_k K_{ij,k}\big),
+\]
+\[
+A^{\mathrm{press}}_{ij,k}=\rho_{ij,k}\, e^{-\bar d^{\,\mathrm{p}}_{ij,k}/\lambda}.
+\]
+여기서 \(\bar d_{ij,k}\)는 phase 동안 두 team centroid 간 평균 거리,
+\(D\)·\(E\)·\(K\)는 team \(i\)가 team \(j\)에게 가한 damage·elimination·
+knockdown이다. Team이 safe zone 밖에 있거나 boundary로부터 \(\tau_b\) 이내이면
+압박 상태로 정의하고, \(\rho_{ij,k}\)는 두 team이 서로 \(\tau_d\) 이내에서
+함께 압박 상태로 보낸 phase 비율, \(\bar d^{\,\mathrm p}\)는 그 순간들의
+평균 거리이다. Proximity는 대칭이며 완전(거리 컷오프 없음), co-pressure는
+대칭이며 희소, combat은 방향성이며 희소하다. 상수는 map 규모에 맞춰 사전에
+고정했다: \(\lambda=200\)\,m, \(\gamma_e=100\), \(\gamma_k=50\),
+\(\tau_b=150\)\,m, \(\tau_d=200\)\,m. 이 값들은 조정하지 않았으며, 민감도는
+한계에서 논의한다. Phase 1--8 평균으로 한 phase graph에는 약 14개 team이
+함께 관측되며, phase당 평균 약 14개의 방향성 combat edge와 약 7개의
+co-pressure pair가 있다.
+
+각 channel은 team별 outgoing weight의 합이 1이 되도록 정규화한다:
+\(\bar A^{r}_{ij,k}=A^{r}_{ij,k}/\sum_{j'}A^{r}_{ij',k}\). Edge가 없는 row는
+0으로 남고, proximity channel에는 자기 자신의 feature를 보존하기 위한
+self-loop를 두며, padding되었거나 탈락한 team은 어떤 edge도 갖지 않는다.
+Model을 읽는 데 중요한 두 가지 관례가
+있다. 첫째, combat은 attacker를 row로 저장한다. 집계 \(\bar A H\)에서
+공격한 team이 자신이 damage를 가한 team들의 상태를 집계하며, 그 반대
+신호---공격받음---는 node의 combat-taken feature가 운반한다. 둘째,
+이 정규화는 team마다 연결 수가 달라도 graph aggregation의 규모가 과도하게
+커지지 않도록 한다. 전투의 절대 강도는 node 수준 combat feature에
+보존되므로, combat adjacency는 원시 크기가 아니라 교전 상대의 분포를
+표현한다. 변환 과정은
+그림~\ref{fig:dynamic-graph-example}에 예시한다.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.86\textwidth]{figures/dynamic_heterogeneous_graph_example.png}
+\caption{한 PUBG phase의 phase-level STDB snapshot을 dynamic team graph로
+변환하는 시각적 예시. Panel (a)는 Erangel map 위의 team centroid, 현재 safe-zone
+boundary, combat event를 보여준다. Panel (b)는 같은 team과 relation을 유지하되
+map background를 제거하여 model이 사용하는 graph structure만 남긴 것이다.}
+\label{fig:dynamic-graph-example}
+\end{figure*}
+
+이 설계에는 본 연구가 의존하는 네 가지 성질이 있다. 이질 channel은 서로
+다른 위험 기제---어떤 team 곁에 있는 것, 그 team에게 공격당하는 것, 같은
+축소 공간으로 함께 밀려나는 것---를 분리해 유지하고, 하나의 graph로
+뭉개는 대신 model이 그 비중을 학습하게 한다. 컷오프 없는 완전 가중
+proximity channel은 거리 임계값이라는 hyperparameter를 없애고 거리의 전체
+순서 정보를 보존한다. Team이 밀집한 초반 phase에서는 과도한 smoothing의
+위험이 있으나, 지수 감쇠가 가중치를 가까운 team에 집중시키고,
+절~\ref{sec:dynamic-team-graph-model}의 no-edge·shuffle 통제가 무분별한
+혼합에서 올 수 있는 이득의 상한을 제한한다. 방향성 combat edge는 누가
+교전을 시작했는지를 유지한다. 마지막으로 snapshot 동역학은 graph의 시계를
+hazard 과제의 phase 시계와 정렬하고, row normalization은 생존 team 수가
+줄어들어도 이웃 집계의 규모를 비교 가능하게 유지한다.

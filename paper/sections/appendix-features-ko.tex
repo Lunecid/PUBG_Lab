@@ -1,0 +1,110 @@
+\section{Feature 사전}
+\label{app:features}
+
+표~\ref{tab:feat-dict-a}와~\ref{tab:feat-dict-b}는 66개 team-phase feature
+전체를 정의한다. 모든 수치는 cut phase 안의 관측으로 계산된다
+(절~\ref{sec:methods-features}). Scaling 열은 raw 값을 나누는 고정 상수이며,
+``log''는 \(\log(1{+}x)\) 변환, ``binary''는 0/1 indicator, ``map scale''은
+zone 반경·거리가 공유하는 고정 map 규모 상수를 뜻한다.
+
+\begin{table*}[t]
+\centering
+\caption{Feature 사전 1부: phase context, team state, movement.}
+\label{tab:feat-dict-a}
+\footnotesize
+\begin{tabular}{p{0.22\linewidth}p{0.56\linewidth}p{0.12\linewidth}}
+\toprule
+Feature & 정의 (cut phase \(k\) 안) & Scaling \\
+\midrule
+\multicolumn{3}{l}{\textbf{Phase context (12)}} \\
+phase index & 현재 phase의 index \(k\) & \(\div 8\) \\
+phase duration & phase 길이(초) & \(\div 600\)\,s \\
+mean teams alive & phase 동안 생존 team 수의 평균 & \(\div 100\) \\
+mean players alive & phase 동안 생존 player 수의 평균 & \(\div 100\) \\
+safe radius, start & phase 시작 시 target safe-zone 반경 & map scale \\
+safe radius, end & phase 종료 시 target safe-zone 반경 & map scale \\
+safe radius change & safe 반경의 종료-시작 변화량 & map scale \\
+safe center shift & target zone 중심의 이동 거리 & map scale \\
+blue radius, start & phase 시작 시 blue-zone 반경 & map scale \\
+blue radius, end & phase 종료 시 blue-zone 반경 & map scale \\
+zone gap, start & 시작 시 blue와 safe 경계 간 거리 & map scale \\
+zone gap, end & 종료 시 blue와 safe 경계 간 거리 & map scale \\
+\midrule
+\multicolumn{3}{l}{\textbf{Team state (13)}} \\
+roster size & 팀의 player 수 & \(\div 4\) \\
+alive at start & phase 시작 시 생존 팀원 수 & \(\div 4\) \\
+alive at end & phase 종료 시 생존 팀원 수 & \(\div 4\) \\
+alive, minimum & phase 중 최소 생존 팀원 수 & \(\div 4\) \\
+alive, average & phase 중 평균 생존 팀원 수 & \(\div 4\) \\
+mean health & phase 동안 팀원 health의 평균 & \(\div 100\) \\
+minimum health & phase 동안 가장 낮은 팀원 health & \(\div 100\) \\
+health trend & phase 동안 팀 health의 기울기 & \(\div 10\) \\
+team spread, mean & 생존 팀원의 평균 공간 산포 & \(\div 1000\)\,m \\
+team spread, max & 생존 팀원의 최대 공간 산포 & \(\div 1000\)\,m \\
+vehicle ratio & 차량 탑승으로 보낸 phase 비율 & --- \\
+vehicle speed, mean & 차량 탑승 중 평균 속도 & \(\div 40\)\,m/s \\
+vehicle speed, max & 차량 탑승 중 최대 속도 & \(\div 40\)\,m/s \\
+\midrule
+\multicolumn{3}{l}{\textbf{Movement (9)}} \\
+path length & centroid 궤적의 길이 & \(\div 5000\)\,m \\
+net displacement & 시작-종료 직선 거리 & \(\div 5000\)\,m \\
+sinuosity & path length를 net displacement로 나눈 값 & log \\
+average speed & centroid 평균 속도 & \(\div 40\)\,m/s \\
+rotation timing & 주된 이동이 일어난 phase 경과 비율 & --- \\
+safe alignment & 순이동 방향과 공개된 target zone 방향의 cosine & --- \\
+zone entry time & target zone에 처음 진입하기까지의 phase 비율 & --- \\
+time outside zone & safe zone 밖 누적 체류 시간 & \(\div 600\)\,s \\
+boundary distance trend & safe 경계까지 거리의 기울기 & \(\div 100\) \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\caption{Feature 사전 2부: exposure, combat, readiness.}
+\label{tab:feat-dict-b}
+\footnotesize
+\begin{tabular}{p{0.24\linewidth}p{0.54\linewidth}p{0.12\linewidth}}
+\toprule
+Feature & 정의 (cut phase \(k\) 안) & Scaling \\
+\midrule
+\multicolumn{3}{l}{\textbf{Exposure (8)}} \\
+boundary distance, mean & centroid에서 safe 경계까지 평균 거리 & \(\div 8160\)\,m \\
+boundary distance, min & safe 경계까지 최소 거리 & \(\div 8160\)\,m \\
+outside-zone ratio & safe zone 밖에서 보낸 phase 비율 & --- \\
+enemy density (100\,m) & 100\,m 이내 적 team 수의 평균 & \(\div 10\) \\
+nearest enemy, min & 최근접 적 team까지 최소 거리 & \(\div 8160\)\,m \\
+path near enemies & 적이 100\,m 이내였던 경로 비율 & --- \\
+damage taken (phase) & phase 동안 받은 damage & \(\div 1000\) \\
+combat-area passes & 최근 교전 지역(200\,m) 통과 횟수 & \(\div 50\) \\
+\midrule
+\multicolumn{3}{l}{\textbf{Combat (10)}} \\
+damage dealt & 적 team에게 가한 총 damage & \(\div 1000\) \\
+damage taken & 적 team에게 받은 총 damage & \(\div 1000\) \\
+damage events dealt & 가한 damage event 수 & \(\div 50\) \\
+damage events taken & 받은 damage event 수 & \(\div 50\) \\
+knockdowns dealt & 쓰러뜨린 적 player 수 & \(\div 10\) \\
+knockdowns taken & 쓰러진 아군 player 수 & \(\div 10\) \\
+eliminations dealt & 제거한 적 player 수 & \(\div 10\) \\
+eliminations taken & 제거된 아군 player 수 & \(\div 10\) \\
+opponents damaged & 이 팀이 damage를 가한 적 team 수 & \(\div 10\) \\
+opponents damaged by & 이 팀에게 damage를 가한 적 team 수 & \(\div 10\) \\
+\midrule
+\multicolumn{3}{l}{\textbf{Readiness (14)}} \\
+combat initiated & 공격받기 전에 먼저 공격했는지 여부 & binary \\
+item pickups & 획득한 item 수 & \(\div 100\) \\
+item equips & 장착한 item 수 & \(\div 50\) \\
+item uses & 사용한 item 수 & \(\div 50\) \\
+unique items & 획득한 고유 item 종류 수 & \(\div 100\) \\
+weapon pickups & 획득한 weapon 수 & \(\div 20\) \\
+weapon equips & 장착한 weapon 수 & \(\div 20\) \\
+ammunition pickups & 획득한 ammunition 수 & \(\div 50\) \\
+armor pickups & 획득한 armor 수 & \(\div 20\) \\
+throwable pickups & 획득한 throwable 수 & \(\div 20\) \\
+heal uses & 사용한 healing item 수 & \(\div 20\) \\
+boost uses & 사용한 boost item 수 & \(\div 20\) \\
+care-package pickups & care package에서 획득한 item 수 & \(\div 5\) \\
+loot-crate pickups & loot crate에서 획득한 item 수 & \(\div 20\) \\
+\bottomrule
+\end{tabular}
+\end{table*}

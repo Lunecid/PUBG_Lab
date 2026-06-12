@@ -1,0 +1,37 @@
+\section{Introduction}
+
+Final placement in a battle-royale match is the accumulated result of
+survival risks that change as the playable area contracts. In
+\textit{PUBG: Battlegrounds}, players land, loot, fight, and survive in a
+shrinking battleground; the Blue Zone reduces health when players linger
+outside the playable area~\cite{pubgGameInfo}. During a match, safe-area
+updates and Blue Zone movement form observable zone-change intervals. We
+index these intervals from telemetry and use them as \textit{analysis
+phases}, so that survival risk can be measured at comparable points in the
+spatial contraction process. Under this representation, the same damage,
+travel distance, or enemy encounter can have different meaning depending on
+the current zone pressure and safe-area geometry. Post-match aggregates
+therefore hide when a team became vulnerable and which spatial condition
+shaped that risk.
+
+We study official PUBG telemetry from the team perspective. The developer API
+records player positions, combat, zone state, phase-change events, and
+eliminations over time
+\cite{pubgDeveloperPortal,pubgTelemetryEvents,pubgTelemetryObjects}. We
+aggregate player records into team trajectories, exposure, and relations, and
+define team elimination as the moment when the last surviving team member is
+eliminated. The central task is to predict, from observations available
+through the end of indexed interval \(k\), whether a team is eliminated during
+the next interval \(k+1\). We call this the \textit{next-phase elimination
+hazard}, following the discrete-time event-history view of survival
+\cite{allison1982discrete,singer1993discrete}.
+
+The work asks two questions. \textbf{RQ1}: Can official PUBG telemetry be
+reconstructed into a phase-aligned STDB from which team trajectories, zone
+exposure, combat events, and dynamic team relations are derived as features
+and graphs? \textbf{RQ2}: On that representation, how accurately can
+feature-only models predict next-phase hazard, and do dynamic graphs add
+signal beyond those features? Our contributions are: (1) a team-level,
+phase-level hazard formulation for battle-royale survival; (2) a
+phase-aligned STDB representation over 21,824 matches; and (3) an empirical
+separation of representation gains from graph-relation gains.

@@ -1,0 +1,15 @@
+\section{서론}
+
+현대의 온라인 게임은 플레이어의 이동, 공간 조건, 상호작용, 게임 내 사건을 시간 순서대로 기록하는 telemetry 데이터를 생성한다. 전 세계 게임 시장은 2025년 약 1,888억 달러와 약 35.8억 명의 플레이어 규모에 이를 것으로 전망되며~\cite{newzoo2025globalgames}, 이러한 대규모 telemetry는 다양한 분석을 위한 중요한 데이터 자원이다. 이러한 데이터는 단순한 경기 후 집계 통계에 그치지 않고, 플레이가 전개되는 공간적·시간적 맥락을 함께 담는다는 점에서 특별하다. 배틀로얄 게임은 그 구조가 특히 분명하게 드러나는 사례다. 플레이어 또는 팀은 넓은 전장에 진입해 자원을 확보하고, 축소되는 활동 영역 속을 이동하며, 마지막까지 생존하기 위해 경쟁한다.
+본 연구는 대표적이고 선도적인 배틀로얄 게임인 \textit{PUBG: Battlegrounds}를 사례로 삼는다. 하나의 PUBG match에서는 최대 100명의 플레이어가 넓은 전장에 진입하며, 그들이 안전하게 머물 수 있는 영역은 match가 진행되는 동안 점차 축소된다~\cite{pubgGameInfo}.
+
+개발사인 KRAFTON은 phase 변화와 더불어 플레이어 위치, 피해, knockdown, kill, elimination을 시간 순서대로 기록하는 공식 match telemetry를 제공한다~\cite{pubgTelemetryEvents}. 이 stream은 본질적으로 시공간적이다. 팀은 이동 객체이고, 안전구역과 블루존은 전장에서 동적으로 변화하는 공간 영역이며, 전투와 탈락은 특정 시점과 위치에 결합된 사건이다. 이 데이터를 특별하고도 어렵게 만드는 점은 팀의 생존 위험이 한 match 안에서 고정되어 있지 않고 phase가 바뀔 때마다 오르내린다는 데 있다. 총 kill 수, 총 damage, 최종 이동 거리와 같은 경기 후 집계 통계는 이러한 변화를 평탄하게 만들어 버려, 어느 시점에 팀의 위험이 높아졌는지, 또 어떤 공간 조건이 그 변화를 만들었는지를 보여주지 못한다.
+
+기존의 PUBG 공개 benchmark와 예측 연구는 다른 관점을 취한다. 이들은 경기 종료 후 집계된 통계를 이용해 match의 final placement 또는 final rank를 예측한다~\cite{kagglePubgFinishPlacement,sen2021pubgFinalRank,lee2025pubgRank}. 이러한 방법은 최종 결과 예측에는 적합하지만, 단계적으로 진행되는 생존 과정을 하나의 label로 압축하기 때문에, 특정 팀이 언제 위험해졌는지, 어떤 phase에서 공간적 압박이 커졌는지, 주변 팀 배치와 이동하는 안전구역이 그 팀의 탈락 가능성을 어떻게 바꾸었는지를 답하지 못한다. 최근의 phase-based PUBG survival 연구는 본 연구의 문제의식에 더 가까이 접근한다. Related Work 절에서는 이 연구를 본 논문의 직접적인 출발점으로 둔다. 본 연구는 representation 수준에서 다른 경로를 택한다. PUBG telemetry를 동적 팀 간 관계를 갖는 시공간 데이터베이스로 재구성하고, 생존을 phase 수준의 \textit{next-phase elimination hazard}로, 즉 이산 시간 event-history 문제로 정식화한다~\cite{allison1982discrete,singer1993discrete}. 이 대비는 여기서 간략히 다루고, 별도의 Related Work 절에서 다시 논의한다.
+
+본 연구는 다음 세 가지 연구 질문을 중심으로 구성된다.
+\begin{description}
+  \item[\textbf{RQ1.}] PUBG telemetry를 이동하는 팀, 동적인 안전구역과 블루존, 공간 사건, 그리고 match의 phase 구조를 담는 시공간 데이터베이스로 어떻게 표현할 수 있는가?
+  \item[\textbf{RQ2.}] 안전구역이 축소됨에 따라 팀의 trajectory와 생존 조건은 phase가 바뀔 때마다 어떻게 변화하는가?
+  \item[\textbf{RQ3.}] 시공간 feature와 동적 팀 간 graph 관계가 강한 tabular baseline을 넘어 next-phase 팀 탈락 위험 예측에 기여하는가?
+\end{description}

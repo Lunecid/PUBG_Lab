@@ -1,0 +1,14 @@
+{
+  "checkpoint": "model_stgcn/checkpoints/best.pt",
+  "checkpoint_epoch": 27,
+  "best_val_loss": 0.27113425731658936,
+  "n_test_matches": 10,
+  "n_test_teams": 224,
+  "mae": 2.3057312523680076,
+  "rmse": 2.9468400534704546,
+  "spearman_rho": 0.9165455001523746,
+  "top5_auc": 0.9814942528735633,
+  "top5_accuracy": 0.9330357142857143,
+  "top10_auc": 0.9785050505050505,
+  "top10_accuracy": 0.9241071428571429
+}

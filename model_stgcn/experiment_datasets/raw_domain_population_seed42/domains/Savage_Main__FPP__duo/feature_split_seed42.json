@@ -1,0 +1,67 @@
+{
+  "created_at": "2026-06-09T08:39:25.880750+00:00",
+  "seed": 42,
+  "val_frac": 0.1,
+  "test_frac": 0.1,
+  "n_matches": 40,
+  "ids_sha1": "be101ea359d95325f3d75773d62a6362ef483c47",
+  "metadata": {
+    "map_name": "Savage_Main",
+    "perspective": "FPP",
+    "team_size": "duo",
+    "game_mode": "duo-fpp",
+    "raw_count": 40,
+    "feature_eligible_count": 40,
+    "graph_eligible_count": 40,
+    "source": "scripts/build_experiment_domain_datasets.py",
+    "split_type": "feature"
+  },
+  "splits": {
+    "train": [
+      "9cf8e2ec-6aa9-473e-9ad3-2b423e4c485a",
+      "b28c2c5c-2484-46d4-a93b-0c64ffe20aff",
+      "8d2b59dc-85c1-4ab2-b6e1-0eda4598a4c4",
+      "81cca835-b85f-4968-8ebe-43dceef1fdda",
+      "d84abeb2-3487-459f-b0d3-77686bb088fd",
+      "9ca01ed7-536b-41ab-8c1b-0d435eebfb2c",
+      "4e8255f2-96a6-4c46-b3ce-30c6f16df918",
+      "a4547a35-6ed6-441d-9215-2ca19088a37d",
+      "b36e3188-d93a-4409-b9cd-d2d461e8c877",
+      "b350d821-f69e-4bec-9be3-71654e282769",
+      "a13b0c97-8fe6-4f8b-9015-5da30ebbab64",
+      "2e67d6a8-d8bc-4643-88a6-f6ec3f4da268",
+      "b29784ef-04ef-4664-8249-b9ad2ff642e0",
+      "554339c1-6195-4bb4-b13a-e323691dde07",
+      "93d06542-11ec-4107-b75d-30a5e5e81a2d",
+      "4b89d513-69d1-4c21-b6b8-a07110349615",
+      "d99b00ac-9fa7-4036-93c0-b7a5345749e7",
+      "90a9a972-1100-4d27-aba3-6206ec818462",
+      "7c16bf69-1f2a-4d77-ade8-8dcb1c92bbd3",
+      "1cac5f32-4f96-4fc3-aa78-e8d47df1ca5f",
+      "01064db0-f62b-4eae-b673-9cbcd0a46c80",
+      "6c687a0d-686b-4b61-b6e5-46fcc7b09fc1",
+      "70292a63-a5e2-4ff8-98e2-e672eaf48f4b",
+      "cdb9fbe8-87a1-4b87-88c2-f03864fc3644",
+      "58701482-a406-452d-b602-9a882de4317f",
+      "668983e5-2d57-4f47-ab11-0352865f9ca6",
+      "f8b2cbfc-1d7e-4dfe-a3de-031cc95ebb58",
+      "12837fbb-f93a-4937-bc87-ee140d8d9c7b",
+      "cc143080-0984-401c-8f2b-6d0852cd0acf",
+      "02087eaf-8a8a-482f-89a1-9627c9936b52",
+      "64edab22-17a0-40fa-84c8-4c0cf77edaaa",
+      "4083f49b-7021-466a-afe4-14097355fb3d"
+    ],
+    "val": [
+      "22d84695-2309-4f0a-a6ea-d6e85af5b55e",
+      "f62e559f-7e43-4784-9755-35650c8a2027",
+      "6cdd8ac3-9cb4-4882-b79a-4ac9252d18ee",
+      "274c2aaf-e390-4973-8fcf-5074ef7ed538"
+    ],
+    "test": [
+      "ba87f063-b603-4c9f-b48b-265e6b1a751d",
+      "32489fd9-7ec5-4ba6-8fd9-e091d0674ff2",
+      "fee1d14d-25eb-44b4-80da-6f3bcf8582c9",
+      "76404879-f937-47d2-9ca7-63c2ecb2f855"
+    ]
+  }
+}

@@ -1,0 +1,77 @@
+@import "katex/dist/katex.min.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: #fefcf7;
+  color: #1a1a1a;
+  font-family: "Inter", "Noto Sans KR", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "tnum";
+}
+
+/* 표 / 숫자 영역에 monospace */
+.numeric {
+  font-family: "IBM Plex Mono", "SF Mono", Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 헤더 serif */
+.serif {
+  font-family: "Lora", "Noto Serif KR", Georgia, serif;
+}
+
+/* Option B 의 Newsreader display serif (잡지·매거진 톤) */
+.news {
+  font-family: "Newsreader", "Noto Serif KR", "Lora", Georgia, serif;
+  font-variant-numeric: tabular-nums;
+}
+
+/* JetBrains Mono — meta·kicker·코드 라벨 */
+.jet {
+  font-family: "JetBrains Mono", "IBM Plex Mono", "SF Mono", Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* link */
+a {
+  color: inherit;
+}
+a:hover {
+  text-decoration: underline;
+  text-decoration-color: theme("colors.accent");
+  text-underline-offset: 3px;
+}
+
+/* 스크롤바 */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: theme("colors.rule");
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: theme("colors.muted");
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* katex inline 정렬 */
+.katex {
+  font-size: 1em;
+}

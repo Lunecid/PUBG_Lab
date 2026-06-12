@@ -1,0 +1,1035 @@
+{
+  "created_at": "2026-06-09T08:39:25.855188+00:00",
+  "seed": 42,
+  "val_frac": 0.1,
+  "test_frac": 0.1,
+  "phase_n_max": 128,
+  "domains": {
+    "Baltic_Main__FPP__duo": {
+      "map_name": "Baltic_Main",
+      "perspective": "FPP",
+      "team_size": "duo",
+      "game_mode": "duo-fpp",
+      "raw_count": 186,
+      "feature_eligible_count": 186,
+      "graph_eligible_count": 186,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__FPP__duo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__FPP__duo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__FPP__duo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__FPP__duo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__FPP__duo/graph_split_seed42.json"
+      }
+    },
+    "Baltic_Main__FPP__solo": {
+      "map_name": "Baltic_Main",
+      "perspective": "FPP",
+      "team_size": "solo",
+      "game_mode": "solo-fpp",
+      "raw_count": 102,
+      "feature_eligible_count": 102,
+      "graph_eligible_count": 102,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__FPP__solo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__FPP__solo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__FPP__solo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__FPP__solo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__FPP__solo/graph_split_seed42.json"
+      }
+    },
+    "Baltic_Main__FPP__squad": {
+      "map_name": "Baltic_Main",
+      "perspective": "FPP",
+      "team_size": "squad",
+      "game_mode": "squad-fpp",
+      "raw_count": 430,
+      "feature_eligible_count": 430,
+      "graph_eligible_count": 430,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "experiment_ready",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__FPP__squad/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__FPP__squad/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__FPP__squad/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__FPP__squad/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__FPP__squad/graph_split_seed42.json"
+      }
+    },
+    "Baltic_Main__TPP__duo": {
+      "map_name": "Baltic_Main",
+      "perspective": "TPP",
+      "team_size": "duo",
+      "game_mode": "duo",
+      "raw_count": 656,
+      "feature_eligible_count": 656,
+      "graph_eligible_count": 656,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "experiment_ready",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__TPP__duo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__TPP__duo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__TPP__duo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__TPP__duo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__TPP__duo/graph_split_seed42.json"
+      }
+    },
+    "Baltic_Main__TPP__solo": {
+      "map_name": "Baltic_Main",
+      "perspective": "TPP",
+      "team_size": "solo",
+      "game_mode": "solo",
+      "raw_count": 801,
+      "feature_eligible_count": 800,
+      "graph_eligible_count": 800,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "experiment_ready",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__TPP__solo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__TPP__solo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__TPP__solo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__TPP__solo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__TPP__solo/graph_split_seed42.json"
+      }
+    },
+    "Baltic_Main__TPP__squad": {
+      "map_name": "Baltic_Main",
+      "perspective": "TPP",
+      "team_size": "squad",
+      "game_mode": "squad",
+      "raw_count": 6206,
+      "feature_eligible_count": 6204,
+      "graph_eligible_count": 6204,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "experiment_ready",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__TPP__squad/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__TPP__squad/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__TPP__squad/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__TPP__squad/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Baltic_Main__TPP__squad/graph_split_seed42.json"
+      }
+    },
+    "Chimera_Main__FPP__duo": {
+      "map_name": "Chimera_Main",
+      "perspective": "FPP",
+      "team_size": "duo",
+      "game_mode": "duo-fpp",
+      "raw_count": 33,
+      "feature_eligible_count": 33,
+      "graph_eligible_count": 33,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__FPP__duo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__FPP__duo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__FPP__duo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__FPP__duo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__FPP__duo/graph_split_seed42.json"
+      }
+    },
+    "Chimera_Main__FPP__solo": {
+      "map_name": "Chimera_Main",
+      "perspective": "FPP",
+      "team_size": "solo",
+      "game_mode": "solo-fpp",
+      "raw_count": 21,
+      "feature_eligible_count": 21,
+      "graph_eligible_count": 21,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__FPP__solo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__FPP__solo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__FPP__solo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__FPP__solo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__FPP__solo/graph_split_seed42.json"
+      }
+    },
+    "Chimera_Main__FPP__squad": {
+      "map_name": "Chimera_Main",
+      "perspective": "FPP",
+      "team_size": "squad",
+      "game_mode": "squad-fpp",
+      "raw_count": 37,
+      "feature_eligible_count": 37,
+      "graph_eligible_count": 37,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__FPP__squad/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__FPP__squad/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__FPP__squad/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__FPP__squad/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__FPP__squad/graph_split_seed42.json"
+      }
+    },
+    "Chimera_Main__TPP__duo": {
+      "map_name": "Chimera_Main",
+      "perspective": "TPP",
+      "team_size": "duo",
+      "game_mode": "duo",
+      "raw_count": 106,
+      "feature_eligible_count": 106,
+      "graph_eligible_count": 106,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__TPP__duo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__TPP__duo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__TPP__duo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__TPP__duo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__TPP__duo/graph_split_seed42.json"
+      }
+    },
+    "Chimera_Main__TPP__solo": {
+      "map_name": "Chimera_Main",
+      "perspective": "TPP",
+      "team_size": "solo",
+      "game_mode": "solo",
+      "raw_count": 39,
+      "feature_eligible_count": 39,
+      "graph_eligible_count": 39,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__TPP__solo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__TPP__solo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__TPP__solo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__TPP__solo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__TPP__solo/graph_split_seed42.json"
+      }
+    },
+    "Chimera_Main__TPP__squad": {
+      "map_name": "Chimera_Main",
+      "perspective": "TPP",
+      "team_size": "squad",
+      "game_mode": "squad",
+      "raw_count": 333,
+      "feature_eligible_count": 333,
+      "graph_eligible_count": 333,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "experiment_ready",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__TPP__squad/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__TPP__squad/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__TPP__squad/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__TPP__squad/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Chimera_Main__TPP__squad/graph_split_seed42.json"
+      }
+    },
+    "Desert_Main__FPP__duo": {
+      "map_name": "Desert_Main",
+      "perspective": "FPP",
+      "team_size": "duo",
+      "game_mode": "duo-fpp",
+      "raw_count": 96,
+      "feature_eligible_count": 96,
+      "graph_eligible_count": 96,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__FPP__duo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__FPP__duo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__FPP__duo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__FPP__duo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__FPP__duo/graph_split_seed42.json"
+      }
+    },
+    "Desert_Main__FPP__solo": {
+      "map_name": "Desert_Main",
+      "perspective": "FPP",
+      "team_size": "solo",
+      "game_mode": "solo-fpp",
+      "raw_count": 56,
+      "feature_eligible_count": 56,
+      "graph_eligible_count": 56,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__FPP__solo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__FPP__solo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__FPP__solo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__FPP__solo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__FPP__solo/graph_split_seed42.json"
+      }
+    },
+    "Desert_Main__FPP__squad": {
+      "map_name": "Desert_Main",
+      "perspective": "FPP",
+      "team_size": "squad",
+      "game_mode": "squad-fpp",
+      "raw_count": 288,
+      "feature_eligible_count": 288,
+      "graph_eligible_count": 288,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__FPP__squad/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__FPP__squad/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__FPP__squad/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__FPP__squad/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__FPP__squad/graph_split_seed42.json"
+      }
+    },
+    "Desert_Main__TPP__duo": {
+      "map_name": "Desert_Main",
+      "perspective": "TPP",
+      "team_size": "duo",
+      "game_mode": "duo",
+      "raw_count": 241,
+      "feature_eligible_count": 241,
+      "graph_eligible_count": 241,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__TPP__duo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__TPP__duo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__TPP__duo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__TPP__duo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__TPP__duo/graph_split_seed42.json"
+      }
+    },
+    "Desert_Main__TPP__solo": {
+      "map_name": "Desert_Main",
+      "perspective": "TPP",
+      "team_size": "solo",
+      "game_mode": "solo",
+      "raw_count": 91,
+      "feature_eligible_count": 91,
+      "graph_eligible_count": 91,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__TPP__solo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__TPP__solo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__TPP__solo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__TPP__solo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__TPP__solo/graph_split_seed42.json"
+      }
+    },
+    "Desert_Main__TPP__squad": {
+      "map_name": "Desert_Main",
+      "perspective": "TPP",
+      "team_size": "squad",
+      "game_mode": "squad",
+      "raw_count": 1545,
+      "feature_eligible_count": 1543,
+      "graph_eligible_count": 1543,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "experiment_ready",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__TPP__squad/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__TPP__squad/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__TPP__squad/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__TPP__squad/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Desert_Main__TPP__squad/graph_split_seed42.json"
+      }
+    },
+    "DihorOtok_Main__FPP__duo": {
+      "map_name": "DihorOtok_Main",
+      "perspective": "FPP",
+      "team_size": "duo",
+      "game_mode": "duo-fpp",
+      "raw_count": 70,
+      "feature_eligible_count": 70,
+      "graph_eligible_count": 70,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__FPP__duo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__FPP__duo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__FPP__duo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__FPP__duo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__FPP__duo/graph_split_seed42.json"
+      }
+    },
+    "DihorOtok_Main__FPP__solo": {
+      "map_name": "DihorOtok_Main",
+      "perspective": "FPP",
+      "team_size": "solo",
+      "game_mode": "solo-fpp",
+      "raw_count": 31,
+      "feature_eligible_count": 31,
+      "graph_eligible_count": 31,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__FPP__solo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__FPP__solo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__FPP__solo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__FPP__solo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__FPP__solo/graph_split_seed42.json"
+      }
+    },
+    "DihorOtok_Main__FPP__squad": {
+      "map_name": "DihorOtok_Main",
+      "perspective": "FPP",
+      "team_size": "squad",
+      "game_mode": "squad-fpp",
+      "raw_count": 115,
+      "feature_eligible_count": 115,
+      "graph_eligible_count": 115,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__FPP__squad/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__FPP__squad/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__FPP__squad/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__FPP__squad/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__FPP__squad/graph_split_seed42.json"
+      }
+    },
+    "DihorOtok_Main__TPP__duo": {
+      "map_name": "DihorOtok_Main",
+      "perspective": "TPP",
+      "team_size": "duo",
+      "game_mode": "duo",
+      "raw_count": 122,
+      "feature_eligible_count": 122,
+      "graph_eligible_count": 122,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__TPP__duo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__TPP__duo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__TPP__duo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__TPP__duo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__TPP__duo/graph_split_seed42.json"
+      }
+    },
+    "DihorOtok_Main__TPP__solo": {
+      "map_name": "DihorOtok_Main",
+      "perspective": "TPP",
+      "team_size": "solo",
+      "game_mode": "solo",
+      "raw_count": 70,
+      "feature_eligible_count": 70,
+      "graph_eligible_count": 70,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__TPP__solo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__TPP__solo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__TPP__solo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__TPP__solo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__TPP__solo/graph_split_seed42.json"
+      }
+    },
+    "DihorOtok_Main__TPP__squad": {
+      "map_name": "DihorOtok_Main",
+      "perspective": "TPP",
+      "team_size": "squad",
+      "game_mode": "squad",
+      "raw_count": 498,
+      "feature_eligible_count": 498,
+      "graph_eligible_count": 498,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "experiment_ready",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__TPP__squad/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__TPP__squad/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__TPP__squad/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__TPP__squad/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/DihorOtok_Main__TPP__squad/graph_split_seed42.json"
+      }
+    },
+    "Kiki_Main__FPP__duo": {
+      "map_name": "Kiki_Main",
+      "perspective": "FPP",
+      "team_size": "duo",
+      "game_mode": "duo-fpp",
+      "raw_count": 31,
+      "feature_eligible_count": 31,
+      "graph_eligible_count": 31,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__FPP__duo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__FPP__duo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__FPP__duo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__FPP__duo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__FPP__duo/graph_split_seed42.json"
+      }
+    },
+    "Kiki_Main__FPP__solo": {
+      "map_name": "Kiki_Main",
+      "perspective": "FPP",
+      "team_size": "solo",
+      "game_mode": "solo-fpp",
+      "raw_count": 15,
+      "feature_eligible_count": 15,
+      "graph_eligible_count": 15,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__FPP__solo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__FPP__solo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__FPP__solo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__FPP__solo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__FPP__solo/graph_split_seed42.json"
+      }
+    },
+    "Kiki_Main__FPP__squad": {
+      "map_name": "Kiki_Main",
+      "perspective": "FPP",
+      "team_size": "squad",
+      "game_mode": "squad-fpp",
+      "raw_count": 48,
+      "feature_eligible_count": 48,
+      "graph_eligible_count": 48,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__FPP__squad/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__FPP__squad/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__FPP__squad/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__FPP__squad/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__FPP__squad/graph_split_seed42.json"
+      }
+    },
+    "Kiki_Main__TPP__duo": {
+      "map_name": "Kiki_Main",
+      "perspective": "TPP",
+      "team_size": "duo",
+      "game_mode": "duo",
+      "raw_count": 42,
+      "feature_eligible_count": 42,
+      "graph_eligible_count": 42,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__TPP__duo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__TPP__duo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__TPP__duo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__TPP__duo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__TPP__duo/graph_split_seed42.json"
+      }
+    },
+    "Kiki_Main__TPP__solo": {
+      "map_name": "Kiki_Main",
+      "perspective": "TPP",
+      "team_size": "solo",
+      "game_mode": "solo",
+      "raw_count": 29,
+      "feature_eligible_count": 29,
+      "graph_eligible_count": 29,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__TPP__solo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__TPP__solo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__TPP__solo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__TPP__solo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__TPP__solo/graph_split_seed42.json"
+      }
+    },
+    "Kiki_Main__TPP__squad": {
+      "map_name": "Kiki_Main",
+      "perspective": "TPP",
+      "team_size": "squad",
+      "game_mode": "squad",
+      "raw_count": 164,
+      "feature_eligible_count": 164,
+      "graph_eligible_count": 164,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__TPP__squad/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__TPP__squad/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__TPP__squad/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__TPP__squad/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Kiki_Main__TPP__squad/graph_split_seed42.json"
+      }
+    },
+    "Neon_Main__FPP__duo": {
+      "map_name": "Neon_Main",
+      "perspective": "FPP",
+      "team_size": "duo",
+      "game_mode": "duo-fpp",
+      "raw_count": 105,
+      "feature_eligible_count": 105,
+      "graph_eligible_count": 105,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__FPP__duo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__FPP__duo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__FPP__duo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__FPP__duo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__FPP__duo/graph_split_seed42.json"
+      }
+    },
+    "Neon_Main__FPP__solo": {
+      "map_name": "Neon_Main",
+      "perspective": "FPP",
+      "team_size": "solo",
+      "game_mode": "solo-fpp",
+      "raw_count": 52,
+      "feature_eligible_count": 52,
+      "graph_eligible_count": 52,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__FPP__solo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__FPP__solo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__FPP__solo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__FPP__solo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__FPP__solo/graph_split_seed42.json"
+      }
+    },
+    "Neon_Main__FPP__squad": {
+      "map_name": "Neon_Main",
+      "perspective": "FPP",
+      "team_size": "squad",
+      "game_mode": "squad-fpp",
+      "raw_count": 264,
+      "feature_eligible_count": 264,
+      "graph_eligible_count": 264,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__FPP__squad/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__FPP__squad/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__FPP__squad/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__FPP__squad/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__FPP__squad/graph_split_seed42.json"
+      }
+    },
+    "Neon_Main__TPP__duo": {
+      "map_name": "Neon_Main",
+      "perspective": "TPP",
+      "team_size": "duo",
+      "game_mode": "duo",
+      "raw_count": 155,
+      "feature_eligible_count": 155,
+      "graph_eligible_count": 155,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__TPP__duo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__TPP__duo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__TPP__duo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__TPP__duo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__TPP__duo/graph_split_seed42.json"
+      }
+    },
+    "Neon_Main__TPP__solo": {
+      "map_name": "Neon_Main",
+      "perspective": "TPP",
+      "team_size": "solo",
+      "game_mode": "solo",
+      "raw_count": 81,
+      "feature_eligible_count": 81,
+      "graph_eligible_count": 81,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__TPP__solo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__TPP__solo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__TPP__solo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__TPP__solo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__TPP__solo/graph_split_seed42.json"
+      }
+    },
+    "Neon_Main__TPP__squad": {
+      "map_name": "Neon_Main",
+      "perspective": "TPP",
+      "team_size": "squad",
+      "game_mode": "squad",
+      "raw_count": 1041,
+      "feature_eligible_count": 1039,
+      "graph_eligible_count": 1039,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "experiment_ready",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__TPP__squad/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__TPP__squad/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__TPP__squad/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__TPP__squad/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Neon_Main__TPP__squad/graph_split_seed42.json"
+      }
+    },
+    "Range_Main__TPP__clansolo": {
+      "map_name": "Range_Main",
+      "perspective": "TPP",
+      "team_size": "clansolo",
+      "game_mode": "clansolo",
+      "raw_count": 1571,
+      "feature_eligible_count": 0,
+      "graph_eligible_count": 0,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "raw_only_not_ready",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Range_Main__TPP__clansolo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Range_Main__TPP__clansolo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Range_Main__TPP__clansolo/graph_match_ids.txt",
+        "feature_split": null,
+        "graph_split": null
+      }
+    },
+    "Range_Main__TPP__solo": {
+      "map_name": "Range_Main",
+      "perspective": "TPP",
+      "team_size": "solo",
+      "game_mode": "solo",
+      "raw_count": 391,
+      "feature_eligible_count": 0,
+      "graph_eligible_count": 0,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "raw_only_not_ready",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Range_Main__TPP__solo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Range_Main__TPP__solo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Range_Main__TPP__solo/graph_match_ids.txt",
+        "feature_split": null,
+        "graph_split": null
+      }
+    },
+    "Savage_Main__FPP__duo": {
+      "map_name": "Savage_Main",
+      "perspective": "FPP",
+      "team_size": "duo",
+      "game_mode": "duo-fpp",
+      "raw_count": 40,
+      "feature_eligible_count": 40,
+      "graph_eligible_count": 40,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__FPP__duo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__FPP__duo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__FPP__duo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__FPP__duo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__FPP__duo/graph_split_seed42.json"
+      }
+    },
+    "Savage_Main__FPP__solo": {
+      "map_name": "Savage_Main",
+      "perspective": "FPP",
+      "team_size": "solo",
+      "game_mode": "solo-fpp",
+      "raw_count": 28,
+      "feature_eligible_count": 28,
+      "graph_eligible_count": 28,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__FPP__solo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__FPP__solo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__FPP__solo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__FPP__solo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__FPP__solo/graph_split_seed42.json"
+      }
+    },
+    "Savage_Main__FPP__squad": {
+      "map_name": "Savage_Main",
+      "perspective": "FPP",
+      "team_size": "squad",
+      "game_mode": "squad-fpp",
+      "raw_count": 56,
+      "feature_eligible_count": 56,
+      "graph_eligible_count": 56,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__FPP__squad/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__FPP__squad/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__FPP__squad/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__FPP__squad/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__FPP__squad/graph_split_seed42.json"
+      }
+    },
+    "Savage_Main__TPP__duo": {
+      "map_name": "Savage_Main",
+      "perspective": "TPP",
+      "team_size": "duo",
+      "game_mode": "duo",
+      "raw_count": 243,
+      "feature_eligible_count": 243,
+      "graph_eligible_count": 243,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__TPP__duo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__TPP__duo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__TPP__duo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__TPP__duo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__TPP__duo/graph_split_seed42.json"
+      }
+    },
+    "Savage_Main__TPP__solo": {
+      "map_name": "Savage_Main",
+      "perspective": "TPP",
+      "team_size": "solo",
+      "game_mode": "solo",
+      "raw_count": 100,
+      "feature_eligible_count": 100,
+      "graph_eligible_count": 100,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__TPP__solo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__TPP__solo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__TPP__solo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__TPP__solo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__TPP__solo/graph_split_seed42.json"
+      }
+    },
+    "Savage_Main__TPP__squad": {
+      "map_name": "Savage_Main",
+      "perspective": "TPP",
+      "team_size": "squad",
+      "game_mode": "squad",
+      "raw_count": 940,
+      "feature_eligible_count": 940,
+      "graph_eligible_count": 940,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "experiment_ready",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__TPP__squad/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__TPP__squad/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__TPP__squad/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__TPP__squad/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Savage_Main__TPP__squad/graph_split_seed42.json"
+      }
+    },
+    "Summerland_Main__FPP__duo": {
+      "map_name": "Summerland_Main",
+      "perspective": "FPP",
+      "team_size": "duo",
+      "game_mode": "duo-fpp",
+      "raw_count": 23,
+      "feature_eligible_count": 23,
+      "graph_eligible_count": 23,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__FPP__duo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__FPP__duo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__FPP__duo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__FPP__duo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__FPP__duo/graph_split_seed42.json"
+      }
+    },
+    "Summerland_Main__FPP__solo": {
+      "map_name": "Summerland_Main",
+      "perspective": "FPP",
+      "team_size": "solo",
+      "game_mode": "solo-fpp",
+      "raw_count": 14,
+      "feature_eligible_count": 14,
+      "graph_eligible_count": 14,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__FPP__solo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__FPP__solo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__FPP__solo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__FPP__solo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__FPP__solo/graph_split_seed42.json"
+      }
+    },
+    "Summerland_Main__FPP__squad": {
+      "map_name": "Summerland_Main",
+      "perspective": "FPP",
+      "team_size": "squad",
+      "game_mode": "squad-fpp",
+      "raw_count": 39,
+      "feature_eligible_count": 39,
+      "graph_eligible_count": 39,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__FPP__squad/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__FPP__squad/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__FPP__squad/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__FPP__squad/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__FPP__squad/graph_split_seed42.json"
+      }
+    },
+    "Summerland_Main__TPP__duo": {
+      "map_name": "Summerland_Main",
+      "perspective": "TPP",
+      "team_size": "duo",
+      "game_mode": "duo",
+      "raw_count": 134,
+      "feature_eligible_count": 134,
+      "graph_eligible_count": 134,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__TPP__duo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__TPP__duo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__TPP__duo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__TPP__duo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__TPP__duo/graph_split_seed42.json"
+      }
+    },
+    "Summerland_Main__TPP__solo": {
+      "map_name": "Summerland_Main",
+      "perspective": "TPP",
+      "team_size": "solo",
+      "game_mode": "solo",
+      "raw_count": 62,
+      "feature_eligible_count": 62,
+      "graph_eligible_count": 62,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__TPP__solo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__TPP__solo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__TPP__solo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__TPP__solo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__TPP__solo/graph_split_seed42.json"
+      }
+    },
+    "Summerland_Main__TPP__squad": {
+      "map_name": "Summerland_Main",
+      "perspective": "TPP",
+      "team_size": "squad",
+      "game_mode": "squad",
+      "raw_count": 333,
+      "feature_eligible_count": 333,
+      "graph_eligible_count": 333,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "experiment_ready",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__TPP__squad/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__TPP__squad/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__TPP__squad/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__TPP__squad/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Summerland_Main__TPP__squad/graph_split_seed42.json"
+      }
+    },
+    "Tiger_Main__FPP__duo": {
+      "map_name": "Tiger_Main",
+      "perspective": "FPP",
+      "team_size": "duo",
+      "game_mode": "duo-fpp",
+      "raw_count": 199,
+      "feature_eligible_count": 199,
+      "graph_eligible_count": 199,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__FPP__duo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__FPP__duo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__FPP__duo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__FPP__duo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__FPP__duo/graph_split_seed42.json"
+      }
+    },
+    "Tiger_Main__FPP__solo": {
+      "map_name": "Tiger_Main",
+      "perspective": "FPP",
+      "team_size": "solo",
+      "game_mode": "solo-fpp",
+      "raw_count": 93,
+      "feature_eligible_count": 93,
+      "graph_eligible_count": 93,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__FPP__solo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__FPP__solo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__FPP__solo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__FPP__solo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__FPP__solo/graph_split_seed42.json"
+      }
+    },
+    "Tiger_Main__FPP__squad": {
+      "map_name": "Tiger_Main",
+      "perspective": "FPP",
+      "team_size": "squad",
+      "game_mode": "squad-fpp",
+      "raw_count": 435,
+      "feature_eligible_count": 435,
+      "graph_eligible_count": 435,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "experiment_ready",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__FPP__squad/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__FPP__squad/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__FPP__squad/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__FPP__squad/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__FPP__squad/graph_split_seed42.json"
+      }
+    },
+    "Tiger_Main__TPP__duo": {
+      "map_name": "Tiger_Main",
+      "perspective": "TPP",
+      "team_size": "duo",
+      "game_mode": "duo",
+      "raw_count": 574,
+      "feature_eligible_count": 573,
+      "graph_eligible_count": 573,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "experiment_ready",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__TPP__duo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__TPP__duo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__TPP__duo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__TPP__duo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__TPP__duo/graph_split_seed42.json"
+      }
+    },
+    "Tiger_Main__TPP__solo": {
+      "map_name": "Tiger_Main",
+      "perspective": "TPP",
+      "team_size": "solo",
+      "game_mode": "solo",
+      "raw_count": 160,
+      "feature_eligible_count": 160,
+      "graph_eligible_count": 160,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "small_auxiliary",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__TPP__solo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__TPP__solo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__TPP__solo/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__TPP__solo/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__TPP__solo/graph_split_seed42.json"
+      }
+    },
+    "Tiger_Main__TPP__squad": {
+      "map_name": "Tiger_Main",
+      "perspective": "TPP",
+      "team_size": "squad",
+      "game_mode": "squad",
+      "raw_count": 4160,
+      "feature_eligible_count": 4159,
+      "graph_eligible_count": 4159,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "experiment_ready",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__TPP__squad/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__TPP__squad/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__TPP__squad/graph_match_ids.txt",
+        "feature_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__TPP__squad/feature_split_seed42.json",
+        "graph_split": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tiger_Main__TPP__squad/graph_split_seed42.json"
+      }
+    },
+    "Tutorial_Main__TPP__solo": {
+      "map_name": "Tutorial_Main",
+      "perspective": "TPP",
+      "team_size": "solo",
+      "game_mode": "solo",
+      "raw_count": 3696,
+      "feature_eligible_count": 0,
+      "graph_eligible_count": 0,
+      "source": "scripts/build_experiment_domain_datasets.py",
+      "status": "raw_only_not_ready",
+      "paths": {
+        "raw_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tutorial_Main__TPP__solo/raw_match_ids.txt",
+        "feature_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tutorial_Main__TPP__solo/feature_match_ids.txt",
+        "graph_match_ids": "model_stgcn/experiment_datasets/raw_domain_population_seed42/domains/Tutorial_Main__TPP__solo/graph_match_ids.txt",
+        "feature_split": null,
+        "graph_split": null
+      }
+    }
+  }
+}

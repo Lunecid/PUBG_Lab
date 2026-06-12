@@ -1,0 +1,60 @@
+\documentclass[sigplan,screen]{../acmart}
+
+\AtBeginDocument{%
+  \providecommand\BibTeX{{Bib\TeX}}%
+}
+
+\setcopyright{none}
+\settopmatter{printacmref=false, printccs=false}
+\copyrightyear{2026}
+\acmYear{2026}
+\acmDOI{}
+\acmConference[Draft]{Draft manuscript}{June 2026}{Busan, Republic of Korea}
+\acmISBN{}
+
+\usepackage{kotex}
+\usepackage{booktabs}
+\usepackage{bbm}
+\usepackage{siunitx}
+\graphicspath{{../}{../figures/}}
+\newcommand{\Ind}{\mathbbm{1}}
+\providecommand{\correspondingauthor}{}
+
+\title{PUBG 텔레메트리의 시공간 데이터베이스 모델링과 페이즈 단위 팀 탈락 예측}
+
+\author{Seong Eun BAEK}
+\email{todtjddms104204@pusan.ac.kr}
+\correspondingauthor
+\authornotemark[1]
+\affiliation{%
+  \institution{Pusan National University}
+  \city{Busan}
+  \country{Republic of Korea}
+}
+
+\author{Joonho KWON}
+\email{jhkwon@pusan.ac.kr}
+\affiliation{%
+  \institution{Pusan National University}
+  \city{Busan}
+  \country{Republic of Korea}
+}
+
+\input{sections/00-abstract}
+
+\keywords{PUBG 텔레메트리, 시공간 데이터베이스, 동적 그래프, 생존 모델링, 게임 분석}
+
+\begin{document}
+
+\maketitle
+
+\input{sections/01-introduction}
+\input{sections/02-background}
+\input{sections/03-methods}
+\input{sections/04-experiments-results}
+\input{sections/05-limitations-conclusion}
+
+\bibliographystyle{../ACM-Reference-Format-citation-order}
+\bibliography{../references}
+
+\end{document}

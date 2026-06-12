@@ -1,0 +1,23 @@
+\section{Background}
+\label{sec:background}
+
+Most PUBG prediction studies estimate final placement from post-match
+statistics~\cite{kagglePubgFinishPlacement,sen2021pubgFinalRank,lee2025pubgRank}.
+That framing is appropriate for final-outcome modeling, but it removes the
+temporal order and spatial context of risk. The closest prior work is Sagong
+et al.'s phase-based framework, which scores player aggressiveness and
+activity with FightScore and ActiveScore, clusters strategy types, and
+predicts next-phase survival~\cite{sagong2025hunterCamper}. We inherit their
+phase-level framing but change the unit and representation: teams rather than
+players, and full telemetry reconstruction rather than a small strategy-score
+summary.
+
+The shrinking safe zone also motivates a spatio-temporal view. Habitat
+fragmentation and movement ecology treat viable space, movement, exposure,
+and density as coupled time-space quantities
+\cite{fahrig2003fragmentation,nathan2008movement}. We use this only as an
+analytic analogy: PUBG teams are not organisms, but their survival conditions
+are shaped by a contracting activity space. This motivates representing each
+phase as both a feature row and a graph snapshot. Graph edges encode who is
+near whom, who attacks whom, and which teams share safe-zone pressure
+\cite{sanchezLengeling2021gnnIntro}.

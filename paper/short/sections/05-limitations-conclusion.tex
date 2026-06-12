@@ -1,0 +1,36 @@
+\section{Limitations and Conclusion}
+\label{sec:limitations}
+
+This study is predictive, not causal. The graph model shows that observed
+proximity, combat, and co-pressure relations help predict next-phase
+elimination hazard; it does not prove that changing a team's strategy to
+alter one relation would causally change survival. The next-phase prediction
+task is also an operational evaluation of the representation, not the final
+purpose of the paper.
+
+Four limitations follow. First, telemetry contains only observable positions,
+states, and events. It does not directly observe terrain, indoor/outdoor
+status, line of sight, voice communication, player skill, or intention. Second,
+team centroids and phase graphs compress complex squad behavior. Team spread
+and nearest-enemy features partially compensate, but the same centroid can
+hide different formations and cover conditions. Third, the population depends
+on telemetry quality and graph eligibility. Most excluded matches are tutorial
+or training-range sessions, but missing position traces and too-short phase
+sequences still remove a small number of records. The random match-level split
+tests generalization inside the observed distribution; it does not guarantee
+robustness across future patches, seasons, regions, or tournament settings.
+Fourth, later phases contain fewer teams and target cells, increasing
+variance and survivor bias, and graph construction uses fixed distance and
+pressure thresholds rather than a full sensitivity sweep.
+
+We reconstructed PUBG telemetry as a phase-aligned STDB and used it to define
+a team-level next-phase elimination hazard task for evaluation. The point of
+the prediction task is not merely to guess which team will be eliminated; it is
+to test whether a representation that preserves movement, zone contraction,
+combat events, and team relations captures the risk state of a battle royale
+match. On 21,824 matches, the phase-level STDB representation carries more
+risk information than compact strategy-score summaries, and dynamic team
+graphs add a smaller but statistically reliable relational signal beyond
+feature-only models. The result supports treating PUBG telemetry as a
+spatio-temporal survival process rather than only a source of post-match
+aggregate statistics.

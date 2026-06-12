@@ -1,0 +1,51 @@
+\section{Methods}
+\label{sec:methods}
+
+Following the framing of Section~\ref{sec:related-work}, the method proceeds
+in five steps, summarized in Figure~\ref{fig:pipeline-overview} and
+Table~\ref{tab:rq-method-map}. First, official telemetry is reconstructed
+into a phase-aligned STDB (Subsection~\ref{sec:methods-data}). Second, each
+team and phase is summarized into one feature row covering trajectory, zone
+exposure, combat, and readiness (Subsection~\ref{sec:methods-features}).
+Third, inter-team relations are encoded as dynamic team graphs
+(Subsection~\ref{sec:team-graphs}); these three steps answer RQ1. Fourth, a leakage-safe next-phase hazard task is
+defined on the feature rows (Subsection~\ref{sec:prediction-task}). Fifth,
+DynamicSTGNN tests whether the graph relations add predictive signal
+(Subsection~\ref{sec:dynamic-team-graph-model}); these two steps answer RQ2.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.86\textwidth]{figures/pipeline_overview.png}
+\caption{Pipeline overview. Official telemetry is reconstructed into a
+phase-aligned STDB and summarized into team-phase features and dynamic team
+graphs (RQ1); DynamicSTGNN is then evaluated against feature-only models for
+next-phase elimination hazard (RQ2).}
+\label{fig:pipeline-overview}
+\end{figure*}
+
+\begin{table}[t]
+\centering
+\caption{Method pipeline.}
+\label{tab:rq-method-map}
+\small
+\begin{tabular}{p{0.12\linewidth}p{0.44\linewidth}p{0.30\linewidth}}
+\toprule
+RQ & Step & Output \\
+\midrule
+RQ1 & Represent moving teams, dynamic safe/blue zones, spatial events, and
+phase intervals as STDB objects. & Phase-aligned STDB. \\
+RQ1 & Summarize each team's trajectory, zone exposure, combat, and readiness
+per phase. & Team-phase feature rows. \\
+RQ1 & Encode inter-team relations per phase. & Dynamic team graphs
+\(G_1,\dots,G_T\). \\
+RQ2-i & Predict next-phase elimination hazard from the feature rows. &
+Hazard task; representation ablation. \\
+RQ2-ii & Test whether graph relations add signal. & DynamicSTGNN; edge
+ablations and controls. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\input{sections/03-data-stdb-modeling}
+\input{sections/04-prediction-task}
+\input{sections/05-dynamic-team-graph-model}

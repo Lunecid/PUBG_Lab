@@ -1,0 +1,48 @@
+{
+  "created_at": "2026-06-09T08:39:25.865155+00:00",
+  "seed": 42,
+  "val_frac": 0.1,
+  "test_frac": 0.1,
+  "n_matches": 21,
+  "ids_sha1": "bfdfc41de61f42473274b98f9fee7a37721442df",
+  "metadata": {
+    "map_name": "Chimera_Main",
+    "perspective": "FPP",
+    "team_size": "solo",
+    "game_mode": "solo-fpp",
+    "raw_count": 21,
+    "feature_eligible_count": 21,
+    "graph_eligible_count": 21,
+    "source": "scripts/build_experiment_domain_datasets.py",
+    "split_type": "feature"
+  },
+  "splits": {
+    "train": [
+      "9b461442-72a9-4c33-a450-3d8f6338d1b7",
+      "ca8a6e7a-745b-4b9c-bfe9-179416fc5e3e",
+      "53c7420b-b300-434a-b9d7-728d03063205",
+      "525b419d-037e-464d-8c05-7673045510bb",
+      "681d8585-8a99-42cc-9603-d4ee30d296a5",
+      "18809c0b-855e-4a74-bf2f-8bc68b91c7f9",
+      "018ab973-4d8e-478b-856e-15e8d2395871",
+      "e9445491-837d-4285-8b05-5bdaab2f39df",
+      "46be0f4e-1313-4333-b4e8-3f5c9788488a",
+      "83087d6c-eb23-452a-9dbf-ae56ba349fb3",
+      "f919ae4d-f0b0-47eb-9c89-2045eb483c5b",
+      "0ad1f36b-19d9-4850-9e30-404a1ce52a58",
+      "3961bbe6-5bf8-4b5d-963c-1574a21b3ce7",
+      "efa235a6-d146-4d89-9fd0-3f4feefe72c0",
+      "032fbe3d-13b0-4552-a6f4-fc6ddf04e424",
+      "af8b20e6-214c-44eb-8986-82e4324883f9",
+      "59f0ead0-484a-4ca9-ab9e-166aca7c62f9"
+    ],
+    "val": [
+      "da98e09c-8663-491c-8aea-8f5cbea3b0a1",
+      "fc5d23fb-9879-473b-add2-ac93d754aa95"
+    ],
+    "test": [
+      "e12ae586-8b2f-4880-ac72-b12d5c6f628d",
+      "7fce2a9f-b91a-4f8e-bbeb-c7f80fbe388f"
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+\section{Background and Related Work}
+\label{sec:related-work}
+
+Most PUBG prediction work uses post-match aggregate statistics to predict final
+placement or rank \cite{kagglePubgFinishPlacement,sen2021pubgFinalRank,lee2025pubgRank}.
+That framing is useful for final-outcome modeling, but it hides when risk
+changes inside a match and how the shrinking safe zone changes the meaning of
+movement or combat.
+
+The closest prior work is Sagong et al.'s phase-based PUBG survival framework
+\cite{sagong2025hunterCamper}. They use phase-specific aggressiveness and
+activeness scores, called FightScore and ActiveScore, to classify players into
+strategy types and predict next-phase survival. Their main contribution for our
+purpose is not a particular classifier, but the framing: PUBG survival should
+be analyzed by phase.
+
+We extend that framing in two ways. First, ecology has long studied organisms
+whose habitats shrink or fragment: habitat-fragmentation and movement-ecology
+research treats viable space, movement, exposure, and density as inherently
+spatial and temporal quantities
+\cite{fahrig2003fragmentation,nathan2008movement}. The shrinking safe zone
+imposes the same kind of contraction on teams, so we borrow this lens as an
+analytic analogy, not a biological claim, and it points to the same
+conclusion: survival conditions should be modeled spatio-temporally rather
+than as aggregate scores. Second, we represent
+team-to-team context explicitly. Each phase becomes a graph whose edges encode
+proximity, combat, and shared safe-zone pressure
+\cite{sanchezLengeling2021gnnIntro}. Thus the contribution is not merely using
+a graph model. It is to reconstruct official telemetry as a spatio-temporal and
+relational representation, cast survival as a discrete-time hazard in the
+event-history tradition \cite{allison1982discrete,singer1993discrete}, and
+test next-phase elimination risk against strong non-graph baselines.

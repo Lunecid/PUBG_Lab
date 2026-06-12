@@ -1,0 +1,56 @@
+{
+  "created_at": "2026-06-09T08:39:25.875759+00:00",
+  "seed": 42,
+  "val_frac": 0.1,
+  "test_frac": 0.1,
+  "n_matches": 29,
+  "ids_sha1": "2e04036321aab96c56c8dbacbb1e36528cbc3b8d",
+  "metadata": {
+    "map_name": "Kiki_Main",
+    "perspective": "TPP",
+    "team_size": "solo",
+    "game_mode": "solo",
+    "raw_count": 29,
+    "feature_eligible_count": 29,
+    "graph_eligible_count": 29,
+    "source": "scripts/build_experiment_domain_datasets.py",
+    "split_type": "feature"
+  },
+  "splits": {
+    "train": [
+      "ab112c4b-f367-4220-a2d6-6f5992435ed0",
+      "2a33a961-e70c-4850-a9a2-3e0c3f188588",
+      "f9078d55-6dc8-4833-8408-f1e3c015c31b",
+      "f59305fe-3cb9-4b1d-9312-eaa7b70e4c88",
+      "5521618b-17ad-49a5-9810-2dbb0cae268a",
+      "cb4a537b-d087-4741-8dab-331b6fa6aeff",
+      "d5d96f3e-e2b7-4355-9a70-b2201731017b",
+      "5333a947-9bf0-47f8-8109-7cd4d6b62de8",
+      "2c60173e-087d-4b01-817c-50c64706d8d5",
+      "d7c7efa5-0301-4404-8860-835c3e8c9522",
+      "198643a0-9268-458c-b6c9-9568d1ef135d",
+      "035fbe70-bb26-4783-b049-2ecd7bd21481",
+      "98e952c9-1875-4d8a-a401-fdfdc61cb216",
+      "a3bf19c3-cbb1-43c6-8acf-43436b525c50",
+      "e54f528f-bb7b-42e1-9768-e7da733c66cc",
+      "7fd55849-df46-4df1-b99e-f04b18f7d2a2",
+      "7b8bcfd7-dd8d-49e7-9f61-837f2d57b147",
+      "8cb96755-c58c-4bb9-8003-a850825246d9",
+      "f881d1c5-93bb-4191-b7ca-61bd20618f67",
+      "079076b5-1cc3-41f0-8bfd-b773eb3a2af9",
+      "1d7f991a-6eae-46f3-a916-5a744dd33ed3",
+      "f5c1e075-e12e-4af4-afb5-518304c9d096",
+      "036e275c-5720-43da-8604-96b140813f07",
+      "8b566695-d966-4794-aab8-65dbc4c86d63",
+      "40507155-81a7-4224-a5cb-6914ec7353ec"
+    ],
+    "val": [
+      "efbb7972-5624-445c-9f56-8f4b2e1a238d",
+      "e9f5c693-d605-4dd5-8c60-574455c5a0c3"
+    ],
+    "test": [
+      "3af653ce-5ccc-44cd-b111-4ff82b5bbe38",
+      "9ccc0d83-1952-4baf-ae47-abc46ae03fa4"
+    ]
+  }
+}

@@ -1,0 +1,81 @@
+\section{Experiments}
+\label{sec:experiments}
+
+We evaluate RQ2: how well next-phase elimination hazard can be predicted from
+the team-phase features alone, and whether the dynamic team graph adds signal
+beyond them. All experiments in this section use the full graph-eligible
+population described in Table~\ref{tab:data-funnel}. The train/validation/test
+split is performed at the match level with seed 42, producing 17,460 training
+matches, 2,182 validation matches, and 2,182 test matches. The split is
+random rather than chronological and is not stratified; mode proportions
+nevertheless balance across splits (squad 69.7\%, 68.7\%, and 70.9\% of
+train, validation, and test). Because team-phase cells within a match are
+correlated, every paired test resamples matches, never rows.
+
+\paragraph{Models.}
+We compare five models. The tabular baseline is a histogram gradient
+boosting classifier trained on a 72-column tabular view of the same team-phase
+rows; the view additionally includes raw phase timing and categorical map and
+mode identifiers, so the baseline sees match context that the graph nodes do
+not. It uses the same leakage-safe target definition as the graph models but
+ignores adjacency tensors. The no-graph DynamicSTGNN uses the same neural architecture
+with all edge channels disabled; it is therefore a sequence-only neural
+baseline over team-phase node features. The proximity model enables only
+spatial-nearness edges. The proximity+combat model adds directed combat edges.
+The full DynamicSTGNN uses all three edge channels: proximity, combat, and
+co-pressure.
+
+\paragraph{Representation Conditions.}
+To separate the representation from the model class, we refit the same
+gradient-boosting pipeline on nested feature sets: prior-work-style strategy
+scores (five features: phase index, normalized aggression and activity scores,
+a derived strategy type, and that type's historical survival rate, following
+the phase-based scoring of \cite{sagong2025hunterCamper}); the twelve raw
+quantities behind those scores; the STDB movement and exposure features alone;
+conventional telemetry aggregates; and the conventional set plus the STDB
+features---the 72-column input of the tabular baseline. Refitting that last
+set reproduces the Table~\ref{tab:main-hazard-results} baseline to within
+0.0001 AUC. All conditions use the same split and aligned test cells.
+
+\paragraph{Training Protocol.}
+DynamicSTGNN models are trained for 12 epochs with batch size 8, AdamW
+optimization (learning rate \(10^{-3}\), weight decay \(10^{-4}\)) with cosine
+annealing and gradient-norm clipping, and validation loss for checkpoint
+selection. The loss is masked binary cross-entropy for the hazard target.
+The positive rate is 0.32 and training uses no reweighting (hazard positive
+weight 1). Hyperparameters were fixed from preliminary runs; no per-model
+search was performed. Test metrics are computed from the best validation
+checkpoint.
+
+\paragraph{Aligned Evaluation.}
+Because tabular and graph pipelines can differ slightly in which team-phase
+cells are materialized, we report the main comparison on the common aligned
+test cells shared by all compared models. This produces 134,245 target-defined
+team-phase cells from 2,182 test matches. Statistical tests use one match as
+one paired unit. For each model and match we compute BCE, AUC, and AP, then use
+one-sided Wilcoxon signed-rank tests where positive improvement means the left
+model is better.
+
+\paragraph{Population Consistency.}
+All tables in Sections~\ref{sec:experiments} and~\ref{sec:results} use the
+same full-DB split and aligned test cells. Earlier exploratory seed-repeat and
+random-edge sanity experiments were run on older snapshots of the dataset; we
+do not mix those values into the main result tables unless explicitly labeled
+as auxiliary evidence.
+
+\paragraph{Metrics.}
+We report ROC-AUC and average precision as primary metrics. ROC-AUC summarizes
+how often a target-positive team-phase cell receives a higher predicted hazard
+than a target-negative cell; higher is better. Average precision is the area
+under the precision-recall curve and is useful because hazard positives are
+not uniformly balanced across phases; higher is better. We also report
+probability diagnostics: binary cross-entropy (BCE), Brier score, and expected
+calibration error (ECE). BCE is the negative log-likelihood of the binary
+hazard label under the predicted probability, and Brier score is the mean
+squared probability error. ECE partitions predictions into 10 equal-width
+probability bins and averages the absolute gap between each bin's mean
+predicted hazard and observed elimination rate, weighted by bin size. BCE,
+Brier, and ECE are lower-is-better. Probability quality matters alongside
+ranking quality because the task is a hazard prediction problem. We
+additionally report mode-wise discrimination to check that gains are not a
+mode shortcut.

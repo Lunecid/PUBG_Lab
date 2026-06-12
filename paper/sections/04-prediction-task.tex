@@ -1,0 +1,35 @@
+\subsection{Next-Phase Hazard Prediction Task (RQ2-i)}
+\label{sec:prediction-task}
+
+Part (i) of RQ2 asks how accurately next-phase team elimination can be
+predicted from the features of Subsection~\ref{sec:methods-features} alone.
+We call \(k\) the \textit{cut phase}: the model observes a match through the
+end of phase \(k\) and predicts whether team \(i\) is eliminated during phase
+\(k{+}1\). All inputs---features, edges, and masks---are constructed from
+telemetry observable up to \(b_k\); events and outcomes after \(b_k\) enter
+only the label definition.
+
+Let \(b_k\) be the end time of phase \(k\), and \(T_i\) the elimination time
+of team \(i\)---the moment its last surviving member is eliminated. The label
+and hazard are
+\[
+Y_{i,k}=\Ind\!\left\{b_k < T_i \leq b_{k+1}\right\}, \qquad
+h_{i,k}=P(b_k < T_i \leq b_{k+1}\mid T_i>b_k, X_{i,\leq k}).
+\]
+Teams eliminated before \(b_k\) leave the risk set and are masked. Surviving
+teams contribute \(Y_{i,k}=0\) for every observed interval; once the match
+ends or the eight-phase horizon is reached, their later intervals are
+unobserved and treated as right-censored rather than labeled. Modeling uses
+phases 1--8 and excludes the landing interval, so cut phases run from 1 to 7.
+Training minimizes the masked discrete-time survival likelihood
+\[
+\mathcal{L}_{\mathrm{haz}}
+= -\sum_{(m,i,k)\in \mathcal{R}}
+\Big[ Y_{i,k}\log \hat h_{i,k} + (1-Y_{i,k})\log\big(1-\hat h_{i,k}\big) \Big],
+\]
+where the risk set \(\mathcal{R}\) contains exactly the team-phase cells with
+\(T_i>b_k\) and an observed next phase; censored cells are excluded by the
+mask. Splits are made by match, never by row. We answer part (i) in two ways:
+by the absolute performance of feature-only models, and by a representation
+ablation that degrades the feature set toward prior-style strategy scores
+(Section~\ref{sec:experiments}).

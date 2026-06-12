@@ -1,0 +1,166 @@
+\section{Results and Discussion}
+\label{sec:results}
+
+Table~\ref{tab:main-hazard-results} shows the aligned full-population hazard
+results. The full DynamicSTGNN obtains the strongest performance across all
+reported ranking and probability metrics. Compared with the no-graph neural
+baseline, the full graph model improves AUC by 0.0100 and AP by 0.0112. Compared
+with the tabular baseline, it improves AUC by 0.0130 and AP by 0.0181 on the
+same aligned test cells. The edge ablation also shows a monotonic pattern:
+no graph \(<\) proximity \(<\) proximity+combat \(<\) full graph.
+
+\begin{table}[t]
+\centering
+\caption{Aligned test-set hazard prediction results. All rows use the same
+134,245 target-defined team-phase cells.}
+\label{tab:main-hazard-results}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Model & AUC & AP & Acc. & BCE \\
+\midrule
+Tabular HGB & 0.7651 & 0.6626 & 0.7483 & 0.5140 \\
+DynamicSTGNN, no graph & 0.7681 & 0.6695 & 0.7518 & 0.5090 \\
+DynamicSTGNN, proximity & 0.7741 & 0.6762 & 0.7545 & 0.5046 \\
+DynamicSTGNN, proximity+combat & 0.7755 & 0.6779 & 0.7556 & 0.5036 \\
+DynamicSTGNN, full graph & \textbf{0.7782} & \textbf{0.6808} & \textbf{0.7568} & \textbf{0.5016} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The paired tests in Table~\ref{tab:paired-tests} show that these differences
+are not driven by a small number of matches. The full graph model improves over
+the no-graph model on match-level BCE, AUC, and AP with one-sided Wilcoxon
+\(p < 10^{-22}\) in all three cases. The improvements over the tabular baseline
+are also significant under the same match-paired test. The full graph model
+also improves over proximity-only and proximity+combat variants, which indicates
+that co-pressure adds signal beyond the other two edge channels. The advantage
+over the no-graph control is positive at every cut phase (+0.007 to +0.025
+AUC) and is largest in the sparse late phases, and it also holds within every
+mode---six of six, from +0.008 (third-person squad) to +0.020 AUC---so the
+gain is not a mode shortcut. This supports
+the claim that the observed dynamic team relations contain useful signal beyond
+the team-phase feature sequence alone.
+
+\begin{table}[t]
+\centering
+\caption{Match-paired Wilcoxon tests on 2,182 test matches. Positive
+improvement means the full graph model is better.}
+\label{tab:paired-tests}
+\small
+\begin{tabular}{llrr}
+\toprule
+Comparison & Metric & Mean impr. & \(p\) \\
+\midrule
+Full vs. no graph & BCE & 0.0071 & \(1.63{\times}10^{-47}\) \\
+Full vs. no graph & AUC & 0.0080 & \(1.17{\times}10^{-30}\) \\
+Full vs. no graph & AP  & 0.0090 & \(3.12{\times}10^{-23}\) \\
+Full vs. proximity & BCE & 0.0030 & \(2.07{\times}10^{-15}\) \\
+Full vs. proximity & AUC & 0.0039 & \(4.61{\times}10^{-10}\) \\
+Full vs. proximity & AP  & 0.0051 & \(1.89{\times}10^{-10}\) \\
+Full vs. prox.+combat & BCE & 0.0019 & \(1.89{\times}10^{-9}\) \\
+Full vs. prox.+combat & AUC & 0.0022 & \(1.69{\times}10^{-5}\) \\
+Full vs. prox.+combat & AP  & 0.0028 & \(7.71{\times}10^{-6}\) \\
+Full vs. tabular & BCE & 0.0120 & \(3.30{\times}10^{-74}\) \\
+Full vs. tabular & AUC & 0.0113 & \(2.60{\times}10^{-37}\) \\
+Full vs. tabular & AP  & 0.0154 & \(9.28{\times}10^{-36}\) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Calibration follows the same pattern. As shown in
+Table~\ref{tab:calibration-results}, the full graph model has the lowest Brier
+score, BCE, and ECE. Its mean predicted hazard probability, 0.3260, is close to
+the empirical positive rate of 0.3245. The tabular baseline is still a strong
+model, but it is the least calibrated in this aligned evaluation; its ECE is
+roughly five times that of the full graph model.
+
+\begin{table}[t]
+\centering
+\caption{Calibration diagnostics on aligned test cells. ECE uses 10
+equal-width probability bins.}
+\label{tab:calibration-results}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Model & Brier & BCE & ECE & Mean prob. \\
+\midrule
+Tabular HGB & 0.1708 & 0.5140 & 0.0075 & 0.3223 \\
+DynamicSTGNN, no graph & 0.1692 & 0.5090 & 0.0039 & 0.3264 \\
+DynamicSTGNN, proximity & 0.1674 & 0.5046 & 0.0023 & 0.3253 \\
+DynamicSTGNN, proximity+combat & 0.1670 & 0.5036 & 0.0028 & 0.3266 \\
+DynamicSTGNN, full graph & \textbf{0.1662} & \textbf{0.5016} & \textbf{0.0015} & 0.3260 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:feature-ablation} answers part (i) of RQ2 at the
+representation level. Restricted to the five-variable score summary, the same
+learner reaches pooled AUC 0.649; adding the raw quantities behind those
+scores, conventional aggregates, and the STDB movement and exposure features
+raises pooled AUC to 0.765. For significance testing, we compute AUC and AP
+within each test match and then average the paired improvements. Under this
+match-paired calculation, the full feature set gains +0.112 AUC and +0.170 AP
+over the score-summary representation (one-sided \(p\) below numerical
+precision; rank-biserial 0.96 for AUC and 0.97 for AP). The STDB-specific
+features contribute +0.012 AUC and +0.014 AP over conventional aggregates
+(\(p<10^{-62}\)), and the sixteen STDB spatio-temporal features alone beat
+the five-variable score summary by +0.057 AUC. Appending the derived scores
+to the full set adds nothing (\(-0.0003\) AUC, \(p=0.75\)).
+
+\begin{table}[t]
+\centering
+\caption{Representation ablation: the same gradient-boosting pipeline on the
+same aligned test cells, varying only the feature set (\(d\) features).}
+\label{tab:feature-ablation}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Feature set & \(d\) & AUC & AP & BCE \\
+\midrule
+Prior-style score summary & 5 & 0.6490 & 0.4547 & 0.5993 \\
+Score raw inputs & 12 & 0.7184 & 0.5703 & 0.5584 \\
+STDB spatio-temporal only & 16 & 0.7124 & 0.5895 & 0.5529 \\
+Conventional aggregates & 57 & 0.7522 & 0.6476 & 0.5242 \\
+Conventional + STDB spatio-temporal & 72 & \textbf{0.7652} & \textbf{0.6626} & \textbf{0.5141} \\
+Above + prior scores & 76 & 0.7649 & 0.6624 & 0.5141 \\
+\bottomrule
+\end{tabular}
+\vspace{2pt}
+\begin{minipage}{0.96\linewidth}
+\footnotesize
+\textit{Note.} Score raw inputs are 12 variables covering phase index, combat
+counts, damage, knockdowns, distinct opponents damaged, path length, average
+speed, 100m enemy density, item pickups, unique items, and care-package
+pickups. The score summary uses phase index plus fight score, active score,
+strategy type, and type survival rate derived from those raw inputs.
+\end{minipage}
+\end{table}
+
+These results close the loop on the two research questions. RQ1 is answered by
+construction: 21,824 of 27,491 raw matches survive conversion into
+phase-aligned, graph-ready form (Table~\ref{tab:data-funnel}), and every number
+above is computed from that representation. Part (i) of RQ2 also receives a
+clear answer: feature-only models reach AUC 0.765--0.768 with near-nominal
+calibration, so phase-level elimination hazard is substantially learnable from
+the team-phase features alone. Table~\ref{tab:feature-ablation} traces this to the representation rather
+than the model class: pooled AUC falls from 0.765 to 0.649 when the same
+learner is restricted to prior-style strategy scores. Part (ii) is the central finding: dynamic relations between teams add
+predictive information beyond those features. The graph edges improve both
+ranking metrics and probability quality over the no-graph control. Spatially
+and interactionally defined team relations are thus part of the
+elimination-risk environment, consistent with the habitat-contraction reading
+of Section~\ref{sec:related-work}.
+
+At the same time, the result should be read as predictive rather than causal.
+The model shows that observed proximity, combat, and co-pressure relations help
+predict next-phase elimination hazard. It does not prove that changing a team's
+strategy to alter one of these relations would causally change survival
+probability. Shuffling team identities within the observed graphs at
+inference time collapses the full model to AUC 0.701 over five repeats
+(\(-0.077\)), well below even the no-graph control, so the relational gain
+reflects who relates to whom rather than graph regularization. Within the
+edge ablation, proximity contributes the largest single step
+(+0.0060 AUC over no graph), and the full model remains significantly better
+than both partial variants under the match-paired tests; repeated-seed
+confirmation on the full population is left as future work.

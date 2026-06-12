@@ -1,0 +1,111 @@
+\section{Feature Dictionary}
+\label{app:features}
+
+Tables~\ref{tab:feat-dict-a} and~\ref{tab:feat-dict-b} define all 66
+team-phase features. Every quantity is computed from observations within the
+cut phase (Subsection~\ref{sec:methods-features}). The scaling column gives
+the fixed constant by which the raw value is divided; ``log'' denotes a
+\(\log(1{+}x)\) transform, ``binary'' a 0/1 indicator, and ``map scale'' a
+fixed map-extent constant shared by zone radii and distances.
+
+\begin{table*}[t]
+\centering
+\caption{Feature dictionary, part 1: phase context, team state, movement.}
+\label{tab:feat-dict-a}
+\footnotesize
+\begin{tabular}{p{0.22\linewidth}p{0.56\linewidth}p{0.12\linewidth}}
+\toprule
+Feature & Definition (within cut phase \(k\)) & Scaling \\
+\midrule
+\multicolumn{3}{l}{\textbf{Phase context (12)}} \\
+phase index & index \(k\) of the current phase & \(\div 8\) \\
+phase duration & length of the phase in seconds & \(\div 600\)\,s \\
+mean teams alive & average number of teams alive during the phase & \(\div 100\) \\
+mean players alive & average number of players alive during the phase & \(\div 100\) \\
+safe radius, start & target safe-zone radius at phase start & map scale \\
+safe radius, end & target safe-zone radius at phase end & map scale \\
+safe radius change & end-minus-start change of the safe radius & map scale \\
+safe center shift & distance the target zone center moved & map scale \\
+blue radius, start & blue-zone radius at phase start & map scale \\
+blue radius, end & blue-zone radius at phase end & map scale \\
+zone gap, start & distance between blue and safe boundaries at start & map scale \\
+zone gap, end & distance between blue and safe boundaries at end & map scale \\
+\midrule
+\multicolumn{3}{l}{\textbf{Team state (13)}} \\
+roster size & number of players on the team & \(\div 4\) \\
+alive at start & members alive at phase start & \(\div 4\) \\
+alive at end & members alive at phase end & \(\div 4\) \\
+alive, minimum & minimum members alive during the phase & \(\div 4\) \\
+alive, average & average members alive during the phase & \(\div 4\) \\
+mean health & average member health over the phase & \(\div 100\) \\
+minimum health & lowest member health over the phase & \(\div 100\) \\
+health trend & slope of team health over the phase & \(\div 10\) \\
+team spread, mean & mean spatial dispersion of alive members & \(\div 1000\)\,m \\
+team spread, max & maximum spatial dispersion of alive members & \(\div 1000\)\,m \\
+vehicle ratio & fraction of the phase spent in vehicles & --- \\
+vehicle speed, mean & mean speed while in vehicles & \(\div 40\)\,m/s \\
+vehicle speed, max & maximum speed while in vehicles & \(\div 40\)\,m/s \\
+\midrule
+\multicolumn{3}{l}{\textbf{Movement (9)}} \\
+path length & length of the centroid trajectory & \(\div 5000\)\,m \\
+net displacement & start-to-end straight-line distance & \(\div 5000\)\,m \\
+sinuosity & path length over net displacement & log \\
+average speed & mean centroid speed & \(\div 40\)\,m/s \\
+rotation timing & fraction of the phase elapsed at the main movement & --- \\
+safe alignment & cosine between net movement and the direction to the announced target zone & --- \\
+zone entry time & fraction of the phase before first entering the target zone & --- \\
+time outside zone & cumulative time spent outside the safe zone & \(\div 600\)\,s \\
+boundary distance trend & slope of the distance to the safe boundary & \(\div 100\) \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\caption{Feature dictionary, part 2: exposure, combat, readiness.}
+\label{tab:feat-dict-b}
+\footnotesize
+\begin{tabular}{p{0.24\linewidth}p{0.54\linewidth}p{0.12\linewidth}}
+\toprule
+Feature & Definition (within cut phase \(k\)) & Scaling \\
+\midrule
+\multicolumn{3}{l}{\textbf{Exposure (8)}} \\
+boundary distance, mean & mean distance from centroid to the safe boundary & \(\div 8160\)\,m \\
+boundary distance, min & minimum distance to the safe boundary & \(\div 8160\)\,m \\
+outside-zone ratio & fraction of the phase spent outside the safe zone & --- \\
+enemy density (100\,m) & mean number of enemy teams within 100\,m & \(\div 10\) \\
+nearest enemy, min & minimum distance to the nearest enemy team & \(\div 8160\)\,m \\
+path near enemies & fraction of the path with an enemy within 100\,m & --- \\
+damage taken (phase) & damage received during the phase & \(\div 1000\) \\
+combat-area passes & passes through areas of recent combat (200\,m) & \(\div 50\) \\
+\midrule
+\multicolumn{3}{l}{\textbf{Combat (10)}} \\
+damage dealt & total damage dealt to enemy teams & \(\div 1000\) \\
+damage taken & total damage received from enemy teams & \(\div 1000\) \\
+damage events dealt & number of damage events dealt & \(\div 50\) \\
+damage events taken & number of damage events received & \(\div 50\) \\
+knockdowns dealt & enemy players knocked down & \(\div 10\) \\
+knockdowns taken & own players knocked down & \(\div 10\) \\
+eliminations dealt & enemy players eliminated & \(\div 10\) \\
+eliminations taken & own players eliminated & \(\div 10\) \\
+opponents damaged & distinct enemy teams this team damaged & \(\div 10\) \\
+opponents damaged by & distinct enemy teams that damaged this team & \(\div 10\) \\
+\midrule
+\multicolumn{3}{l}{\textbf{Readiness (14)}} \\
+combat initiated & whether the team attacked before being attacked & binary \\
+item pickups & items picked up & \(\div 100\) \\
+item equips & items equipped & \(\div 50\) \\
+item uses & items used & \(\div 50\) \\
+unique items & distinct item types acquired & \(\div 100\) \\
+weapon pickups & weapons picked up & \(\div 20\) \\
+weapon equips & weapons equipped & \(\div 20\) \\
+ammunition pickups & ammunition stacks picked up & \(\div 50\) \\
+armor pickups & armor items picked up & \(\div 20\) \\
+throwable pickups & throwables picked up & \(\div 20\) \\
+heal uses & healing items used & \(\div 20\) \\
+boost uses & boost items used & \(\div 20\) \\
+care-package pickups & items taken from care packages & \(\div 5\) \\
+loot-crate pickups & items taken from loot crates & \(\div 20\) \\
+\bottomrule
+\end{tabular}
+\end{table*}

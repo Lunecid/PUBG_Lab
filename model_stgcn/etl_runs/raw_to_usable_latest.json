@@ -1,0 +1,40 @@
+{
+  "stages_requested": [
+    "base",
+    "spatial",
+    "edge"
+  ],
+  "workers": 12,
+  "limit": null,
+  "refresh": false,
+  "stage_results": [
+    {
+      "stage": "base",
+      "selected": 3487,
+      "ok": 3487,
+      "failed": 0,
+      "failures": [],
+      "mean_match_elapsed_s": 25.575,
+      "elapsed_s": 7435.176
+    },
+    {
+      "stage": "spatial",
+      "selected": 15879,
+      "ok": 15879,
+      "failed": 0,
+      "failures": [],
+      "mean_match_elapsed_s": 0.703,
+      "elapsed_s": 930.642
+    },
+    {
+      "stage": "edge",
+      "selected": 3847,
+      "ok": 3847,
+      "failed": 0,
+      "failures": [],
+      "mean_match_elapsed_s": 1.211,
+      "elapsed_s": 388.874
+    }
+  ],
+  "elapsed_s": 8770.669
+}

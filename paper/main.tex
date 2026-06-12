@@ -1,0 +1,55 @@
+\documentclass[sigplan,screen]{acmart}
+
+\AtBeginDocument{%
+  \providecommand\BibTeX{{Bib\TeX}}%
+}
+
+% Draft metadata. Replace these with final venue/rights information before submission.
+\setcopyright{none}
+\settopmatter{printacmref=false, printccs=false}
+\copyrightyear{2026}
+\acmYear{2026}
+\acmDOI{}
+\acmConference[Draft]{Draft manuscript}{June 2026}{Seoul, Republic of Korea}
+\acmISBN{}
+
+\usepackage{booktabs}
+\usepackage{bbm}
+\usepackage{siunitx}
+\graphicspath{{figures/}{paper/figures/}}
+\newcommand{\Ind}{\mathbbm{1}}
+
+\title{Modeling PUBG Telemetry as a Spatio-Temporal Database for Phase-Level Team Elimination Prediction}
+
+\author{Anonymous Author(s)}
+\affiliation{%
+  \institution{Anonymous Institution}
+  \country{Republic of Korea}
+}
+
+\renewcommand{\shortauthors}{Anonymous Author(s)}
+
+% The abstract will be written last.
+% \input{sections/00-abstract}
+
+\keywords{PUBG telemetry, spatio-temporal database, dynamic graph, survival modeling, game analytics}
+
+\begin{document}
+
+\maketitle
+
+\input{sections/01-introduction}
+\input{sections/02-background-related-work}
+\input{sections/03-methods}
+\input{sections/06-experiments}
+\input{sections/07-results-discussion}
+\input{sections/08-threats-limitations}
+\input{sections/09-conclusion}
+
+\bibliographystyle{ACM-Reference-Format-citation-order}
+\bibliography{references}
+
+\appendix
+\input{sections/appendix-features}
+
+\end{document}

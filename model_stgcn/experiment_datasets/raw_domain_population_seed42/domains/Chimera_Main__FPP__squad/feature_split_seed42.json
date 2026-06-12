@@ -1,0 +1,64 @@
+{
+  "created_at": "2026-06-09T08:39:25.865503+00:00",
+  "seed": 42,
+  "val_frac": 0.1,
+  "test_frac": 0.1,
+  "n_matches": 37,
+  "ids_sha1": "db787cc5081557af2211ce3a37d0a139738ed534",
+  "metadata": {
+    "map_name": "Chimera_Main",
+    "perspective": "FPP",
+    "team_size": "squad",
+    "game_mode": "squad-fpp",
+    "raw_count": 37,
+    "feature_eligible_count": 37,
+    "graph_eligible_count": 37,
+    "source": "scripts/build_experiment_domain_datasets.py",
+    "split_type": "feature"
+  },
+  "splits": {
+    "train": [
+      "f2607e29-6c81-4627-b798-90464f4e9429",
+      "31fa8378-e832-4802-8549-f390ac1868b3",
+      "b344a483-87d8-4a14-8ccc-79083c6a80d6",
+      "e278fcc3-40b2-4875-8412-617d034f680e",
+      "43f62fc7-5f89-4507-b2dc-5d18b11d129a",
+      "a8dca63f-bc6f-4460-9a95-f909d139d068",
+      "77295bec-6d0d-4eb9-94b4-bb0f58f366a2",
+      "eb653fa2-cd8b-4791-9a82-8d7866e9afdc",
+      "5711534e-9446-4b5f-9fce-70fbab028ca1",
+      "26e2ea8f-b7fa-4389-93f9-0020f0d069a3",
+      "b2eb04aa-2588-46b4-8c69-d7fe6004ed4e",
+      "c7190118-3376-44e8-a42c-7cca6bd174e4",
+      "c448b079-839c-4acc-9781-8a1c06a176b4",
+      "40e82660-3dc7-4386-a7ae-ffb8755f4f8c",
+      "ca559d9a-3643-4052-a077-cb33d8f5b275",
+      "6677a590-08ea-42bb-843f-df709a4b8f1c",
+      "0c91e476-8278-417b-9e0a-d6350fe35c0f",
+      "05db390f-11ab-41eb-abe8-8d369ca91c04",
+      "50b5db48-3394-4fad-b78b-a2161bb54b77",
+      "59d1be24-1e21-4dc9-87f2-7fe59f297e7e",
+      "d403a6d2-9746-4365-b5f6-4c29719118e5",
+      "49902c2d-2f1f-42da-b175-6c8a1e3cc61b",
+      "9ef69ae2-3110-4f11-9e03-5fc25247670a",
+      "46bbe880-3e5c-47d2-885c-98c4df9ef623",
+      "4a8d5cea-e8b8-4007-8b41-b476d1d117b2",
+      "f153464b-6a61-41c3-a60d-d2c4d255a7e0",
+      "0887d5f5-85c2-4884-9975-070d36d70e79",
+      "e5e4c586-f3ca-4e7b-9ff5-760e2b386940",
+      "0839cfab-f8d1-47f8-92c7-87c46a2fed1a",
+      "49e6d82e-dffa-4671-8ae7-926d174f591c",
+      "388095ee-5ebf-4a57-a4f3-c977ddc5ada1"
+    ],
+    "val": [
+      "144a4dac-df72-4d14-8b47-55244e9ce94c",
+      "0efecfaf-c481-4daf-a93a-c2881e2a0217",
+      "b23005ec-f351-48d5-a0b5-28d6187cb2f0"
+    ],
+    "test": [
+      "c0740761-ca74-42d5-a139-129af66581c5",
+      "5f3612e3-cdab-4052-973a-ad436df306fa",
+      "bc910afc-8f65-4e1c-8906-91bbafefbca9"
+    ]
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "created_at": "2026-06-09T08:39:25.864764+00:00",
+  "seed": 42,
+  "val_frac": 0.1,
+  "test_frac": 0.1,
+  "n_matches": 33,
+  "ids_sha1": "f276ff4b9b0e088f165fc52d5a329c6984018618",
+  "metadata": {
+    "map_name": "Chimera_Main",
+    "perspective": "FPP",
+    "team_size": "duo",
+    "game_mode": "duo-fpp",
+    "raw_count": 33,
+    "feature_eligible_count": 33,
+    "graph_eligible_count": 33,
+    "source": "scripts/build_experiment_domain_datasets.py",
+    "split_type": "graph"
+  },
+  "splits": {
+    "train": [
+      "38a2ff5f-d131-4e77-a2e4-78c9fc1b7c63",
+      "6a66e63a-dddc-4765-8ca2-1d71fca62382",
+      "f7cc0f29-56a7-404e-941a-521c74761c0e",
+      "93f9d4f5-8a9b-401b-95db-0ddcd44a77a1",
+      "3aba95ff-b417-4379-92cb-942ea7d254d8",
+      "2a5d2e1f-d520-4d2f-9406-d450a4c495f9",
+      "0c664e2c-3943-416b-bf87-572be6c9d57b",
+      "8882398d-2a29-49b4-9f7f-f0f0ec0476e0",
+      "47a48614-c1e5-4b54-aae2-2bbdd1af3dde",
+      "44cfa7d6-21ae-4844-9224-9f4945038f34",
+      "30685400-66cd-4f5e-9584-a4d2913ce8a9",
+      "730c93c3-dfbe-4ab4-af47-9782870755a5",
+      "3f7b3df5-9ac8-47cc-82c2-31911f2a534d",
+      "5c36f228-5c03-4e59-acd5-be0c3167a57c",
+      "5fcdf10d-55bf-47bb-9921-ecb02f6ec61c",
+      "d92bfd24-39c1-4af9-a5ba-959cb3778588",
+      "f8fa6033-42d0-4c2b-9f68-2d34498c5f13",
+      "eaf84190-d197-40ad-8033-a880509e5369",
+      "43df5819-78a5-4d94-a6c7-16a100fd7b82",
+      "61452f95-c300-4e22-b2a4-59b6bc909988",
+      "1d7cf7fd-ea08-4219-a7ce-e048089ae296",
+      "de528449-9bee-4f13-a763-4ccf59ff85c0",
+      "22a5b239-6d20-466e-86c9-cd2b52abe939",
+      "890bac9f-4138-434c-9fea-fffc31559fc7",
+      "7cef34f2-ceb5-4070-bbaa-6f62f940e141",
+      "cc786433-30a1-44f9-aba4-1718e6c1047b",
+      "e4727402-9401-4986-821e-c57acc095fdf"
+    ],
+    "val": [
+      "cc90f85e-c702-4937-afa2-9513eabcfb22",
+      "cb696743-8365-43b4-9de9-92dac4d27595",
+      "5fdbbff1-8ddf-4c6e-b2a8-996fc42c7077"
+    ],
+    "test": [
+      "8aa2ab14-a849-4477-b676-b18179b356cb",
+      "6d31a4b6-daec-4d32-a895-9c5a3562822b",
+      "548d3bec-42c4-4d04-affa-bdd8424a26d4"
+    ]
+  }
+}

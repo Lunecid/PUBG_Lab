@@ -1,0 +1,66 @@
+{
+  "created_at": "2026-06-09T08:39:25.866542+00:00",
+  "seed": 42,
+  "val_frac": 0.1,
+  "test_frac": 0.1,
+  "n_matches": 39,
+  "ids_sha1": "92ccee28d70899bf3d149011f63de6ea63928216",
+  "metadata": {
+    "map_name": "Chimera_Main",
+    "perspective": "TPP",
+    "team_size": "solo",
+    "game_mode": "solo",
+    "raw_count": 39,
+    "feature_eligible_count": 39,
+    "graph_eligible_count": 39,
+    "source": "scripts/build_experiment_domain_datasets.py",
+    "split_type": "graph"
+  },
+  "splits": {
+    "train": [
+      "27d75f7b-bbf7-4b9f-90e0-e2ac66984e75",
+      "e66a6662-be8a-4ce0-aed7-bfbd8617f31c",
+      "8f78617e-2d71-400d-9473-a2d928ab5de0",
+      "a89369cd-b112-4879-a122-c2d3fb455f82",
+      "c4210864-acc3-448e-97cc-47a8fbd908d1",
+      "7440202c-16e7-4083-9c6d-51cd3473db71",
+      "318e11d2-714a-490b-8a6d-1f4b725abe3e",
+      "bbdbc543-fce8-4c5b-b8f5-d4d04dfcac13",
+      "a69d7a84-2a9f-457f-9190-32796d09426e",
+      "0aefde34-1df0-4dc1-82d6-21287f41a483",
+      "0ef93725-99ad-4156-ac57-ca41d4279275",
+      "915076ad-a2f8-4a94-8f1a-0319a34672d6",
+      "518ce74b-f472-4d4c-8ef7-bc3a970dbdcc",
+      "c3e499f1-4822-4bcc-b93b-24c07db099b2",
+      "278bc92f-9e50-4adb-8098-4c80a987de1a",
+      "1278b092-22b2-4efe-a097-2b228d6732e3",
+      "f81009ea-e4c1-4875-8402-1b58e560300c",
+      "84bd9fa7-1e31-459f-b385-028883c782d3",
+      "5cef113e-45a7-4938-a9a7-60cad278ecc6",
+      "39c8508b-c26e-4dc2-9fb5-241d4e6ed277",
+      "ac73b860-4554-4861-8337-42c17a54649f",
+      "0c45c5ae-7a6f-4e78-abf8-5b939a6932cd",
+      "943005c9-c036-4d0b-8bc7-4d6603351894",
+      "a0ce0f1d-9aad-4614-89b8-479831902e0d",
+      "cb0ef267-c1c5-41bc-8f39-122394304def",
+      "6b6fa4da-17ed-4885-a796-99349aa6b10d",
+      "5f29f8e7-ac43-4512-a5f4-28f5b07e6803",
+      "1c2ab355-b99a-4d08-a0b9-dc9aa63b2f45",
+      "0529ba77-bcab-45bb-ac38-b48b43ac2107",
+      "40758855-72ad-4768-b41a-7a14b6e1efd6",
+      "7e5cacfa-1557-4a71-b01f-5fe655d15321",
+      "d907ebe6-2171-415e-a6bd-477c3bf27036",
+      "83d0131b-681f-4db7-ada8-17a2279bea22"
+    ],
+    "val": [
+      "26a0f3b8-2263-46a8-9da4-382102972e06",
+      "0e10d189-bf5c-4700-b385-8ce7e220ad0c",
+      "6263d160-65d5-4352-918d-b823ad428ea6"
+    ],
+    "test": [
+      "814680d0-124d-4e8c-b488-10c9c1d35c84",
+      "068d9561-b370-4048-b40d-14c33daaddb9",
+      "62af2c06-ff6e-41df-8568-e02d20de6306"
+    ]
+  }
+}

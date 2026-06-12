@@ -1,0 +1,58 @@
+{
+  "created_at": "2026-06-09T08:39:25.871936+00:00",
+  "seed": 42,
+  "val_frac": 0.1,
+  "test_frac": 0.1,
+  "n_matches": 31,
+  "ids_sha1": "a5ef8671c51e9bec53ea439a430611437a97abc4",
+  "metadata": {
+    "map_name": "DihorOtok_Main",
+    "perspective": "FPP",
+    "team_size": "solo",
+    "game_mode": "solo-fpp",
+    "raw_count": 31,
+    "feature_eligible_count": 31,
+    "graph_eligible_count": 31,
+    "source": "scripts/build_experiment_domain_datasets.py",
+    "split_type": "graph"
+  },
+  "splits": {
+    "train": [
+      "894e7d9a-fc01-442b-8ef9-355175a9f754",
+      "28741270-5f61-4e98-a755-bc922e80d7cf",
+      "ce437cf2-748f-476e-be58-6eb2bd8a0bb5",
+      "08dd8f9a-c3d4-403b-9ce4-95e086260ae4",
+      "29de951a-8581-43a8-825c-abb364bde2f8",
+      "0fd4145f-a0c2-43d2-b7d9-bc7993be1b09",
+      "43abd73f-f1b9-4b35-9a43-e190185d67a2",
+      "08164785-e51f-4097-bab1-e133024d9092",
+      "b8a67131-9127-44cf-9a9f-61dd97a640dc",
+      "151b1fb5-ef41-404f-9176-5b9473d1d81a",
+      "2219ae3e-bd24-463d-bdb7-67ff294e5f0d",
+      "db5cdea2-5d7f-413d-bcb7-619194232643",
+      "5f61e3d3-f153-466d-9a71-a356af1f93c6",
+      "efba66e2-72d1-439b-b297-5ba9c20aae37",
+      "208197ee-f915-4f65-be9d-9a036838fb95",
+      "e9c31af2-1cf4-47c5-9dcf-5bcd3d0f9cb9",
+      "5c1bfef4-54e2-4666-9113-a95936a7adcf",
+      "35817606-8c5b-43d5-93b3-6af994c018cb",
+      "8586fe44-a878-4c1d-9154-97563699e7ca",
+      "d2405150-6408-4d05-8b0c-a3801caf05c1",
+      "0173ac6c-b817-4c6d-a5da-7d1b5e9f7295",
+      "9e8c4545-6613-49ad-886a-283487e53719",
+      "2686925c-34f4-4a47-a8e9-8f568545c84c",
+      "59b24410-53f7-4029-8a7b-3aed7e8955b1",
+      "e4025fd2-80b4-4019-908d-4bd23a289318"
+    ],
+    "val": [
+      "dc3bed82-0d2f-4b0a-b63c-ee01a4bbf82a",
+      "b6e0ef2c-c17b-47cf-9f3f-29415f5234ca",
+      "fd829c6f-7b6f-48ac-b75e-92efc076c507"
+    ],
+    "test": [
+      "8a9b03fa-d000-47c4-aca0-4f9a1647688e",
+      "e8be8884-ebc3-4884-973c-a16cdfdab074",
+      "abd8f161-4a3a-4bfe-9b38-9a0267e35c6a"
+    ]
+  }
+}

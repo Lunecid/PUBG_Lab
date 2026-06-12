@@ -1,0 +1,86 @@
+% Korean mirror: sections/01-introduction-ko.tex
+\section{Introduction}
+
+In a battle royale match, final placement is not a static outcome; it is the
+accumulation of survival risk that changes phase by phase inside a shrinking
+battlefield. A team's risk of elimination rises and falls with where the
+team stands, which opponents are nearby, and how hard the contracting zone
+presses on it. Post-match aggregates---total kills, total damage, final
+travel distance---flatten this process into post-hoc statistics stripped of
+temporal order. The same amount of damage signals different risk in an early
+skirmish than in a late fight inside a tight zone, and the same travel
+distance means different exposure when the movement is chosen early than
+when it is forced late. A match-level label therefore cannot say when a team
+became vulnerable or which spatial condition was responsible.
+
+We study this process in \textit{PUBG: Battlegrounds}. PUBG fits the
+question structurally. A match places up to 100 players on a large map and
+advances through numbered \textit{phases}: in each phase the game announces
+the next \textit{safe zone}---the area where teams may remain---and the
+surrounding \textit{blue zone} deals growing damage to anyone outside
+it~\cite{pubgGameInfo}. The developer, KRAFTON, exposes a per-match
+telemetry stream through its official developer API, recording player
+positions at regular intervals together with time-ordered combat, zone, and
+elimination events~\cite{pubgTelemetryEvents}. Our unit of analysis is the
+team, not the player: player-level records are aggregated into team-level
+trajectories, exposure, and inter-team relations, and we define a team's
+elimination time as the moment its last surviving member is eliminated. The
+stream is spatio-temporal by nature---teams are moving objects, the zones
+are dynamic regions, and combat and elimination are events anchored to a
+time and a place.
+
+Most public benchmarks and prediction studies on PUBG predict final
+placement from post-match aggregates~\cite{kagglePubgFinishPlacement,sen2021pubgFinalRank,lee2025pubgRank}.
+That problem setting suits match-level outcome prediction; it is simply not
+designed for phase-level survival dynamics. Closer to our aim, Sagong et
+al.~\cite{sagong2025hunterCamper} analyze PUBG survival phase by phase,
+scoring each player's aggressiveness and activity and predicting next-phase
+survival from the resulting strategy types. We inherit their phase-level
+problem setting but change the unit of analysis and the representation:
+teams instead of players, and a phase-aligned spatio-temporal reconstruction
+of the full telemetry---team-level features and dynamic team graphs---instead
+of a small set of strategy scores. The aim moves beyond classifying
+next-phase survival itself, toward analyzing under which spatio-temporal
+conditions and inter-team relations a team's elimination risk takes shape.
+
+Concretely, we predict, from what is observable up to the end of each
+phase, the probability that a team is eliminated during the next phase. We
+call this quantity the \textit{next-phase elimination hazard}; it is the
+discrete-time event-history view of
+survival~\cite{allison1982discrete,singer1993discrete}, and it replaces the
+single match-level label with one risk label per team and phase. Supporting
+this task takes more than feature engineering. Features, labels, and
+relations must all be derived on shared time and space axes, phase by
+phase, without touching future information; we therefore reconstruct the
+telemetry into a phase-aligned spatio-temporal database (STDB) whose
+objects---moving teams, dynamic zones, spatial events, and phase
+intervals---make those derivations systematic and reproducible. Finally, a
+team's risk depends not only on its own state but on the configuration of
+teams around it: who is near, who attacks whom, and who is pushed into the
+same shrinking space. We encode these relations as a dynamic team graph per
+phase and test whether they carry signal of their own.
+
+Two research questions organize the study:
+\begin{description}
+  \item[\textbf{RQ1.}] Can official PUBG telemetry be reconstructed into a phase-aligned STDB from which team trajectories, zone exposure, combat events, and dynamic inter-team relations are derived as team-phase features and dynamic team graphs?
+  \item[\textbf{RQ2.}] On this representation, (i) how accurately can the next-phase elimination hazard be predicted from the team-phase features alone, and (ii) do dynamic team graphs add predictive signal beyond models that use only those features?
+\end{description}
+
+This study makes three contributions. First, it reformulates battle-royale
+survival prediction from final-placement estimation to a team-level,
+phase-level elimination hazard. Second, it provides the representation that
+makes this task well-posed: a phase-aligned STDB built from 21,824 matches
+collected through the official developer API, with leakage-free team-phase
+features and dynamic team graphs. Third, it quantifies where the predictive
+information lies. Replacing a strategy-score baseline that mirrors the prior
+problem setting with the full telemetry-based representation improves the
+same learning algorithm from AUC 0.649 to 0.765 in the pooled aligned
+evaluation; dynamic team graphs then add a further improvement over models
+that use only the team-phase features, an effect confirmed by match-level
+paired tests, edge ablations, and
+randomization controls. Beyond accuracy, the phase-level view localizes when
+and under which spatial conditions a team's risk rises, and can serve as a
+starting point for broadcast analysis of at-risk teams refreshed at each
+phase boundary, phase-by-phase
+feedback in competitive play, and survival-process analysis of live-service
+game telemetry.

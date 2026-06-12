@@ -1,0 +1,76 @@
+% English original: sections/01-introduction.tex
+\section{서론}
+
+배틀로얄 match의 최종 순위는 하나의 정적인 결과가 아니라, 축소되는 전장
+안에서 phase마다 변화하는 생존 위험이 누적된 결과이다. 팀의 탈락 위험은
+팀이 어디에 서 있는지, 어떤 상대가 근처에 있는지, 수축하는 구역이 얼마나
+강하게 압박하는지에 따라 오르내린다. 총 kill 수, 총 damage, 최종 이동 거리
+같은 경기 후 집계는 이 과정을 시간 순서가 제거된 사후 통계로 평탄화한다.
+같은 양의 damage라도 초반의 소규모 교전과 좁은 구역 안의 후반 전투에서는
+다른 위험을 뜻하고, 같은 이동 거리라도 초반에 선택한 이동과 후반에 강요된
+이동은 다른 노출을 뜻한다. 따라서 match 수준의 label로는 팀이 언제
+위험해졌는지, 어떤 공간 조건이 원인이었는지 말할 수 없다.
+
+본 연구는 이 과정을 \textit{PUBG: Battlegrounds}에서 다룬다. PUBG는 이
+질문에 구조적으로 적합하다. 한 match는 최대 100명의 플레이어를 넓은 map에
+배치하고, 번호가 매겨진 \textit{phase}를 거치며 진행된다. 각 phase에서
+게임은 다음 \textit{안전구역}---팀이 머물 수 있는 영역---을 제시하고, 그
+바깥의 \textit{블루존}은 밖에 있는 모두에게 점점 커지는 피해를
+입힌다~\cite{pubgGameInfo}. 개발사 KRAFTON은 공식 developer API를 통해
+match별 telemetry stream을 제공하며, 여기에는 일정 간격으로 기록되는
+플레이어 위치와 시간 순서의 전투·구역·탈락 사건이
+담긴다~\cite{pubgTelemetryEvents}. 본 연구의 분석 단위는 플레이어가 아니라
+팀이다. 플레이어 수준 기록은 팀 수준의 trajectory, 노출, 팀 간 관계로
+집계되며, 마지막 생존 팀원이 제거되는 시점을 팀 탈락 시점으로 정의한다.
+이 stream은 본질적으로 시공간적이다. 팀은 이동 객체이고, 두 구역은 동적
+공간 영역이며, 전투와 탈락은 특정 시점과 위치에 결합된 사건이다.
+
+PUBG에 관한 대부분의 공개 benchmark와 예측 연구는 경기 후 집계로 final
+placement를 예측한다~\cite{kagglePubgFinishPlacement,sen2021pubgFinalRank,lee2025pubgRank}.
+이러한 문제 설정은 경기 단위의 최종 결과를 예측하는 데에는 적합하다. 다만
+phase 수준의 생존 동역학을 다루도록 설계된 것이 아닐 뿐이다. 본 연구의
+목적에 가장 가까운 것은 Sagong et al.~\cite{sagong2025hunterCamper}로,
+PUBG 생존을 phase 단위로 분석하여 각 플레이어의 공격성과 활동성을
+점수화하고 그로부터 얻은 전략 유형으로 next-phase 생존을 예측한다. 본
+연구는 그들의 phase 수준 문제 설정을 이어받되, 분석 단위와 표현을 바꾼다.
+분석 단위를 플레이어가 아니라 팀으로 두고, 소수의 전략 점수 대신 전체
+telemetry를 phase에 정렬된 시공간 표현---팀 단위 feature와 동적 team
+graph---으로 재구성한다. 이를 통해 다음 phase 생존 여부의 분류 자체를
+넘어, 팀의 탈락 위험이 어떤 시공간 조건과 팀 간 관계 속에서 형성되는지를
+분석한다.
+
+구체적으로, 본 연구는 각 phase의 종료 시점까지 관측 가능한 정보로 그 팀이
+다음 phase 동안 탈락할 확률을 예측한다. 이 양을 \textit{next-phase
+elimination hazard}라고 부른다. 이는 생존을 보는 이산 시간 event-history
+관점이며~\cite{allison1982discrete,singer1993discrete}, 하나의 match 수준
+label을 팀과 phase마다 하나씩의 위험 label로 대체한다. 이 과제를 지탱하는
+일은 feature engineering 이상을 요구한다. Feature, label, 관계가 모두 같은
+시간·공간 축 위에서 phase 단위로, 미래 정보를 건드리지 않고 도출되어야
+한다. 따라서 telemetry를 phase-정렬 시공간 데이터베이스(STDB)로
+재구성하며, 그 객체들---이동하는 팀, 동적 구역, 공간 사건, phase
+interval---이 그러한 도출을 체계적이고 재현 가능하게 만든다. 마지막으로,
+팀의 위험은 자신의 상태만이 아니라 주변 팀들의 배치, 즉 누가 가까이
+있는지, 누가 누구를 공격하는지, 누가 같은 축소 공간으로 밀려나는지에
+의해서도 결정된다. 본 연구는 이 관계를 phase마다 하나의 동적 team graph로
+표현하고, 관계 자체가 고유한 신호를 갖는지 검증한다.
+
+본 연구는 다음 두 연구 질문을 중심으로 구성된다.
+\begin{description}
+  \item[\textbf{RQ1.}] 공식 PUBG telemetry를 phase-정렬 STDB로 재구성하여, 팀의 trajectory, 구역 노출, 전투 사건, 동적 팀 간 관계를 team-phase feature와 dynamic team graph로 도출할 수 있는가?
+  \item[\textbf{RQ2.}] 이 표현 위에서, (i) team-phase feature만으로 next-phase elimination hazard를 얼마나 정확히 예측할 수 있고, (ii) dynamic team graph는 그 feature만 사용하는 모델을 넘어 추가 예측 신호를 제공하는가?
+\end{description}
+
+본 연구의 기여는 세 가지다. 첫째, 배틀로얄 생존 예측을 final-placement
+추정에서 팀 수준·phase 수준의 elimination hazard로 재정식화한다. 둘째, 이
+과제를 성립시키는 표현을 제공한다. 공식 developer API에서 수집한 21,824개
+match로 구축한 phase-정렬 STDB와, 누수 없이 도출된 team-phase feature 및
+dynamic team graph이다. 셋째, 예측 정보가 어디에 있는지 정량화한다. 선행
+연구의 문제 설정을 반영한 strategy-score baseline을 전체 telemetry 기반
+표현으로 대체하면, pooled aligned 평가에서 동일한 학습 알고리즘의 AUC가
+0.649에서 0.765로 상승한다. 또한 dynamic team graph는 team-phase feature만 사용하는 모델
+위에 추가 향상을 제공하며, 이 효과는 match 단위 paired test, edge
+ablation, 무작위화 통제로 확인된다. 정확도 너머에서, phase 수준의 관점은
+팀의 위험이 언제 어떤 공간 조건에서 상승하는지를 위치시키며, phase 경계마다 갱신되어
+위험에 처한 팀을 식별하는 중계 분석, 경쟁 플레이를 위한 phase별 피드백, 그리고
+live-service 게임 telemetry를 생존 과정으로 분석하는 후속 연구의 출발점이
+될 수 있다.

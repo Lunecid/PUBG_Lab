@@ -1,0 +1,31 @@
+\section{배경 및 관련 연구}
+\label{sec:related-work}
+
+대부분의 PUBG prediction 연구는 post-match aggregate statistics로 final placement
+또는 rank를 예측한다
+\cite{kagglePubgFinishPlacement,sen2021pubgFinalRank,lee2025pubgRank}. 이 framing은
+final-outcome modeling에는 유용하지만, match 내부에서 risk가 언제 변하는지,
+shrinking safe zone이 movement나 combat의 의미를 어떻게 바꾸는지는 보여주지
+못한다.
+
+가장 가까운 선행연구는 Sagong et al.의 phase-based PUBG survival framework이다
+\cite{sagong2025hunterCamper}. 이 연구는 phase-specific aggressiveness와
+activeness score인 FightScore와 ActiveScore를 사용하여 player strategy type을
+분류하고 next-phase survival을 예측한다. 본 논문에 중요한 점은 특정 classifier가
+아니라 framing이다. PUBG survival은 match 종료 후가 아니라 phase 단위로 분석되어야
+한다.
+
+본 연구는 이 framing을 두 방향으로 확장한다. 첫째, 생태학은 서식지가 축소되거나
+파편화되는 상황의 생물을 오래 연구해 왔다. Habitat fragmentation과 movement
+ecology 연구는 viable space, movement, exposure, density를 본질적으로 시공간적인
+양으로 다룬다 \cite{fahrig2003fragmentation,nathan2008movement}. Shrinking safe
+zone은 팀에게 같은 종류의 수축을 부과한다. 따라서 본 연구는 이 관점을 생물학적
+동일성 주장이 아닌 분석적 비유로 차용하며, 결론도 같다. 생존 조건은 집계 점수가
+아니라 시공간적으로 모델링되어야 한다. 둘째, team-to-team
+context를 명시적으로 표현한다. 각 phase는 proximity, combat, shared safe-zone
+pressure를 edge로 갖는 graph가 된다 \cite{sanchezLengeling2021gnnIntro}. 따라서
+본 논문의 기여는 단순히 graph model을 쓰는 것이 아니다. Official telemetry를
+spatio-temporal and relational representation으로 재구성하고, 생존을
+event-history 전통의 이산 시간 hazard로 정식화하며
+\cite{allison1982discrete,singer1993discrete}, strong non-graph baseline에
+대해 next-phase elimination risk를 검증하는 것이다.

@@ -1,0 +1,41 @@
+{
+  "created_at": "2026-06-09T08:39:25.883897+00:00",
+  "seed": 42,
+  "val_frac": 0.1,
+  "test_frac": 0.1,
+  "n_matches": 14,
+  "ids_sha1": "56c4b4ebc28851f87a100d221c62a83486f1c39f",
+  "metadata": {
+    "map_name": "Summerland_Main",
+    "perspective": "FPP",
+    "team_size": "solo",
+    "game_mode": "solo-fpp",
+    "raw_count": 14,
+    "feature_eligible_count": 14,
+    "graph_eligible_count": 14,
+    "source": "scripts/build_experiment_domain_datasets.py",
+    "split_type": "graph"
+  },
+  "splits": {
+    "train": [
+      "b94c33c0-286c-4f42-811c-9e5c0f03e944",
+      "f2e24952-1209-466c-bbeb-f9e08e4017ee",
+      "a437f4be-7d33-4b5d-bfab-e7d41ca0c711",
+      "1437a97b-9d12-4d69-9757-347bf3872374",
+      "0fc160c5-1787-4471-81b6-7577dc499d62",
+      "31ea4aab-4d59-4085-b7b5-8b2e20bf12f9",
+      "93081c79-4d4d-4d4f-b767-650e4835ebfd",
+      "6a33ba5c-1c53-4180-9460-5d8fa680ed2f",
+      "b42a6883-1d0c-4b7e-ad29-26c43da6e046",
+      "2d92cc31-4047-4ef8-8e4d-256f84c2601a",
+      "9419f1b9-757d-4a4b-b623-6bd67f597ab9",
+      "7e655d7d-5105-4e19-a056-edd411b5c831"
+    ],
+    "val": [
+      "0411f9e2-18f3-4177-8407-37bc93e78272"
+    ],
+    "test": [
+      "0b896615-1c88-40ee-a97b-9105e5395a36"
+    ]
+  }
+}

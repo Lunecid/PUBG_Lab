@@ -1,0 +1,18 @@
+\begin{abstract}
+Battle-royale survival unfolds under successive safe-zone contractions rather
+than as a single post-match outcome. We reconstruct official PUBG telemetry as
+a spatio-temporal database (STDB) aligned to indexed zone-change intervals of
+moving teams, dynamic zones, spatial events, and team relations, and use it to
+define a team-level next-phase elimination hazard task. From 21,824
+graph-ready matches, we build
+66-dimensional team-phase features and three-channel dynamic graphs encoding
+proximity, combat, and shared safe-zone pressure. A feature-only gradient
+boosting model already predicts the hazard well (AUC 0.765), but a
+DynamicSTGNN over the dynamic graphs improves to AUC 0.778 and AP 0.681 on
+134,245 aligned test cells. Representation ablations show that the
+telemetry-based representation raises the score-summary baseline from AUC
+0.649 to 0.765, while graph ablations and shuffle controls show that
+dynamic team relations add smaller but significant signal beyond the
+features. The result supports using phase-aligned spatio-temporal
+representations for live game telemetry analysis.
+\end{abstract}

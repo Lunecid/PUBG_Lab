@@ -1,0 +1,45 @@
+\section{Introduction}
+
+Modern online digital services generate large-scale telemetry data that records user behavior, location, interaction, state changes, and event occurrences over time. Such data are not merely static logs or final outcome tables. Rather, they often have a spatio-temporal structure in which moving objects, changing spatial conditions, and events occurring at specific times are coupled together. Online multiplayer games are a particularly dense source of this kind of telemetry, because many players simultaneously move through a shared virtual space, search for resources, interact with opponents, and respond to environmental constraints imposed by the game rules.
+
+The game industry has become a large-scale digital environment, with the global market forecast to reach approximately USD 188.8 billion and the player base to reach about 3.58 billion users in 2025~\cite{newzoo2025globalgames}. Within this broader ecosystem, the battle royale genre has occupied an important position alongside the growth of large-scale online competition, real-time decision making, spectator-oriented content, e-sports, and streaming culture. A battle royale game places many players or teams into a large battlefield, where they must acquire limited resources, compete with opponents, and survive until the end. The core of the genre is not simply combat outcome, but also position selection, movement route planning, timing of engagement or avoidance, resource acquisition, and adaptation to changing battlefield conditions.
+
+A defining structure of battle royale games is that the playable area shrinks as the match progresses. This shrinking-zone mechanism creates continuous movement pressure and increasingly concentrates surviving players into smaller areas in later phases. As a result, team survival cannot be fully explained by post-match aggregate statistics such as cumulative kills or total damage. Even teams with similar combat ability may face very different survival prospects depending on their current location, distance to the safe zone, nearby team density, required movement distance, recent combat state, and the movement burden imposed by the next phase.
+
+\textit{PUBG: Battlegrounds} is a representative battle royale game in which this spatio-temporal survival structure is clearly observable. In PUBG, up to 100 players enter a battlefield, acquire weapons and equipment, and compete to survive within a shrinking playable area~\cite{pubgGameInfo}. PUBG match telemetry also records a sequence of in-game events, including phase changes, player positions, damage, knockdowns, kills, and eliminations~\cite{pubgTelemetryEvents}. PUBG is therefore not merely a popular game case, but a suitable research setting for analyzing spatio-temporal telemetry data that combines moving objects, dynamic spatial regions, and event occurrences.
+
+From the perspective of a spatio-temporal database, a PUBG match can be interpreted through three elements. First, each team is a moving object that changes location over time. Second, the safe zone and blue zone are dynamic spatial regions whose location and size change over the course of a match. Third, damage, knockdowns, kills, and eliminations are events occurring at specific times and locations. In this study, we reconstruct raw PUBG telemetry into team-phase-level spatio-temporal event-history data that include teams, phases, movement, spatial regions, nearby-team relations, and combat events.
+
+Existing public benchmarks and prediction studies on PUBG have primarily focused on predicting final placement or final rank from post-match aggregate statistics~\cite{kagglePubgFinishPlacement,sen2021pubgFinalRank,lee2025pubgRank}. This approach is useful for summarizing match outcomes, but it does not preserve the staged temporal structure of a battle royale match. Final-rank prediction can indicate which players or teams finished higher, but it is less suited to explaining when a particular team became at risk, in which phase spatial pressure increased, or how safe-zone changes and nearby team configurations altered the probability of elimination.
+
+To address this limitation, we define the task of \textit{phase-level next-phase elimination hazard prediction}. A phase \(k\) denotes one temporal interval in the match progression, and a team-phase denotes one observation unit for a particular team in a particular phase. Given information observed through phase \(k\), denoted by \(X_{i,\leq k}\), the task is to predict the conditional risk that team \(i\) will be eliminated during the next phase interval.
+
+Let \(a_k\) and \(b_k\) denote the start and end times of phase \(k\), respectively, and let \(T_i\) denote the elimination time of team \(i\). For teams that survive through the end of phase \(k\), we use the spatio-temporal information observed through phase \(k\), \(X_{i,\leq k}\), to predict whether the team is eliminated in the next phase interval. The outcome variable is defined as
+
+\[
+Y_{i,k}
+=
+\Ind\!\left\{b_k < T_i \leq b_{k+1}\right\}.
+\]
+
+The phase-level next-phase elimination hazard is then written as
+
+\[
+h_{i,k}
+=
+P(b_k < T_i \leq b_{k+1}
+\mid T_i > b_k, X_{i,\leq k}).
+\]
+
+This definition separates the observation time from the prediction interval: it does not use features from the same phase to predict an elimination that already occurred within that phase, but instead predicts next-phase risk from information observed through the cut phase. This formulation corresponds to the view of discrete-time event-history and survival analysis, where the conditional probability of event occurrence is modeled over successive time intervals~\cite{allison1982discrete,singer1993discrete}. Thus, the goal of this study is not to predict a final rank in a single step, but to repeatedly estimate the conditional risk that a currently surviving team will fail to survive through the next phase.
+
+The purpose of this study is not simply to predict the winner or final ranking of a PUBG match. More broadly, we aim to transform complex telemetry into spatio-temporal event-history data and to predict and interpret how dynamic spatial conditions affect survival or elimination events. PUBG is an appropriate empirical case for this problem because each match contains many moving objects, a clear dynamic spatial constraint induced by the safe zone, and temporally ordered elimination events.
+
+This study makes the following contributions:
+
+\begin{itemize}
+  \item We reconstruct raw PUBG match telemetry into team-phase-level spatio-temporal event-history data that include teams, phases, movement, spatial regions, nearby-team relations, and combat events.
+  \item We define next-phase elimination hazard prediction as an alternative to final placement prediction, formalizing the staged survival process of battle royale matches as a conditional event prediction problem.
+  \item We analyze how spatio-temporal features such as safe-zone exposure, movement burden, nearby-team density, and combat state explain phase-level elimination risk.
+  \item We compare tabular feature-based models and graph-aware models to examine the effects and limitations of representing spatial interactions, such as distance, density, and adjacency relations between nearby teams, as relational structure for phase-level hazard prediction.
+\end{itemize}

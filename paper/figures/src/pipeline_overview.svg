@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="620" viewBox="0 0 1680 620">
+<rect width="1680" height="620" fill="#FFFFFF"/>
+<text x="840" y="36" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="22" font-weight="700" fill="#253746" text-anchor="middle" dominant-baseline="central">Core pipeline: phase-aligned representation and next-phase hazard prediction</text>
+<line x1="80.0" y1="68.0" x2="1600.0" y2="68.0" stroke="#D3DBE3" stroke-width="1.2" stroke-linecap="round"/>
+<text x="130" y="92" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#8A98A7" text-anchor="start" dominant-baseline="central">phase clock</text>
+<circle cx="245" cy="92" r="28.0" fill="#FFFFFF" stroke="#B7C3D0" stroke-width="1.2"/>
+<text x="245" y="92" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="600" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">k=1</text>
+<line x1="278.0" y1="92.0" x2="322.0" y2="92.0" stroke="#B7C3D0" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M 316.0 95.3 L 322.0 92.0 L 316.0 88.7" fill="none" stroke="#B7C3D0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="360" cy="92" r="25.7" fill="#FFFFFF" stroke="#B7C3D0" stroke-width="1.2"/>
+<text x="360" y="92" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="600" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">k=2</text>
+<line x1="390.7" y1="92.0" x2="439.3" y2="92.0" stroke="#B7C3D0" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M 433.3 95.3 L 439.3 92.0 L 433.3 88.7" fill="none" stroke="#B7C3D0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="475" cy="92" r="23.4" fill="#FFFFFF" stroke="#B7C3D0" stroke-width="1.2"/>
+<text x="475" y="92" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="600" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">k=3</text>
+<line x1="503.4" y1="92.0" x2="556.6" y2="92.0" stroke="#B7C3D0" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M 550.6 95.3 L 556.6 92.0 L 550.6 88.7" fill="none" stroke="#B7C3D0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="590" cy="92" r="21.1" fill="#FFFFFF" stroke="#B7C3D0" stroke-width="1.2"/>
+<text x="590" y="92" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="600" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">k=4</text>
+<line x1="616.1" y1="92.0" x2="673.9" y2="92.0" stroke="#B7C3D0" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M 667.9 95.3 L 673.9 92.0 L 667.9 88.7" fill="none" stroke="#B7C3D0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="705" cy="92" r="18.8" fill="#FFFFFF" stroke="#B7C3D0" stroke-width="1.2"/>
+<text x="705" y="92" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="600" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">k=5</text>
+<line x1="728.8" y1="92.0" x2="791.2" y2="92.0" stroke="#B7C3D0" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M 785.2 95.3 L 791.2 92.0 L 785.2 88.7" fill="none" stroke="#B7C3D0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="820" cy="92" r="16.5" fill="#FFFFFF" stroke="#B7C3D0" stroke-width="1.2"/>
+<text x="820" y="92" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="600" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">k=6</text>
+<line x1="841.5" y1="92.0" x2="908.5" y2="92.0" stroke="#B7C3D0" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M 902.5 95.3 L 908.5 92.0 L 902.5 88.7" fill="none" stroke="#B7C3D0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="935" cy="92" r="14.200000000000001" fill="#FFFFFF" stroke="#B7C3D0" stroke-width="1.2"/>
+<text x="935" y="92" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="600" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">k=7</text>
+<line x1="954.2" y1="92.0" x2="1025.8" y2="92.0" stroke="#B7C3D0" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M 1019.8 95.3 L 1025.8 92.0 L 1019.8 88.7" fill="none" stroke="#B7C3D0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="1050" cy="92" r="11.900000000000002" fill="#FFFFFF" stroke="#B7C3D0" stroke-width="1.2"/>
+<text x="1050" y="92" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="600" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">k=8</text>
+<text x="1215" y="92" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#8A98A7" text-anchor="middle" dominant-baseline="central" font-style='italic'>shrinking safe-zone phases</text>
+<rect x="45" y="140" width="74" height="180" rx="8" fill="#FFFFFF" stroke="#D3DBE3" stroke-width="1.0"/>
+<text x="82" y="178" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#253746" text-anchor="middle" dominant-baseline="central">RQ1</text>
+<text x="82" y="220" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="400" fill="#8A98A7" text-anchor="middle" dominant-baseline="central">build a</text>
+<text x="82" y="235" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="400" fill="#8A98A7" text-anchor="middle" dominant-baseline="central">phase-aligned</text>
+<text x="82" y="250" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="400" fill="#8A98A7" text-anchor="middle" dominant-baseline="central">STDB</text>
+<rect x="45" y="345" width="74" height="170" rx="8" fill="#FFFFFF" stroke="#D3DBE3" stroke-width="1.0"/>
+<text x="82" y="385" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#253746" text-anchor="middle" dominant-baseline="central">RQ2</text>
+<text x="82" y="425" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="400" fill="#8A98A7" text-anchor="middle" dominant-baseline="central">predict</text>
+<text x="82" y="440" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="400" fill="#8A98A7" text-anchor="middle" dominant-baseline="central">next-phase</text>
+<text x="82" y="455" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="400" fill="#8A98A7" text-anchor="middle" dominant-baseline="central">hazard</text>
+<rect x="150" y="150" width="220" height="155" rx="8" fill="#F6F8FB" stroke="#5D7184" stroke-width="1.5"/>
+<rect x="168" y="166" width="64" height="24" rx="12" fill="#FFFFFF" stroke="#B8C3CF" stroke-width="1.0"/>
+<text x="200.0" y="178" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#8A98A7" text-anchor="middle" dominant-baseline="central">source</text>
+<text x="260" y="197" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="700" fill="#253746" text-anchor="middle" dominant-baseline="central">Official telemetry</text>
+<text x="260" y="235" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">time-stamped events</text>
+<text x="260" y="260" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">actors and teams</text>
+<text x="260" y="285" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">locations and state</text>
+<line x1="385.0" y1="227.0" x2="445.0" y2="227.0" stroke="#253746" stroke-width="2.2" stroke-linecap="round"/>
+<path d="M 435.0 232.5 L 445.0 227.0 L 435.0 221.5" fill="none" stroke="#253746" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="415" y="204" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8A98A7" text-anchor="middle" dominant-baseline="central" font-style='italic'>align time + space</text>
+<rect x="460" y="132" width="285" height="190" rx="8" fill="#EAF1F8" stroke="#5D7184" stroke-width="1.5"/>
+<rect x="482" y="150" width="118" height="24" rx="12" fill="#FFFFFF" stroke="#B8C3CF" stroke-width="1.0"/>
+<text x="541.0" y="162" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#8A98A7" text-anchor="middle" dominant-baseline="central">representation</text>
+<text x="602" y="187" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="700" fill="#253746" text-anchor="middle" dominant-baseline="central">STDB objects</text>
+<rect x="490" y="215" width="105" height="34" rx="6" fill="#FFFFFF" stroke="#B5C1CE" stroke-width="1.0"/>
+<text x="542.5" y="232" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.8" font-weight="600" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">moving teams</text>
+<rect x="620" y="215" width="105" height="34" rx="6" fill="#FFFFFF" stroke="#B5C1CE" stroke-width="1.0"/>
+<text x="672.5" y="232" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.8" font-weight="600" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">dynamic zones</text>
+<rect x="490" y="266" width="105" height="34" rx="6" fill="#FFFFFF" stroke="#B5C1CE" stroke-width="1.0"/>
+<text x="542.5" y="283" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.8" font-weight="600" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">spatial events</text>
+<rect x="620" y="266" width="105" height="34" rx="6" fill="#FFFFFF" stroke="#B5C1CE" stroke-width="1.0"/>
+<text x="672.5" y="283" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.8" font-weight="600" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">phase intervals</text>
+<line x1="760.0" y1="205.0" x2="830.0" y2="205.0" stroke="#253746" stroke-width="2.2" stroke-linecap="round"/>
+<path d="M 820.0 210.5 L 830.0 205.0 L 820.0 199.5" fill="none" stroke="#253746" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="760.0" y1="275.0" x2="830.0" y2="375.0" stroke="#253746" stroke-width="2.2" stroke-linecap="round"/>
+<path d="M 819.8 370.0 L 830.0 375.0 L 828.8 363.7" fill="none" stroke="#253746" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="850" y="140" width="285" height="142" rx="8" fill="#E8F4EC" stroke="#5D7184" stroke-width="1.5"/>
+<rect x="872" y="156" width="78" height="24" rx="12" fill="#FFFFFF" stroke="#B8C3CF" stroke-width="1.0"/>
+<text x="911.0" y="168" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#8A98A7" text-anchor="middle" dominant-baseline="central">tensor X</text>
+<text x="995" y="187" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="16.5" font-weight="700" fill="#253746" text-anchor="middle" dominant-baseline="central">Team-phase features</text>
+<rect x="902" y="212" width="185" height="92" rx="6" fill="#FFFFFF" stroke="#AAB7C4" stroke-width="1.2"/>
+<line x1="902.0" y1="230.0" x2="1087.0" y2="230.0" stroke="#D3DBE3" stroke-width="1" stroke-linecap="round"/>
+<line x1="902.0" y1="248.0" x2="1087.0" y2="248.0" stroke="#D3DBE3" stroke-width="1" stroke-linecap="round"/>
+<line x1="902.0" y1="266.0" x2="1087.0" y2="266.0" stroke="#D3DBE3" stroke-width="1" stroke-linecap="round"/>
+<line x1="902.0" y1="284.0" x2="1087.0" y2="284.0" stroke="#D3DBE3" stroke-width="1" stroke-linecap="round"/>
+<line x1="948.0" y1="212.0" x2="948.0" y2="304.0" stroke="#D3DBE3" stroke-width="1" stroke-linecap="round"/>
+<line x1="994.0" y1="212.0" x2="994.0" y2="304.0" stroke="#D3DBE3" stroke-width="1" stroke-linecap="round"/>
+<line x1="1040.0" y1="212.0" x2="1040.0" y2="304.0" stroke="#D3DBE3" stroke-width="1" stroke-linecap="round"/>
+<text x="925" y="224" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="700" fill="#8A98A7" text-anchor="middle" dominant-baseline="central">m</text>
+<text x="971" y="224" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="700" fill="#8A98A7" text-anchor="middle" dominant-baseline="central">team</text>
+<text x="1017" y="224" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="700" fill="#8A98A7" text-anchor="middle" dominant-baseline="central">phase</text>
+<text x="1062" y="224" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="700" fill="#8A98A7" text-anchor="middle" dominant-baseline="central">66-d</text>
+<text x="925" y="245" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">1</text>
+<text x="971" y="245" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">T12</text>
+<text x="1017" y="245" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">3</text>
+<text x="1063" y="245" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">...</text>
+<text x="925" y="263" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">1</text>
+<text x="971" y="263" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">T19</text>
+<text x="1017" y="263" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">3</text>
+<text x="1063" y="263" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">...</text>
+<text x="925" y="281" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">2</text>
+<text x="971" y="281" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">T04</text>
+<text x="1017" y="281" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">5</text>
+<text x="1063" y="281" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">...</text>
+<text x="995" y="318" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8A98A7" text-anchor="middle" dominant-baseline="central">one row per (match, team, phase)</text>
+<rect x="850" y="340" width="285" height="135" rx="8" fill="#F0EAF8" stroke="#5D7184" stroke-width="1.5"/>
+<rect x="872" y="356" width="78" height="24" rx="12" fill="#FFFFFF" stroke="#B8C3CF" stroke-width="1.0"/>
+<text x="911.0" y="368" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#8A98A7" text-anchor="middle" dominant-baseline="central">tensor A</text>
+<text x="995" y="387" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="16.5" font-weight="700" fill="#253746" text-anchor="middle" dominant-baseline="central">Dynamic team relations</text>
+<line x1="1034.0" y1="401.6" x2="1065.0" y2="392.9" stroke="#2867B2" stroke-width="1.302" stroke-linecap="round"/>
+<line x1="1069.9" y1="433.8" x2="1036.4" y2="427.6" stroke="#2867B2" stroke-width="1.302" stroke-linecap="round"/>
+<line x1="1065.0" y1="392.9" x2="1086.0" y2="411.5" stroke="#C0392B" stroke-width="1.302" stroke-linecap="round"/>
+<path d="M 1080.5 410.3 L 1086.0 411.5 L 1084.1 406.2" fill="none" stroke="#C0392B" stroke-width="1.302" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="1034.0" y1="401.6" x2="1069.9" y2="433.8" stroke="#8E5FB8" stroke-width="1.302" stroke-linecap="round" stroke-dasharray="5 4"/>
+<circle cx="1033.96" cy="401.6" r="4.03" fill="#FFFFFF" stroke="#253746" stroke-width="0.992"/>
+<circle cx="1064.96" cy="392.92" r="4.03" fill="#FFFFFF" stroke="#253746" stroke-width="0.992"/>
+<circle cx="1086.04" cy="411.52" r="4.03" fill="#FFFFFF" stroke="#253746" stroke-width="0.992"/>
+<circle cx="1069.92" cy="433.84" r="4.03" fill="#FFFFFF" stroke="#253746" stroke-width="0.992"/>
+<circle cx="1036.44" cy="427.64" r="4.03" fill="#FFFFFF" stroke="#253746" stroke-width="0.992"/>
+<text x="890" y="458" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#2867B2" text-anchor="start" dominant-baseline="central">proximity</text>
+<text x="960" y="458" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#C0392B" text-anchor="start" dominant-baseline="central">combat</text>
+<text x="1025" y="458" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#8E5FB8" text-anchor="start" dominant-baseline="central">co-pressure</text>
+<line x1="1150.0" y1="205.0" x2="1220.0" y2="295.0" stroke="#253746" stroke-width="2.2" stroke-linecap="round"/>
+<path d="M 1209.5 290.5 L 1220.0 295.0 L 1218.2 283.7" fill="none" stroke="#253746" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="1150.0" y1="405.0" x2="1220.0" y2="335.0" stroke="#253746" stroke-width="2.2" stroke-linecap="round"/>
+<path d="M 1216.8 346.0 L 1220.0 335.0 L 1209.0 338.2" fill="none" stroke="#253746" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="1225" y="235" width="235" height="160" rx="8" fill="#FFF0E4" stroke="#5D7184" stroke-width="1.5"/>
+<rect x="1245" y="252" width="62" height="24" rx="12" fill="#FFFFFF" stroke="#B8C3CF" stroke-width="1.0"/>
+<text x="1276.0" y="264" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#8A98A7" text-anchor="middle" dominant-baseline="central">model</text>
+<text x="1342" y="289" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="18" font-weight="700" fill="#253746" text-anchor="middle" dominant-baseline="central">DynamicSTGNN</text>
+<text x="1342" y="325" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">X and A sequences</text>
+<text x="1342" y="348" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">2 gated ST blocks</text>
+<text x="1342" y="371" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">causal phase state</text>
+<line x1="1475.0" y1="315.0" x2="1530.0" y2="315.0" stroke="#253746" stroke-width="2.2" stroke-linecap="round"/>
+<path d="M 1520.0 320.5 L 1530.0 315.0 L 1520.0 309.5" fill="none" stroke="#253746" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="1535" y="225" width="120" height="92" rx="8" fill="#E6F0FA" stroke="#5D7184" stroke-width="1.5"/>
+<text x="1595" y="253" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#253746" text-anchor="middle" dominant-baseline="central">hazard</text>
+<text x="1595" y="282" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central" font-style='italic'>p(elim</text>
+<text x="1595" y="303" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central" font-style='italic'>before k+1)</text>
+<rect x="1535" y="340" width="120" height="58" rx="8" fill="#FFFFFF" stroke="#AAB7C4" stroke-width="1.1" stroke-dasharray="5 4"/>
+<text x="1595" y="362" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8A98A7" text-anchor="middle" dominant-baseline="central">rank / top-k</text>
+<text x="1595" y="382" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="400" fill="#8A98A7" text-anchor="middle" dominant-baseline="central">auxiliary</text>
+<rect x="150" y="535" width="1305" height="52" rx="8" fill="#FFFFFF" stroke="#D3DBE3" stroke-width="1.2"/>
+<text x="178" y="561" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#8A98A7" text-anchor="start" dominant-baseline="central">evaluation conditions</text>
+<rect x="360" y="548" width="136" height="26" rx="13" fill="#FFFFFF" stroke="#B9C4CF" stroke-width="1.0"/>
+<text x="428.0" y="561" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="600" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">HGB feature-only</text>
+<rect x="520" y="548" width="126" height="26" rx="13" fill="#FFFFFF" stroke="#B9C4CF" stroke-width="1.0"/>
+<text x="583.0" y="561" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="600" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">no-edge neural</text>
+<rect x="670" y="548" width="95" height="26" rx="13" fill="#EEF5FF" stroke="#B9C4CF" stroke-width="1.0"/>
+<text x="717.5" y="561" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="600" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">proximity</text>
+<rect x="790" y="548" width="126" height="26" rx="13" fill="#FFF0F0" stroke="#B9C4CF" stroke-width="1.0"/>
+<text x="853.0" y="561" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="600" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">prox + combat</text>
+<rect x="940" y="548" width="98" height="26" rx="13" fill="#F4EEFC" stroke="#B9C4CF" stroke-width="1.0"/>
+<text x="989.0" y="561" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="600" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">full graph</text>
+<rect x="1085" y="548" width="140" height="26" rx="13" fill="#FFFFFF" stroke="#B9C4CF" stroke-width="1.0"/>
+<text x="1155.0" y="561" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="600" fill="#4B5C6C" text-anchor="middle" dominant-baseline="central">aligned test cells</text>
+</svg>

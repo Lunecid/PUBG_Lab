@@ -1,0 +1,50 @@
+\section{방법론}
+\label{sec:methods}
+
+Section~\ref{sec:related-work}의 framing을 따라, 방법론은 다섯 단계로
+진행되며 그림~\ref{fig:pipeline-overview}와 표~\ref{tab:rq-method-map}에
+요약된다. 첫째, official telemetry를 phase-정렬 STDB로 재구성한다
+(절~\ref{sec:methods-data}). 둘째, 각 team과 phase를 trajectory, 구역 노출,
+전투, 준비 상태를 담는 하나의 feature row로 요약한다
+(절~\ref{sec:methods-features}). 셋째, 팀 간 관계를 dynamic team graph로
+표현한다(절~\ref{sec:team-graphs}). 이 세 단계가 RQ1에 답한다.
+넷째, feature row 위에 누수 안전한 next-phase hazard 과제를 정의한다
+(절~\ref{sec:prediction-task}). 다섯째, DynamicSTGNN으로 graph 관계가 추가
+signal을 주는지 검증한다(절~\ref{sec:dynamic-team-graph-model}). 이 두
+단계가 RQ2에 답한다.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.86\textwidth]{figures/pipeline_overview.png}
+\caption{Pipeline 개요. Official telemetry를 phase-정렬 STDB로 재구성하고
+team-phase feature와 dynamic team graph로 요약한 뒤(RQ1), DynamicSTGNN을
+feature-only model들과 비교해 next-phase elimination hazard를 평가한다(RQ2).}
+\label{fig:pipeline-overview}
+\end{figure*}
+
+\begin{table}[t]
+\centering
+\caption{방법론 pipeline.}
+\label{tab:rq-method-map}
+\small
+\begin{tabular}{p{0.12\linewidth}p{0.44\linewidth}p{0.30\linewidth}}
+\toprule
+RQ & 단계 & 산출물 \\
+\midrule
+RQ1 & Moving team, dynamic safe/blue zone, spatial event, phase interval을
+STDB object로 표현한다. & Phase-aligned STDB. \\
+RQ1 & 각 team의 trajectory, 구역 노출, 전투, 준비 상태를 phase 단위로
+요약한다. & Team-phase feature row. \\
+RQ1 & Phase별 팀 간 관계를 표현한다. & Dynamic team graph
+\(G_1,\dots,G_T\). \\
+RQ2-i & Feature row로 next-phase elimination hazard를 예측한다. & Hazard
+task와 representation ablation. \\
+RQ2-ii & Graph 관계가 추가 signal을 주는지 검증한다. & DynamicSTGNN과
+edge ablation·통제 실험. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\input{sections/03-data-stdb-modeling-ko}
+\input{sections/04-prediction-task-ko}
+\input{sections/05-dynamic-team-graph-model-ko}

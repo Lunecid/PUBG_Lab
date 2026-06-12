@@ -1,0 +1,47 @@
+\documentclass[sigplan,screen]{../acmart}
+
+\AtBeginDocument{%
+  \providecommand\BibTeX{{Bib\TeX}}%
+}
+
+\setcopyright{none}
+\settopmatter{printacmref=false, printccs=false}
+\copyrightyear{2026}
+\acmYear{2026}
+\acmDOI{}
+\acmConference[Draft]{Draft manuscript}{June 2026}{Seoul, Republic of Korea}
+\acmISBN{}
+
+\usepackage{booktabs}
+\usepackage{bbm}
+\usepackage{siunitx}
+\graphicspath{{../}}
+\newcommand{\Ind}{\mathbbm{1}}
+
+\title{Modeling PUBG Telemetry as a Spatio-Temporal Database for Phase-Level Team Elimination Prediction}
+
+\author{Anonymous Author(s)}
+\affiliation{%
+  \institution{Anonymous Institution}
+  \country{Republic of Korea}
+}
+\renewcommand{\shortauthors}{Anonymous Author(s)}
+
+\input{sections/00-abstract}
+
+\keywords{PUBG telemetry, spatio-temporal database, dynamic graph, survival modeling, game analytics}
+
+\begin{document}
+
+\maketitle
+
+\input{sections/01-introduction}
+\input{sections/02-background}
+\input{sections/03-methods}
+\input{sections/04-experiments-results}
+\input{sections/05-limitations-conclusion}
+
+\bibliographystyle{../ACM-Reference-Format-citation-order}
+\bibliography{../references}
+
+\end{document}

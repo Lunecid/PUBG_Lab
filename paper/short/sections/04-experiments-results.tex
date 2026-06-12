@@ -1,0 +1,122 @@
+\section{Experiments and Results}
+\label{sec:results}
+
+\paragraph{Evaluation protocol.}
+One match yields many team-phase rows, so a row-level split would leak the
+same match context into train and test. We therefore split by match, using
+17,460 train, 2,182 validation, and 2,182 test matches with seed 42. The main
+comparison uses 134,245 aligned risk-set cells from the test matches. Each
+cell is one \((match, team, phase)\) observation for a team that is alive at
+\(b_k\) and has an observed next phase. Paired significance tests aggregate
+performance at the match level, so that a match with many teams or phases
+does not dominate the test.
+We define the reported metrics as follows. AUC is the area under the ROC curve and summarizes how
+well predicted hazards rank eliminated cells above non-eliminated cells; higher
+is better. AP is average precision, the area under the precision-recall curve,
+and complements AUC when positive hazard cells are less frequent; higher is
+better. BCE is binary cross-entropy between the hazard label and predicted
+probability. The Brier score is the mean squared error of predicted
+probabilities. ECE is expected calibration error: we split predicted
+probabilities into 10 equal-width bins and average, weighted by bin size, the
+gap between mean predicted hazard and observed elimination rate. BCE, Brier,
+and ECE are lower-is-better.
+
+\paragraph{Models.}
+We compare a histogram gradient boosting (HGB) feature-only baseline, a
+no-edge DynamicSTGNN that keeps the temporal architecture but zeros all
+adjacency channels, and three graph variants: proximity only, proximity plus
+combat, and the full graph with proximity, combat, and co-pressure. HGB is a
+strong tabular baseline; no-edge DynamicSTGNN controls for neural
+architecture and temporal modeling.
+
+\begin{table}[htbp]
+\centering
+\caption{Aligned test-set hazard prediction results on 134,245 cells.}
+\label{tab:main}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Model & AUC & AP & BCE & ECE \\
+\midrule
+HGB features & 0.7651 & 0.6626 & 0.5140 & 0.0075 \\
+No graph & 0.7681 & 0.6695 & 0.5090 & 0.0039 \\
+Proximity & 0.7741 & 0.6762 & 0.5046 & 0.0023 \\
+Prox.+combat & 0.7755 & 0.6779 & 0.5036 & 0.0028 \\
+Full graph & \textbf{0.7782} & \textbf{0.6808} & \textbf{0.5016} & \textbf{0.0015} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:main} shows two patterns. First, team-phase features already
+make the hazard learnable: HGB reaches AUC 0.765 and the no-edge neural
+control reaches 0.768. Second, graph relations add a smaller but consistent
+gain. The full graph improves over no graph by +0.010 AUC and +0.011 AP, and
+over HGB by +0.013 AUC and +0.018 AP. Match-paired Wilcoxon tests are
+significant for full versus no graph (AUC \(p=1.17\times10^{-30}\), AP
+\(p=3.12\times10^{-23}\)) and full versus HGB (AUC
+\(p=2.60\times10^{-37}\), AP \(p=9.28\times10^{-36}\)). The full model also
+has the best Brier score (0.1662) and ECE (0.0015), with mean predicted
+hazard close to the empirical positive rate.
+
+\begin{table}[htbp]
+\centering
+\caption{Auxiliary squad map-domain experiments. Each map is trained and split
+separately; full graph is compared with no-graph DynamicSTGNN.}
+\label{tab:map-domain}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Map & Test & No graph & Full & \(\Delta\)AUC \\
+\midrule
+Baltic & 606 & 0.7653 & 0.7759 & +0.0106 \\
+Desert & 149 & 0.7395 & 0.7458 & +0.0063 \\
+Neon & 102 & 0.7165 & 0.7244 & +0.0079 \\
+Savage & 90 & 0.7338 & 0.7457 & +0.0119 \\
+Tiger & 405 & 0.7546 & 0.7605 & +0.0059 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:map-domain} shows that the relational gain has the same
+direction in separate squad map-domain runs. Full graph improves AUC on all
+five major squad maps and AP also increases in every map (+0.003--+0.020).
+This auxiliary check is restricted to squad maps with enough data.
+
+\begin{table}[htbp]
+\centering
+\caption{Representation ablation with the same HGB pipeline. STDB
+spatio-temporal features include trajectory and zone/enemy exposure features.}
+\label{tab:repr}
+\small
+\begin{tabular}{lrrr}
+\toprule
+Feature set & \(d\) & AUC & AP \\
+\midrule
+Prior-style score summary & 5 & 0.6490 & 0.4547 \\
+Score raw inputs & 12 & 0.7184 & 0.5703 \\
+STDB spatio-temporal only & 16 & 0.7124 & 0.5895 \\
+Conventional aggregates & 57 & 0.7522 & 0.6476 \\
+Conventional + STDB spatio-temporal & 72 & \textbf{0.7652} & \textbf{0.6626} \\
+\bottomrule
+\end{tabular}
+\vspace{2pt}
+\begin{minipage}{0.96\linewidth}
+\scriptsize
+\textit{Note.} Score raw inputs are 12 variables covering phase index, combat
+counts, damage, knockdowns, distinct opponents damaged, path length, average
+speed, 100m enemy density, item pickups, unique items, and care-package
+pickups. The score summary uses phase index plus fight score, active score,
+strategy type, and type survival rate derived from those raw inputs.
+\end{minipage}
+\end{table}
+
+Table~\ref{tab:repr} separates representation from model class. Restricting
+the learner to the five-variable score summary reduces AUC to 0.649. Adding
+the score raw inputs, conventional telemetry aggregates, and STDB trajectory/exposure
+features raises AUC to 0.765. Thus the added spatio-temporal features provide
+signal beyond conventional aggregates, and the dominant gain is the
+telemetry-based phase representation itself, which raises pooled AUC from
+0.649 to 0.765 over the score-summary baseline. The dynamic graph supplies an additional relational signal. A graph
+shuffle control supports this interpretation: shuffling team identities within
+observed graphs at inference drops the full model to AUC 0.701 over five
+repeats, below the no-graph control.

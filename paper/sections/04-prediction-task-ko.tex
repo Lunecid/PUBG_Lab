@@ -1,0 +1,32 @@
+\subsection{Next-Phase Hazard 예측 과제 (RQ2-i)}
+\label{sec:prediction-task}
+
+RQ2의 (i)는 절~\ref{sec:methods-features}의 feature만으로 next-phase 팀
+탈락을 얼마나 정확히 예측할 수 있는지 묻는다. \(k\)를 \textit{cut phase}라고
+부른다. Model은 phase \(k\)의 종료 시점까지만 match를 관측하고, team \(i\)가
+phase \(k{+}1\) 동안 eliminated되는지 예측한다. 모든 입력---feature, edge,
+mask---은 \(b_k\)까지 관측 가능한 telemetry만으로 구성하며, \(b_k\) 이후의
+event와 outcome은 label 정의에만 사용한다.
+
+\(b_k\)를 phase \(k\)의 종료 시점, \(T_i\)를 team \(i\)의 탈락 시점---마지막
+생존 팀원이 제거되는 시점---이라고 하면 label과 hazard는 다음과 같다.
+\[
+Y_{i,k}=\Ind\!\left\{b_k < T_i \leq b_{k+1}\right\}, \qquad
+h_{i,k}=P(b_k < T_i \leq b_{k+1}\mid T_i>b_k, X_{i,\leq k}).
+\]
+\(b_k\) 이전에 탈락한 team은 risk set에서 빠지며 mask된다. 생존한 team은
+관측된 모든 interval에서 \(Y_{i,k}=0\)을 제공하지만, match가 종료되거나
+8-phase horizon에 도달한 이후의 interval은 관측되지 않으므로 label을 주는
+대신 right-censored로 처리한다. 모델링은 phase 1--8을 사용하고 landing
+interval은 제외하므로 cut phase는 1부터 7까지이다. 학습은 mask된 이산 시간
+생존 우도를 최소화한다.
+\[
+\mathcal{L}_{\mathrm{haz}}
+= -\sum_{(m,i,k)\in \mathcal{R}}
+\Big[ Y_{i,k}\log \hat h_{i,k} + (1-Y_{i,k})\log\big(1-\hat h_{i,k}\big) \Big].
+\]
+여기서 risk set \(\mathcal{R}\)는 \(T_i>b_k\)이고 다음 phase가 관측된
+team-phase cell만을 포함하며, censored cell은 mask로 제외된다. Split은
+row가 아니라 match 단위로만 수행한다. (i)에 대한 답은 두 방향으로 구한다.
+Feature-only model의 절대 성능과, feature set을 선행연구식 strategy score
+수준까지 축소해 가는 representation ablation이다(Experiments 절).

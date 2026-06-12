@@ -1,0 +1,23 @@
+\section{배경}
+\label{sec:background}
+
+대부분의 PUBG 예측 연구는 경기 종료 후 통계를 이용해 최종 순위를
+예측한다~\cite{kagglePubgFinishPlacement,sen2021pubgFinalRank,lee2025pubgRank}.
+이 접근은 최종 결과 모델링에는 적합하지만, 위험이 발생한 시간적
+순서와 공간 맥락을 제거한다. 가장 가까운 선행 연구는 Sagong 등의
+페이즈 기반 프레임워크이다. 이 연구는 FightScore와 ActiveScore로
+플레이어의 공격성과 활동성을 점수화하고, 전략 유형을 군집화한 뒤
+다음 페이즈 생존을 예측한다~\cite{sagong2025hunterCamper}. 우리는
+페이즈 수준 문제 설정을 계승하되, 분석 단위를 플레이어에서 팀으로
+바꾸고 작은 전략 점수 요약 대신 전체 텔레메트리 재구성을 사용한다.
+
+수축하는 안전 구역은 시공간적 관점도 요구한다. 서식지 단편화와
+movement ecology는 이용 가능한 공간, 이동, 노출, 밀도를 서로 결합된
+시간-공간 변수로 다룬다
+~\cite{fahrig2003fragmentation,nathan2008movement}. 우리는 이를
+생물학적 주장으로 사용하지 않고 분석적 비유로만 사용한다. PUBG 팀은
+유기체가 아니지만, 그들의 생존 조건은 축소되는 활동 공간에 의해
+형성된다. 따라서 각 페이즈를 특징 행과 그래프 스냅샷으로 동시에
+표현한다. 그래프 edge는 어느 팀이 가까운지, 어느 팀이 누구를
+공격했는지, 어떤 팀들이 같은 안전존 압력을 받는지를 인코딩한다
+~\cite{sanchezLengeling2021gnnIntro}.

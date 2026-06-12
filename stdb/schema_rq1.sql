@@ -307,7 +307,12 @@ SELECT
     lab.final_top5,
     lab.final_top10,
     lab.final_winner,
-    lab.last_phase_alive
+    lab.last_phase_alive,
+
+    -- exposure columns appended after the original view definition so
+    -- CREATE OR REPLACE VIEW can update existing databases without DROP VIEW.
+    ex.recent_damage_taken,
+    ex.combat_zone_pass_count
 FROM stdb.teams t
 JOIN stdb.matches m
   ON m.match_id = t.match_id

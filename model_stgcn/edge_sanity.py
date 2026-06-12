@@ -61,12 +61,16 @@ def _domain_parts(domain_dir: Path) -> tuple[str, str]:
     return tuple(domain_dir.name.split("__", 1))  # type: ignore[return-value]
 
 
-def _load_model(checkpoint: Path, edge_mode: str, device: torch.device) -> tuple[DynamicSTGNN, list[str], torch.Tensor]:
+def _load_model(
+    checkpoint: Path, edge_mode: str, device: torch.device
+) -> tuple[DynamicSTGNN, list[str], torch.Tensor, bool]:
     ckpt = torch.load(checkpoint, map_location="cpu")
     ckpt_args = ckpt.get("args", {})
     edge_types = list(ckpt.get("edge_types", PHASE_EDGE_TYPES))
+    feature_dim = int(ckpt.get("feature_dim", PHASE_FEATURE_DIM))
+    include_v2 = bool(ckpt_args.get("v2_node_features")) or feature_dim > PHASE_FEATURE_DIM
     model = DynamicSTGNN(
-        in_features=int(ckpt.get("feature_dim", PHASE_FEATURE_DIM)),
+        in_features=feature_dim,
         hidden=int(ckpt_args.get("hidden", 64)),
         mid=int(ckpt_args.get("mid", 128)),
         num_blocks=int(ckpt_args.get("num_blocks", 2)),
@@ -76,7 +80,7 @@ def _load_model(checkpoint: Path, edge_mode: str, device: torch.device) -> tuple
     model.load_state_dict(ckpt["model_state"])
     model.to(device)
     model.eval()
-    return model, edge_types, edge_active_mask(edge_mode, edge_types=edge_types, device=device)
+    return model, edge_types, edge_active_mask(edge_mode, edge_types=edge_types, device=device), include_v2
 
 
 def _active_indices(mask: torch.Tensor) -> torch.Tensor:
@@ -85,31 +89,45 @@ def _active_indices(mask: torch.Tensor) -> torch.Tensor:
 
 
 def _node_shuffle_edges(A: torch.Tensor, node_mask: torch.Tensor, *, generator: torch.Generator) -> torch.Tensor:
-    """Relabel active nodes per batch/time/channel, preserving edge structure."""
+    """Relabel alive nodes per (batch, phase), preserving edge structure.
+
+    Phase-local (FEATURE_DESIGN_V2 §9): the permutation is drawn from the
+    nodes alive at that phase (`node_mask[b, t]`), so dead/padding rows never
+    mix into the alive block. One permutation is shared across edge channels
+    within a phase — a node relabeling assigns each team a single fake
+    identity, so all of its relations must move together. Entries outside the
+    alive block (none expected; edges are built from alive snapshots) are
+    zeroed.
+    """
     out = torch.zeros_like(A)
     bsz, t_max, e_max, _n, _n2 = A.shape
     for b in range(bsz):
-        active_nodes = _active_indices(node_mask[b])
-        if active_nodes.numel() <= 1:
-            continue
         for t in range(t_max):
+            active_nodes = _active_indices(node_mask[b, t])
+            if active_nodes.numel() <= 1:
+                continue
+            perm = torch.randperm(active_nodes.numel(), generator=generator).to(A.device)
             for e in range(e_max):
                 sub = A[b, t, e][active_nodes][:, active_nodes]
-                perm = torch.randperm(active_nodes.numel(), generator=generator).to(A.device)
                 shuffled = sub[perm][:, perm]
                 out[b, t, e][active_nodes[:, None], active_nodes[None, :]] = shuffled
     return out
 
 
 def _edge_shuffle_edges(A: torch.Tensor, node_mask: torch.Tensor, *, generator: torch.Generator) -> torch.Tensor:
-    """Shuffle active adjacency entries, preserving density but not degree."""
+    """Shuffle alive-block adjacency entries per (batch, phase, channel).
+
+    Phase-local; preserves each phase subgraph's density but not its degree
+    sequence. Per-channel shuffling is intentional here — this control has no
+    node-identity semantics to keep consistent.
+    """
     out = torch.zeros_like(A)
     bsz, t_max, e_max, _n, _n2 = A.shape
     for b in range(bsz):
-        active_nodes = _active_indices(node_mask[b])
-        if active_nodes.numel() <= 1:
-            continue
         for t in range(t_max):
+            active_nodes = _active_indices(node_mask[b, t])
+            if active_nodes.numel() <= 1:
+                continue
             for e in range(e_max):
                 sub = A[b, t, e][active_nodes][:, active_nodes]
                 flat = sub.flatten()
@@ -169,9 +187,13 @@ def _prediction_rows(
     seed: int,
 ) -> list[dict[str, Any]]:
     map_name, mode = _domain_parts(domain_dir)
-    model, edge_types, active_mask = _load_model(checkpoint, edge_mode, device)
+    model, edge_types, active_mask, include_v2 = _load_model(checkpoint, edge_mode, device)
     loader = DataLoader(
-        LazyPhaseMatchDataset(test_ids, include_combat_in="combat_in" in edge_types),
+        LazyPhaseMatchDataset(
+            test_ids,
+            include_combat_in="combat_in" in edge_types,
+            include_v2_features=include_v2,
+        ),
         batch_size=batch_size,
         shuffle=False,
         collate_fn=phase_collate,

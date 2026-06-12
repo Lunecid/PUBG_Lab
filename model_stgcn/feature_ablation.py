@@ -5,8 +5,15 @@ This script answers the novelty question directly:
 * How far can a prior-paper style FightScore/ActiveScore baseline go?
 * How much do conventional telemetry features help?
 * How much do STDB trajectory/exposure features add on top?
+* How much do F6 Tier-1 network role features add on top of those
+  (FEATURE_DESIGN_V2 §7, table stdb.team_phase_network_features)?
+* How much do F7 Tier-1 habitat-pressure features add
+  (FEATURE_DESIGN_V2 §8, table stdb.team_phase_habitat_features)?
 
 The target is phase-level hazard_next in stdb.v_team_phase_feature_long.
+F6/F7 columns come from the V2 manifest (single source of truth) and are
+merged on (match_id, team_id, phase_idx); if a family table is absent or
+empty its configs are skipped so the script still runs on pre-V2 databases.
 All comparisons use the existing match-level split and can optionally align
 test rows to the DynamicSTGNN analysis key set.
 """
@@ -31,9 +38,18 @@ from sklearn.preprocessing import OneHotEncoder
 
 from model_stgcn.baselines import CATEGORICAL_COLUMNS, EXCLUDE_COLUMNS, load_phase_rows
 from model_stgcn.splits import load_or_create_split
+from stdb.conn import connect
 from stdb.queries import list_phase_feature_match_ids
 
 logger = logging.getLogger("model_stgcn.feature_ablation")
+
+KEY_COLS = ["match_id", "team_id", "phase_idx"]
+
+V2_MANIFEST_PATH = Path("model_stgcn/feature_manifests/pubg_representation_v2.json")
+NETWORK_FAMILY = "f6_network_phase_role_tier1"
+NETWORK_TABLE = "stdb.team_phase_network_features"
+HABITAT_FAMILY = "f7_habitat_pressure_tier1"
+HABITAT_TABLE = "stdb.team_phase_habitat_features"
 
 
 AGGRESSIVENESS_COLS = [
@@ -108,6 +124,8 @@ EXPOSURE_COLS = [
     "avg_enemy_density_100m",
     "min_nearest_enemy_m",
     "path_near_enemy_ratio",
+    "recent_damage_taken",
+    "combat_zone_pass_count",
 ]
 
 COMBAT_COLS = [
@@ -432,6 +450,70 @@ def add_prior_features(df: pd.DataFrame, transform: dict[str, Any], *, with_surv
     return out
 
 
+def load_family_cols(family: str, manifest_path: Path = V2_MANIFEST_PATH) -> list[str]:
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    return list(manifest["families"][family]["columns"])
+
+
+def load_family_rows(table: str, match_ids: list[str], cols: list[str]) -> pd.DataFrame:
+    if not match_ids:
+        return pd.DataFrame(columns=KEY_COLS + cols)
+    quoted = ", ".join(f'"{c}"' for c in cols)
+    with connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                f"""
+                SELECT match_id, team_id, phase_idx, {quoted}
+                  FROM {table}
+                 WHERE match_id = ANY(%s)
+                """,
+                (match_ids,),
+            )
+            out_cols = [d[0] for d in cur.description]
+            df = pd.DataFrame(cur.fetchall(), columns=out_cols)
+    if not df.empty:
+        df["team_id"] = df["team_id"].astype(int)
+        df["phase_idx"] = df["phase_idx"].astype(int)
+    return df
+
+
+def attach_family_features(
+    train_df: pd.DataFrame,
+    test_df: pd.DataFrame,
+    *,
+    family: str,
+    table: str,
+    etl_module: str,
+    train_ids: list[str],
+    test_ids: list[str],
+    skip: bool = False,
+) -> tuple[pd.DataFrame, pd.DataFrame, list[str]]:
+    """LEFT-merge one manifest family from its table; [] when unavailable/skipped."""
+    if skip:
+        logger.info("%s skipped by flag", family)
+        return train_df, test_df, []
+    try:
+        cols = load_family_cols(family)
+        fam_train = load_family_rows(table, train_ids, cols)
+        fam_test = load_family_rows(table, test_ids, cols)
+    except Exception:
+        logger.exception("%s unavailable — skipping its configs", family)
+        return train_df, test_df, []
+    if fam_train.empty or fam_test.empty:
+        logger.warning("%s empty for this split — skipping %s configs", table, family)
+        return train_df, test_df, []
+    train_df = train_df.merge(fam_train, on=KEY_COLS, how="left")
+    test_df = test_df.merge(fam_test, on=KEY_COLS, how="left")
+    coverage = float(train_df[cols[0]].notna().mean())
+    logger.info("%s merged cols=%d train_coverage=%.4f", family, len(cols), coverage)
+    if coverage < 0.99:
+        logger.warning(
+            "%s coverage %.4f < 0.99 — run %s to completion",
+            family, coverage, etl_module,
+        )
+    return train_df, test_df, cols
+
+
 def filter_to_aligned_keys(test_df: pd.DataFrame, align_path: str | None) -> tuple[pd.DataFrame, dict[str, Any]]:
     if not align_path:
         return test_df, {"enabled": False}
@@ -452,11 +534,20 @@ def filter_to_aligned_keys(test_df: pd.DataFrame, align_path: str | None) -> tup
     }
 
 
-def make_feature_configs(df: pd.DataFrame) -> dict[str, list[str]]:
-    all_cols = [c for c in df.columns if c not in EXCLUDE_COLUMNS]
+def make_feature_configs(
+    df: pd.DataFrame,
+    network_cols: list[str] | None = None,
+    habitat_cols: list[str] | None = None,
+) -> dict[str, list[str]]:
+    network_cols = [c for c in (network_cols or []) if c in df.columns]
+    habitat_cols = [c for c in (habitat_cols or []) if c in df.columns]
+    # full_node_features keeps its historical meaning (view + prior scores,
+    # no F6/F7) so results stay comparable across runs; new variants are explicit.
+    new_cols = set(network_cols) | set(habitat_cols)
+    all_cols = [c for c in df.columns if c not in EXCLUDE_COLUMNS and c not in new_cols]
     conventional = _dedupe(GLOBAL_COLS + STATE_COLS + COMBAT_COLS + LOOT_COLS)
     stdb_spatial = _dedupe(TRAJECTORY_COLS + EXPOSURE_COLS)
-    return {
+    configs = {
         "prior_scores": _available(PRIOR_SCORE_COLS, df),
         "prior_raw": _available(["phase_idx"] + AGGRESSIVENESS_COLS + ACTIVENESS_COLS, df),
         "global_state": _available(GLOBAL_COLS + STATE_COLS, df),
@@ -467,6 +558,23 @@ def make_feature_configs(df: pd.DataFrame) -> dict[str, list[str]]:
         "conventional_plus_stdb_spatial": _available(conventional + stdb_spatial, df),
         "full_node_features": _available(all_cols, df),
     }
+    if network_cols:
+        configs["network_tier1"] = _available(["phase_idx"] + network_cols, df)
+        configs["conventional_plus_network"] = _available(conventional + network_cols, df)
+        configs["conventional_stdb_plus_network"] = _available(
+            conventional + stdb_spatial + network_cols, df
+        )
+        configs["full_plus_network"] = _available(all_cols + network_cols, df)
+    if habitat_cols:
+        configs["habitat_tier1"] = _available(["phase_idx"] + habitat_cols, df)
+        configs["conventional_stdb_plus_habitat"] = _available(
+            conventional + stdb_spatial + habitat_cols, df
+        )
+    if network_cols and habitat_cols:
+        configs["conventional_stdb_network_habitat"] = _available(
+            conventional + stdb_spatial + network_cols + habitat_cols, df
+        )
+    return configs
 
 
 def train_predict_config(
@@ -521,10 +629,30 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     prior_transform = fit_prior_transform(train_df)
     train_df = add_prior_features(train_df, prior_transform)
     test_df = add_prior_features(test_df, prior_transform)
+    train_df, test_df, network_cols = attach_family_features(
+        train_df,
+        test_df,
+        family=NETWORK_FAMILY,
+        table=NETWORK_TABLE,
+        etl_module="stdb.network_feature_etl",
+        train_ids=train_ids,
+        test_ids=test_ids,
+        skip=args.skip_network,
+    )
+    train_df, test_df, habitat_cols = attach_family_features(
+        train_df,
+        test_df,
+        family=HABITAT_FAMILY,
+        table=HABITAT_TABLE,
+        etl_module="stdb.habitat_feature_etl",
+        train_ids=train_ids,
+        test_ids=test_ids,
+        skip=args.skip_habitat,
+    )
     test_df, alignment = filter_to_aligned_keys(test_df, args.align_to)
     logger.info("rows train=%d test=%d alignment=%s", len(train_df), len(test_df), alignment)
 
-    feature_configs = make_feature_configs(train_df)
+    feature_configs = make_feature_configs(train_df, network_cols, habitat_cols)
     if args.configs:
         wanted = [c.strip() for c in args.configs.split(",") if c.strip()]
         feature_configs = {k: v for k, v in feature_configs.items() if k in wanted}
@@ -560,6 +688,17 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         ("conventional_plus_exposure", "conventional"),
         ("stdb_spatial", "prior_scores"),
         ("full_node_features", "conventional_plus_stdb_spatial"),
+        # F6 network-role increments (FEATURE_DESIGN_V2 §11)
+        ("conventional_stdb_plus_network", "conventional_plus_stdb_spatial"),
+        ("conventional_plus_network", "conventional"),
+        ("network_tier1", "prior_scores"),
+        ("full_plus_network", "full_node_features"),
+        # F7 habitat-pressure increments
+        ("conventional_stdb_plus_habitat", "conventional_plus_stdb_spatial"),
+        ("habitat_tier1", "prior_scores"),
+        ("conventional_stdb_network_habitat", "conventional_plus_stdb_spatial"),
+        ("conventional_stdb_network_habitat", "conventional_stdb_plus_network"),
+        ("conventional_stdb_network_habitat", "conventional_stdb_plus_habitat"),
     ]
     available = set(per_match["model"])
     for left, right in comparisons:
@@ -623,6 +762,16 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--align-to", default="model_stgcn/checkpoints/phase_result_analysis/hazard_predictions_test_aligned.csv")
     ap.add_argument("--out-dir", default="model_stgcn/checkpoints/feature_ablation")
     ap.add_argument("--configs", default=None, help="Comma-separated subset of feature configs")
+    ap.add_argument(
+        "--skip-network",
+        action="store_true",
+        help="Do not merge F6 network features even when the table exists",
+    )
+    ap.add_argument(
+        "--skip-habitat",
+        action="store_true",
+        help="Do not merge F7 habitat features even when the table exists",
+    )
     return ap.parse_args()
 
 

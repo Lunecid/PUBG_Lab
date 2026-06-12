@@ -35,12 +35,16 @@ if [[ ! -f "$RETRAIN/phase_full_all_current_e12.pt" ]]; then
 fi
 
 # ── 1) 잔여 변형 학습 (원 실험과 동일 설정: e12 / batch 8 / h64 / seed 42) ──
+# 완주 판정은 history.json (train_phase가 전 epoch 종료 후에만 기록).
+# .pt는 best-val 시점마다 갱신되므로 중단된 학습도 파일이 남는다.
 for mode in none proximity proximity_combat; do
     ckpt=$RETRAIN/phase_${mode}_all_current_e12.pt
-    if [[ -f "$ckpt" ]]; then
-        echo "== skip train $mode (checkpoint exists) =="
+    history=$RETRAIN/phase_${mode}_all_current_e12.history.json
+    if [[ -f "$history" ]]; then
+        echo "== skip train $mode (history exists — completed) =="
         continue
     fi
+    rm -f "$ckpt"  # 중단된 부분 학습 체크포인트 제거 후 처음부터
     echo "== train $mode started $(date) =="
     python3 -m model_stgcn.train_phase \
         --epochs 12 --batch 8 --edge-mode "$mode" --seed 42 \

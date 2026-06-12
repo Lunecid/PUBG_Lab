@@ -97,18 +97,33 @@ class LazyPhaseMatchDataset(Dataset):
     include_combat_in: fetch the 4-channel directed edge layout
     (proximity, combat, copressure, combat_in).  Must match the
     edge_types the model checkpoint was trained with.
+
+    include_v2_features: fetch the 141-d node layout (base 66 + F6 network
+    role + F7 habitat pressure).  Must match the feature_dim the model
+    checkpoint was trained with.
     """
 
-    def __init__(self, match_ids: Iterable[str], *, include_combat_in: bool = False) -> None:
+    def __init__(
+        self,
+        match_ids: Iterable[str],
+        *,
+        include_combat_in: bool = False,
+        include_v2_features: bool = False,
+    ) -> None:
         self.match_ids = list(match_ids)
         self.include_combat_in = include_combat_in
+        self.include_v2_features = include_v2_features
 
     def __len__(self) -> int:
         return len(self.match_ids)
 
     def __getitem__(self, idx: int) -> dict:
         mid = self.match_ids[idx]
-        mt = fetch_phase_match_tensors(mid, include_combat_in=self.include_combat_in)
+        mt = fetch_phase_match_tensors(
+            mid,
+            include_combat_in=self.include_combat_in,
+            include_v2_features=self.include_v2_features,
+        )
         if mt is None:
             raise RuntimeError(f"match {mid} not phase-ready")
         return _phase_to_torch(mt)
@@ -117,10 +132,20 @@ class LazyPhaseMatchDataset(Dataset):
 class CachedPhaseMatchDataset(Dataset):
     """In-memory dataset for phase-level tensors. Use for smoke tests/small runs."""
 
-    def __init__(self, match_ids: Iterable[str], *, include_combat_in: bool = False) -> None:
+    def __init__(
+        self,
+        match_ids: Iterable[str],
+        *,
+        include_combat_in: bool = False,
+        include_v2_features: bool = False,
+    ) -> None:
         self.items: list[dict] = []
         for mid in match_ids:
-            mt = fetch_phase_match_tensors(mid, include_combat_in=include_combat_in)
+            mt = fetch_phase_match_tensors(
+                mid,
+                include_combat_in=include_combat_in,
+                include_v2_features=include_v2_features,
+            )
             if mt is None:
                 logger.warning("skip %s — not phase-ready", mid)
                 continue

@@ -34,6 +34,7 @@ from stdb.queries import (
     PHASE_EDGE_TYPES,
     PHASE_EDGE_TYPES_DIRECTED,
     PHASE_FEATURE_DIM,
+    PHASE_FEATURE_DIM_V2,
     list_phase_eligible_match_ids,
 )
 
@@ -118,9 +119,19 @@ def evaluate(model: DynamicSTGNN, loader: DataLoader, device: torch.device, args
     return total / n, {k: v / n for k, v in sums.items()}
 
 
-def _make_dataset(ids: list[str], *, cached: bool, include_combat_in: bool = False):
+def _make_dataset(
+    ids: list[str],
+    *,
+    cached: bool,
+    include_combat_in: bool = False,
+    include_v2_features: bool = False,
+):
     cls = CachedPhaseMatchDataset if cached else LazyPhaseMatchDataset
-    return cls(ids, include_combat_in=include_combat_in)
+    return cls(
+        ids,
+        include_combat_in=include_combat_in,
+        include_v2_features=include_v2_features,
+    )
 
 
 def train_loop(args: argparse.Namespace) -> None:
@@ -163,8 +174,19 @@ def train_loop(args: argparse.Namespace) -> None:
         args.overfit,
     )
 
-    train_ds = _make_dataset(train_ids, cached=args.cached, include_combat_in=args.combat_in)
-    val_ds = _make_dataset(val_ids, cached=True, include_combat_in=args.combat_in)
+    feature_dim = PHASE_FEATURE_DIM_V2 if args.v2_node_features else PHASE_FEATURE_DIM
+    train_ds = _make_dataset(
+        train_ids,
+        cached=args.cached,
+        include_combat_in=args.combat_in,
+        include_v2_features=args.v2_node_features,
+    )
+    val_ds = _make_dataset(
+        val_ids,
+        cached=True,
+        include_combat_in=args.combat_in,
+        include_v2_features=args.v2_node_features,
+    )
     train_loader = DataLoader(
         train_ds,
         batch_size=args.batch,
@@ -182,7 +204,7 @@ def train_loop(args: argparse.Namespace) -> None:
 
     device = _device(args.device)
     model = DynamicSTGNN(
-        in_features=PHASE_FEATURE_DIM,
+        in_features=feature_dim,
         hidden=args.hidden,
         mid=args.mid,
         num_blocks=args.num_blocks,
@@ -280,7 +302,7 @@ def train_loop(args: argparse.Namespace) -> None:
                     "epoch": epoch,
                     "best_val": best_val,
                     "args": vars(args),
-                    "feature_dim": PHASE_FEATURE_DIM,
+                    "feature_dim": feature_dim,
                     "edge_types": list(args.edge_types),
                     "train_ids": train_ids,
                     "val_ids": val_ids,
@@ -317,6 +339,12 @@ def parse_args() -> argparse.Namespace:
         "--combat-in",
         action="store_true",
         help="add transposed combat channel (E=4) so victims aggregate attacker state (CODE_REVIEW C5)",
+    )
+    ap.add_argument(
+        "--v2-node-features",
+        action="store_true",
+        help="append F6 network-role + F7 habitat-pressure node features "
+        "(141-d, FEATURE_DESIGN_V2 B3/B4)",
     )
     ap.add_argument("--grad-clip", type=float, default=5.0)
     ap.add_argument("--val-frac", type=float, default=0.1)

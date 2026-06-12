@@ -147,6 +147,104 @@ PHASE_NODE_FEATURE_SPECS = [
 PHASE_NODE_FEATURE_NAMES = [spec[0] for spec in PHASE_NODE_FEATURE_SPECS]
 PHASE_FEATURE_DIM = len(PHASE_NODE_FEATURE_NAMES)
 
+# V2 node features (FEATURE_DESIGN_V2 §7/§8): F6 network role + F7 habitat
+# pressure, fetched from their own tables (NOT the long view, so the tabular
+# HGB path stays untouched). Column contract mirrors the two families in
+# model_stgcn/feature_manifests/pubg_representation_v2.json — enforced by
+# tests/test_v2_node_features.py. Same fixed-constant scaling convention and
+# NULL→0.0 fill as the base 66 specs.
+PHASE_NODE_FEATURE_SPECS_V2 = [
+    # F6 — combat role (phase-local)
+    ("net_combat_out_degree", "net_combat_out_degree", 20.0, "linear"),
+    ("net_combat_in_degree", "net_combat_in_degree", 20.0, "linear"),
+    ("net_combat_total_degree", "net_combat_total_degree", 20.0, "linear"),
+    ("net_combat_out_strength", "net_combat_out_strength", 50.0, "linear"),
+    ("net_combat_in_strength", "net_combat_in_strength", 50.0, "linear"),
+    ("net_combat_total_strength", "net_combat_total_strength", 50.0, "linear"),
+    ("net_combat_balance", "net_combat_balance", 1.0, "linear"),
+    ("net_combat_unique_targets", "net_combat_unique_targets", 20.0, "linear"),
+    ("net_combat_unique_attackers", "net_combat_unique_attackers", 20.0, "linear"),
+    ("net_combat_reciprocal_pairs", "net_combat_reciprocal_pairs", 20.0, "linear"),
+    ("net_combat_reciprocity_ratio", "net_combat_reciprocity_ratio", 1.0, "linear"),
+    ("net_combat_out_strength_per_min", "net_combat_out_strength_per_min", 10.0, "linear"),
+    ("net_combat_in_strength_per_min", "net_combat_in_strength_per_min", 10.0, "linear"),
+    # F6 — proximity role
+    ("net_prox_degree_100m", "net_prox_degree_100m", 20.0, "linear"),
+    ("net_prox_degree_200m", "net_prox_degree_200m", 20.0, "linear"),
+    ("net_prox_degree_500m", "net_prox_degree_500m", 20.0, "linear"),
+    ("net_prox_strength_decay", "net_prox_strength_decay", 5.0, "linear"),
+    ("net_prox_mean_distance_m", "net_prox_mean_distance_m", ARENA_SIZE_M, "linear"),
+    ("net_prox_min_distance_m", "net_prox_min_distance_m", ARENA_SIZE_M, "linear"),
+    ("net_prox_top1_weight", "net_prox_top1_weight", 1.0, "linear"),
+    ("net_prox_top3_strength", "net_prox_top3_strength", 3.0, "linear"),
+    ("net_prox_isolation_m", "net_prox_isolation_m", ARENA_SIZE_M, "linear"),
+    ("net_prox_neighbor_entropy", "net_prox_neighbor_entropy", 3.0, "linear"),
+    # F6 — co-pressure role
+    ("net_copress_degree", "net_copress_degree", 20.0, "linear"),
+    ("net_copress_strength", "net_copress_strength", 5.0, "linear"),
+    ("net_copress_max_weight", "net_copress_max_weight", 1.0, "linear"),
+    ("net_copress_mean_ratio", "net_copress_mean_ratio", 1.0, "linear"),
+    ("net_copress_shared_pressure_count", "net_copress_shared_pressure_count", 50.0, "linear"),
+    ("net_copress_top1_weight", "net_copress_top1_weight", 1.0, "linear"),
+    # F6 — cumulative through phases 1..k
+    ("cum_combat_out_degree", "cum_combat_out_degree", 50.0, "linear"),
+    ("cum_combat_in_degree", "cum_combat_in_degree", 50.0, "linear"),
+    ("cum_combat_out_strength", "cum_combat_out_strength", 200.0, "linear"),
+    ("cum_combat_in_strength", "cum_combat_in_strength", 200.0, "linear"),
+    ("cum_combat_total_strength", "cum_combat_total_strength", 200.0, "linear"),
+    ("cum_combat_reciprocal_pairs", "cum_combat_reciprocal_pairs", 20.0, "linear"),
+    ("cum_unique_targets", "cum_unique_targets", 20.0, "linear"),
+    ("cum_unique_attackers", "cum_unique_attackers", 20.0, "linear"),
+    ("cum_copress_strength", "cum_copress_strength", 20.0, "linear"),
+    ("cum_prox_close_exposure_200m", "cum_prox_close_exposure_200m", 50.0, "linear"),
+    # F6 — phase-normalized
+    ("net_combat_out_strength_per_alive_team", "net_combat_out_strength_per_alive_team", 5.0, "linear"),
+    ("net_combat_in_strength_per_alive_team", "net_combat_in_strength_per_alive_team", 5.0, "linear"),
+    ("net_prox_degree_200m_per_alive_team", "net_prox_degree_200m_per_alive_team", 1.0, "linear"),
+    ("net_copress_degree_per_alive_team", "net_copress_degree_per_alive_team", 1.0, "linear"),
+    # F7 — global shrinking-space block
+    ("hab_safe_area_start_m2", "hab_safe_area_start_m2", 5.0e7, "linear"),
+    ("hab_safe_area_end_m2", "hab_safe_area_end_m2", 5.0e7, "linear"),
+    ("hab_safe_area_delta_m2", "hab_safe_area_delta_m2", 5.0e7, "linear"),
+    ("hab_loss_ratio", "hab_loss_ratio", 1.0, "linear"),
+    ("hab_shrink_rate_m2ps", "hab_shrink_rate_m2ps", 1.0e5, "linear"),
+    ("hab_alive_teams", "hab_alive_teams", 100.0, "linear"),
+    ("hab_safe_area_per_alive_team", "hab_safe_area_per_alive_team", 5.0e6, "linear"),
+    ("hab_crowding_pressure", "hab_crowding_pressure", 1.0e-6, "linear"),
+    ("hab_center_shift_m", "hab_center_shift_m", ARENA_SIZE_M, "linear"),
+    ("hab_center_shift_per_radius", "hab_center_shift_per_radius", 1.0, "linear"),
+    ("hab_zone_gap_start_m", "hab_zone_gap_start_m", ARENA_SIZE_M, "linear"),
+    ("hab_zone_gap_end_m", "hab_zone_gap_end_m", ARENA_SIZE_M, "linear"),
+    ("hab_zone_gap_pressure", "hab_zone_gap_pressure", 1.0, "linear"),
+    # F7 — team movement-pressure block
+    ("hab_dist_to_safe_boundary_start_m", "hab_dist_to_safe_boundary_start_m", ARENA_SIZE_M, "linear"),
+    ("hab_dist_to_safe_boundary_end_m", "hab_dist_to_safe_boundary_end_m", ARENA_SIZE_M, "linear"),
+    ("hab_signed_boundary_distance_start_m", "hab_signed_boundary_distance_start_m", ARENA_SIZE_M, "linear"),
+    ("hab_signed_boundary_distance_end_m", "hab_signed_boundary_distance_end_m", ARENA_SIZE_M, "linear"),
+    ("hab_distance_to_target_safe_m", "hab_distance_to_target_safe_m", ARENA_SIZE_M, "linear"),
+    ("hab_required_speed_to_safe_mps", "hab_required_speed_to_safe_mps", 40.0, "linear"),
+    ("hab_observed_speed_mps", "hab_observed_speed_mps", 40.0, "linear"),
+    ("hab_migration_deficit_mps", "hab_migration_deficit_mps", 40.0, "linear"),
+    ("hab_outside_safe_ratio", "hab_outside_safe_ratio", 1.0, "linear"),
+    ("hab_edge_pressure_ratio", "hab_edge_pressure_ratio", 1.0, "linear"),
+    ("hab_rotation_delay_ratio", "hab_rotation_delay_ratio", 1.0, "linear"),
+    ("hab_safe_alignment_to_target", "hab_safe_alignment_to_target", 1.0, "linear"),
+    # F7 — local competition block
+    ("hab_local_enemy_count_100m", "hab_local_enemy_count_100m", 20.0, "linear"),
+    ("hab_local_enemy_count_200m", "hab_local_enemy_count_200m", 20.0, "linear"),
+    ("hab_local_enemy_count_500m", "hab_local_enemy_count_500m", 20.0, "linear"),
+    ("hab_local_enemy_density_200m", "hab_local_enemy_density_200m", 160.0, "linear"),
+    ("hab_safe_entry_enemy_count_200m", "hab_safe_entry_enemy_count_200m", 20.0, "linear"),
+    ("hab_safe_entry_congestion", "hab_safe_entry_congestion", 20.0, "linear"),
+    ("hab_refuge_scarcity_simple", "hab_refuge_scarcity_simple", 1.0e-6, "linear"),
+]
+
+PHASE_NODE_FEATURE_NAMES_V2 = [spec[0] for spec in PHASE_NODE_FEATURE_SPECS_V2]
+PHASE_FEATURE_DIM_V2 = PHASE_FEATURE_DIM + len(PHASE_NODE_FEATURE_NAMES_V2)
+
+_V2_NETWORK_TABLE = "stdb.team_phase_network_features"
+_V2_HABITAT_TABLE = "stdb.team_phase_habitat_features"
+
 
 @dataclass
 class MatchTensors:
@@ -424,16 +522,52 @@ def _phase_team_order(cur, match_id: str) -> list[int]:
     return [int(r[0]) for r in cur.fetchall()]
 
 
+def _fetch_v2_feature_map(
+    cur,
+    table: str,
+    match_id: str,
+    team_ids: list[int],
+    phase_indices: list[int],
+) -> dict[tuple[int, int], dict]:
+    """Fetch one V2 family table into a {(team_id, phase_idx): row_dict} map."""
+    cur.execute(
+        f"""
+        SELECT *
+          FROM {table}
+         WHERE match_id = %s
+           AND team_id = ANY(%s)
+           AND phase_idx = ANY(%s)
+        """,
+        (match_id, team_ids, phase_indices),
+    )
+    cols = [d[0] for d in cur.description]
+    out: dict[tuple[int, int], dict] = {}
+    for r in cur.fetchall():
+        row = dict(zip(cols, r))
+        out[(int(row["team_id"]), int(row["phase_idx"]))] = row
+    return out
+
+
 def _fetch_phase_node_features(
     cur,
     match_id: str,
     team_ids: list[int],
     phase_indices: list[int],
+    *,
+    include_v2_features: bool = False,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Return X plus labels/masks for phase-level modeling."""
+    """Return X plus labels/masks for phase-level modeling.
+
+    include_v2_features: append the F6/F7 specs (PHASE_NODE_FEATURE_SPECS_V2),
+    fetched from their own tables. Default False keeps the 66-d layout of all
+    existing checkpoints byte-identical.
+    """
+    specs = list(PHASE_NODE_FEATURE_SPECS)
+    if include_v2_features:
+        specs += PHASE_NODE_FEATURE_SPECS_V2
     team_index = {tid: i for i, tid in enumerate(team_ids)}
     phase_index = {p: i for i, p in enumerate(phase_indices)}
-    X = np.zeros((PHASE_T_MAX, PHASE_N_MAX, PHASE_FEATURE_DIM), dtype=np.float32)
+    X = np.zeros((PHASE_T_MAX, PHASE_N_MAX, len(specs)), dtype=np.float32)
     y_rank = np.zeros(PHASE_N_MAX, dtype=np.float32)
     y_topk = np.zeros((PHASE_N_MAX, 2), dtype=np.float32)
     team_mask = np.zeros(PHASE_N_MAX, dtype=bool)
@@ -460,6 +594,12 @@ def _fetch_phase_node_features(
     cols = [d[0] for d in cur.description]
     rows = [dict(zip(cols, r)) for r in cur.fetchall()]
 
+    net_map: dict[tuple[int, int], dict] = {}
+    hab_map: dict[tuple[int, int], dict] = {}
+    if include_v2_features:
+        net_map = _fetch_v2_feature_map(cur, _V2_NETWORK_TABLE, match_id, team_ids, phase_indices)
+        hab_map = _fetch_v2_feature_map(cur, _V2_HABITAT_TABLE, match_id, team_ids, phase_indices)
+
     seen_rank: set[int] = set()
     for row in rows:
         tid = int(row["team_id"])
@@ -470,7 +610,9 @@ def _fetch_phase_node_features(
         t = phase_index[p]
         team_mask[i] = True
 
-        for f, (_name, col, scale, transform) in enumerate(PHASE_NODE_FEATURE_SPECS):
+        if include_v2_features:
+            row = {**row, **net_map.get((tid, p), {}), **hab_map.get((tid, p), {})}
+        for f, (_name, col, scale, transform) in enumerate(specs):
             X[t, i, f] = _as_float(row.get(col), scale=scale, transform=transform)
 
         if tid not in seen_rank:
@@ -674,6 +816,7 @@ def fetch_phase_match_tensors(
     match_id: str,
     *,
     include_combat_in: bool = False,
+    include_v2_features: bool = False,
 ) -> PhaseMatchTensors | None:
     """Build phase-level tensors for DynamicSTGNN.
 
@@ -681,6 +824,10 @@ def fetch_phase_match_tensors(
     combat weights, independently row-normalized) so victims aggregate
     attacker state.  Default False keeps the E=3 layout of all existing
     checkpoints.
+
+    include_v2_features: append F6 network-role + F7 habitat-pressure node
+    features (F = PHASE_FEATURE_DIM_V2) from their dedicated tables.  Default
+    False keeps the 66-d node layout of all existing checkpoints.
 
     Shapes:
         X           (8, PHASE_N_MAX, F)
@@ -714,7 +861,10 @@ def fetch_phase_match_tensors(
             team_mask,
             node_mask,
             phase_mask,
-        ) = _fetch_phase_node_features(cur, match_id, team_ids, phase_indices)
+        ) = _fetch_phase_node_features(
+            cur, match_id, team_ids, phase_indices,
+            include_v2_features=include_v2_features,
+        )
         y_hazard, target_mask = _fetch_phase_targets(
             cur, match_id, team_ids, phase_indices
         )
@@ -741,7 +891,11 @@ def fetch_phase_match_tensors(
             phase_mask=phase_mask,
             team_ids=padded_team_ids,
             phase_indices=padded_phase_indices,
-            feature_names=PHASE_NODE_FEATURE_NAMES.copy(),
+            feature_names=(
+                PHASE_NODE_FEATURE_NAMES + PHASE_NODE_FEATURE_NAMES_V2
+                if include_v2_features
+                else PHASE_NODE_FEATURE_NAMES.copy()
+            ),
             edge_types=list(edge_types),
         )
     finally:

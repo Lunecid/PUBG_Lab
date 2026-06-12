@@ -64,9 +64,19 @@ def _binary_metrics(y_true: np.ndarray, y_prob: np.ndarray) -> dict[str, float]:
     return out
 
 
-def _dataset(ids: list[str], cached: bool, *, include_combat_in: bool = False):
+def _dataset(
+    ids: list[str],
+    cached: bool,
+    *,
+    include_combat_in: bool = False,
+    include_v2_features: bool = False,
+):
     cls = CachedPhaseMatchDataset if cached else LazyPhaseMatchDataset
-    return cls(ids, include_combat_in=include_combat_in)
+    return cls(
+        ids,
+        include_combat_in=include_combat_in,
+        include_v2_features=include_v2_features,
+    )
 
 
 def _checkpoint_splits(ckpt: dict[str, Any], available_ids: list[str]) -> tuple[list[str], list[str], list[str]] | None:
@@ -153,7 +163,15 @@ def run(args: argparse.Namespace) -> dict:
     model.eval()
     active_mask = edge_active_mask(edge_mode, edge_types=edge_types, device=device)
 
-    ds = _dataset(eval_ids, cached=args.cached, include_combat_in="combat_in" in edge_types)
+    # V2 node layout is recorded in ckpt args; fall back to feature_dim for
+    # checkpoints saved before the flag existed.
+    include_v2 = bool(ckpt_args.get("v2_node_features")) or feature_dim > PHASE_FEATURE_DIM
+    ds = _dataset(
+        eval_ids,
+        cached=args.cached,
+        include_combat_in="combat_in" in edge_types,
+        include_v2_features=include_v2,
+    )
     loader = DataLoader(ds, batch_size=args.batch, shuffle=False, collate_fn=phase_collate, num_workers=0)
 
     hazard_prob: list[np.ndarray] = []

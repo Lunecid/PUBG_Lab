@@ -186,10 +186,18 @@ def dynamic_hazard_predictions(
     batch_size: int,
     cached: bool,
 ) -> pd.DataFrame:
-    model, _ckpt, edge_mode, edge_types = _load_dynamic_model(checkpoint, device)
+    model, ckpt, edge_mode, edge_types = _load_dynamic_model(checkpoint, device)
     active_mask = edge_active_mask(edge_mode, edge_types=edge_types, device=device)
+    # V2 node layout (F6+F7) is recorded in ckpt args; fall back to feature_dim.
+    include_v2 = bool(ckpt.get("args", {}).get("v2_node_features")) or int(
+        ckpt.get("feature_dim", PHASE_FEATURE_DIM)
+    ) > PHASE_FEATURE_DIM
     ds_cls = CachedPhaseMatchDataset if cached else LazyPhaseMatchDataset
-    ds = ds_cls(match_ids, include_combat_in="combat_in" in edge_types)
+    ds = ds_cls(
+        match_ids,
+        include_combat_in="combat_in" in edge_types,
+        include_v2_features=include_v2,
+    )
     loader = DataLoader(ds, batch_size=batch_size, shuffle=False, collate_fn=phase_collate, num_workers=0)
     rows: list[dict[str, Any]] = []
 

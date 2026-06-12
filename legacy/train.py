@@ -295,7 +295,6 @@ def train(
     weight_decay=1e-4,
     batch_size=32,
     lambda_rank=0.1,
-    lambda_encounter=0.05,
     lambda_survival=0.5,
     # 데이터
     window_size=5,
@@ -506,9 +505,7 @@ def train(
                 batch["at_risks"] = batch["at_risks"].to(device)
 
                 optimizer.zero_grad()
-                loss_dict = model.compute_loss(
-                    batch, lambda_rank=lambda_rank, lambda_encounter=lambda_encounter
-                )
+                loss_dict = model.compute_loss(batch, lambda_rank=lambda_rank)
                 loss_dict["total"].backward()
                 torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=5.0)
                 optimizer.step()
@@ -741,7 +738,6 @@ def parse_args():
     parser.add_argument("--weight_decay", type=float, default=1e-4)
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--lambda_rank", type=float, default=0.1)
-    parser.add_argument("--lambda_encounter", type=float, default=0.05)
     parser.add_argument("--lambda_survival", type=float, default=0.5,
                         help="survival NLL loss 가중치 (multi-task)")
 

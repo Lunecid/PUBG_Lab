@@ -1,6 +1,9 @@
 """
 Network Analysis 오케스트레이터 (v2)
 ====================================
+⚠ DEPRECATED — canonical 경로는 run_v2.py (H1/H2/H3 분석 + webapp 데이터 export).
+이 모듈은 초기 per-match HTML 탐색용으로만 남겨둔다 (CODE_REVIEW E17).
+
 여러 매치를 순회하며 per-match 인터랙티브 HTML 생성.
 교전 엣지는 DB telem_damage로부터 attacker→victim 로 빌드.
 

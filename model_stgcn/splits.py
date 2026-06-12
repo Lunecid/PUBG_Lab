@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 import numpy as np
+
+logger = logging.getLogger("model_stgcn.splits")
 
 
 def split_ids(
@@ -103,6 +106,12 @@ def load_or_create_split(
     if split_json:
         path = Path(split_json)
         if path.exists():
+            manifest_seed = json.loads(path.read_text(encoding="utf-8")).get("seed")
+            if manifest_seed is not None and manifest_seed != seed:
+                logger.warning(
+                    "split manifest %s was created with seed=%s; --seed %s is IGNORED "
+                    "(manifest takes precedence)", path, manifest_seed, seed,
+                )
             return load_split_manifest(path, available_ids=ids)
 
     train_ids, val_ids, test_ids = split_ids(

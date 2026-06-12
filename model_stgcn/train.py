@@ -34,7 +34,7 @@ from model_stgcn.dataset import (
     train_val_test_split,
 )
 from model_stgcn.stgcn import STGCN, stgcn_loss
-from stdb.queries import list_eligible_match_ids
+from stdb.queries import FEATURE_DIM, list_eligible_match_ids
 
 logger = logging.getLogger("model_stgcn.train")
 
@@ -182,6 +182,7 @@ def train_loop(args: argparse.Namespace) -> None:
                 "model_state": model.state_dict(),
                 "epoch": epoch,
                 "best_val": val_loss,
+                "feature_dim": FEATURE_DIM,
                 "args": vars(args),
                 "train_ids": train_ids,
                 "val_ids": val_ids,
@@ -220,7 +221,7 @@ def parse_args() -> argparse.Namespace:
         default="model_stgcn/checkpoints/best.pt",
         help="Output checkpoint path",
     )
-    ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--seed", type=int, default=42)
     return ap.parse_args()
 
 

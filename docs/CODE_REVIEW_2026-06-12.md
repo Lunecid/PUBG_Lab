@@ -3,7 +3,55 @@
 > 작성: Claude Code 전체 코드 리뷰 (병렬 탐색 에이전트 3개 + 핵심 주장 직접 코드 재검증).
 > 범위: 페이퍼 경로(`stdb/` + `model_stgcn/`), 레거시 스택(루트 `model/`·`train.py`·`dataset.py`·`simulate.py` 등), 데이터 파이프라인, `network_analysis/`, `webapp/`, 인프라.
 > 표기: ✅ = 코드를 직접 읽어 검증한 항목, ⚠️ = 에이전트 보고 기반(수정 전 재확인 권장).
-> 본 문서는 진단만 담는다. 수정은 컨펌된 항목에 한해 별도 세션에서 진행한다.
+
+---
+
+## ✦ 수정 적용 현황 (2026-06-12, 브랜치 `claude/code-review-fixes`)
+
+같은 날 전 항목 수정을 진행했다. 상태 요약:
+
+| 항목 | 상태 | 비고 |
+|---|---|---|
+| B1 git 추적 | ✔ 완료 | 페이퍼 경로 513파일 커밋, .gitignore 정비 (대용량/산출물 제외) |
+| B2 비밀번호 | ✔ 코드 측 완료 | 4곳(진단 3곳 + 추가 발견 `stdb/audit_raw.py`) env 필수화. **DB 비밀번호 실제 교체는 사용자 수행 필요** — 이전 값이 git 이력에 남아 있음 |
+| B3 GroupGNN | ✔ 완료 | `_pool_alive_teams` 헬퍼로 글로벌→로컬 정렬 일원화, 제로패딩 핵 제거, 계약 위반 시 명확한 에러. 회귀 테스트 추가 |
+| C4 aux 풀링 | ✔ 완료 | `forward(phase_mask=...)` masked mean + 호출부 6곳 전파. **수치 갱신은 full-DB 재학습 필요** |
+| C5 combat 방향 | ✔ capability 완료 | E=4 `combat_in` 채널(raw 가중치 기준 정확 정규화), `--combat-in` 플래그, 모드 2종 추가, ckpt 자동 감지. **ablation 학습 3종은 미실행** — 아래 커맨드 참조 |
+| C6 forward 방어 | ✔ 완료 | 첫 forward 시 row-stochastic 검증(상시 비용 0), 스모크를 실 분포로 교체 |
+| C7 bootstrap CI | ✔ 완료 | `model_stgcn/bootstrap_ci.py` (match-level cluster bootstrap), `eval_phase --bootstrap N` |
+| C8 2km 임계값 | ✔ 완료 (opt-in) | **신규 발견: 단위 버그** — V2(39d) 좌표는 0~1 정규화라 `cd<2000`이 사실상 항상 참(비교전 쌍 전부 연결). 기존 체크포인트가 이 분포로 학습됐으므로 기본값은 유지, `team_edge_ratio`+미터 환산은 opt-in |
+| D9 legacy 격리 | ✔ 완료 | `legacy/` + README, import/데모 경로 동작 확인 |
+| D10 테스트 | ✔ 완료 | `tests/` 18개 (DB 없으면 13개 자동 skip). 라벨 정렬·A 불변식·마스크·forward·B3 회귀 |
+| D11 출력 정리 | ✔ 완료 | `outputs/legacy_sim/`, `model_stgcn/config.py` 경로 중앙화. **신규 발견: `phase_wise_eval.py`에 epochs=12 하드코딩** → config로 수정 |
+| E12~E17 | ✔ 완료 | requirements `==` 핀 + dev 분리, seed 42 통일+manifest 경고, denom 로깅, max() 주석, ckpt feature_dim 저장/사용, l_encounter 제거, run.py deprecated 표기 |
+| E18 인덱스 | ⏸ 보류 | DDL 실행 권한 정책상 미실행 → `stdb/migrations/2026-06-12_phase_indexes.sql` 제공, 실행은 사용자 결정 |
+
+**검증**: `PG_PASSWORD=… python -m pytest tests/` 18 passed · `python -m model_stgcn.dyn_stgnn` 스모크 통과 · 실 DB 초소형 학습 E=3/E=4 각 1 epoch 정상 (E=4에서 combat=0, combat_in 활성 확인) · 인접행렬 검증이 실 데이터에서 통과 (A3 실증).
+
+**진단 정정 (수정 중 확인)**:
+- `model_stgcn/splits.py`의 split 중복/오버랩 검증은 **이미 존재** (에이전트 오탐 추가 정정).
+- 레거시 ckpt는 `agent_feat_dim`을 config에 **이미 저장** (simulate.py가 사용 중).
+
+**신규 발견 (E20, 데이터 품질)**: `team_phase_labels`에서 타겟의 **2.47%** (33,696/1,366,821)가 `alive_at_phase_start=false`인데 `target_defined=true` — phase 시작 시점 전원 DBNO 또는 스냅샷 공백. 라벨 누수는 아니나 해당 팀은 그 phase에 proximity self-loop을 받지 못함. `tests/test_label_alignment.py::test_alive_start_end_gap_bounded`가 3% 상한 회귀 가드. 근본 해결은 ETL의 시작 시점 정의 보강(직전 phase 종료 상태 forward-fill) — 라벨 테이블 재생성이 필요해 보류.
+
+**C5 ablation 실행 커맨드** (full-DB, 동일 split·seed):
+```bash
+# 1) 현행 (E=3, 기존 결과 재사용 가능)
+# 2) 양방향 E=4
+python -m model_stgcn.train_phase --combat-in --edge-mode full \
+    --split-json model_stgcn/checkpoints/split_phase_all_seed42.json \
+    --checkpoint model_stgcn/checkpoints/ablation_combat_bidir.pt
+# 3) 피격 수신만 (combat_out 제거)
+python -m model_stgcn.train_phase --combat-in --edge-mode full_combat_in \
+    --split-json model_stgcn/checkpoints/split_phase_all_seed42.json \
+    --checkpoint model_stgcn/checkpoints/ablation_combat_in_only.pt
+# 평가 (95% CI 포함)
+python -m model_stgcn.eval_phase --checkpoint <ckpt> --split test --bootstrap 1000
+```
+
+---
+
+> 이하는 원본 진단 (2026-06-12 오전, 수정 전 기준).
 
 ---
 

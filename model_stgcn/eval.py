@@ -42,7 +42,7 @@ def evaluate(ckpt_path: str, *, device: str = "cpu") -> dict:
     args_d: dict = ckpt["args"]
 
     model = STGCN(
-        in_features=8,
+        in_features=int(ckpt.get("feature_dim", 8)),
         hidden=args_d.get("hidden", 64),
         num_blocks=args_d.get("num_blocks", 2),
         dropout=args_d.get("dropout", 0.1),

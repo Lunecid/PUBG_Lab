@@ -34,6 +34,28 @@ def _device(name: str) -> torch.device:
     return torch.device(name)
 
 
+def _shuffle_time(batch: dict, generator: torch.Generator) -> None:
+    """In-place: permute each match's REAL snapshots along the time axis.
+
+    Destroys snapshot temporal order (and the encoder's causal patterns) while
+    keeping the exact same snapshot SET per phase — X_s/A_s/node_mask/phase_of_snap
+    move together, so phase-pooling (order-invariant masked mean) is unchanged
+    and ONLY the temporal convolution's view is scrambled. If the +AUC survives
+    this, the gain is "just more information"; if it collapses to the phase-only
+    level, snapshot temporal STRUCTURE is what matters.
+    """
+    nm = batch["node_mask_s"]  # (B, T_s, N)
+    B = nm.shape[0]
+    for b in range(B):
+        real = nm[b].any(dim=-1).nonzero(as_tuple=False).flatten()
+        if real.numel() <= 1:
+            continue
+        perm = real[torch.randperm(real.numel(), generator=generator)]
+        for key in ("X_s", "A_s", "node_mask_s", "phase_of_snap"):
+            t = batch[key]
+            t[b, real] = t[b, perm].clone()
+
+
 def _build_model(ckpt: dict) -> MRSTGNN:
     a = ckpt.get("args", {})
     return MRSTGNN(
@@ -59,11 +81,17 @@ def evaluate(args: argparse.Namespace) -> dict:
     ds_cls = CachedMRDataset if args.cached else LazyMRDataset
     loader = DataLoader(ds_cls(ids), batch_size=args.batch, shuffle=False, collate_fn=mr_collate, num_workers=0)
 
+    gen = torch.Generator()
+    if args.shuffle_time:
+        gen.manual_seed(args.shuffle_seed)
+
     probs: list[np.ndarray] = []
     trues: list[np.ndarray] = []
     with torch.no_grad():
         for batch in loader:
             moved = {k: (v.to(device) if torch.is_tensor(v) else v) for k, v in batch.items()}
+            if args.shuffle_time:
+                _shuffle_time(moved, gen)
             hazard, _surv, _rank, _topk = model(
                 moved["X_s"].float(), moved["A_s"].float(),
                 moved["phase_of_snap"], moved["node_mask_s"].bool(),
@@ -103,6 +131,9 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--device", default="auto", choices=["auto", "cpu", "mps", "cuda"])
     ap.add_argument("--cached", action="store_true")
     ap.add_argument("--out", default=None)
+    ap.add_argument("--shuffle-time", action="store_true",
+                    help="permute snapshot time order (adversarial: temporal-structure test)")
+    ap.add_argument("--shuffle-seed", type=int, default=0)
     return ap.parse_args()
 
 

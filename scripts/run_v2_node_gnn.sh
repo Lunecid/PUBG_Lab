@@ -38,10 +38,9 @@ if [[ ! -f "$REF_FULL_66D" ]]; then
     echo "WARNING: 66d maskedpool full checkpoint missing — reference column will be skipped" >&2
 fi
 
-# ── 1) B3 / B4 학습 ──
-declare -A MODES=( [v2_none]="none" [v2_full]="full" )
+# ── 1) B3 / B4 학습 ── (bash 3.2 호환: associative array 대신 case)
 for tag in v2_none v2_full; do
-    mode=${MODES[$tag]}
+    case "$tag" in v2_none) mode=none ;; v2_full) mode=full ;; esac
     ckpt=$OUT/phase_${tag}_e12.pt
     history=$OUT/phase_${tag}_e12.history.json
     if [[ -f "$history" ]]; then
@@ -52,7 +51,7 @@ for tag in v2_none v2_full; do
     echo "== train $tag (edge-mode=$mode) started $(date) =="
     python3 -m model_stgcn.train_phase \
         --epochs 12 --batch 8 --edge-mode "$mode" --seed 42 \
-        --v2-node-features \
+        --v2-node-features --cached \
         --split-json "$SPLIT" \
         --checkpoint "$ckpt"
     echo "== train $tag finished $(date) =="

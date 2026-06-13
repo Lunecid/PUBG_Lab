@@ -320,6 +320,7 @@ def build_match(cur, match_id: str) -> dict[str, int]:
         ),
         combat_points AS (
             SELECT e.event_id,
+                   e.event_t,
                    floor(e.event_t / %s)::integer * %s::integer AS snapshot_t,
                    COALESCE(ST_Force2D(e.victim_pos), ST_Force2D(e.attacker_pos)) AS event_pos
               FROM stdb.spatial_events e
@@ -328,12 +329,18 @@ def build_match(cur, match_id: str) -> dict[str, int]:
                AND COALESCE(e.victim_pos, e.attacker_pos) IS NOT NULL
         ),
         combat_pass AS (
+            -- LEAK FIX: the floor() bucket can pull an event from the NEXT phase
+            -- into this phase's last snapshot. Clamp event_t to the phase window
+            -- so a cut-phase feature never sees post-cut combat.
             SELECT s.team_id,
                    s.phase_idx,
                    count(DISTINCT cp.event_id)::integer AS combat_zone_pass_count
               FROM snaps s
+              JOIN phase_bounds pb
+                ON pb.phase_idx = s.phase_idx
               JOIN combat_points cp
                 ON cp.snapshot_t = s.snapshot_t
+               AND cp.event_t BETWEEN pb.phase_start_s AND pb.phase_end_s
                AND ST_DWithin(s.pos2d, cp.event_pos, 200.0)
              GROUP BY s.team_id, s.phase_idx
         )

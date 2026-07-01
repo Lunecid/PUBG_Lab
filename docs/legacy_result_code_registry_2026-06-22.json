@@ -1,0 +1,170 @@
+{
+  "registry_id": "legacy-result-code-registry-2026-06-22",
+  "created": "2026-06-22",
+  "legacy_result_label": "legacy-v3-pooled-mr-phase-head-2026-06-22",
+  "git_head_at_bookmark_time": "93cfda996f30d938800340999b43c460c0e02e25",
+  "worktree_state": "dirty",
+  "interpretation": "Legacy V3 pooled multi-resolution phase-head results. Ten-second snapshots are encoded and pooled to phase resolution before phase-level prediction heads.",
+  "not_claim": "Strict 10-second snapshot-resolution survival model.",
+  "families": [
+    {
+      "id": "v3_full_main_causal",
+      "result_root": "model_stgcn/checkpoints/v3_full_main_causal",
+      "metrics_csv": "model_stgcn/checkpoints/v3_full_main_causal/matrix_metrics.csv",
+      "manifest_json": "model_stgcn/checkpoints/v3_full_main_causal/matrix_manifest.json",
+      "summary_json": "model_stgcn/checkpoints/v3_full_main_causal/matrix_summary.json",
+      "split_json": "model_stgcn/checkpoints/v3_full_main_causal/split.json",
+      "runner": "scripts/run_v3_full_main_matrix.sh",
+      "python_entrypoint": "python3 -m model_stgcn.v3.run_matrix --groups main",
+      "train_module": "model_stgcn.v3.train",
+      "eval_module": "model_stgcn.v3.eval",
+      "contract": "pooled_mr_phase_head",
+      "rows": [
+        {"name": "mr_tcn", "model": "mr", "graph_encoder": "none", "auc": 0.835822041098744, "ap": 0.7189115515479698, "checkpoint_root": "model_stgcn/checkpoints/v3_full_main_causal/main/mr_tcn"},
+        {"name": "mr_gcn", "model": "mr", "graph_encoder": "gcn", "auc": 0.8460902515623251, "ap": 0.7380250716365657, "checkpoint_root": "model_stgcn/checkpoints/v3_full_main_causal/main/mr_gcn"},
+        {"name": "mr_sage", "model": "mr", "graph_encoder": "sage", "auc": 0.8437995934241361, "ap": 0.7345791779072312, "checkpoint_root": "model_stgcn/checkpoints/v3_full_main_causal/main/mr_sage"},
+        {"name": "mr_gat", "model": "mr", "graph_encoder": "gat", "auc": 0.8496338995873758, "ap": 0.7452984094852425, "checkpoint_root": "model_stgcn/checkpoints/v3_full_main_causal/main/mr_gat"},
+        {"name": "mr_rgcn", "model": "mr", "graph_encoder": "rgcn", "auc": 0.8460060422348101, "ap": 0.7387553291938934, "checkpoint_root": "model_stgcn/checkpoints/v3_full_main_causal/main/mr_rgcn"},
+        {"name": "mr_rgcn_film", "model": "mr", "graph_encoder": "rgcn", "global_fusion": "film", "auc": 0.8465345950658141, "ap": 0.7391992865475774, "checkpoint_root": "model_stgcn/checkpoints/v3_full_main_causal/main/mr_rgcn_film"},
+        {"name": "mr_rgcn_attn_rank", "model": "mr", "graph_encoder": "rgcn", "team_decoder": "attention", "auc": 0.8449316976462913, "ap": 0.7374110599241446, "checkpoint_root": "model_stgcn/checkpoints/v3_full_main_causal/main/mr_rgcn_attn_rank"},
+        {"name": "mr_farnet", "model": "mr", "graph_encoder": "rgcn", "global_fusion": "film", "team_decoder": "attention", "auc": 0.8454323585492189, "ap": 0.7381023851031452, "checkpoint_root": "model_stgcn/checkpoints/v3_full_main_causal/main/mr_farnet"}
+      ]
+    },
+    {
+      "id": "v3_full_controls",
+      "result_root": "model_stgcn/checkpoints/v3_full_controls",
+      "metrics_csv": "model_stgcn/checkpoints/v3_full_controls/matrix_metrics.csv",
+      "manifest_json": "model_stgcn/checkpoints/v3_full_controls/matrix_manifest.json",
+      "runner": "scripts/run_v3_full_controls_matrix.sh",
+      "python_entrypoint": "python3 -m model_stgcn.v3.run_matrix --groups resolution,decoder,graph_control",
+      "contract": "phase_vs_pooled_mr_controls",
+      "manifest_groups": ["resolution", "decoder", "graph_control"],
+      "manifest_experiment_count": 12,
+      "completed_metric_row_count": 6,
+      "citation_rule": "Cite only rows present in matrix_metrics.csv. The manifest includes additional planned graph_control rows that are not present in the current metrics CSV.",
+      "rows": [
+        {"name": "phase_tcn", "contract": "phase_no_graph", "auc": 0.7872371074623984, "ap": 0.6679205067796842, "checkpoint_root": "model_stgcn/checkpoints/v3_full_controls/resolution/phase_tcn"},
+        {"name": "phase_rgcn", "contract": "phase_rgcn", "auc": 0.7926383829071533, "ap": 0.6769679989603765, "checkpoint_root": "model_stgcn/checkpoints/v3_full_controls/resolution/phase_rgcn"},
+        {"name": "mr_tcn", "contract": "pooled_mr_no_graph", "auc": 0.8349473441207634, "ap": 0.7181924472680602, "checkpoint_root": "model_stgcn/checkpoints/v3_full_controls/resolution/mr_tcn"},
+        {"name": "mr_rgcn", "contract": "pooled_mr_rgcn", "auc": 0.8467111466831337, "ap": 0.7391282690462362, "checkpoint_root": "model_stgcn/checkpoints/v3_full_controls/resolution/mr_rgcn"},
+        {"name": "mr_rgcn_hazard_rank", "contract": "pooled_mr_rgcn_mlp_decoder", "auc": 0.8460083780746167, "ap": 0.7382474246186722, "checkpoint_root": "model_stgcn/checkpoints/v3_full_controls/decoder/mr_rgcn_hazard_rank"},
+        {"name": "mr_rgcn_pairwise_rank", "contract": "pooled_mr_rgcn_pairwise_rank", "auc": 0.8461796692885926, "ap": 0.7387075594828478, "checkpoint_root": "model_stgcn/checkpoints/v3_full_controls/decoder/mr_rgcn_pairwise_rank"}
+      ]
+    },
+    {
+      "id": "v3_full_graph_relation",
+      "result_root": "model_stgcn/checkpoints/v3_full_graph_relation",
+      "metrics_csv": "model_stgcn/checkpoints/v3_full_graph_relation/matrix_metrics.csv",
+      "manifest_json": "model_stgcn/checkpoints/v3_full_graph_relation/matrix_manifest.json",
+      "summary_json": "model_stgcn/checkpoints/v3_full_graph_relation/matrix_summary.json",
+      "runner": "scripts/run_v3_full_graph_relation_matrix.sh",
+      "python_entrypoint": "python3 -m model_stgcn.v3.run_matrix --groups graph_relation",
+      "contract": "phase_graph_relation_and_null_controls",
+      "rows": [
+        {"name": "graph_core_habitat_no_graph", "edge_mode": "none", "edge_control": "observed", "auc": 0.8343368042653101, "ap": 0.717808410178919, "checkpoint_root": "model_stgcn/checkpoints/v3_full_graph_relation/graph_relation/graph_core_habitat_no_graph"},
+        {"name": "graph_core_habitat_proximity", "edge_mode": "proximity", "edge_control": "observed", "auc": 0.8455160724436819, "ap": 0.7369817311343028, "checkpoint_root": "model_stgcn/checkpoints/v3_full_graph_relation/graph_relation/graph_core_habitat_proximity"},
+        {"name": "graph_core_habitat_combat", "edge_mode": "combat_only", "edge_control": "observed", "auc": 0.8372937059248188, "ap": 0.7234966927717695, "checkpoint_root": "model_stgcn/checkpoints/v3_full_graph_relation/graph_relation/graph_core_habitat_combat"},
+        {"name": "graph_core_habitat_copressure", "edge_mode": "copressure_only", "edge_control": "observed", "auc": 0.836682283976223, "ap": 0.7232690343844222, "checkpoint_root": "model_stgcn/checkpoints/v3_full_graph_relation/graph_relation/graph_core_habitat_copressure"},
+        {"name": "graph_core_habitat_proximity_combat", "edge_mode": "proximity_combat", "edge_control": "observed", "auc": 0.8462326258417022, "ap": 0.7385559765175285, "checkpoint_root": "model_stgcn/checkpoints/v3_full_graph_relation/graph_relation/graph_core_habitat_proximity_combat"},
+        {"name": "graph_core_habitat_proximity_copressure", "edge_mode": "proximity_copressure", "edge_control": "observed", "auc": 0.8455487757888981, "ap": 0.7372004625682532, "checkpoint_root": "model_stgcn/checkpoints/v3_full_graph_relation/graph_relation/graph_core_habitat_proximity_copressure"},
+        {"name": "graph_core_habitat_full_observed", "edge_mode": "full", "edge_control": "observed", "auc": 0.8453174752464895, "ap": 0.7370995385002014, "checkpoint_root": "model_stgcn/checkpoints/v3_full_graph_relation/graph_relation/graph_core_habitat_full_observed"},
+        {"name": "graph_core_habitat_full_node_shuffle", "edge_mode": "full", "edge_control": "node_shuffle", "auc": 0.8447810351848138, "ap": 0.7361106397675019, "checkpoint_root": "model_stgcn/checkpoints/v3_full_graph_relation/graph_relation/graph_core_habitat_full_node_shuffle"},
+        {"name": "graph_core_habitat_full_edge_shuffle", "edge_mode": "full", "edge_control": "edge_shuffle", "auc": 0.8469181856943103, "ap": 0.7380888882021809, "checkpoint_root": "model_stgcn/checkpoints/v3_full_graph_relation/graph_relation/graph_core_habitat_full_edge_shuffle"}
+      ]
+    },
+    {
+      "id": "v3_full_feature_causal",
+      "result_root": "model_stgcn/checkpoints/v3_full_feature_causal",
+      "metrics_csv": "model_stgcn/checkpoints/v3_full_feature_causal/matrix_metrics.csv",
+      "manifest_json": "model_stgcn/checkpoints/v3_full_feature_causal/matrix_manifest.json",
+      "summary_json": "model_stgcn/checkpoints/v3_full_feature_causal/matrix_summary.json",
+      "runner": "scripts/run_v3_full_feature_matrix.sh",
+      "python_entrypoint": "python3 -m model_stgcn.v3.run_matrix --groups feature",
+      "contract": "v3_pooled_mr_feature_preset_ablation",
+      "rows": [
+        {"name": "feat_core", "feature_preset": "core", "auc": 0.8306117971756155, "ap": 0.710186926289694, "checkpoint_root": "model_stgcn/checkpoints/v3_full_feature_causal/feature/feat_core"},
+        {"name": "feat_stdb", "feature_preset": "stdb", "auc": 0.828013151969055, "ap": 0.7051721665445192, "checkpoint_root": "model_stgcn/checkpoints/v3_full_feature_causal/feature/feat_stdb"},
+        {"name": "feat_network", "feature_preset": "network", "auc": 0.8284326460115441, "ap": 0.7044242489936143, "checkpoint_root": "model_stgcn/checkpoints/v3_full_feature_causal/feature/feat_network"},
+        {"name": "feat_habitat", "feature_preset": "habitat", "auc": 0.8339147953443076, "ap": 0.7138604138594785, "checkpoint_root": "model_stgcn/checkpoints/v3_full_feature_causal/feature/feat_habitat"},
+        {"name": "feat_core_stdb", "feature_preset": "core_stdb", "auc": 0.830329461074119, "ap": 0.7118724498869212, "checkpoint_root": "model_stgcn/checkpoints/v3_full_feature_causal/feature/feat_core_stdb"},
+        {"name": "feat_core_network", "feature_preset": "core_network", "auc": 0.8311571431227802, "ap": 0.7117400975894311, "checkpoint_root": "model_stgcn/checkpoints/v3_full_feature_causal/feature/feat_core_network"},
+        {"name": "feat_core_habitat", "feature_preset": "core_habitat", "auc": 0.8343368046622919, "ap": 0.7178084295714027, "checkpoint_root": "model_stgcn/checkpoints/v3_full_feature_causal/feature/feat_core_habitat"},
+        {"name": "feat_base66", "feature_preset": "base66", "auc": 0.8297298798960715, "ap": 0.710719028196432, "checkpoint_root": "model_stgcn/checkpoints/v3_full_feature_causal/feature/feat_base66"},
+        {"name": "feat_full", "feature_preset": "full", "auc": 0.8359408203790162, "ap": 0.7200981143197779, "checkpoint_root": "model_stgcn/checkpoints/v3_full_feature_causal/feature/feat_full"}
+      ]
+    },
+    {
+      "id": "feature_ablation_full_db_manifest_v2",
+      "result_root": "model_stgcn/checkpoints/feature_ablation_full_db_manifest_v2",
+      "metrics_csv": "model_stgcn/checkpoints/feature_ablation_full_db_manifest_v2/feature_ablation_metrics.csv",
+      "runner": "model_stgcn/feature_ablation.py",
+      "contract": "phase_row_tabular_hgb_feature_ablation",
+      "rows": [
+        {"name": "a0_official_raw", "n_features": 78, "auc": 0.7589456856933692, "ap": 0.6563695845136422},
+        {"name": "a1_prior_raw", "n_features": 12, "auc": 0.7185289751356597, "ap": 0.570426815860354},
+        {"name": "a2_prior_scores", "n_features": 5, "auc": 0.6487643868461863, "ap": 0.45466837182230435},
+        {"name": "a3_current_conventional", "n_features": 57, "auc": 0.7523245247323326, "ap": 0.647727408968283},
+        {"name": "a4_stdb_spatial", "n_features": 18, "auc": 0.7211648976310269, "ap": 0.6007160587104088},
+        {"name": "a5_raw_plus_stdb", "n_features": 95, "auc": 0.7676373931341862, "ap": 0.666705901897294},
+        {"name": "a6_raw_plus_network", "n_features": 121, "auc": 0.7643687990743997, "ap": 0.6621248797988937},
+        {"name": "a7_raw_plus_habitat", "n_features": 110, "auc": 0.7827632526728345, "ap": 0.6833067920482425},
+        {"name": "a8_raw_stdb_network", "n_features": 138, "auc": 0.7692386878740936, "ap": 0.6684981533142116},
+        {"name": "a9_raw_stdb_habitat", "n_features": 127, "auc": 0.7833968643663417, "ap": 0.6842894582346399},
+        {"name": "a10_raw_network_habitat", "n_features": 153, "auc": 0.7832334540342136, "ap": 0.6840867308731067},
+        {"name": "a11_full_representation", "n_features": 170, "auc": 0.7838010252031258, "ap": 0.684616822936055}
+      ]
+    }
+  ],
+  "prediction_exports": [
+    {
+      "id": "v3_pred",
+      "root": "model_stgcn/checkpoints/v3_pred",
+      "scripts": ["scripts/v3_gen_predictions.sh", "scripts/v3_gen_resolution_preds.sh"],
+      "files": [
+        "v3_full_main_causal_main_mr_gat.eval.json",
+        "v3_full_main_causal_main_mr_gat.pred.csv",
+        "v3_full_graph_relation_graph_relation_graph_core_habitat_no_graph.eval.json",
+        "v3_full_graph_relation_graph_relation_graph_core_habitat_no_graph.pred.csv",
+        "v3_full_graph_relation_graph_relation_graph_core_habitat_full_observed.eval.json",
+        "v3_full_graph_relation_graph_relation_graph_core_habitat_full_observed.pred.csv",
+        "v3_full_graph_relation_graph_relation_graph_core_habitat_full_edge_shuffle.eval.json",
+        "v3_full_graph_relation_graph_relation_graph_core_habitat_full_edge_shuffle.pred.csv",
+        "resolution_phase_tcn.eval.json",
+        "resolution_phase_tcn.pred.csv",
+        "resolution_phase_rgcn.eval.json",
+        "resolution_phase_rgcn.pred.csv",
+        "resolution_mr_tcn.eval.json",
+        "resolution_mr_tcn.pred.csv",
+        "resolution_mr_rgcn.eval.json",
+        "resolution_mr_rgcn.pred.csv"
+      ]
+    }
+  ],
+  "code_files": {
+    "model_stgcn/v3/models.py": "79c0d6729af3f43419b34fc3e65b70818d1e90b55ea94c96419e43ca36554cd9",
+    "model_stgcn/v3/factorized_data.py": "e8e681e4b5dd759c8fd5a8af1a323d09db98f8a9dbcdabd5c9915614e757816c",
+    "model_stgcn/v3/spec.py": "f3c8df2a5d2b3d9b3c036a256427af14a0bfc7c6e24f0d4327ddf079464a5902",
+    "model_stgcn/v3/train.py": "1c2f341591ebd70991fff6ef13759d700de5f2c3de3182e4642b609c27e97286",
+    "model_stgcn/v3/eval.py": "0f91ebc22eabf4af7829539e53ed5d73159b5a63f2ad1bd5333b036c9313abdc",
+    "model_stgcn/v3/run_matrix.py": "20cae4d56b726334c3df689e94a1630a562231312aebdcd1ed5f9e18742fb52a",
+    "model_stgcn/v3/experiment_matrix.py": "be830298019bdaf65d468e2b14fa8a52b0870d3f1da046e7fdbf5212ad2f1c30",
+    "model_stgcn/v3/edge_controls.py": "6fd7c61a621f172137970004b02df468901e72a1f051871204b07ab50f9ea44e",
+    "model_stgcn/snapshot_encoder.py": "acb643199a196007d70d655d254fbbe7ecb346951ea8064fea975f14ee3ce4e9",
+    "model_stgcn/dyn_stgnn.py": "d826a20f44fe049f357a3dd6dff3f413981c739837d6e620847975f44882bc85",
+    "stdb/queries.py": "f6b5ee3262cd01eb73bdad9fa714b7039083a280fdc3fc6fdf21e829f8899715",
+    "stdb/snapshot_queries.py": "2e85babec0057988b3b98b9e5faa08968b2db50cc11ccaef32c61f9acefb55cb"
+  },
+  "result_files": {
+    "model_stgcn/checkpoints/v3_full_main_causal/matrix_metrics.csv": "d7542a1bb329f02b7e90b3fdece847ee9a87f2a50a49d6dc4edbe3110102d4ab",
+    "model_stgcn/checkpoints/v3_full_controls/matrix_metrics.csv": "01b0329bbda431c3467b7bd8c1334f38369d55adf276454c171e947e0421a5b2",
+    "model_stgcn/checkpoints/v3_full_graph_relation/matrix_metrics.csv": "c03d640d92a8cb8734a29cf61d74d8cb0456a06d2db37a36e6d4525da3f60cc0",
+    "model_stgcn/checkpoints/v3_full_feature_causal/matrix_metrics.csv": "41d6e9af7a961a5aafe86ac19451aff0f4ff4e385709eb1e664f9e72b3247b8a",
+    "model_stgcn/checkpoints/feature_ablation_full_db_manifest_v2/feature_ablation_metrics.csv": "3f3a8d70835a160debb10d82e59d71ddff332a93a674f2145bcff1f00d920b24"
+  },
+  "freeze_rules": [
+    "Do not overwrite listed result roots.",
+    "If a listed code file changes, create a new registry id for new outputs.",
+    "New snapshot-first runs should use model_stgcn/checkpoints/snapshot_phase_survival_v1_* roots.",
+    "Slides should cite family id plus artifact path, not only metric number."
+  ]
+}

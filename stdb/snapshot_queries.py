@@ -58,7 +58,7 @@ SNAP_FEATURE_DIM = len(SNAP_FEATURE_SPECS)
 class SnapshotTensors:
     match_id: str
     X_s: np.ndarray          # (T_s, N, F)
-    A_s: np.ndarray          # (T_s, E, N, N) row-normalized
+    A_s: np.ndarray | None   # (T_s, E, N, N) row-normalized, optional for no-graph paths
     phase_of_snap: np.ndarray  # (T_s,) int, phase_idx of each snapshot (0 if none)
     node_mask: np.ndarray    # (T_s, N) bool, team alive at snapshot
     death_snap_idx: np.ndarray  # (N,) int, sequence index of team's last-alive snapshot (-1 = censored/absent)
@@ -86,7 +86,42 @@ def _row_normalize(A: np.ndarray) -> np.ndarray:
     return np.where(rs > 0, A / np.clip(rs, 1e-9, None), A)
 
 
-def fetch_snapshot_match_tensors(match_id: str) -> SnapshotTensors | None:
+def _phase_of_snaps_from_bounds(cur, match_id: str, snaps: list[int]) -> np.ndarray:
+    """Assign snapshot_t to phase by match phase boundaries.
+
+    `team_snapshot_features.phase_idx` can contain NULL/0 rows for some matches.
+    The model cut contract needs a single match-level phase id per snapshot, so
+    derive it from `v_match_phase_bounds` instead of per-team feature rows.
+    """
+    cur.execute(
+        """
+        SELECT phase_idx, phase_start_s, phase_end_s
+          FROM stdb.v_match_phase_bounds
+         WHERE match_id = %s AND phase_idx > 0
+         ORDER BY phase_idx
+        """,
+        (match_id,),
+    )
+    bounds = [(int(p), float(s), float(e)) for p, s, e in cur.fetchall()]
+    phase_of_snap = np.zeros(len(snaps), dtype=np.int64)
+    for i, st in enumerate(snaps):
+        last_phase = 0
+        for phase_idx, start_s, end_s in bounds:
+            if st < start_s:
+                break
+            last_phase = phase_idx
+            if st <= end_s:
+                phase_of_snap[i] = phase_idx
+                break
+        else:
+            phase_of_snap[i] = last_phase
+            continue
+        if phase_of_snap[i] == 0 and last_phase > 0:
+            phase_of_snap[i] = last_phase
+    return phase_of_snap
+
+
+def fetch_snapshot_match_tensors(match_id: str, *, include_edges: bool = True) -> SnapshotTensors | None:
     conn = connect()
     cur = conn.cursor()
     try:
@@ -115,7 +150,7 @@ def fetch_snapshot_match_tensors(match_id: str) -> SnapshotTensors | None:
         F = SNAP_FEATURE_DIM
 
         X_s = np.zeros((T_s, N, F), dtype=np.float32)
-        phase_of_snap = np.zeros(T_s, dtype=np.int64)
+        phase_of_snap = _phase_of_snaps_from_bounds(cur, match_id, snaps)
         node_mask = np.zeros((T_s, N), dtype=bool)
         last_alive_idx = np.full(N, -1, dtype=np.int64)
 
@@ -139,8 +174,6 @@ def fetch_snapshot_match_tensors(match_id: str) -> SnapshotTensors | None:
             i = team_index[tid]
             t = snap_index[st]
             node_mask[t, i] = True
-            if rd.get("phase_idx") is not None:
-                phase_of_snap[t] = int(rd["phase_idx"])
             for f, (_name, col, scale) in enumerate(SNAP_FEATURE_SPECS):
                 X_s[t, i, f] = _as_float(rd.get(col), scale=scale)
             if t > last_alive_idx[i]:
@@ -151,71 +184,74 @@ def fetch_snapshot_match_tensors(match_id: str) -> SnapshotTensors | None:
         match_last_t = T_s - 1
         death_snap_idx = np.where(last_alive_idx < match_last_t, last_alive_idx, -1)
 
-        # ---- edges ----
-        A_s = np.zeros((T_s, len(SNAP_EDGE_TYPES), N, N), dtype=np.float32)
-        PROX, COMBAT = 0, 1
-
-        # proximity: distance AT snapshot_t, symmetric, exp(-d/200); + self-loop on alive
-        cur.execute(
-            """
-            SELECT snapshot_t, team_a, team_b, distance_m
-              FROM stdb.team_proximity
-             WHERE match_id = %s AND snapshot_t = ANY(%s)
-               AND team_a = ANY(%s) AND team_b = ANY(%s)
-            """,
-            (match_id, snaps, team_ids, team_ids),
-        )
-        for st, a, b, d in cur.fetchall():
-            st = int(st)
-            if st not in snap_index or a not in team_index or b not in team_index or d is None:
-                continue
-            t = snap_index[st]
-            ia, ib = team_index[int(a)], team_index[int(b)]
-            w = float(np.exp(-float(d) / 200.0))
-            A_s[t, PROX, ia, ib] = w
-            A_s[t, PROX, ib, ia] = w
-        for t in range(T_s):
-            for i in range(N):
-                if node_mask[t, i]:
-                    A_s[t, PROX, i, i] = 1.0  # self-loop on alive node
-
-        # combat: event attributed to snapshot at ceil(event_t/10)*10 -> PAST
-        # window (t-10, t]. directed attacker -> victim, log-damped intensity.
-        cur.execute(
-            """
-            SELECT (ceil(event_t / 10.0) * 10)::int AS snap_t,
-                   attacker_team, victim_team,
-                   sum(CASE WHEN event_kind = 'damage' THEN coalesce(damage, 0) ELSE 0 END)::real AS dmg,
-                   count(*) FILTER (WHERE event_kind = 'kill')::int  AS kills,
-                   count(*) FILTER (WHERE event_kind = 'groggy')::int AS groggies
-              FROM stdb.spatial_events
-             WHERE match_id = %s
-               AND event_kind IN ('damage', 'kill', 'groggy')
-               AND attacker_team IS NOT NULL AND victim_team IS NOT NULL
-               AND attacker_team <> victim_team
-             GROUP BY 1, 2, 3
-            """,
-            (match_id,),
-        )
-        for st, atk, vic, dmg, kills, groggies in cur.fetchall():
-            st = int(st)
-            if st not in snap_index or atk not in team_index or vic not in team_index:
-                continue
-            t = snap_index[st]
-            ia, iv = team_index[int(atk)], team_index[int(vic)]
-            intensity = max(0.0, float(dmg or 0)) + 100.0 * int(kills) + 50.0 * int(groggies)
-            if intensity > 0:
-                A_s[t, COMBAT, ia, iv] = float(np.log1p(intensity))
-
-        A_s = _row_normalize(A_s)
-
         # pad snapshot axis to SNAP_T_MAX for batching
         snapshot_ts = np.full(SNAP_T_MAX, -1, dtype=np.int64)
         snapshot_ts[:T_s] = np.array(snaps, dtype=np.int64)
         Xp = np.zeros((SNAP_T_MAX, N, F), dtype=np.float32); Xp[:T_s] = X_s
-        Ap = np.zeros((SNAP_T_MAX, len(SNAP_EDGE_TYPES), N, N), dtype=np.float32); Ap[:T_s] = A_s
         pp = np.zeros(SNAP_T_MAX, dtype=np.int64); pp[:T_s] = phase_of_snap
         nm = np.zeros((SNAP_T_MAX, N), dtype=bool); nm[:T_s] = node_mask
+
+        Ap: np.ndarray | None = None
+        if include_edges:
+            # ---- edges ----
+            A_s = np.zeros((T_s, len(SNAP_EDGE_TYPES), N, N), dtype=np.float32)
+            PROX, COMBAT = 0, 1
+
+            # proximity: distance AT snapshot_t, symmetric, exp(-d/200); + self-loop on alive
+            cur.execute(
+                """
+                SELECT snapshot_t, team_a, team_b, distance_m
+                  FROM stdb.team_proximity
+                 WHERE match_id = %s AND snapshot_t = ANY(%s)
+                   AND team_a = ANY(%s) AND team_b = ANY(%s)
+                """,
+                (match_id, snaps, team_ids, team_ids),
+            )
+            for st, a, b, d in cur.fetchall():
+                st = int(st)
+                if st not in snap_index or a not in team_index or b not in team_index or d is None:
+                    continue
+                t = snap_index[st]
+                ia, ib = team_index[int(a)], team_index[int(b)]
+                w = float(np.exp(-float(d) / 200.0))
+                A_s[t, PROX, ia, ib] = w
+                A_s[t, PROX, ib, ia] = w
+            for t in range(T_s):
+                for i in range(N):
+                    if node_mask[t, i]:
+                        A_s[t, PROX, i, i] = 1.0  # self-loop on alive node
+
+            # combat: event attributed to snapshot at ceil(event_t/10)*10 -> PAST
+            # window (t-10, t]. directed attacker -> victim, log-damped intensity.
+            cur.execute(
+                """
+                SELECT (ceil(event_t / 10.0) * 10)::int AS snap_t,
+                       attacker_team, victim_team,
+                       sum(CASE WHEN event_kind = 'damage' THEN coalesce(damage, 0) ELSE 0 END)::real AS dmg,
+                       count(*) FILTER (WHERE event_kind = 'kill')::int  AS kills,
+                       count(*) FILTER (WHERE event_kind = 'groggy')::int AS groggies
+                  FROM stdb.spatial_events
+                 WHERE match_id = %s
+                   AND event_kind IN ('damage', 'kill', 'groggy')
+                   AND attacker_team IS NOT NULL AND victim_team IS NOT NULL
+                   AND attacker_team <> victim_team
+                 GROUP BY 1, 2, 3
+                """,
+                (match_id,),
+            )
+            for st, atk, vic, dmg, kills, groggies in cur.fetchall():
+                st = int(st)
+                if st not in snap_index or atk not in team_index or vic not in team_index:
+                    continue
+                t = snap_index[st]
+                ia, iv = team_index[int(atk)], team_index[int(vic)]
+                intensity = max(0.0, float(dmg or 0)) + 100.0 * int(kills) + 50.0 * int(groggies)
+                if intensity > 0:
+                    A_s[t, COMBAT, ia, iv] = float(np.log1p(intensity))
+
+            A_s = _row_normalize(A_s)
+            Ap = np.zeros((SNAP_T_MAX, len(SNAP_EDGE_TYPES), N, N), dtype=np.float32)
+            Ap[:T_s] = A_s
 
         return SnapshotTensors(
             match_id=match_id,

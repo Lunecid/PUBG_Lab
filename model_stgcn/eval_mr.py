@@ -50,7 +50,8 @@ def _shuffle_time(batch: dict, generator: torch.Generator) -> None:
         real = nm[b].any(dim=-1).nonzero(as_tuple=False).flatten()
         if real.numel() <= 1:
             continue
-        perm = real[torch.randperm(real.numel(), generator=generator)]
+        order = torch.randperm(real.numel(), generator=generator).to(real.device)
+        perm = real[order]
         for key in ("X_s", "A_s", "node_mask_s", "phase_of_snap"):
             t = batch[key]
             t[b, real] = t[b, perm].clone()

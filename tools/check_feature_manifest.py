@@ -51,16 +51,19 @@ def _view_columns(view_name: str) -> set[str]:
 
 def build_report(manifest: dict[str, Any], view_name: str) -> dict[str, Any]:
     columns = _view_columns(view_name)
+    forbidden = set(manifest.get("forbidden_input_columns", []))
     family_reports = {}
     for family_name, family in manifest["families"].items():
         wanted = list(family.get("columns", []))
         present = [col for col in wanted if col in columns]
         missing = [col for col in wanted if col not in columns]
+        forbidden_hits = [col for col in wanted if col in forbidden]
         family_reports[family_name] = {
             "status": family.get("status"),
             "wanted": len(wanted),
             "present": len(present),
             "missing": len(missing),
+            "forbidden_hits": forbidden_hits,
             "present_columns": present,
             "missing_columns": missing,
         }
@@ -75,12 +78,20 @@ def build_report(manifest: dict[str, Any], view_name: str) -> dict[str, Any]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
-    parser.add_argument("--view", default="stdb.v_team_phase_feature_long")
+    parser.add_argument(
+        "--view",
+        default=None,
+        help=(
+            "Feature view/table to audit. Defaults to manifest source_view_target "
+            "when present, otherwise stdb.v_team_phase_feature_long."
+        ),
+    )
     parser.add_argument("--pretty", action="store_true")
     args = parser.parse_args()
 
     manifest = _load_manifest(args.manifest)
-    report = build_report(manifest, args.view)
+    view_name = args.view or manifest.get("source_view_target") or "stdb.v_team_phase_feature_long"
+    report = build_report(manifest, view_name)
     indent = 2 if args.pretty else None
     print(json.dumps(report, indent=indent, ensure_ascii=False))
     return 0

@@ -1,0 +1,69 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{parskip}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\definecolor{accent}{HTML}{1D4ED8}
+\titleformat{\section}{\normalfont\large\bfseries\color{accent}}{}{0em}{}
+\titlespacing{\section}{0pt}{1.2em}{0.4em}
+
+\title{\textbf{From Proximity to Tactical Advantage}\\[2pt]
+\large Speaker script --- per slide}
+\author{Baek Seongeun \,\textbar\, Pusan National University \,\textbar\, Graph Data Analysis}
+\date{}
+
+\begin{document}
+\maketitle
+\noindent\textit{Speaking notes for the 15-slide deck (\texttt{graph\_deck.pdf}). English, conversational delivery; about 9--11 minutes. The narrative front-loads the key finding: ordinary interaction topology behaves as smoothing, which motivates redesigning the relation itself.}
+\vspace{0.5em}\hrule
+
+\section{Slide 1 --- Title}
+Good afternoon. My name is Baek Seongeun. Today I will talk about predicting survival in PUBG with graph models. We started from a simple question: if we connect teams by how they interact, does that graph \emph{structure} actually help us predict who survives? The answer I will build toward is surprising --- the obvious interaction edges mostly behaved like \emph{smoothing}, not real tactical signal --- and that negative result is what makes this study interesting.
+
+\section{Slide 2 --- PUBG as team relations in a contracting habitat}
+First, the worldview. A PUBG match is not isolated players; it is teams moving and fighting inside a safe zone that keeps shrinking. This is one real match on Erangel. Every dot is a team, and every line is a relation our model encodes --- who is near whom, who is shooting whom, and who is squeezed together by the zone. The winner is marked only for the picture; it is never a model input. The point is simply that survival here is \emph{relational} and \emph{spatial}.
+
+\section{Slide 3 --- Objective: a relational, team-level view}
+So how is this different from prior work? Earlier PUBG studies mostly model one player at a time --- score their aggressiveness, assign a play-style, and predict that player. We instead read the match as a graph of team relations evolving inside a contracting habitat. Our objective is to predict, per phase, which team is eliminated next and where each team finishes --- and, critically, to \emph{test whether the relational structure itself carries any signal}.
+
+\section{Slide 4 --- Related work}
+The closest prior work is Sagong and colleagues, 2025. They derive a Fight-score and an Active-score per phase, cluster players into four types, and predict with tree models --- but only for \emph{solo} players; teams are deliberately excluded. We bring back exactly the team-relational dimension they set aside, and we are careful to test, \emph{under null controls}, whether the topology actually carries signal --- not just whether the model scores well.
+
+\section{Slide 5 --- Data and the prediction task}
+The data is a squad spatio-temporal database built from match telemetry --- about fifteen thousand squad matches, on nine maps, split \emph{by match} into train, validation, and test, which gives roughly 0.86 million labeled team-phase cells. Now the labeling, because leakage is easy here. Every prediction is made from a causal cut: features are observed only up to phase $p$, and we predict phase $p\!+\!1$. We score a team only while it is still alive --- that is the at-risk mask --- so eliminated teams are never predicted. The two targets are: \emph{is the team eliminated next phase}, scored by AUC; and \emph{where does it finish}, scored by Spearman correlation. An exact-name blocklist keeps any outcome field out of the inputs.
+
+\section{Slide 6 --- A dynamic, heterogeneous graph}
+Concretely, each match is a dynamic, heterogeneous graph. \emph{Heterogeneous}, because teams are connected by three distinct relation types kept as separate channels --- proximity, combat, and co-pressure --- and R-GCN convolves each on its own matrix. \emph{Dynamic}, because the graph is rebuilt every phase and also sampled at ten-second snapshots, and a causal temporal encoder reads how it evolves.
+
+\section{Slide 7 --- How the three relations are built}
+The three relations are constructed differently. Proximity is a symmetric distance kernel --- closer teams, stronger edge. Combat is directed, from attacker to victim, weighted by damage, knockdowns, and kills. Co-pressure is symmetric but \emph{gated}: it only fires when two nearby teams are both being squeezed by the zone. Each channel is row-normalized on its own.
+
+\section{Slide 8 --- Architecture}
+Here is the architecture. The input is the team graph, with node features and three relation channels. The core is a spatio-temporal block applied twice: a graph layer, where each team aggregates messages from its neighbors per relation, and a causal temporal convolution across phases. That produces a sixty-four-dimensional embedding per team, which feeds two heads --- a hazard MLP for elimination, and a decoder for final rank. Only the graph encoder is swapped across the model variants.
+
+\section{Slide 9 --- Elimination results}
+Now the results. For elimination, all the graph encoders --- GCN, GraphSAGE, GAT, R-GCN --- track within about two AUC-hundredths of each other, just above the no-graph baseline. The encoders cluster tightly, which already tells us the architecture is not the lever.
+
+\section{Slide 10 --- Ranking results}
+For final rank, the correlation clearly rises from phase three to six. But --- and this matters --- exactly the same rise appears with \emph{no} graph at all. As the match goes on, the at-risk set shrinks about seven-fold, so the few survivors are simply easier to order. The graph lifts the whole curve a little, but it does not create that rise. It is a survivor-selection effect, not a graph gain.
+
+\section{Slide 11 --- Performance summary}
+So, to summarize the performance: yes, adding a graph lifts the numbers a little, and the spread across encoders is tiny. But a performance lift is not the same as topology signal --- and the rank gain, as we just saw, is survivor selection. That sets up the key test on the next slide.
+
+\section{Slide 12 --- Null-control: the central result}
+This is the central result. We compare the observed topology against an edge-shuffle null. Edge-shuffle keeps each relation's weight distribution and density, but randomly reassigns the endpoints among alive teams --- so it destroys the actual wiring while preserving everything else. If the real topology mattered, observed should beat shuffle. It does not: shuffle is equal or better in every seed, and significantly better in the early phases. The honest conclusion is that the observed topology adds \emph{no usable signal} beyond plain graph averaging.
+
+\section{Slide 13 --- Redesigning the relation (preliminary)}
+Why does it fail? Because proximity, combat, and co-pressure encode that an interaction \emph{exists} and how intense it is --- not who holds the \emph{advantage}. As a preliminary follow-up, we redesigned the edge to carry relative advantage --- differences in elevation, numbers, health, and zone position, gated on contact. That relation does show a small but consistent positive signal over the null controls. The effect is small and the result is early, but it points in the right direction.
+
+\section{Slide 14 --- Limitations and contributions}
+To be honest about limitations: the observed topology is essentially smoothing, the map figures illustrate a single game, and the advantage edge is preliminary. The contributions are a phase-causal, team-level graph formulation for PUBG survival; a null-control protocol that exposes the smoothing; the relation-design hypothesis; and a multi-resolution telemetry pipeline linking snapshots, phases, hazard, and rank.
+
+\section{Slide 15 --- Conclusion}
+The takeaway is this: relation \emph{type}, not the GNN architecture, decides whether topology helps. Connecting teams by proximity or combat just averages their states. The value is in designing relations that match the game's mechanics --- relative tactical advantage --- and using the GNN only to read them. Thank you; I am happy to take questions.
+
+\vspace{1em}\hrule
+\vspace{0.4em}
+\noindent\small\textit{Likely questions to prepare: (1) ``causal'' here means leakage-safe / phase-causal, not causal inference. (2) N=128 is a padding cushion (typical squad $\approx$27 teams); T=8 phase slots, 7 scored cut-phases. (3) The no-graph baseline excludes graph-derived node features (core\_habitat set), so the null comparison is clean. (4) Edge-shuffle preserves degree-free weight/density per match-phase and randomizes endpoints. (5) The rank rise is survivor-set narrowing, present without the graph. (6) The $+0.003$ AUC advantage result is small and hypothesis-generating, not a main claim.}
+
+\end{document}

@@ -1,0 +1,230 @@
+pubg_feature_name,genre_primitive,entity_owner,tensor_owner,clock,causal_window,model_stream,domain_mechanism,leakage_risk,allowed_models,notes
+match_id,match_instance,match,M,match_static,match_static,split_only,domain,none,all_models,split unit only never row-split within match
+team_id,team_identity,team,M,match_static,match_static,split_only,domain,none,all_models,index key only not a feature signal
+map_name,arena,global,U,match_static,match_static,global_context,domain,none,baseline|snapshot_first|graph_model,stratification or optional conditioning
+game_mode,population_rule_set,global,U,match_static,match_static,global_context,domain,none,baseline|snapshot_first|graph_model,solo duo squad changes roster semantics
+match_type,population_rule_set,global,U,match_static,match_static,global_context,domain,none,baseline|graph_model,match type domain channel
+camera_view_type,perspective_rule_set,global,U,match_static,match_static,global_context,domain,none,baseline|snapshot_first|graph_model,FPP TPP domain channel
+weather_id,arena_condition,global,U,match_static,match_static,global_context,domain,none,baseline|graph_model,weather or arena condition metadata
+match_team_size,population_rule_set,global,U,match_static,match_static,global_context,domain,none,baseline|snapshot_first|graph_model,declared population structure
+phase_idx,compression_phase,global,U,phase_cut,instant,global_context,zone,none,baseline|snapshot_first|graph_model,cut index not outcome
+phase_start_s,compression_phase,global,U,phase_cut,instant,global_context,zone,none,phase_baseline|graph_model,phase boundary metadata
+phase_end_s,compression_phase,global,U,phase_cut,instant,global_context,zone,none,phase_baseline|graph_model,phase boundary metadata
+phase_duration_s,compression_phase,global,U,phase_cut,instant,global_context,zone,none,phase_baseline|graph_model,phase duration context
+pos_x,agent_position,team,X_s,snapshot_10s,instant,snapshot_node,space,none,snapshot_first|graph_model,10s team centroid x from stdb.team_snapshot_features
+pos_y,agent_position,team,X_s,snapshot_10s,instant,snapshot_node,space,none,snapshot_first|graph_model,10s team centroid y from stdb.team_snapshot_features
+pos_z,agent_position,team,X_s,snapshot_10s,instant,snapshot_node,space,none,snapshot_first|graph_model,10s team centroid altitude
+rel_zone_x,hazard_field_relative_position,team,X_s,snapshot_10s,instant,snapshot_node,zone,none,snapshot_first|graph_model,zone-normalized x relative to safe center
+rel_zone_y,hazard_field_relative_position,team,X_s,snapshot_10s,instant,snapshot_node,zone,none,snapshot_first|graph_model,zone-normalized y relative to safe center
+speed_mps,rotation,team,X_s,snapshot_10s,trailing_10s,snapshot_node,rotation,none,snapshot_first|graph_model,past-only lag speed
+dist_blue_boundary_m,exposure,team,X_s,snapshot_10s,instant,snapshot_node,zone,none,snapshot_first|graph_model,signed blue-zone boundary distance
+inside_blue,hazard_exposure,team,X_s,snapshot_10s,instant,snapshot_node,zone,none,snapshot_first|graph_model,current safe-zone containment
+dist_target_center_m,rotation_pressure,team,X_s,snapshot_10s,instant,snapshot_node,zone,none,snapshot_first|graph_model,distance to next target safe-zone center if available
+mean_health,roster_survival_capital,team,X_s,snapshot_10s,instant,snapshot_node,roster,none,snapshot_first|graph_model,player health aggregated to team snapshot
+min_health,roster_survival_capital,team,X_s,snapshot_10s,instant,snapshot_node,roster,none,snapshot_first|graph_model,worst surviving player health
+alive_n,roster_survival_capital,team,X_s,snapshot_10s,instant,snapshot_node,roster,none,snapshot_first|graph_model,current alive roster count
+vehicle_ratio,mobility_resource,team,X_s,snapshot_10s,instant,snapshot_node,resource,none,snapshot_first|graph_model,fraction of players in vehicle
+edge_snapshot_proximity,spatial_exposure,pair,A_s,snapshot_10s,instant,snapshot_edge,relation,none,snapshot_first|graph_model,team_proximity distance at snapshot
+edge_snapshot_combat,combat_interaction,pair,A_s,snapshot_10s,trailing_10s,snapshot_edge,combat,none,snapshot_first|graph_model,directed attacker to victim event intensity in past 10s
+edge_contact_gated_relative_advantage,relative_survival_advantage,pair,E_s,snapshot_10s,instant_or_trailing_10s,snapshot_edge,relation,none,snapshot_first|graph_model,planned edge features such as delta_z delta_alive delta_health delta_zone under contact gate
+avg_alive_teams,population_pressure,global,U,phase_window,phase_to_date,global_context,zone,none,phase_baseline|graph_model,phase-level alive team context
+start_alive_teams,population_pressure,global,U,phase_cut,instant,global_context,zone,none,phase_baseline|graph_model,alive teams at phase start
+end_alive_teams,population_pressure,global,U,phase_cut,instant,global_context,zone,suspicious,phase_baseline|graph_model,use only if cut is after phase end for descriptive analysis
+avg_alive_players,population_pressure,global,U,phase_window,phase_to_date,global_context,roster,none,phase_baseline|graph_model,phase-level alive player context
+start_alive_players,population_pressure,global,U,phase_cut,instant,global_context,roster,none,phase_baseline|graph_model,alive players at phase start
+end_alive_players,population_pressure,global,U,phase_cut,instant,global_context,roster,suspicious,phase_baseline|graph_model,use only if cut is after phase end for descriptive analysis
+safe_center_x_end,hazard_field,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,wildcard for safe center start and end columns; physical column expanded from safe_center_x_*
+safe_center_x_start,hazard_field,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,wildcard for safe center start and end columns; physical column expanded from safe_center_x_*
+safe_center_y_end,hazard_field,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,wildcard for safe center start and end columns; physical column expanded from safe_center_y_*
+safe_center_y_start,hazard_field,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,wildcard for safe center start and end columns; physical column expanded from safe_center_y_*
+safe_center_shift_m,arena_shift,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,safe center shift over phase
+safe_radius_delta_m,hazard_field,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,wildcard for safe radius start end and delta; physical column expanded from safe_radius_*_m
+safe_radius_end_m,hazard_field,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,wildcard for safe radius start end and delta; physical column expanded from safe_radius_*_m
+safe_radius_start_m,hazard_field,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,wildcard for safe radius start end and delta; physical column expanded from safe_radius_*_m
+poison_center_x_end,compression_target,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,target or poison zone center context; physical column expanded from poison_center_*
+poison_center_x_start,compression_target,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,target or poison zone center context; physical column expanded from poison_center_*
+poison_center_y_end,compression_target,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,target or poison zone center context; physical column expanded from poison_center_*
+poison_center_y_start,compression_target,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,target or poison zone center context; physical column expanded from poison_center_*
+poison_radius_delta_m,compression_target,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,target or poison radius context; physical column expanded from poison_radius_*_m
+poison_radius_end_m,compression_target,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,target or poison radius context; physical column expanded from poison_radius_*_m
+poison_radius_start_m,compression_target,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,target or poison radius context; physical column expanded from poison_radius_*_m
+zone_gap_end_m,arena_shift,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,wildcard for gap between current safe and target zone; physical column expanded from zone_gap_*_m
+zone_gap_start_m,arena_shift,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,wildcard for gap between current safe and target zone; physical column expanded from zone_gap_*_m
+red_zone_active_ratio,hazard_field,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,environmental hazard context
+black_zone_active_ratio,hazard_field,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,environmental hazard context
+team_size,roster_survival_capital,team,X_phase,phase_cut,instant,phase_node,roster,none,phase_baseline|graph_model,observed or declared roster size
+position_rows,telemetry_coverage,team,X_phase,phase_window,phase_window,phase_node,roster,suspicious,phase_baseline|graph_model,coverage count useful for audit not main claim
+alive_players_avg,roster_survival_capital,team,X_phase,phase_window,phase_window,phase_node,roster,none,phase_baseline|graph_model,wildcard for start end min avg; physical column expanded from alive_players_*
+alive_players_end,roster_survival_capital,team,X_phase,phase_window,phase_window,phase_node,roster,none,phase_baseline|graph_model,wildcard for start end min avg; physical column expanded from alive_players_*
+alive_players_min,roster_survival_capital,team,X_phase,phase_window,phase_window,phase_node,roster,none,phase_baseline|graph_model,wildcard for start end min avg; physical column expanded from alive_players_*
+alive_players_start,roster_survival_capital,team,X_phase,phase_window,phase_window,phase_node,roster,none,phase_baseline|graph_model,wildcard for start end min avg; physical column expanded from alive_players_*
+mean_health_avg,roster_survival_capital,team,X_phase,phase_window,phase_window,phase_node,roster,none,phase_baseline|graph_model,phase average health
+min_health_min,roster_survival_capital,team,X_phase,phase_window,phase_window,phase_node,roster,none,phase_baseline|graph_model,phase minimum health
+health_slope,roster_survival_capital,team,X_phase,phase_window,phase_window,phase_node,roster,none,phase_baseline|graph_model,past-in-phase health trend
+team_centroid_x_start,agent_position,team,X_phase,phase_cut,instant,phase_node,space,none,phase_baseline|graph_model,phase start centroid wildcard; physical column expanded from team_centroid_*_start
+team_centroid_y_start,agent_position,team,X_phase,phase_cut,instant,phase_node,space,none,phase_baseline|graph_model,phase start centroid wildcard; physical column expanded from team_centroid_*_start
+team_centroid_x_end,agent_position,team,X_phase,phase_cut,phase_window,phase_node,space,suspicious,phase_baseline|graph_model,phase end centroid use only if prediction cut allows it; physical column expanded from team_centroid_*_end
+team_centroid_y_end,agent_position,team,X_phase,phase_cut,phase_window,phase_node,space,suspicious,phase_baseline|graph_model,phase end centroid use only if prediction cut allows it; physical column expanded from team_centroid_*_end
+team_displacement_raw_m,rotation,team,X_phase,phase_window,phase_window,phase_node,rotation,none,phase_baseline|graph_model,phase displacement
+team_avg_speed_raw_mps,rotation,team,X_phase,phase_window,phase_window,phase_node,rotation,none,phase_baseline|graph_model,phase movement speed
+path_length_m,rotation,team,X_phase,phase_window,phase_window,phase_node,rotation,none,phase_baseline|graph_model,STDB path length
+displacement_m,rotation,team,X_phase,phase_window,phase_window,phase_node,rotation,none,phase_baseline|graph_model,STDB displacement
+sinuosity,rotation,team,X_phase,phase_window,phase_window,phase_node,rotation,none,phase_baseline|graph_model,trajectory shape
+avg_speed_mps,rotation,team,X_phase,phase_window,phase_window,phase_node,rotation,none,phase_baseline|graph_model,phase speed
+rotation_timing,rotation,team,X_phase,phase_window,phase_window,phase_node,rotation,none,phase_baseline|graph_model,phase rotation timing
+safe_alignment,rotation_pressure,team,X_phase,phase_window,phase_window,phase_node,zone,none,phase_baseline|graph_model,alignment to safe zone
+zone_entry_time,hazard_exposure,team,X_phase,phase_window,phase_window,phase_node,zone,none,phase_baseline|graph_model,entry timing into safe zone
+outside_safe_duration_s,hazard_exposure,team,X_phase,phase_window,phase_window,phase_node,zone,none,phase_baseline|graph_model,time outside safe zone
+boundary_distance_slope,hazard_exposure,team,X_phase,phase_window,phase_window,phase_node,zone,none,phase_baseline|graph_model,trend toward boundary
+mean_dist_to_boundary_m,hazard_exposure,team,X_phase,phase_window,phase_window,phase_node,zone,none,phase_baseline|graph_model,average boundary distance
+min_dist_to_boundary_m,hazard_exposure,team,X_phase,phase_window,phase_window,phase_node,zone,none,phase_baseline|graph_model,minimum boundary distance
+outside_safe_ratio,hazard_exposure,team,X_phase,phase_window,phase_window,phase_node,zone,none,phase_baseline|graph_model,phase outside-safe ratio
+team_spread_avg_m,squad_cohesion,team,X_phase,phase_window,phase_window,phase_node,roster,none,phase_baseline|graph_model,wildcard for avg and max team spread; physical column expanded from team_spread_*
+team_spread_max_m,squad_cohesion,team,X_phase,phase_window,phase_window,phase_node,roster,none,phase_baseline|graph_model,wildcard for avg and max team spread; physical column expanded from team_spread_*
+vehicle_speed_max,mobility_resource,team,X_phase,phase_window,phase_window,phase_node,resource,none,phase_baseline|graph_model,wildcard for vehicle speed mean and max; physical column expanded from vehicle_speed_*
+vehicle_ratio,mobility_resource,team,X_phase,phase_window,phase_window,phase_node,resource,none,phase_baseline|graph_model,phase aggregate vehicle occupancy ratio from stdb.v_team_phase_feature_v2; distinct from snapshot vehicle_ratio
+vehicle_speed_mean,mobility_resource,team,X_phase,phase_window,phase_window,phase_node,resource,none,phase_baseline|graph_model,wildcard for vehicle speed mean and max; physical column expanded from vehicle_speed_*
+damage_dealt,combat_interaction,team,X_phase,phase_window,phase_window,phase_node,combat,none,phase_baseline|graph_model,phase outgoing damage
+damage_taken,combat_interaction,team,X_phase,phase_window,phase_window,phase_node,combat,none,phase_baseline|graph_model,phase incoming damage
+damage_events_dealt,combat_interaction,team,X_phase,phase_window,phase_window,phase_node,combat,none,phase_baseline|graph_model,wildcard for dealt and taken counts; physical column expanded from damage_events_*
+damage_events_taken,combat_interaction,team,X_phase,phase_window,phase_window,phase_node,combat,none,phase_baseline|graph_model,wildcard for dealt and taken counts; physical column expanded from damage_events_*
+groggy_dealt,combat_interaction,team,X_phase,phase_window,phase_window,phase_node,combat,none,phase_baseline|graph_model,wildcard for dealt and taken knock events; physical column expanded from groggy_*
+groggy_taken,combat_interaction,team,X_phase,phase_window,phase_window,phase_node,combat,none,phase_baseline|graph_model,wildcard for dealt and taken knock events; physical column expanded from groggy_*
+kills_dealt,combat_interaction,team,X_phase,phase_window,phase_window,phase_node,combat,none,phase_baseline|graph_model,wildcard for dealt and taken kills; physical column expanded from kills_*
+kills_taken,combat_interaction,team,X_phase,phase_window,phase_window,phase_node,combat,none,phase_baseline|graph_model,wildcard for dealt and taken kills; physical column expanded from kills_*
+assists_count,combat_interaction,team,X_phase,phase_window,phase_window,phase_node,combat,none,phase_baseline|graph_model,phase assist count
+suicide_count,self_elimination_event,team,X_phase,phase_window,phase_window,phase_node,combat,suspicious,phase_baseline|graph_model,descriptive event count handle carefully
+distinct_opponents_damaged,encounter,team,X_phase,phase_window,phase_window,phase_node,combat,none,phase_baseline|graph_model,opponent diversity in combat; physical column expanded from distinct_opponents_damaged*
+distinct_opponents_damaged_by,encounter,team,X_phase,phase_window,phase_window,phase_node,combat,none,phase_baseline|graph_model,opponent diversity in combat; physical column expanded from distinct_opponents_damaged*
+combat_partner_count,encounter,team,X_phase,phase_window,phase_window,phase_node,combat,none,phase_baseline|graph_model,number of combat-connected teams
+first_damage_dealt_s,combat_timing,team,X_phase,phase_window,phase_window,phase_node,combat,none,phase_baseline|graph_model,time of first outgoing damage in phase
+first_damage_taken_s,combat_timing,team,X_phase,phase_window,phase_window,phase_node,combat,none,phase_baseline|graph_model,time of first incoming damage in phase
+combat_initiated,combat_interaction,team,X_phase,phase_window,phase_window,phase_node,combat,none,phase_baseline|graph_model,whether team initiated combat
+nearby_enemy_combat_events_200m,third_party_exposure,team,X_phase,phase_window,phase_window,phase_node,combat,none,phase_baseline|graph_model,nearby combat exposure
+third_party_exposure_count,third_party_exposure,team,X_phase,phase_window,phase_window,phase_node,combat,none,phase_baseline|graph_model,third-party exposure count
+pickup_count,resource_readiness,team,X_phase,phase_window,phase_window,phase_node,resource,none,phase_baseline|graph_model,phase item pickup count
+equip_count,resource_readiness,team,X_phase,phase_window,phase_window,phase_node,resource,none,phase_baseline|graph_model,phase equip count
+use_count,resource_readiness,team,X_phase,phase_window,phase_window,phase_node,resource,none,phase_baseline|graph_model,phase item use count
+unique_item_count,resource_readiness,team,X_phase,phase_window,phase_window,phase_node,resource,none,phase_baseline|graph_model,unique item count
+weapon_equip_count,resource_readiness,team,X_phase,phase_window,phase_window,phase_node,resource,none,phase_baseline|graph_model,weapon pickup and equip wildcard; physical column expanded from weapon_*_count
+weapon_pickup_count,resource_readiness,team,X_phase,phase_window,phase_window,phase_node,resource,none,phase_baseline|graph_model,weapon pickup and equip wildcard; physical column expanded from weapon_*_count
+ammo_pickup_count,resource_readiness,team,X_phase,phase_window,phase_window,phase_node,resource,none,phase_baseline|graph_model,ammo resource
+armor_pickup_count,resource_readiness,team,X_phase,phase_window,phase_window,phase_node,resource,none,phase_baseline|graph_model,armor resource
+throwable_pickup_count,resource_readiness,team,X_phase,phase_window,phase_window,phase_node,resource,none,phase_baseline|graph_model,throwable resource
+heal_use_count,resource_readiness,team,X_phase,phase_window,phase_window,phase_node,resource,none,phase_baseline|graph_model,healing resource use
+boost_use_count,resource_readiness,team,X_phase,phase_window,phase_window,phase_node,resource,none,phase_baseline|graph_model,boost resource use
+carepackage_pickup_count,resource_competition,team,X_phase,phase_window,phase_window,phase_node,resource,none,phase_baseline|graph_model,high-value resource acquisition
+lootbox_pickup_count,resource_competition,team,X_phase,phase_window,phase_window,phase_node,resource,none,phase_baseline|graph_model,resource from eliminated players
+landing_distance,initial_positioning,team,X_phase,phase_window,phase_window,phase_node,space,none,phase_baseline|graph_model,landing time location distance spread wildcard; physical column expanded from landing_*
+landing_t,initial_positioning,team,X_phase,phase_window,phase_window,phase_node,space,none,phase_baseline|graph_model,landing time location distance spread wildcard; physical column expanded from landing_*
+landing_team_spread_m,initial_positioning,team,X_phase,phase_window,phase_window,phase_node,space,none,phase_baseline|graph_model,landing time location distance spread wildcard; physical column expanded from landing_*
+landing_x,initial_positioning,team,X_phase,phase_window,phase_window,phase_node,space,none,phase_baseline|graph_model,landing time location distance spread wildcard; physical column expanded from landing_*
+landing_y,initial_positioning,team,X_phase,phase_window,phase_window,phase_node,space,none,phase_baseline|graph_model,landing time location distance spread wildcard; physical column expanded from landing_*
+avg_enemy_density_100m,local_density,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,local opponent density
+min_nearest_enemy_m,spatial_exposure,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,nearest enemy distance summary
+path_near_enemy_ratio,spatial_exposure,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,route exposure to enemies
+recent_damage_taken,combat_pressure,team,X_phase,phase_window,trailing_window,phase_node,combat,none,phase_baseline|graph_model,recent incoming damage
+combat_zone_pass_count,combat_zone_interaction,team,X_phase,phase_window,phase_window,phase_node,combat,none,phase_baseline|graph_model,combat events encountered along zone passage
+fight_score,strategy_state,team,X_phase,phase_window,phase_window,phase_node,strategy,none,sagong_baseline|phase_baseline,train-split-fitted score only
+active_score,strategy_state,team,X_phase,phase_window,phase_window,phase_node,strategy,none,sagong_baseline|phase_baseline,train-split-fitted score only
+strategy_type,strategy_state,team,X_phase,phase_window,phase_window,phase_node,strategy,none,sagong_baseline|phase_baseline,Hunter Sniper Traveler Camper style category
+type_survival_rate,strategy_state,team,X_phase,phase_window,train_split_only,phase_node,strategy,suspicious,sagong_baseline,use train split fitted category rate only
+net_combat_balance,projected_combat_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from combat graph; physical column expanded from net_combat_*
+net_combat_in_degree,projected_combat_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from combat graph; physical column expanded from net_combat_*
+net_combat_in_strength,projected_combat_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from combat graph; physical column expanded from net_combat_*
+net_combat_in_strength_per_alive_team,projected_combat_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from combat graph; physical column expanded from net_combat_*
+net_combat_in_strength_per_min,projected_combat_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from combat graph; physical column expanded from net_combat_*
+net_combat_out_degree,projected_combat_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from combat graph; physical column expanded from net_combat_*
+net_combat_out_strength,projected_combat_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from combat graph; physical column expanded from net_combat_*
+net_combat_out_strength_per_alive_team,projected_combat_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from combat graph; physical column expanded from net_combat_*
+net_combat_out_strength_per_min,projected_combat_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from combat graph; physical column expanded from net_combat_*
+net_combat_reciprocal_pairs,projected_combat_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from combat graph; physical column expanded from net_combat_*
+net_combat_reciprocity_ratio,projected_combat_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from combat graph; physical column expanded from net_combat_*
+net_combat_total_degree,projected_combat_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from combat graph; physical column expanded from net_combat_*
+net_combat_total_strength,projected_combat_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from combat graph; physical column expanded from net_combat_*
+net_combat_unique_attackers,projected_combat_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from combat graph; physical column expanded from net_combat_*
+net_combat_unique_targets,projected_combat_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from combat graph; physical column expanded from net_combat_*
+net_prox_degree_100m,projected_exposure_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from proximity graph; physical column expanded from net_prox_*
+net_prox_degree_200m,projected_exposure_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from proximity graph; physical column expanded from net_prox_*
+net_prox_degree_200m_per_alive_team,projected_exposure_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from proximity graph; physical column expanded from net_prox_*
+net_prox_degree_500m,projected_exposure_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from proximity graph; physical column expanded from net_prox_*
+net_prox_isolation_m,projected_exposure_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from proximity graph; physical column expanded from net_prox_*
+net_prox_mean_distance_m,projected_exposure_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from proximity graph; physical column expanded from net_prox_*
+net_prox_min_distance_m,projected_exposure_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from proximity graph; physical column expanded from net_prox_*
+net_prox_neighbor_entropy,projected_exposure_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from proximity graph; physical column expanded from net_prox_*
+net_prox_strength_decay,projected_exposure_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from proximity graph; physical column expanded from net_prox_*
+net_prox_top1_weight,projected_exposure_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from proximity graph; physical column expanded from net_prox_*
+net_prox_top3_strength,projected_exposure_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from proximity graph; physical column expanded from net_prox_*
+net_copress_degree,projected_copressure_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from co-pressure graph; physical column expanded from net_copress_*
+net_copress_degree_per_alive_team,projected_copressure_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from co-pressure graph; physical column expanded from net_copress_*
+net_copress_max_weight,projected_copressure_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from co-pressure graph; physical column expanded from net_copress_*
+net_copress_mean_ratio,projected_copressure_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from co-pressure graph; physical column expanded from net_copress_*
+net_copress_shared_pressure_count,projected_copressure_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from co-pressure graph; physical column expanded from net_copress_*
+net_copress_strength,projected_copressure_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from co-pressure graph; physical column expanded from net_copress_*
+net_copress_top1_weight,projected_copressure_role,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,node-level summary derived from co-pressure graph; physical column expanded from net_copress_*
+cum_combat_in_degree,cumulative_combat_role,team,X_phase,phase_to_date,phase_to_date,phase_node,relation,none,phase_baseline|graph_model,cumulative combat graph summary; physical column expanded from cum_combat_*
+cum_combat_in_strength,cumulative_combat_role,team,X_phase,phase_to_date,phase_to_date,phase_node,relation,none,phase_baseline|graph_model,cumulative combat graph summary; physical column expanded from cum_combat_*
+cum_combat_out_degree,cumulative_combat_role,team,X_phase,phase_to_date,phase_to_date,phase_node,relation,none,phase_baseline|graph_model,cumulative combat graph summary; physical column expanded from cum_combat_*
+cum_combat_out_strength,cumulative_combat_role,team,X_phase,phase_to_date,phase_to_date,phase_node,relation,none,phase_baseline|graph_model,cumulative combat graph summary; physical column expanded from cum_combat_*
+cum_combat_reciprocal_pairs,cumulative_combat_role,team,X_phase,phase_to_date,phase_to_date,phase_node,relation,none,phase_baseline|graph_model,cumulative combat graph summary; physical column expanded from cum_combat_*
+cum_combat_total_strength,cumulative_combat_role,team,X_phase,phase_to_date,phase_to_date,phase_node,relation,none,phase_baseline|graph_model,cumulative combat graph summary; physical column expanded from cum_combat_*
+cum_unique_attackers,cumulative_combat_role,team,X_phase,phase_to_date,phase_to_date,phase_node,relation,none,phase_baseline|graph_model,cumulative unique target or attacker counts; physical column expanded from cum_unique_*
+cum_unique_targets,cumulative_combat_role,team,X_phase,phase_to_date,phase_to_date,phase_node,relation,none,phase_baseline|graph_model,cumulative unique target or attacker counts; physical column expanded from cum_unique_*
+cum_prox_close_exposure_200m,cumulative_exposure_role,team,X_phase,phase_to_date,phase_to_date,phase_node,relation,none,phase_baseline|graph_model,cumulative proximity graph summary; physical column expanded from cum_prox_*
+cum_copress_strength,cumulative_copressure_role,team,X_phase,phase_to_date,phase_to_date,phase_node,relation,none,phase_baseline|graph_model,cumulative co-pressure graph summary; physical column expanded from cum_copress_*
+hab_safe_area_delta_m2,habitat_compression,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,safe area start end and delta; physical column expanded from hab_safe_area_*
+hab_safe_area_end_m2,habitat_compression,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,safe area start end and delta; physical column expanded from hab_safe_area_*
+hab_safe_area_start_m2,habitat_compression,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,safe area start end and delta; physical column expanded from hab_safe_area_*
+hab_loss_ratio,habitat_compression,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,area loss ratio
+hab_shrink_rate_m2ps,habitat_compression,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,arena compression rate
+hab_alive_teams,population_pressure,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,alive teams under habitat computation
+hab_safe_area_per_alive_team,habitat_carrying_capacity,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,available safe area per alive team
+hab_crowding_pressure,habitat_crowding,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,global crowding pressure
+hab_center_shift_m,arena_shift,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,zone center movement wildcard; physical column expanded from hab_center_shift_*
+hab_center_shift_per_radius,arena_shift,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,zone center movement wildcard; physical column expanded from hab_center_shift_*
+hab_zone_gap_end_m,arena_shift,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,gap between current and target zone; physical column expanded from hab_zone_gap_*
+hab_zone_gap_pressure,arena_shift,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,gap between current and target zone; physical column expanded from hab_zone_gap_*
+hab_zone_gap_start_m,arena_shift,global,U,phase_window,phase_window,global_context,zone,none,phase_baseline|graph_model,gap between current and target zone; physical column expanded from hab_zone_gap_*
+hab_dist_to_safe_boundary_end_m,hazard_exposure,team,X_phase,phase_window,phase_window,phase_node,zone,none,phase_baseline|graph_model,team distance to safe boundary wildcard; physical column expanded from hab_dist_to_safe_boundary_*
+hab_dist_to_safe_boundary_start_m,hazard_exposure,team,X_phase,phase_window,phase_window,phase_node,zone,none,phase_baseline|graph_model,team distance to safe boundary wildcard; physical column expanded from hab_dist_to_safe_boundary_*
+hab_signed_boundary_distance_end_m,hazard_exposure,team,X_phase,phase_window,phase_window,phase_node,zone,none,phase_baseline|graph_model,signed boundary distance wildcard; physical column expanded from hab_signed_boundary_distance_*
+hab_signed_boundary_distance_start_m,hazard_exposure,team,X_phase,phase_window,phase_window,phase_node,zone,none,phase_baseline|graph_model,signed boundary distance wildcard; physical column expanded from hab_signed_boundary_distance_*
+hab_distance_to_target_safe_m,forced_rotation,team,X_phase,phase_window,phase_window,phase_node,zone,none,phase_baseline|graph_model,distance to target safe zone
+hab_required_speed_to_safe_mps,forced_rotation,team,X_phase,phase_window,phase_window,phase_node,zone,none,phase_baseline|graph_model,required speed to safety
+hab_observed_speed_mps,rotation,team,X_phase,phase_window,phase_window,phase_node,rotation,none,phase_baseline|graph_model,observed movement speed
+hab_migration_deficit_mps,forced_rotation,team,X_phase,phase_window,phase_window,phase_node,zone,none,phase_baseline|graph_model,required minus observed speed
+hab_outside_safe_ratio,hazard_exposure,team,X_phase,phase_window,phase_window,phase_node,zone,none,phase_baseline|graph_model,habitat outside-safe ratio
+hab_edge_pressure_ratio,hazard_exposure,team,X_phase,phase_window,phase_window,phase_node,zone,none,phase_baseline|graph_model,edge pressure ratio
+hab_rotation_delay_ratio,forced_rotation,team,X_phase,phase_window,phase_window,phase_node,zone,none,phase_baseline|graph_model,rotation delay under compression
+hab_safe_alignment_to_target,forced_rotation,team,X_phase,phase_window,phase_window,phase_node,zone,none,phase_baseline|graph_model,alignment to target safe zone
+hab_local_enemy_count_100m,local_density,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,local enemy count wildcard; physical column expanded from hab_local_enemy_count_*
+hab_local_enemy_count_200m,local_density,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,local enemy count wildcard; physical column expanded from hab_local_enemy_count_*
+hab_local_enemy_count_500m,local_density,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,local enemy count wildcard; physical column expanded from hab_local_enemy_count_*
+hab_local_enemy_density_200m,local_density,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,local enemy density
+hab_safe_entry_enemy_count_200m,entry_competition,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,enemies near safe entry
+hab_safe_entry_congestion,entry_competition,team,X_phase,phase_window,phase_window,phase_node,relation,none,phase_baseline|graph_model,safe-entry congestion
+hab_refuge_scarcity_simple,refuge_scarcity,team,X_phase,phase_window,phase_window,phase_node,zone,none,phase_baseline|graph_model,local refuge scarcity proxy
+edge_phase_proximity,spatial_exposure,pair,A_phase,phase_window,phase_window,phase_edge,relation,none,phase_graph_model,phase-level distance edge
+edge_phase_combat,combat_interaction,pair,A_phase,phase_window,phase_window,phase_edge,combat,none,phase_graph_model,directed phase attacker to victim intensity
+edge_phase_copressure,zone_copressure,pair,A_phase,phase_window,phase_window,phase_edge,zone,none,phase_graph_model,close teams jointly under zone pressure
+edge_habitat_forced_convergence,habitat_competition,pair,A_phase,phase_window,phase_window,phase_edge,zone,none,phase_graph_model,planned or optional habitat graph relation
+created_month,temporal_drift,global,U,match_static,match_static,global_context,domain,suspicious,baseline|graph_model,collection time derived drift controls wildcard; physical column expanded from created_*
+created_week,temporal_drift,global,U,match_static,match_static,global_context,domain,suspicious,baseline|graph_model,collection time derived drift controls wildcard; physical column expanded from created_*
+created_year,temporal_drift,global,U,match_static,match_static,global_context,domain,suspicious,baseline|graph_model,collection time derived drift controls wildcard; physical column expanded from created_*
+patch_version,temporal_drift,global,U,match_static,match_static,global_context,domain,suspicious,baseline|graph_model,patch or version control if available
+season_state,temporal_drift,global,U,match_static,match_static,global_context,domain,suspicious,baseline|graph_model,season state control if available
+target_defined,label_availability,label,M,label,after_cut,label,label,forbidden,supervision_only,mask for defined next-phase hazard target
+hazard_next,next_phase_elimination,label,Y,label,future,label,label,forbidden,supervision_only,main hazard target
+survives_next_phase,next_phase_survival,label,Y,label,future,label,label,forbidden,supervision_only,complement of hazard target
+final_rank,elimination_ranking,label,Y,label,match_end,label,label,forbidden,supervision_only,final placement target
+final_rank_norm,elimination_ranking,label,Y,label,match_end,label,label,forbidden,supervision_only,rank regression target
+final_top3,placement_threshold,label,Y,label,match_end,label,label,forbidden,supervision_only,auxiliary top-k target
+final_top5,placement_threshold,label,Y,label,match_end,label,label,forbidden,supervision_only,auxiliary top-k target
+final_top10,placement_threshold,label,Y,label,match_end,label,label,forbidden,supervision_only,auxiliary top-k target
+final_winner,placement_threshold,label,Y,label,match_end,label,label,forbidden,supervision_only,winner target
+last_phase_alive,censoring_state,label,Y,label,match_end,label,label,forbidden,supervision_only,censoring or final alive marker
+won,placement_threshold,label,Y,label,match_end,label,label,forbidden,supervision_only,legacy win label forbidden as input
+rank,elimination_ranking,label,Y,label,match_end,label,label,forbidden,supervision_only,legacy rank label forbidden as input
+victim_rank,elimination_ranking,label,Y,label,match_end,label,label,forbidden,supervision_only,legacy victim rank label forbidden as input
+match_end_rank,elimination_ranking,label,Y,label,match_end,label,label,forbidden,supervision_only,legacy match-end rank label forbidden as input
+match_end_result,elimination_ranking,label,Y,label,match_end,label,label,forbidden,supervision_only,legacy match-end result label forbidden as input

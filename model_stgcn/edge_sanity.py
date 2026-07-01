@@ -137,6 +137,11 @@ def _edge_shuffle_edges(A: torch.Tensor, node_mask: torch.Tensor, *, generator: 
     return out
 
 
+def _row_normalize_edges(A: torch.Tensor) -> torch.Tensor:
+    row_sum = A.sum(dim=-1, keepdim=True)
+    return torch.where(row_sum > 0, A / row_sum.clamp_min(1e-12), A)
+
+
 def _apply_control(
     A: torch.Tensor,
     node_mask: torch.Tensor,
@@ -147,9 +152,9 @@ def _apply_control(
     if control == "observed":
         return A
     if control == "node_shuffle":
-        return _node_shuffle_edges(A, node_mask, generator=generator)
+        return _row_normalize_edges(_node_shuffle_edges(A, node_mask, generator=generator))
     if control == "edge_shuffle":
-        return _edge_shuffle_edges(A, node_mask, generator=generator)
+        return _row_normalize_edges(_edge_shuffle_edges(A, node_mask, generator=generator))
     raise ValueError(f"unknown edge control: {control}")
 
 

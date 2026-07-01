@@ -36,7 +36,7 @@ from sklearn.metrics import accuracy_score, average_precision_score, roc_auc_sco
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 
-from model_stgcn.baselines import CATEGORICAL_COLUMNS, EXCLUDE_COLUMNS, load_phase_rows
+from model_stgcn.baselines import CATEGORICAL_COLUMNS, EXCLUDE_COLUMNS
 from model_stgcn.splits import load_or_create_split
 from stdb.conn import connect
 from stdb.queries import list_phase_feature_match_ids
@@ -50,6 +50,7 @@ NETWORK_FAMILY = "f6_network_phase_role_tier1"
 NETWORK_TABLE = "stdb.team_phase_network_features"
 HABITAT_FAMILY = "f7_habitat_pressure_tier1"
 HABITAT_TABLE = "stdb.team_phase_habitat_features"
+DEFAULT_FEATURE_VIEW = "stdb.v_team_phase_feature_long"
 
 
 AGGRESSIVENESS_COLS = [
@@ -189,6 +190,38 @@ def _rows_to_df(rows: list[dict[str, Any]]) -> pd.DataFrame:
     return df
 
 
+def _load_manifest(path: Path = V2_MANIFEST_PATH) -> dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _split_db_object(name: str) -> tuple[str, str]:
+    parts = name.split(".", 1)
+    if len(parts) != 2 or not parts[0] or not parts[1]:
+        raise ValueError(f"database object must be schema.name, got {name!r}")
+    return parts[0], parts[1]
+
+
+def load_phase_rows_from_view(match_ids: list[str], view_name: str) -> tuple[list[dict], list[str]]:
+    if not match_ids:
+        return [], []
+    schema, rel = _split_db_object(view_name)
+    quoted_view = f'"{schema}"."{rel}"'
+    with connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                f"""
+                SELECT *
+                  FROM {quoted_view}
+                 WHERE match_id = ANY(%s)
+                   AND target_defined
+                """,
+                (match_ids,),
+            )
+            cols = [d[0] for d in cur.description]
+            rows = [dict(zip(cols, r)) for r in cur.fetchall()]
+    return rows, cols
+
+
 def _safe_metric_auc(y: np.ndarray, p: np.ndarray) -> float:
     try:
         return float(roc_auc_score(y, p))
@@ -312,8 +345,9 @@ def _available(cols: list[str], df: pd.DataFrame) -> list[str]:
     return [c for c in _dedupe(cols) if c in df.columns]
 
 
-def _preprocessor(feature_cols: list[str]) -> ColumnTransformer:
-    cat_cols = [c for c in CATEGORICAL_COLUMNS + ["strategy_type"] if c in feature_cols]
+def _preprocessor(feature_cols: list[str], categorical_cols: list[str] | None = None) -> ColumnTransformer:
+    categorical_cols = categorical_cols or CATEGORICAL_COLUMNS + ["strategy_type"]
+    cat_cols = [c for c in categorical_cols if c in feature_cols]
     num_cols = [c for c in feature_cols if c not in cat_cols]
     return ColumnTransformer(
         transformers=[
@@ -333,10 +367,10 @@ def _preprocessor(feature_cols: list[str]) -> ColumnTransformer:
     )
 
 
-def _classifier(feature_cols: list[str]) -> Pipeline:
+def _classifier(feature_cols: list[str], categorical_cols: list[str] | None = None) -> Pipeline:
     return Pipeline(
         [
-            ("prep", _preprocessor(feature_cols)),
+            ("prep", _preprocessor(feature_cols, categorical_cols)),
             (
                 "model",
                 HistGradientBoostingClassifier(
@@ -451,7 +485,7 @@ def add_prior_features(df: pd.DataFrame, transform: dict[str, Any], *, with_surv
 
 
 def load_family_cols(family: str, manifest_path: Path = V2_MANIFEST_PATH) -> list[str]:
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest = _load_manifest(manifest_path)
     return list(manifest["families"][family]["columns"])
 
 
@@ -494,6 +528,9 @@ def attach_family_features(
         return train_df, test_df, []
     try:
         cols = load_family_cols(family)
+        if all(c in train_df.columns for c in cols) and all(c in test_df.columns for c in cols):
+            logger.info("%s already present in feature view cols=%d", family, len(cols))
+            return train_df, test_df, cols
         fam_train = load_family_rows(table, train_ids, cols)
         fam_test = load_family_rows(table, test_ids, cols)
     except Exception:
@@ -577,16 +614,36 @@ def make_feature_configs(
     return configs
 
 
+def make_manifest_feature_configs(
+    df: pd.DataFrame,
+    *,
+    manifest_path: Path = V2_MANIFEST_PATH,
+) -> dict[str, list[str]]:
+    manifest = _load_manifest(manifest_path)
+    families = manifest["families"]
+    configs: dict[str, list[str]] = {}
+    for config_name, family_names in manifest.get("feature_only_ablations", {}).items():
+        cols: list[str] = []
+        for family_name in family_names:
+            if family_name not in families:
+                logger.warning("manifest config %s references unknown family %s", config_name, family_name)
+                continue
+            cols.extend(families[family_name].get("columns", []))
+        configs[config_name] = _available(cols, df)
+    return {k: v for k, v in configs.items() if v}
+
+
 def train_predict_config(
     *,
     name: str,
     feature_cols: list[str],
     train_df: pd.DataFrame,
     test_df: pd.DataFrame,
+    categorical_cols: list[str] | None = None,
 ) -> tuple[pd.DataFrame, dict[str, Any]]:
     if not feature_cols:
         raise ValueError(f"no features for {name}")
-    model = _classifier(feature_cols)
+    model = _classifier(feature_cols, categorical_cols)
     X_train = train_df[feature_cols]
     y_train = train_df["hazard_next"].astype(int).to_numpy()
     X_test = test_df[feature_cols]
@@ -610,6 +667,8 @@ def train_predict_config(
 
 def run(args: argparse.Namespace) -> dict[str, Any]:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    manifest = _load_manifest(args.manifest)
+    categorical_cols = _dedupe(list(manifest.get("categorical_columns", [])) + CATEGORICAL_COLUMNS + ["strategy_type"])
     ids = list_phase_feature_match_ids(args.map, args.mode, args.limit)
     train_ids, val_ids, test_ids = load_or_create_split(
         ids,
@@ -621,8 +680,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     )
     logger.info("split total=%d train=%d val=%d test=%d", len(ids), len(train_ids), len(val_ids), len(test_ids))
 
-    train_rows, _cols = load_phase_rows(train_ids)
-    test_rows, _ = load_phase_rows(test_ids)
+    train_rows, _cols = load_phase_rows_from_view(train_ids, args.feature_view)
+    test_rows, _ = load_phase_rows_from_view(test_ids, args.feature_view)
     train_df = _rows_to_df(train_rows)
     test_df = _rows_to_df(test_rows)
 
@@ -652,7 +711,15 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     test_df, alignment = filter_to_aligned_keys(test_df, args.align_to)
     logger.info("rows train=%d test=%d alignment=%s", len(train_df), len(test_df), alignment)
 
-    feature_configs = make_feature_configs(train_df, network_cols, habitat_cols)
+    if args.config_style == "legacy":
+        feature_configs = make_feature_configs(train_df, network_cols, habitat_cols)
+    elif args.config_style == "manifest":
+        feature_configs = make_manifest_feature_configs(train_df, manifest_path=args.manifest)
+    else:
+        feature_configs = {
+            **make_feature_configs(train_df, network_cols, habitat_cols),
+            **make_manifest_feature_configs(train_df, manifest_path=args.manifest),
+        }
     if args.configs:
         wanted = [c.strip() for c in args.configs.split(",") if c.strip()]
         feature_configs = {k: v for k, v in feature_configs.items() if k in wanted}
@@ -669,6 +736,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             feature_cols=feature_cols,
             train_df=train_df,
             test_df=test_df,
+            categorical_cols=categorical_cols,
         )
         pred_frames.append(preds)
         overall_rows.append(metrics)
@@ -699,6 +767,17 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         ("conventional_stdb_network_habitat", "conventional_plus_stdb_spatial"),
         ("conventional_stdb_network_habitat", "conventional_stdb_plus_network"),
         ("conventional_stdb_network_habitat", "conventional_stdb_plus_habitat"),
+        # Manifest-defined A0-A11 comparisons.
+        ("a3_current_conventional", "a0_official_raw"),
+        ("a5_raw_plus_stdb", "a0_official_raw"),
+        ("a6_raw_plus_network", "a0_official_raw"),
+        ("a7_raw_plus_habitat", "a0_official_raw"),
+        ("a8_raw_stdb_network", "a5_raw_plus_stdb"),
+        ("a9_raw_stdb_habitat", "a5_raw_plus_stdb"),
+        ("a10_raw_network_habitat", "a0_official_raw"),
+        ("a11_full_representation", "a5_raw_plus_stdb"),
+        ("a11_full_representation", "a8_raw_stdb_network"),
+        ("a11_full_representation", "a9_raw_stdb_habitat"),
     ]
     available = set(per_match["model"])
     for left, right in comparisons:
@@ -732,6 +811,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "test": len(test_ids),
         },
         "alignment": alignment,
+        "feature_view": args.feature_view,
+        "config_style": args.config_style,
         "outputs": {
             "predictions": str(predictions_path),
             "overall_metrics": str(overall_path),
@@ -761,6 +842,14 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--split-json", default="model_stgcn/checkpoints/split_phase_all_seed42.json")
     ap.add_argument("--align-to", default="model_stgcn/checkpoints/phase_result_analysis/hazard_predictions_test_aligned.csv")
     ap.add_argument("--out-dir", default="model_stgcn/checkpoints/feature_ablation")
+    ap.add_argument("--feature-view", default=DEFAULT_FEATURE_VIEW)
+    ap.add_argument("--manifest", type=Path, default=V2_MANIFEST_PATH)
+    ap.add_argument(
+        "--config-style",
+        default="legacy",
+        choices=["legacy", "manifest", "both"],
+        help="legacy keeps historical configs; manifest runs A0-A11 from the V2 manifest.",
+    )
     ap.add_argument("--configs", default=None, help="Comma-separated subset of feature configs")
     ap.add_argument(
         "--skip-network",

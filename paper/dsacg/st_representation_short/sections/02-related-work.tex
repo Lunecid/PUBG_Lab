@@ -1,0 +1,52 @@
+\section{관련 연구}
+\label{sec:related-work}
+
+\subsection{최종 순위 예측에서 페이즈별 생존 예측으로}
+
+PUBG 예측 연구의 출발점은 경기 종료 후의 최종 순위였다. Kaggle의 PUBG Finish
+Placement Prediction 데이터셋은 처치 수, 피해량, 이동 거리, 회복 아이템 사용량,
+매치 유형 같은 경기 후 집계값으로 \texttt{winPlacePerc}를 예측한다
+\cite{kagglePubgFinishPlacement}. Rokad 등, Sen 등, Lee와 Lee의 연구도 PUBG의
+최종 순위와 관련된 변수와 예측 가능성을 다루었다
+\cite{rokad2019pubgPlacement,sen2021pubgFinalRank,lee2025pubgRank}. 이 연구들은
+PUBG 순위가 로그 기반 변수로 예측 가능하다는 점을 보여주지만, 대부분의 접근은
+매치를 이미 끝난 하나의 기록으로 압축한다. 페이즈별 생존 문제에서는 이 압축이
+강한 단순화가 된다. 같은 총 피해량이나 이동 거리도 전혀 다른 노출 이력에서 나올
+수 있기 때문이다.
+
+Sagong 등의 연구는 이러한 압축을 풀기 시작한 중요한 선행 작업이다
+\cite{sagong2025hunterCamper}. 이들은 PUBG 로그를 페이즈별로 나누고, 공격성과
+활동성을 나타내는 점수로 Hunter, Sniper, Traveler, Camper 같은 전략 유형을
+구성한 뒤 다음 페이즈 생존과 승리를 예측했다. 이 논문은 그 문제의식을 이어받되,
+전략 유형보다 앞선 표현 단위로 돌아간다. 팀의 상태, 이동, 안전구역 맥락을 어떤
+절단 시점에서 관측해야 다음 페이즈의 탈락 위험 문제가 되는지를 묻는다.
+
+\subsection{텔레메트리, 이동 이력, 동적 공간 맥락}
+
+게임 텔레메트리 연구는 행동 로그가 단순 이벤트 기록을 넘어 플레이어 행동을
+정량화하는 자료가 될 수 있음을 보여준다. Drachen 등은 행동 로그 기반 군집화와
+프로파일 해석을 다루었고 \cite{drachen2014behavioralTelemetry}, Bunian 등은 행동의
+순서가 집계 횟수보다 플레이어 차이를 더 잘 드러낼 수 있음을 보였다
+\cite{bunian2018hmmGameBehavior}. 배틀로얄 장르의 게임에서는 이 순서성이 특히
+중요하다. 예측 시점 이후의 피해량, 위치, 탈락 사건이 입력에 섞이면 모델은 생존을
+예측하는 것이 아니라 이미 일어난 결과를 확인하게 된다.
+
+이동 궤적 분석은 움직이는 대상을 시간순 공간 표본으로 다루는 언어를 제공한다
+\cite{wang2020trajectorySurvey}. 팀 스포츠의 시공간 분석도 개별 선수의 행 단위
+통계만으로는 결과를 충분히 설명하기 어렵고, 위치와 상호작용을 함께 보아야 함을
+보여준다 \cite{gudmundsson2016teamSportsSurvey}. PUBG 스쿼드 매치 역시 하나의
+팀이 함께 움직이며 생존하지만, 여기에 추가 조건이 있다. 팀이 움직이는 공간 자체가
+페이즈마다 축소된다. 여기서 이를 생물학적 habitat으로 주장하려는 것은 아니다. 중요한
+것은 플레이 가능 영역이 줄어들고, 위치의 위험도가 페이즈에 따라 바뀌며, 남은
+팀들이 점점 좁은 공간에 모인다는 구조다 \cite{fahrig2003fragmentation,nathan2008movement}.
+
+\subsection{페이즈별 생존 모델링}
+
+마지막으로 생존분석은 이 문제를 최종 라벨 분류가 아니라 구간별 위험으로 읽게 해
+준다. 이산 시간 사건사 모델은 각 구간에서 누가 아직 위험집합에 남아 있고, 그
+구간에 사건이 발생했는지를 정의한다
+\cite{allison1982discrete,singer1993discrete}. MATCH-Net과 DeepHazard 같은 동적
+생존 모델도 시간에 따라 바뀌는 공변량이 위험 예측에 중요함을 보였다
+\cite{jarrett2018matchnet,rava2020deephazard}. 본 연구의 다음 페이즈 탈락 위험은
+이 틀을 PUBG 텔레메트리에 맞게 옮긴 것이다. 차이는 위험집합의 주체가 환자나
+사용자 행이 아니라, 페이즈 종료 시점까지 살아남은 스쿼드 팀이라는 점이다.

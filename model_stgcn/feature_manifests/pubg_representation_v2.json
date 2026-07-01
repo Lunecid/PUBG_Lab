@@ -47,7 +47,7 @@
   "families": {
     "f0_official_raw_phase": {
       "description": "Official telemetry phase aggregate baseline. No STDB relation query, no centrality, no habitat abstraction.",
-      "status": "partially_available_in_current_view",
+      "status": "target_view_available_78_of_85_missing_assist_suicide_landing",
       "columns": [
         "phase_idx",
         "map_name",
@@ -254,7 +254,7 @@
     },
     "f6_network_phase_role_tier1": {
       "description": "Node-level network role features from phase-local and cumulative team_phase_edge_cache.",
-      "status": "new_table_required",
+      "status": "available_in_target_view",
       "columns": [
         "net_combat_out_degree",
         "net_combat_in_degree",
@@ -303,7 +303,7 @@
     },
     "f7_habitat_pressure_tier1": {
       "description": "Habitat-inspired shrinking-space pressure and local refuge competition.",
-      "status": "new_table_required",
+      "status": "available_in_target_view",
       "columns": [
         "hab_safe_area_start_m2",
         "hab_safe_area_end_m2",
@@ -341,7 +341,7 @@
     },
     "f8_temporal_patch_proxy": {
       "description": "Temporal drift controls. Use only for robustness or stratified analysis, not as the main predictive claim.",
-      "status": "new_view_required",
+      "status": "not_implemented",
       "columns": [
         "created_month",
         "created_week",

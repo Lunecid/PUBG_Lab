@@ -199,12 +199,17 @@ venv/
 
 # Output
 *.html
+reports/
+docs/presentation_figures/
+model_stgcn/experiment_datasets/research_cohort_flat/
 
 # ── PUBG project: data & generated artifacts (docs/CODE_REVIEW_2026-06-12.md B1) ──
 .DS_Store
 .env
 .claude/
 data/
+data_l0/
+external/caldera/
 logs/
 outputs/
 checkpoints/

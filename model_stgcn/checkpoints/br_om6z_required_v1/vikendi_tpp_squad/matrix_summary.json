@@ -1,0 +1,38 @@
+{
+  "elapsed_s": 291.353,
+  "metrics": [
+    {
+      "group": "om6z_sensitivity",
+      "name": "om6z_spatial_affordance",
+      "model": "mr",
+      "global_fusion": "concat",
+      "graph_encoder": "none",
+      "edge_mode": "none",
+      "edge_control": "observed",
+      "team_decoder": "mlp",
+      "pairwise_rank_weight": "0.0",
+      "feature_preset": "om6z_spatial_affordance",
+      "note": "corrected O6: OM5 plus Z1-Z3 vertical, contact-gated relative-height, and zone-pressure affordance features",
+      "n": 2778,
+      "pos_rate": 0.30165586753059753,
+      "acc": 0.7397408207343412,
+      "bce": 0.5185552427372,
+      "brier": 0.17228688267203396,
+      "ece": 0.01926339928884142,
+      "auc": 0.7529746819870581,
+      "ap": 0.5976081786294279,
+      "rank_mae_norm": 0.10526204854249954,
+      "rank_spearman": 0.5848731292852213,
+      "rank_pairwise_acc": 0.6611804767309876,
+      "top5_auc": 0.790906795119569,
+      "top5_ap": 0.7922696774003342,
+      "top5_brier": 0.18042462682830337,
+      "top10_auc": 0.8478906044004336,
+      "top10_ap": 0.9503996636495331,
+      "top10_brier": 0.1248851849321767,
+      "checkpoint": "model_stgcn/checkpoints/br_om6z_required_v1/vikendi_tpp_squad/om6z_sensitivity/om6z_spatial_affordance/model.pt",
+      "eval_json": "model_stgcn/checkpoints/br_om6z_required_v1/vikendi_tpp_squad/om6z_sensitivity/om6z_spatial_affordance/eval_test.json"
+    }
+  ],
+  "metrics_csv": "model_stgcn/checkpoints/br_om6z_required_v1/vikendi_tpp_squad/matrix_metrics.csv"
+}

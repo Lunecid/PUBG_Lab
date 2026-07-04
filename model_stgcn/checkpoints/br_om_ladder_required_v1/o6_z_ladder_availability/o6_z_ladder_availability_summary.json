@@ -1,0 +1,54 @@
+{
+  "out_dir": "model_stgcn/checkpoints/br_om_ladder_required_v1/o6_z_ladder_availability",
+  "target_feature_count": 9,
+  "target_features_ready_in_v3_phase_tensor": 9,
+  "target_features_missing_or_need_etl": 0,
+  "source_snapshot_pos_z_available": true,
+  "snapshot_pos_z_degenerate_cohorts": [],
+  "current_om6_spatial_proxy_features": [
+    "avg_enemy_density_100m_norm",
+    "min_nearest_enemy_norm",
+    "path_near_enemy_ratio"
+  ],
+  "intended_om6z_spatial_affordance_features": [
+    "team_z_mean_norm",
+    "team_z_percentile_alive",
+    "team_z_range_norm",
+    "contact_delta_z_mean_norm",
+    "contact_delta_z_positive_ratio",
+    "high_ground_contact_advantage",
+    "high_ground_x_boundary_pressure",
+    "z_percentile_x_hab_crowding_pressure",
+    "contact_delta_z_x_outside_safe_ratio"
+  ],
+  "spatial_like_columns_by_table": {
+    "team_phase_edge_cache": [],
+    "team_phase_habitat_features": [],
+    "team_phase_network_features": [],
+    "team_phase_z_affordance_features": [
+      "contact_delta_z_mean_m",
+      "contact_delta_z_positive_ratio",
+      "contact_delta_z_x_outside_safe_ratio",
+      "high_ground_contact_advantage",
+      "high_ground_x_boundary_pressure",
+      "team_z_mean_m",
+      "team_z_percentile_alive",
+      "team_z_range_m"
+    ],
+    "team_snapshot_features": [
+      "pos_z"
+    ],
+    "v_team_phase_feature_long": [],
+    "v_team_phase_feature_v2": [
+      "contact_delta_z_mean_m",
+      "contact_delta_z_positive_ratio",
+      "contact_delta_z_x_outside_safe_ratio",
+      "high_ground_contact_advantage",
+      "high_ground_x_boundary_pressure",
+      "team_z_mean_m",
+      "team_z_percentile_alive",
+      "team_z_range_m"
+    ]
+  },
+  "verdict": "READY_FOR_OM6Z_PRESET"
+}

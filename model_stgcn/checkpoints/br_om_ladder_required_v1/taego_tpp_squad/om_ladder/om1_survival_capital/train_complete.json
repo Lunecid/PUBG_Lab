@@ -1,0 +1,22 @@
+{
+  "checkpoint": "model_stgcn/checkpoints/br_om_ladder_required_v1/taego_tpp_squad/om_ladder/om1_survival_capital/model.pt",
+  "finished_at_unix": 1783085145.574611,
+  "epochs": 12,
+  "seed": 42,
+  "cohort": "Taego TPP squad",
+  "map": "Tiger_Main",
+  "mode": "squad",
+  "experiment": {
+    "group": "om_ladder",
+    "name": "om1_survival_capital",
+    "model": "mr",
+    "global_fusion": "concat",
+    "graph_encoder": "none",
+    "edge_mode": "none",
+    "edge_control": "observed",
+    "team_decoder": "mlp",
+    "pairwise_rank_weight": "0.0",
+    "feature_preset": "om1_survival_capital",
+    "note": "clean OM1: OM0 plus roster, health, and team cohesion"
+  }
+}

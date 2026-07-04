@@ -9,6 +9,7 @@
     "target_defined",
     "hazard_next",
     "survives_next_phase",
+    "eliminated_next_phase",
     "final_rank",
     "final_rank_norm",
     "final_top3",
@@ -22,6 +23,7 @@
     "target_defined",
     "hazard_next",
     "survives_next_phase",
+    "eliminated_next_phase",
     "final_rank",
     "final_rank_norm",
     "final_top3",
@@ -339,6 +341,21 @@
         "hab_refuge_scarcity_simple"
       ]
     },
+    "o6_z_affordance_tier1": {
+      "description": "Corrected O6 Z-ladder sensitivity features: vertical position, contact-gated relative height, and zone-pressure interactions.",
+      "status": "available_after_team_phase_z_affordance_etl",
+      "columns": [
+        "team_z_mean_m",
+        "team_z_percentile_alive",
+        "team_z_range_m",
+        "contact_delta_z_mean_m",
+        "contact_delta_z_positive_ratio",
+        "high_ground_contact_advantage",
+        "high_ground_x_boundary_pressure",
+        "z_percentile_x_hab_crowding_pressure",
+        "contact_delta_z_x_outside_safe_ratio"
+      ]
+    },
     "f8_temporal_patch_proxy": {
       "description": "Temporal drift controls. Use only for robustness or stratified analysis, not as the main predictive claim.",
       "status": "not_implemented",
@@ -380,6 +397,13 @@
       "f5_stdb_spatial",
       "f6_network_phase_role_tier1",
       "f7_habitat_pressure_tier1"
+    ],
+    "a12_raw_network_habitat_z_affordance": [
+      "f0_official_raw_phase",
+      "f5_stdb_spatial",
+      "f6_network_phase_role_tier1",
+      "f7_habitat_pressure_tier1",
+      "o6_z_affordance_tier1"
     ]
   },
   "graph_ablations": {

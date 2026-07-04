@@ -1,0 +1,13 @@
+{
+  "cohort": "Paramo TPP squad",
+  "cohort_slug": "paramo_tpp_squad",
+  "map_name": "Chimera_Main",
+  "game_mode": "squad",
+  "shards": 4,
+  "shard_index": 0,
+  "selected_matches": 82,
+  "ok": 82,
+  "failed": 0,
+  "failures": [],
+  "elapsed_s": 11.87
+}

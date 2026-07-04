@@ -1,0 +1,22 @@
+{
+  "checkpoint": "model_stgcn/checkpoints/br_om6z_required_v1/rondo_tpp_squad/om6z_sensitivity/om6z_spatial_affordance/model.pt",
+  "finished_at_unix": 1783179180.976565,
+  "epochs": 12,
+  "seed": 42,
+  "cohort": "Rondo TPP squad",
+  "map": "Neon_Main",
+  "mode": "squad",
+  "experiment": {
+    "group": "om6z_sensitivity",
+    "name": "om6z_spatial_affordance",
+    "model": "mr",
+    "global_fusion": "concat",
+    "graph_encoder": "none",
+    "edge_mode": "none",
+    "edge_control": "observed",
+    "team_decoder": "mlp",
+    "pairwise_rank_weight": "0.0",
+    "feature_preset": "om6z_spatial_affordance",
+    "note": "corrected O6: OM5 plus Z1-Z3 vertical, contact-gated relative-height, and zone-pressure affordance features"
+  }
+}

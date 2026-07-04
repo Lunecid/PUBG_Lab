@@ -22,6 +22,7 @@ from torch.utils.data import DataLoader
 
 from model_stgcn.edge_modes import EDGE_MODE_CHOICES, edge_active_mask
 from model_stgcn.splits import load_or_create_split
+from model_stgcn.v3.cohorts import resolve_map_mode
 from model_stgcn.v3.edge_controls import EDGE_CONTROL_CHOICES, apply_phase_edge_control
 from model_stgcn.v3.factorized_data import (
     CachedFactorizedMRDataset,
@@ -218,6 +219,26 @@ def run(args: argparse.Namespace) -> dict:
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
 
+    try:
+        map_filter, mode_filter, cohort_spec = resolve_map_mode(
+            cohort=args.cohort,
+            map_name=args.map,
+            mode=args.mode,
+        )
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
+    args.map = map_filter
+    args.mode = mode_filter
+    args.cohort = cohort_spec.label if cohort_spec else args.cohort
+    args.cohort_slug = cohort_spec.slug if cohort_spec else None
+    if cohort_spec:
+        logger.info(
+            "cohort=%s map=%s mode=%s",
+            cohort_spec.label,
+            cohort_spec.map_name,
+            cohort_spec.game_mode,
+        )
+
     ids = list_phase_eligible_match_ids(args.map, args.mode, args.limit)
     train_ids, val_ids, test_ids = load_or_create_split(
         ids,
@@ -234,6 +255,10 @@ def run(args: argparse.Namespace) -> dict:
             "edge_control": args.edge_control,
             "edge_control_seed": args.edge_control_seed,
             "feature_preset": args.feature_preset,
+            "cohort": args.cohort,
+            "cohort_slug": args.cohort_slug,
+            "map": args.map,
+            "mode": args.mode,
         },
     )
     logger.info("ids total=%d train=%d val=%d test=%d", len(ids), len(train_ids), len(val_ids), len(test_ids))
@@ -346,6 +371,7 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--combat-in", action="store_true")
     ap.add_argument("--no-v2-features", action="store_true")
     ap.add_argument("--feature-preset", choices=FEATURE_PRESETS, default="full")
+    ap.add_argument("--cohort", default=None, help="named cohort, e.g. 'Erangel TPP squad'")
     ap.add_argument("--map", default=None)
     ap.add_argument("--mode", default=None)
     ap.add_argument("--limit", type=int, default=None)

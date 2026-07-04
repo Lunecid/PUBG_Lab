@@ -1,0 +1,13 @@
+{
+  "cohort": "Rondo TPP squad",
+  "cohort_slug": "rondo_tpp_squad",
+  "map_name": "Neon_Main",
+  "game_mode": "squad",
+  "shards": 4,
+  "shard_index": 0,
+  "selected_matches": 240,
+  "ok": 240,
+  "failed": 0,
+  "failures": [],
+  "elapsed_s": 27.09
+}

@@ -1,0 +1,211 @@
+== required cohort queue started at 2026-07-03T07:58:28Z ==
+waiting for screen session: pubg_om_erangel_tpp_squad
+run root: model_stgcn/checkpoints/br_om_ladder_required_v1
+python: /Users/lunecid/.pyenv/versions/3.11.5/bin/python3
+wait session ended at 2026-07-03T07:58:28Z
+Erangel TPP squad did not complete; refusing to start remaining cohort queue.
+missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om1_survival_capital/train_complete.json
+missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om1_survival_capital/eval_test.json
+missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om2_movement/model.pt
+missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om2_movement/train_complete.json
+missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om2_movement/eval_test.json
+missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om3_pressure_habitat/model.pt
+missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om3_pressure_habitat/train_complete.json
+missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om3_pressure_habitat/eval_test.json
+missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om4_threat_exposure/model.pt
+missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om4_threat_exposure/train_complete.json
+missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om4_threat_exposure/eval_test.json
+missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om5_relation_structure/model.pt
+missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om5_relation_structure/train_complete.json
+missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om5_relation_structure/eval_test.json
+missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om6_spatial_proxy/model.pt
+missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om6_spatial_proxy/train_complete.json
+missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om6_spatial_proxy/eval_test.json
+== required cohort queue started at 2026-07-03T07:59:07Z ==
+waiting for Erangel TPP squad completion markers
+run root: model_stgcn/checkpoints/br_om_ladder_required_v1
+python: /Users/lunecid/.pyenv/versions/3.11.5/bin/python3
+Erangel TPP squad not complete yet: 17 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om1_survival_capital/train_complete.json
+2026-07-03T07:59:07Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 17 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om1_survival_capital/train_complete.json
+2026-07-03T08:04:07Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 17 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om1_survival_capital/train_complete.json
+2026-07-03T08:09:07Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 16 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om1_survival_capital/eval_test.json
+2026-07-03T08:14:07Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 15 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om2_movement/model.pt
+2026-07-03T08:19:07Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 14 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om2_movement/train_complete.json
+2026-07-03T08:24:07Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 14 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om2_movement/train_complete.json
+2026-07-03T08:29:07Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 14 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om2_movement/train_complete.json
+2026-07-03T08:34:07Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 14 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om2_movement/train_complete.json
+2026-07-03T08:39:07Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 14 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om2_movement/train_complete.json
+2026-07-03T08:44:08Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 14 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om2_movement/train_complete.json
+2026-07-03T08:49:08Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 14 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om2_movement/train_complete.json
+2026-07-03T08:54:08Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 14 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om2_movement/train_complete.json
+2026-07-03T08:59:08Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 12 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om3_pressure_habitat/model.pt
+2026-07-03T09:04:08Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 11 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om3_pressure_habitat/train_complete.json
+2026-07-03T09:09:08Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 11 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om3_pressure_habitat/train_complete.json
+2026-07-03T09:14:08Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 11 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om3_pressure_habitat/train_complete.json
+2026-07-03T09:19:08Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 11 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om3_pressure_habitat/train_complete.json
+2026-07-03T09:24:08Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 11 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om3_pressure_habitat/train_complete.json
+2026-07-03T09:29:08Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 11 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om3_pressure_habitat/train_complete.json
+2026-07-03T09:34:08Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 11 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om3_pressure_habitat/train_complete.json
+2026-07-03T09:39:08Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 11 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om3_pressure_habitat/train_complete.json
+2026-07-03T09:44:08Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 10 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om3_pressure_habitat/eval_test.json
+2026-07-03T09:49:08Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 9 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om4_threat_exposure/model.pt
+2026-07-03T09:54:08Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 8 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om4_threat_exposure/train_complete.json
+2026-07-03T09:59:08Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 8 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om4_threat_exposure/train_complete.json
+2026-07-03T10:04:08Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 8 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om4_threat_exposure/train_complete.json
+2026-07-03T10:09:08Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 8 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om4_threat_exposure/train_complete.json
+2026-07-03T10:14:08Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 8 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om4_threat_exposure/train_complete.json
+2026-07-03T10:19:08Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 8 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om4_threat_exposure/train_complete.json
+2026-07-03T10:24:08Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 8 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om4_threat_exposure/train_complete.json
+2026-07-03T10:29:08Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 8 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om4_threat_exposure/train_complete.json
+2026-07-03T10:34:08Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 6 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om5_relation_structure/model.pt
+2026-07-03T10:39:09Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 6 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om5_relation_structure/model.pt
+2026-07-03T10:44:09Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 5 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om5_relation_structure/train_complete.json
+2026-07-03T10:49:09Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 5 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om5_relation_structure/train_complete.json
+2026-07-03T10:54:09Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 5 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om5_relation_structure/train_complete.json
+2026-07-03T10:59:09Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 5 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om5_relation_structure/train_complete.json
+2026-07-03T11:04:09Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 5 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om5_relation_structure/train_complete.json
+2026-07-03T11:09:09Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 5 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om5_relation_structure/train_complete.json
+2026-07-03T11:14:09Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 5 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om5_relation_structure/train_complete.json
+2026-07-03T11:19:09Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 5 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om5_relation_structure/train_complete.json
+2026-07-03T11:24:09Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 3 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om6_spatial_proxy/model.pt
+2026-07-03T11:29:09Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 2 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om6_spatial_proxy/train_complete.json
+2026-07-03T11:34:09Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 2 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om6_spatial_proxy/train_complete.json
+2026-07-03T11:39:09Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 2 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om6_spatial_proxy/train_complete.json
+2026-07-03T11:44:09Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 2 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om6_spatial_proxy/train_complete.json
+2026-07-03T11:49:09Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 2 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om6_spatial_proxy/train_complete.json
+2026-07-03T11:54:09Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 2 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om6_spatial_proxy/train_complete.json
+2026-07-03T11:59:09Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 2 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om6_spatial_proxy/train_complete.json
+2026-07-03T12:04:09Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 2 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om6_spatial_proxy/train_complete.json
+2026-07-03T12:09:10Z sleeping 300s before next completion check
+Erangel TPP squad not complete yet: 1 missing marker(s).
+next missing: model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/om_ladder/om6_spatial_proxy/eval_test.json
+2026-07-03T12:14:10Z sleeping 300s before next completion check
+Erangel TPP squad completion markers verified.
+starting remaining cohorts at 2026-07-03T12:19:10Z
+== OM ladder cohort: Taego TPP squad -> model_stgcn/checkpoints/br_om_ladder_required_v1/taego_tpp_squad ==
+passed: Taego TPP squad log=model_stgcn/checkpoints/br_om_ladder_required_v1/taego_tpp_squad/run.log
+== OM ladder cohort: Miramar / Desert TPP squad -> model_stgcn/checkpoints/br_om_ladder_required_v1/miramar_desert_tpp_squad ==
+passed: Miramar / Desert TPP squad log=model_stgcn/checkpoints/br_om_ladder_required_v1/miramar_desert_tpp_squad/run.log
+== OM ladder cohort: Rondo TPP squad -> model_stgcn/checkpoints/br_om_ladder_required_v1/rondo_tpp_squad ==
+passed: Rondo TPP squad log=model_stgcn/checkpoints/br_om_ladder_required_v1/rondo_tpp_squad/run.log
+== OM ladder cohort: Sanhok TPP squad -> model_stgcn/checkpoints/br_om_ladder_required_v1/sanhok_tpp_squad ==
+passed: Sanhok TPP squad log=model_stgcn/checkpoints/br_om_ladder_required_v1/sanhok_tpp_squad/run.log
+== OM ladder cohort: Erangel TPP solo -> model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_solo ==
+passed: Erangel TPP solo log=model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_solo/run.log
+== OM ladder cohort: Erangel TPP duo -> model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_duo ==
+passed: Erangel TPP duo log=model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_duo/run.log
+== OM ladder cohort: Taego TPP duo -> model_stgcn/checkpoints/br_om_ladder_required_v1/taego_tpp_duo ==
+passed: Taego TPP duo log=model_stgcn/checkpoints/br_om_ladder_required_v1/taego_tpp_duo/run.log
+== OM ladder cohort: Vikendi TPP squad -> model_stgcn/checkpoints/br_om_ladder_required_v1/vikendi_tpp_squad ==
+passed: Vikendi TPP squad log=model_stgcn/checkpoints/br_om_ladder_required_v1/vikendi_tpp_squad/run.log
+== OM ladder cohort: Taego FPP squad -> model_stgcn/checkpoints/br_om_ladder_required_v1/taego_fpp_squad ==
+passed: Taego FPP squad log=model_stgcn/checkpoints/br_om_ladder_required_v1/taego_fpp_squad/run.log
+== OM ladder cohort: Erangel FPP squad -> model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_fpp_squad ==
+passed: Erangel FPP squad log=model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_fpp_squad/run.log
+== OM ladder cohort: Paramo TPP squad -> model_stgcn/checkpoints/br_om_ladder_required_v1/paramo_tpp_squad ==
+passed: Paramo TPP squad log=model_stgcn/checkpoints/br_om_ladder_required_v1/paramo_tpp_squad/run.log
+== OM ladder cohort: Karakin TPP squad -> model_stgcn/checkpoints/br_om_ladder_required_v1/karakin_tpp_squad ==
+passed: Karakin TPP squad log=model_stgcn/checkpoints/br_om_ladder_required_v1/karakin_tpp_squad/run.log
+{"out": "model_stgcn/checkpoints/br_om_ladder_required_v1/om_ladder_metrics_all_cohorts.csv", "summary_out": "model_stgcn/checkpoints/br_om_ladder_required_v1/om_ladder_metrics_summary.json", "root": "model_stgcn/checkpoints/br_om_ladder_required_v1", "rows": 91, "cohorts": 13, "complete_cohorts": ["Erangel FPP squad", "Erangel TPP duo", "Erangel TPP solo", "Erangel TPP squad", "Karakin TPP squad", "Miramar / Desert TPP squad", "Paramo TPP squad", "Rondo TPP squad", "Sanhok TPP squad", "Taego FPP squad", "Taego TPP duo", "Taego TPP squad", "Vikendi TPP squad"], "cohort_row_counts": {"Erangel FPP squad": 7, "Erangel TPP duo": 7, "Erangel TPP solo": 7, "Erangel TPP squad": 7, "Karakin TPP squad": 7, "Miramar / Desert TPP squad": 7, "Paramo TPP squad": 7, "Rondo TPP squad": 7, "Sanhok TPP squad": 7, "Taego FPP squad": 7, "Taego TPP duo": 7, "Taego TPP squad": 7, "Vikendi TPP squad": 7}}
+required cohort queue finished at 2026-07-04T02:53:36Z

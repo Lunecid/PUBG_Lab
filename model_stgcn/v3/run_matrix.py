@@ -15,6 +15,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from model_stgcn.v3.cohorts import resolve_map_mode
 from model_stgcn.v3.experiment_matrix import EXPERIMENT_GROUPS, all_experiments
 
 
@@ -60,9 +61,13 @@ def _cmd_train(row: dict[str, str], args: argparse.Namespace, checkpoint: Path) 
     ]
     if args.limit is not None:
         cmd += ["--limit", str(args.limit)]
-    if args.map is not None:
+    if args.cohort is not None:
+        cmd += ["--cohort", args.cohort]
+    elif args.map is not None:
         cmd += ["--map", args.map]
-    if args.mode is not None:
+        if args.mode is not None:
+            cmd += ["--mode", args.mode]
+    elif args.mode is not None:
         cmd += ["--mode", args.mode]
     if args.cached:
         cmd.append("--cached")
@@ -99,9 +104,13 @@ def _cmd_eval(row: dict[str, str], args: argparse.Namespace, checkpoint: Path, o
     ]
     if args.limit is not None:
         cmd += ["--limit", str(args.limit)]
-    if args.map is not None:
+    if args.cohort is not None:
+        cmd += ["--cohort", args.cohort]
+    elif args.map is not None:
         cmd += ["--map", args.map]
-    if args.mode is not None:
+        if args.mode is not None:
+            cmd += ["--mode", args.mode]
+    elif args.mode is not None:
         cmd += ["--mode", args.mode]
     if args.cached:
         cmd.append("--cached")
@@ -159,6 +168,10 @@ def _write_summary(path: Path, rows: list[dict[str, Any]]) -> None:
             writer.writerow({k: row.get(k) for k in fields})
 
 
+def _is_train_complete(checkpoint: Path, eval_json: Path, train_done: Path) -> bool:
+    return checkpoint.exists() and (train_done.exists() or eval_json.exists())
+
+
 def run(args: argparse.Namespace) -> dict[str, Any]:
     root = Path(args.out_dir)
     root.mkdir(parents=True, exist_ok=True)
@@ -171,6 +184,18 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     unknown = [g for g in groups if g not in EXPERIMENT_GROUPS]
     if unknown:
         raise SystemExit(f"unknown groups: {unknown}; choices={sorted(EXPERIMENT_GROUPS)}")
+    try:
+        map_filter, mode_filter, cohort_spec = resolve_map_mode(
+            cohort=args.cohort,
+            map_name=args.map,
+            mode=args.mode,
+        )
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
+    args.map = map_filter
+    args.mode = mode_filter
+    args.cohort = cohort_spec.label if cohort_spec else args.cohort
+    args.cohort_slug = cohort_spec.slug if cohort_spec else None
     experiments = all_experiments(groups=groups)
     if args.only:
         wanted = {x.strip() for x in args.only.split(",") if x.strip()}
@@ -183,6 +208,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "groups": groups,
         "epochs": args.epochs,
         "limit": args.limit,
+        "cohort": args.cohort,
+        "cohort_slug": args.cohort_slug,
         "map": args.map,
         "mode": args.mode,
         "seed": args.seed,
@@ -199,14 +226,31 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         exp_dir.mkdir(parents=True, exist_ok=True)
         checkpoint = exp_dir / "model.pt"
         eval_json = exp_dir / f"eval_{args.eval_split}.json"
+        train_done = exp_dir / "train_complete.json"
 
         if args.eval_only and not checkpoint.exists():
             raise SystemExit(f"missing checkpoint for --eval-only: {checkpoint}")
 
-        if not args.eval_only and (not checkpoint.exists() or args.force):
+        if not args.eval_only and (not _is_train_complete(checkpoint, eval_json, train_done) or args.force):
             _run(_cmd_train(row, args, checkpoint), cwd=Path.cwd())
+            train_done.write_text(
+                json.dumps(
+                    {
+                        "checkpoint": str(checkpoint),
+                        "finished_at_unix": time.time(),
+                        "epochs": args.epochs,
+                        "seed": args.seed,
+                        "cohort": args.cohort,
+                        "map": args.map,
+                        "mode": args.mode,
+                        "experiment": row,
+                    },
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
         else:
-            print(f"skip existing checkpoint {checkpoint}", flush=True)
+            print(f"skip completed training artifact {checkpoint}", flush=True)
 
         if not eval_json.exists() or args.force or args.force_eval:
             _run(_cmd_eval(row, args, checkpoint, eval_json), cwd=Path.cwd())
@@ -256,10 +300,11 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
 
 def parse_args() -> argparse.Namespace:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--groups", default="main", help="comma-separated: main,resolution,decoder,graph_control,graph_relation,feature")
+    ap.add_argument("--groups", default="main", help="comma-separated: main,resolution,decoder,graph_control,graph_relation,om_ladder,om6z_sensitivity,feature")
     ap.add_argument("--only", default=None, help="comma-separated experiment names")
     ap.add_argument("--out-dir", default="model_stgcn/checkpoints/v3_matrix")
     ap.add_argument("--split-json", default=None)
+    ap.add_argument("--cohort", default=None, help="named cohort, e.g. 'Erangel TPP squad'")
     ap.add_argument("--map", default=None)
     ap.add_argument("--mode", default=None)
     ap.add_argument("--limit", type=int, default=None)

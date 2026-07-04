@@ -1,0 +1,13 @@
+{
+  "cohort": "Karakin TPP squad",
+  "cohort_slug": "karakin_tpp_squad",
+  "map_name": "Summerland_Main",
+  "game_mode": "squad",
+  "shards": 4,
+  "shard_index": 0,
+  "selected_matches": 80,
+  "ok": 80,
+  "failed": 0,
+  "failures": [],
+  "elapsed_s": 8.52
+}

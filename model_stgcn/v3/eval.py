@@ -28,6 +28,7 @@ from torch.utils.data import DataLoader
 
 from model_stgcn.edge_modes import edge_active_mask
 from model_stgcn.splits import load_or_create_split
+from model_stgcn.v3.cohorts import resolve_map_mode
 from model_stgcn.v3.edge_controls import EDGE_CONTROL_CHOICES, apply_phase_edge_control
 from model_stgcn.v3.factorized_data import (
     CachedFactorizedMRDataset,
@@ -287,6 +288,28 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     ckpt = torch.load(args.checkpoint, map_location="cpu")
     ckpt_args = ckpt.get("args", {})
+    cohort_arg = args.cohort
+    map_arg = args.map
+    mode_arg = args.mode
+    if not (cohort_arg or map_arg or mode_arg):
+        ckpt_cohort = ckpt_args.get("cohort")
+        if ckpt_cohort:
+            cohort_arg = ckpt_cohort
+        else:
+            map_arg = ckpt_args.get("map")
+            mode_arg = ckpt_args.get("mode")
+    try:
+        map_filter, mode_filter, cohort_spec = resolve_map_mode(
+            cohort=cohort_arg,
+            map_name=map_arg,
+            mode=mode_arg,
+        )
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
+    args.map = map_filter
+    args.mode = mode_filter
+    args.cohort = cohort_spec.label if cohort_spec else cohort_arg
+    args.cohort_slug = cohort_spec.slug if cohort_spec else None
     ids = list_phase_eligible_match_ids(args.map, args.mode, args.limit)
     if args.split_json:
         train_ids, val_ids, test_ids = load_or_create_split(
@@ -460,6 +483,10 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "edge_mode": args.edge_mode or ckpt_args.get("edge_mode", "full"),
         "edge_control": edge_control,
         "feature_preset": ckpt_args.get("feature_preset", "full"),
+        "cohort": args.cohort,
+        "cohort_slug": args.cohort_slug,
+        "map": args.map,
+        "mode": args.mode,
         "metric_unit": "at_risk_team_phase",
         "phase_metric_unit": "at_risk_team_phase_by_cut_phase",
         **hazard_metrics,
@@ -491,6 +518,7 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--edge-mode", default=None)
     ap.add_argument("--edge-control", choices=EDGE_CONTROL_CHOICES, default=None)
     ap.add_argument("--edge-control-seed", type=int, default=42)
+    ap.add_argument("--cohort", default=None, help="named cohort, e.g. 'Erangel TPP squad'")
     ap.add_argument("--map", default=None)
     ap.add_argument("--mode", default=None)
     ap.add_argument("--limit", type=int, default=None)

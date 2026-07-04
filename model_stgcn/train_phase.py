@@ -344,7 +344,7 @@ def parse_args() -> argparse.Namespace:
         "--v2-node-features",
         action="store_true",
         help="append F6 network-role + F7 habitat-pressure node features "
-        "(141-d, FEATURE_DESIGN_V2 B3/B4)",
+        "(150-d, FEATURE_DESIGN_V2 B3/B4 + O6Z sensitivity)",
     )
     ap.add_argument("--grad-clip", type=float, default=5.0)
     ap.add_argument("--val-frac", type=float, default=0.1)

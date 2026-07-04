@@ -1,0 +1,237 @@
+{
+  "pred_dir": "model_stgcn/checkpoints/br_om_ladder_required_v1/predictions",
+  "metrics_csv": "model_stgcn/checkpoints/br_om_ladder_required_v1/om_ladder_metrics_all_cohorts.csv",
+  "n_boot": 2000,
+  "seed": 42,
+  "n_rows": 351,
+  "phase7_included": false,
+  "metrics": [
+    "hazard_auc",
+    "rank_spearman",
+    "top10_auc"
+  ],
+  "summary_by_step_phase_group_metric": {
+    "om0_context->om1_survival_capital|early_1_2|hazard_auc": {
+      "n_cohorts": 13,
+      "median_delta": 0.0001983572096015962,
+      "positive_delta_cohorts": 9,
+      "negative_delta_cohorts": 4,
+      "ci_excludes_zero_cohorts": 1,
+      "supports_to_better_cohorts": 0
+    },
+    "om0_context->om1_survival_capital|early_1_2|rank_spearman": {
+      "n_cohorts": 13,
+      "median_delta": -0.00267697169097475,
+      "positive_delta_cohorts": 3,
+      "negative_delta_cohorts": 10,
+      "ci_excludes_zero_cohorts": 3,
+      "supports_to_better_cohorts": 1
+    },
+    "om0_context->om1_survival_capital|early_1_2|top10_auc": {
+      "n_cohorts": 13,
+      "median_delta": -0.0038169179104621254,
+      "positive_delta_cohorts": 3,
+      "negative_delta_cohorts": 10,
+      "ci_excludes_zero_cohorts": 3,
+      "supports_to_better_cohorts": 1
+    },
+    "om0_context->om1_survival_capital|late_5_6|hazard_auc": {
+      "n_cohorts": 13,
+      "median_delta": -0.0010143352481497558,
+      "positive_delta_cohorts": 6,
+      "negative_delta_cohorts": 7,
+      "ci_excludes_zero_cohorts": 0,
+      "supports_to_better_cohorts": 0
+    },
+    "om0_context->om1_survival_capital|late_5_6|rank_spearman": {
+      "n_cohorts": 13,
+      "median_delta": -0.0005386016728944343,
+      "positive_delta_cohorts": 6,
+      "negative_delta_cohorts": 7,
+      "ci_excludes_zero_cohorts": 3,
+      "supports_to_better_cohorts": 2
+    },
+    "om0_context->om1_survival_capital|late_5_6|top10_auc": {
+      "n_cohorts": 13,
+      "median_delta": -0.0008469791078485889,
+      "positive_delta_cohorts": 3,
+      "negative_delta_cohorts": 4,
+      "ci_excludes_zero_cohorts": 0,
+      "supports_to_better_cohorts": 0
+    },
+    "om0_context->om1_survival_capital|mid_3_4|hazard_auc": {
+      "n_cohorts": 13,
+      "median_delta": -0.0015658641612842361,
+      "positive_delta_cohorts": 6,
+      "negative_delta_cohorts": 7,
+      "ci_excludes_zero_cohorts": 2,
+      "supports_to_better_cohorts": 1
+    },
+    "om0_context->om1_survival_capital|mid_3_4|rank_spearman": {
+      "n_cohorts": 13,
+      "median_delta": -0.0009630081350849862,
+      "positive_delta_cohorts": 5,
+      "negative_delta_cohorts": 8,
+      "ci_excludes_zero_cohorts": 0,
+      "supports_to_better_cohorts": 0
+    },
+    "om0_context->om1_survival_capital|mid_3_4|top10_auc": {
+      "n_cohorts": 13,
+      "median_delta": -0.0003041773692037397,
+      "positive_delta_cohorts": 5,
+      "negative_delta_cohorts": 6,
+      "ci_excludes_zero_cohorts": 2,
+      "supports_to_better_cohorts": 1
+    },
+    "om2_movement->om3_pressure_habitat|early_1_2|hazard_auc": {
+      "n_cohorts": 13,
+      "median_delta": 0.015407850256667133,
+      "positive_delta_cohorts": 13,
+      "negative_delta_cohorts": 0,
+      "ci_excludes_zero_cohorts": 10,
+      "supports_to_better_cohorts": 10
+    },
+    "om2_movement->om3_pressure_habitat|early_1_2|rank_spearman": {
+      "n_cohorts": 13,
+      "median_delta": 0.038648513155107644,
+      "positive_delta_cohorts": 13,
+      "negative_delta_cohorts": 0,
+      "ci_excludes_zero_cohorts": 12,
+      "supports_to_better_cohorts": 12
+    },
+    "om2_movement->om3_pressure_habitat|early_1_2|top10_auc": {
+      "n_cohorts": 13,
+      "median_delta": 0.0317154136837019,
+      "positive_delta_cohorts": 13,
+      "negative_delta_cohorts": 0,
+      "ci_excludes_zero_cohorts": 11,
+      "supports_to_better_cohorts": 11
+    },
+    "om2_movement->om3_pressure_habitat|late_5_6|hazard_auc": {
+      "n_cohorts": 13,
+      "median_delta": 0.01071473705114534,
+      "positive_delta_cohorts": 9,
+      "negative_delta_cohorts": 4,
+      "ci_excludes_zero_cohorts": 0,
+      "supports_to_better_cohorts": 0
+    },
+    "om2_movement->om3_pressure_habitat|late_5_6|rank_spearman": {
+      "n_cohorts": 13,
+      "median_delta": 0.0277164327102436,
+      "positive_delta_cohorts": 7,
+      "negative_delta_cohorts": 6,
+      "ci_excludes_zero_cohorts": 5,
+      "supports_to_better_cohorts": 5
+    },
+    "om2_movement->om3_pressure_habitat|late_5_6|top10_auc": {
+      "n_cohorts": 13,
+      "median_delta": 0.023970225239123844,
+      "positive_delta_cohorts": 7,
+      "negative_delta_cohorts": 0,
+      "ci_excludes_zero_cohorts": 3,
+      "supports_to_better_cohorts": 3
+    },
+    "om2_movement->om3_pressure_habitat|mid_3_4|hazard_auc": {
+      "n_cohorts": 13,
+      "median_delta": 0.008017619749330573,
+      "positive_delta_cohorts": 11,
+      "negative_delta_cohorts": 2,
+      "ci_excludes_zero_cohorts": 4,
+      "supports_to_better_cohorts": 4
+    },
+    "om2_movement->om3_pressure_habitat|mid_3_4|rank_spearman": {
+      "n_cohorts": 13,
+      "median_delta": 0.05306958983572918,
+      "positive_delta_cohorts": 13,
+      "negative_delta_cohorts": 0,
+      "ci_excludes_zero_cohorts": 11,
+      "supports_to_better_cohorts": 11
+    },
+    "om2_movement->om3_pressure_habitat|mid_3_4|top10_auc": {
+      "n_cohorts": 13,
+      "median_delta": 0.053738001892659204,
+      "positive_delta_cohorts": 11,
+      "negative_delta_cohorts": 0,
+      "ci_excludes_zero_cohorts": 10,
+      "supports_to_better_cohorts": 10
+    },
+    "om3_pressure_habitat->om4_threat_exposure|early_1_2|hazard_auc": {
+      "n_cohorts": 13,
+      "median_delta": -0.0005498263387381241,
+      "positive_delta_cohorts": 6,
+      "negative_delta_cohorts": 7,
+      "ci_excludes_zero_cohorts": 3,
+      "supports_to_better_cohorts": 2
+    },
+    "om3_pressure_habitat->om4_threat_exposure|early_1_2|rank_spearman": {
+      "n_cohorts": 13,
+      "median_delta": 0.0094271329094186,
+      "positive_delta_cohorts": 12,
+      "negative_delta_cohorts": 1,
+      "ci_excludes_zero_cohorts": 6,
+      "supports_to_better_cohorts": 6
+    },
+    "om3_pressure_habitat->om4_threat_exposure|early_1_2|top10_auc": {
+      "n_cohorts": 13,
+      "median_delta": 0.00019169626169945886,
+      "positive_delta_cohorts": 8,
+      "negative_delta_cohorts": 5,
+      "ci_excludes_zero_cohorts": 0,
+      "supports_to_better_cohorts": 0
+    },
+    "om3_pressure_habitat->om4_threat_exposure|late_5_6|hazard_auc": {
+      "n_cohorts": 13,
+      "median_delta": 0.004374758033294568,
+      "positive_delta_cohorts": 11,
+      "negative_delta_cohorts": 2,
+      "ci_excludes_zero_cohorts": 1,
+      "supports_to_better_cohorts": 1
+    },
+    "om3_pressure_habitat->om4_threat_exposure|late_5_6|rank_spearman": {
+      "n_cohorts": 13,
+      "median_delta": 0.017710083560878664,
+      "positive_delta_cohorts": 10,
+      "negative_delta_cohorts": 3,
+      "ci_excludes_zero_cohorts": 3,
+      "supports_to_better_cohorts": 3
+    },
+    "om3_pressure_habitat->om4_threat_exposure|late_5_6|top10_auc": {
+      "n_cohorts": 13,
+      "median_delta": 0.0025688073394496413,
+      "positive_delta_cohorts": 6,
+      "negative_delta_cohorts": 1,
+      "ci_excludes_zero_cohorts": 0,
+      "supports_to_better_cohorts": 0
+    },
+    "om3_pressure_habitat->om4_threat_exposure|mid_3_4|hazard_auc": {
+      "n_cohorts": 13,
+      "median_delta": 0.003710727880253617,
+      "positive_delta_cohorts": 12,
+      "negative_delta_cohorts": 1,
+      "ci_excludes_zero_cohorts": 3,
+      "supports_to_better_cohorts": 3
+    },
+    "om3_pressure_habitat->om4_threat_exposure|mid_3_4|rank_spearman": {
+      "n_cohorts": 13,
+      "median_delta": 0.01034327545289504,
+      "positive_delta_cohorts": 12,
+      "negative_delta_cohorts": 1,
+      "ci_excludes_zero_cohorts": 6,
+      "supports_to_better_cohorts": 6
+    },
+    "om3_pressure_habitat->om4_threat_exposure|mid_3_4|top10_auc": {
+      "n_cohorts": 13,
+      "median_delta": 0.0024446221358076503,
+      "positive_delta_cohorts": 9,
+      "negative_delta_cohorts": 2,
+      "ci_excludes_zero_cohorts": 4,
+      "supports_to_better_cohorts": 3
+    }
+  },
+  "outputs": {
+    "all_csv": "model_stgcn/checkpoints/br_om_ladder_required_v1/bootstrap_phase_group_core_b2000/om_paired_bootstrap_all.csv",
+    "phase_group_csv": "model_stgcn/checkpoints/br_om_ladder_required_v1/bootstrap_phase_group_core_b2000/om_paired_bootstrap_phase_groups.csv",
+    "single_phase_csv": "model_stgcn/checkpoints/br_om_ladder_required_v1/bootstrap_phase_group_core_b2000/om_paired_bootstrap_single_phases.csv",
+    "summary_json": "model_stgcn/checkpoints/br_om_ladder_required_v1/bootstrap_phase_group_core_b2000/om_paired_bootstrap_summary.json"
+  }
+}

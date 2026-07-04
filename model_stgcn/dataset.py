@@ -98,7 +98,7 @@ class LazyPhaseMatchDataset(Dataset):
     (proximity, combat, copressure, combat_in).  Must match the
     edge_types the model checkpoint was trained with.
 
-    include_v2_features: fetch the 141-d node layout (base 66 + F6 network
+    include_v2_features: fetch the 150-d node layout (base 66 + F6 network
     role + F7 habitat pressure).  Must match the feature_dim the model
     checkpoint was trained with.
     """

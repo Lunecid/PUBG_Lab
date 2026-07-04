@@ -1,0 +1,38 @@
+{
+  "elapsed_s": 826.53,
+  "metrics": [
+    {
+      "group": "om6z_sensitivity",
+      "name": "om6z_spatial_affordance",
+      "model": "mr",
+      "global_fusion": "concat",
+      "graph_encoder": "none",
+      "edge_mode": "none",
+      "edge_control": "observed",
+      "team_decoder": "mlp",
+      "pairwise_rank_weight": "0.0",
+      "feature_preset": "om6z_spatial_affordance",
+      "note": "corrected O6: OM5 plus Z1-Z3 vertical, contact-gated relative-height, and zone-pressure affordance features",
+      "n": 9068,
+      "pos_rate": 0.28914865460961625,
+      "acc": 0.771393912659903,
+      "bce": 0.48508030874379143,
+      "brier": 0.15835961682573405,
+      "ece": 0.008173763274408661,
+      "auc": 0.7783682807093277,
+      "ap": 0.6394320082570034,
+      "rank_mae_norm": 0.11986973881721497,
+      "rank_spearman": 0.575421605641846,
+      "rank_pairwise_acc": 0.6681560972036552,
+      "top5_auc": 0.8112977882600404,
+      "top5_ap": 0.8085998807419104,
+      "top5_brier": 0.17292352473800363,
+      "top10_auc": 0.8562881660887638,
+      "top10_ap": 0.9496429645261601,
+      "top10_brier": 0.12787026816744876,
+      "checkpoint": "model_stgcn/checkpoints/br_om6z_required_v1/miramar_desert_tpp_squad/om6z_sensitivity/om6z_spatial_affordance/model.pt",
+      "eval_json": "model_stgcn/checkpoints/br_om6z_required_v1/miramar_desert_tpp_squad/om6z_sensitivity/om6z_spatial_affordance/eval_test.json"
+    }
+  ],
+  "metrics_csv": "model_stgcn/checkpoints/br_om6z_required_v1/miramar_desert_tpp_squad/matrix_metrics.csv"
+}

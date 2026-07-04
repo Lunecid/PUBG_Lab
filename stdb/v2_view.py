@@ -11,9 +11,10 @@ view:
   + F0 extras (zone centers, team centroid, raw kinematics)  [team_phase_f0_extra]
   + F6 network role                                          [team_phase_network_features]
   + F7 habitat pressure                                      [team_phase_habitat_features]
+  + O6 Z-affordance sensitivity                              [team_phase_z_affordance_features]
 
-F6/F7 column lists are read from the manifest (single source of truth) so the
-view never drifts from the ablation contract. F0 raw pass-2 columns
+F6/F7/O6Z column lists are read from the manifest (single source of truth) so
+the view never drifts from the ablation contract. F0 raw pass-2 columns
 (assists/suicide/landing) are intentionally absent until built.
 """
 
@@ -49,11 +50,13 @@ def build_sql() -> str:
     man = json.loads(MANIFEST.read_text(encoding="utf-8"))
     f6 = man["families"]["f6_network_phase_role_tier1"]["columns"]
     f7 = man["families"]["f7_habitat_pressure_tier1"]["columns"]
+    z = man["families"].get("o6_z_affordance_tier1", {}).get("columns", [])
 
     cols = [f'{a}.{c}' for a, c in F0_BASE_EXPOSE]
     cols += [f'f0."{c}"' for c in F0_EXTRA]
     cols += [f'n."{c}"' for c in f6]
     cols += [f'h."{c}"' for c in f7]
+    cols += [f'z."{c}"' for c in z]
     extra = ",\n    ".join(cols)
 
     return f"""
@@ -74,6 +77,8 @@ LEFT JOIN stdb.team_phase_network_features n
        ON n.match_id = long.match_id AND n.team_id = long.team_id AND n.phase_idx = long.phase_idx
 LEFT JOIN stdb.team_phase_habitat_features h
        ON h.match_id = long.match_id AND h.team_id = long.team_id AND h.phase_idx = long.phase_idx
+LEFT JOIN stdb.team_phase_z_affordance_features z
+       ON z.match_id = long.match_id AND z.team_id = long.team_id AND z.phase_idx = long.phase_idx
 """
 
 

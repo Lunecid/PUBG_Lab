@@ -147,13 +147,14 @@ PHASE_NODE_FEATURE_SPECS = [
 PHASE_NODE_FEATURE_NAMES = [spec[0] for spec in PHASE_NODE_FEATURE_SPECS]
 PHASE_FEATURE_DIM = len(PHASE_NODE_FEATURE_NAMES)
 
-# V2 node features (FEATURE_DESIGN_V2 §7/§8): F6 network role + F7 habitat
-# pressure, fetched from their own tables (NOT the long view, so the tabular
-# HGB path stays untouched). Column contract mirrors the two families in
+# V2 node features (FEATURE_DESIGN_V2 §7/§8 plus the O6 Z-ladder sensitivity):
+# F6 network role + F7 habitat pressure + corrected O6 Z-affordance, fetched
+# from their own tables (NOT the long view, so the tabular HGB path stays
+# untouched). Column contract mirrors the relevant families in
 # model_stgcn/feature_manifests/pubg_representation_v2.json — enforced by
 # tests/test_v2_node_features.py. Same fixed-constant scaling convention and
 # NULL→0.0 fill as the base 66 specs.
-PHASE_NODE_FEATURE_SPECS_V2 = [
+PHASE_NODE_FEATURE_SPECS_NETWORK_HABITAT = [
     # F6 — combat role (phase-local)
     ("net_combat_out_degree", "net_combat_out_degree", 20.0, "linear"),
     ("net_combat_in_degree", "net_combat_in_degree", 20.0, "linear"),
@@ -239,11 +240,26 @@ PHASE_NODE_FEATURE_SPECS_V2 = [
     ("hab_refuge_scarcity_simple", "hab_refuge_scarcity_simple", 1.0e-6, "linear"),
 ]
 
+PHASE_NODE_FEATURE_SPECS_Z_AFFORDANCE = [
+    ("team_z_mean_norm", "team_z_mean_m", ALTITUDE_MAX_M, "linear"),
+    ("team_z_percentile_alive", "team_z_percentile_alive", 1.0, "linear"),
+    ("team_z_range_norm", "team_z_range_m", 200.0, "linear"),
+    ("contact_delta_z_mean_norm", "contact_delta_z_mean_m", 100.0, "linear"),
+    ("contact_delta_z_positive_ratio", "contact_delta_z_positive_ratio", 1.0, "linear"),
+    ("high_ground_contact_advantage", "high_ground_contact_advantage", 1.0, "linear"),
+    ("high_ground_x_boundary_pressure", "high_ground_x_boundary_pressure", 1.0, "linear"),
+    ("z_percentile_x_hab_crowding_pressure", "z_percentile_x_hab_crowding_pressure", 1.0e-6, "linear"),
+    ("contact_delta_z_x_outside_safe_ratio", "contact_delta_z_x_outside_safe_ratio", 100.0, "linear"),
+]
+
+PHASE_NODE_FEATURE_SPECS_V2 = PHASE_NODE_FEATURE_SPECS_NETWORK_HABITAT + PHASE_NODE_FEATURE_SPECS_Z_AFFORDANCE
+
 PHASE_NODE_FEATURE_NAMES_V2 = [spec[0] for spec in PHASE_NODE_FEATURE_SPECS_V2]
 PHASE_FEATURE_DIM_V2 = PHASE_FEATURE_DIM + len(PHASE_NODE_FEATURE_NAMES_V2)
 
 _V2_NETWORK_TABLE = "stdb.team_phase_network_features"
 _V2_HABITAT_TABLE = "stdb.team_phase_habitat_features"
+_V2_Z_AFFORDANCE_TABLE = "stdb.team_phase_z_affordance_features"
 
 
 @dataclass
@@ -596,9 +612,11 @@ def _fetch_phase_node_features(
 
     net_map: dict[tuple[int, int], dict] = {}
     hab_map: dict[tuple[int, int], dict] = {}
+    z_map: dict[tuple[int, int], dict] = {}
     if include_v2_features:
         net_map = _fetch_v2_feature_map(cur, _V2_NETWORK_TABLE, match_id, team_ids, phase_indices)
         hab_map = _fetch_v2_feature_map(cur, _V2_HABITAT_TABLE, match_id, team_ids, phase_indices)
+        z_map = _fetch_v2_feature_map(cur, _V2_Z_AFFORDANCE_TABLE, match_id, team_ids, phase_indices)
 
     seen_rank: set[int] = set()
     for row in rows:
@@ -611,7 +629,12 @@ def _fetch_phase_node_features(
         team_mask[i] = True
 
         if include_v2_features:
-            row = {**row, **net_map.get((tid, p), {}), **hab_map.get((tid, p), {})}
+            row = {
+                **row,
+                **net_map.get((tid, p), {}),
+                **hab_map.get((tid, p), {}),
+                **z_map.get((tid, p), {}),
+            }
         for f, (_name, col, scale, transform) in enumerate(specs):
             X[t, i, f] = _as_float(row.get(col), scale=scale, transform=transform)
 
@@ -825,9 +848,10 @@ def fetch_phase_match_tensors(
     attacker state.  Default False keeps the E=3 layout of all existing
     checkpoints.
 
-    include_v2_features: append F6 network-role + F7 habitat-pressure node
-    features (F = PHASE_FEATURE_DIM_V2) from their dedicated tables.  Default
-    False keeps the 66-d node layout of all existing checkpoints.
+    include_v2_features: append F6 network-role + F7 habitat-pressure + O6
+    Z-affordance node features (F = PHASE_FEATURE_DIM_V2) from their dedicated
+    tables. Default False keeps the 66-d node layout of all existing
+    checkpoints.
 
     Shapes:
         X           (8, PHASE_N_MAX, F)

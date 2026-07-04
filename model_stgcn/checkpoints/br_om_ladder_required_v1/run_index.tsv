@@ -1,0 +1,15 @@
+started_at	finished_at	status	cohort_slug	cohort	out_dir
+2026-07-03T06:36:29Z	2026-07-03T06:36:44Z	failed	erangel_tpp_squad	Erangel TPP squad	model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad
+2026-07-03T06:37:46Z	2026-07-03T12:15:04Z	passed	erangel_tpp_squad	Erangel TPP squad	model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad
+2026-07-03T12:19:10Z	2026-07-03T16:15:01Z	passed	taego_tpp_squad	Taego TPP squad	model_stgcn/checkpoints/br_om_ladder_required_v1/taego_tpp_squad
+2026-07-03T16:15:01Z	2026-07-03T17:44:22Z	passed	miramar_desert_tpp_squad	Miramar / Desert TPP squad	model_stgcn/checkpoints/br_om_ladder_required_v1/miramar_desert_tpp_squad
+2026-07-03T17:44:22Z	2026-07-03T18:39:54Z	passed	rondo_tpp_squad	Rondo TPP squad	model_stgcn/checkpoints/br_om_ladder_required_v1/rondo_tpp_squad
+2026-07-03T18:39:54Z	2026-07-03T19:28:44Z	passed	sanhok_tpp_squad	Sanhok TPP squad	model_stgcn/checkpoints/br_om_ladder_required_v1/sanhok_tpp_squad
+2026-07-03T19:28:44Z	2026-07-03T22:52:42Z	passed	erangel_tpp_solo	Erangel TPP solo	model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_solo
+2026-07-03T22:52:42Z	2026-07-04T00:00:23Z	passed	erangel_tpp_duo	Erangel TPP duo	model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_duo
+2026-07-04T00:00:23Z	2026-07-04T00:56:45Z	passed	taego_tpp_duo	Taego TPP duo	model_stgcn/checkpoints/br_om_ladder_required_v1/taego_tpp_duo
+2026-07-04T00:56:45Z	2026-07-04T01:26:17Z	passed	vikendi_tpp_squad	Vikendi TPP squad	model_stgcn/checkpoints/br_om_ladder_required_v1/vikendi_tpp_squad
+2026-07-04T01:26:17Z	2026-07-04T01:51:41Z	passed	taego_fpp_squad	Taego FPP squad	model_stgcn/checkpoints/br_om_ladder_required_v1/taego_fpp_squad
+2026-07-04T01:51:41Z	2026-07-04T02:15:53Z	passed	erangel_fpp_squad	Erangel FPP squad	model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_fpp_squad
+2026-07-04T02:15:53Z	2026-07-04T02:34:52Z	passed	paramo_tpp_squad	Paramo TPP squad	model_stgcn/checkpoints/br_om_ladder_required_v1/paramo_tpp_squad
+2026-07-04T02:34:52Z	2026-07-04T02:53:36Z	passed	karakin_tpp_squad	Karakin TPP squad	model_stgcn/checkpoints/br_om_ladder_required_v1/karakin_tpp_squad

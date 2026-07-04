@@ -1,0 +1,13 @@
+{
+  "cohort": "Taego TPP duo",
+  "cohort_slug": "taego_tpp_duo",
+  "map_name": "Tiger_Main",
+  "game_mode": "duo",
+  "shards": 4,
+  "shard_index": 0,
+  "selected_matches": 144,
+  "ok": 144,
+  "failed": 0,
+  "failures": [],
+  "elapsed_s": 59.11
+}

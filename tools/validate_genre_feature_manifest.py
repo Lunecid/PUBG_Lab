@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any
 
 
-DEFAULT_MANIFEST = Path("docs/GENRE_PRIMITIVE_FEATURE_MANIFEST.csv")
+DEFAULT_MANIFEST = Path("docs/feature_engineering/GENRE_PRIMITIVE_FEATURE_MANIFEST.csv")
 DEFAULT_LEGACY = Path("model_stgcn/feature_manifests/pubg_representation_v2.json")
 
 REQUIRED_COLUMNS = [

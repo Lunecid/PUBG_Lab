@@ -1,0 +1,13 @@
+{
+  "cohort": "Erangel TPP solo",
+  "cohort_slug": "erangel_tpp_solo",
+  "map_name": "Baltic_Main",
+  "game_mode": "solo",
+  "shards": 4,
+  "shard_index": 0,
+  "selected_matches": 196,
+  "ok": 196,
+  "failed": 0,
+  "failures": [],
+  "elapsed_s": 119.01
+}

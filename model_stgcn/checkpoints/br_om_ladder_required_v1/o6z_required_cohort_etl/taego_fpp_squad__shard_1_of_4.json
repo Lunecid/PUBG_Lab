@@ -1,0 +1,13 @@
+{
+  "cohort": "Taego FPP squad",
+  "cohort_slug": "taego_fpp_squad",
+  "map_name": "Tiger_Main",
+  "game_mode": "squad-fpp",
+  "shards": 4,
+  "shard_index": 1,
+  "selected_matches": 114,
+  "ok": 114,
+  "failed": 0,
+  "failures": [],
+  "elapsed_s": 19.61
+}

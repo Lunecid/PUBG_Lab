@@ -1,0 +1,110 @@
+{
+  "delta_om5_to_om6_old_auc": {
+    "n": 13,
+    "median": 0.0010198558177298978,
+    "mean": 0.0007874932508329124,
+    "positive_cohorts": 10,
+    "negative_cohorts": 3,
+    "min": -0.005157343775994638,
+    "max": 0.004246706993046412
+  },
+  "delta_om5_to_om6z_auc": {
+    "n": 13,
+    "median": -0.0011879950268866013,
+    "mean": -0.0017040199485368868,
+    "positive_cohorts": 4,
+    "negative_cohorts": 9,
+    "min": -0.008523056023747921,
+    "max": 0.0018139608690683762
+  },
+  "delta_om6_old_to_om6z_auc": {
+    "n": 13,
+    "median": -0.0020346893185925197,
+    "mean": -0.002491513199369799,
+    "positive_cohorts": 2,
+    "negative_cohorts": 11,
+    "min": -0.00932806721843471,
+    "max": 0.000613347543760745
+  },
+  "delta_om5_to_om6_old_rank_spearman": {
+    "n": 13,
+    "median": -0.0014067740767500503,
+    "mean": -0.0012488534987957084,
+    "positive_cohorts": 3,
+    "negative_cohorts": 10,
+    "min": -0.007138886051588855,
+    "max": 0.008530915992809751
+  },
+  "delta_om5_to_om6z_rank_spearman": {
+    "n": 13,
+    "median": -0.0033974327863662834,
+    "mean": -0.003590370511481025,
+    "positive_cohorts": 2,
+    "negative_cohorts": 11,
+    "min": -0.008573447801187517,
+    "max": 0.00116020956833085
+  },
+  "delta_om6_old_to_om6z_rank_spearman": {
+    "n": 13,
+    "median": -0.0011033279811148988,
+    "mean": -0.0023415170126853168,
+    "positive_cohorts": 4,
+    "negative_cohorts": 9,
+    "min": -0.01080303059927501,
+    "max": 0.0019608963115572697
+  },
+  "delta_om5_to_om6_old_top10_auc": {
+    "n": 13,
+    "median": -0.0007849293563582105,
+    "mean": -0.00034770477298100397,
+    "positive_cohorts": 3,
+    "negative_cohorts": 10,
+    "min": -0.002394636015325635,
+    "max": 0.003929457615954535
+  },
+  "delta_om5_to_om6z_top10_auc": {
+    "n": 13,
+    "median": -0.0007302670849702597,
+    "mean": -0.0010005209436437874,
+    "positive_cohorts": 5,
+    "negative_cohorts": 8,
+    "min": -0.009653030675926377,
+    "max": 0.0022512708787220115
+  },
+  "delta_om6_old_to_om6z_top10_auc": {
+    "n": 13,
+    "median": 0.00046002889222429566,
+    "mean": -0.0006528161706627836,
+    "positive_cohorts": 8,
+    "negative_cohorts": 5,
+    "min": -0.013582488291880912,
+    "max": 0.003013798111837551
+  },
+  "delta_om5_to_om6_old_ece": {
+    "n": 13,
+    "median": -0.00019979692783660043,
+    "mean": -0.0006124776966218848,
+    "positive_cohorts": 6,
+    "negative_cohorts": 7,
+    "min": -0.007934763696308399,
+    "max": 0.006560433675258498
+  },
+  "delta_om5_to_om6z_ece": {
+    "n": 13,
+    "median": -0.0004209728205995973,
+    "mean": 0.0016830331517015,
+    "positive_cohorts": 5,
+    "negative_cohorts": 8,
+    "min": -0.0034646981650341,
+    "max": 0.0141032507849172
+  },
+  "delta_om6_old_to_om6z_ece": {
+    "n": 13,
+    "median": 0.0013755950407706996,
+    "mean": 0.0022955108483233844,
+    "positive_cohorts": 7,
+    "negative_cohorts": 6,
+    "min": -0.005362041357448898,
+    "max": 0.0119777493239693
+  }
+}

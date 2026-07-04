@@ -1,0 +1,35 @@
+{
+  "root": "model_stgcn/checkpoints/br_om_ladder_required_v1",
+  "rows": 91,
+  "cohorts": 13,
+  "complete_cohorts": [
+    "Erangel FPP squad",
+    "Erangel TPP duo",
+    "Erangel TPP solo",
+    "Erangel TPP squad",
+    "Karakin TPP squad",
+    "Miramar / Desert TPP squad",
+    "Paramo TPP squad",
+    "Rondo TPP squad",
+    "Sanhok TPP squad",
+    "Taego FPP squad",
+    "Taego TPP duo",
+    "Taego TPP squad",
+    "Vikendi TPP squad"
+  ],
+  "cohort_row_counts": {
+    "Erangel FPP squad": 7,
+    "Erangel TPP duo": 7,
+    "Erangel TPP solo": 7,
+    "Erangel TPP squad": 7,
+    "Karakin TPP squad": 7,
+    "Miramar / Desert TPP squad": 7,
+    "Paramo TPP squad": 7,
+    "Rondo TPP squad": 7,
+    "Sanhok TPP squad": 7,
+    "Taego FPP squad": 7,
+    "Taego TPP duo": 7,
+    "Taego TPP squad": 7,
+    "Vikendi TPP squad": 7
+  }
+}

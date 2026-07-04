@@ -226,3 +226,20 @@ prev_pptx_png/
 *.pdf
 /pubg_survival - pubg_survival - pubg.png
 *.tsbuildinfo
+
+# Keep small Battle Royale experiment evidence in git while excluding heavy
+# model checkpoints and raw prediction CSVs.
+!model_stgcn/
+!model_stgcn/checkpoints/
+model_stgcn/checkpoints/*
+!model_stgcn/checkpoints/br_om_ladder_required_v1/
+!model_stgcn/checkpoints/br_om_ladder_required_v1/**/
+!model_stgcn/checkpoints/br_om_ladder_required_v1/**/*.csv
+!model_stgcn/checkpoints/br_om_ladder_required_v1/**/*.json
+!model_stgcn/checkpoints/br_om_ladder_required_v1/**/*.log
+model_stgcn/checkpoints/br_om_ladder_required_v1/predictions/**/*.pred.csv
+!model_stgcn/checkpoints/br_om6z_required_v1/
+!model_stgcn/checkpoints/br_om6z_required_v1/**/
+!model_stgcn/checkpoints/br_om6z_required_v1/**/*.csv
+!model_stgcn/checkpoints/br_om6z_required_v1/**/*.json
+!model_stgcn/checkpoints/br_om6z_required_v1/**/*.log

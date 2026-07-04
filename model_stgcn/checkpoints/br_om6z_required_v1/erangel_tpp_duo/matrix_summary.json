@@ -1,0 +1,38 @@
+{
+  "elapsed_s": 691.711,
+  "metrics": [
+    {
+      "group": "om6z_sensitivity",
+      "name": "om6z_spatial_affordance",
+      "model": "mr",
+      "global_fusion": "concat",
+      "graph_encoder": "none",
+      "edge_mode": "none",
+      "edge_control": "observed",
+      "team_decoder": "mlp",
+      "pairwise_rank_weight": "0.0",
+      "feature_preset": "om6z_spatial_affordance",
+      "note": "corrected O6: OM5 plus Z1-Z3 vertical, contact-gated relative-height, and zone-pressure affordance features",
+      "n": 5763,
+      "pos_rate": 0.329689397883047,
+      "acc": 0.7291341315287176,
+      "bce": 0.5478616886288571,
+      "brier": 0.18445486140546732,
+      "ece": 0.018536616081209337,
+      "auc": 0.7237265828303608,
+      "ap": 0.6169873734040784,
+      "rank_mae_norm": 0.09807753562927246,
+      "rank_spearman": 0.6031192752317004,
+      "rank_pairwise_acc": 0.6371973392461198,
+      "top5_auc": 0.7873265578712225,
+      "top5_ap": 0.7104898904935251,
+      "top5_brier": 0.1580560760764472,
+      "top10_auc": 0.8067449953621166,
+      "top10_ap": 0.8589868356352548,
+      "top10_brier": 0.1749311733785751,
+      "checkpoint": "model_stgcn/checkpoints/br_om6z_required_v1/erangel_tpp_duo/om6z_sensitivity/om6z_spatial_affordance/model.pt",
+      "eval_json": "model_stgcn/checkpoints/br_om6z_required_v1/erangel_tpp_duo/om6z_sensitivity/om6z_spatial_affordance/eval_test.json"
+    }
+  ],
+  "metrics_csv": "model_stgcn/checkpoints/br_om6z_required_v1/erangel_tpp_duo/matrix_metrics.csv"
+}

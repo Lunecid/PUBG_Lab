@@ -1,0 +1,21 @@
+{
+  "root": "model_stgcn/checkpoints/br_om6z_required_v1",
+  "rows": 13,
+  "cohorts": 13,
+  "complete_cohorts": [],
+  "cohort_row_counts": {
+    "Erangel FPP squad": 1,
+    "Erangel TPP duo": 1,
+    "Erangel TPP solo": 1,
+    "Erangel TPP squad": 1,
+    "Karakin TPP squad": 1,
+    "Miramar / Desert TPP squad": 1,
+    "Paramo TPP squad": 1,
+    "Rondo TPP squad": 1,
+    "Sanhok TPP squad": 1,
+    "Taego FPP squad": 1,
+    "Taego TPP duo": 1,
+    "Taego TPP squad": 1,
+    "Vikendi TPP squad": 1
+  }
+}

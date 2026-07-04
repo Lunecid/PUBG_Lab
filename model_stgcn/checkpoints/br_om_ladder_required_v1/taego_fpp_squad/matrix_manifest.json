@@ -1,0 +1,110 @@
+{
+  "out_dir": "model_stgcn/checkpoints/br_om_ladder_required_v1/taego_fpp_squad",
+  "groups": [
+    "om_ladder"
+  ],
+  "epochs": 12,
+  "limit": null,
+  "cohort": "Taego FPP squad",
+  "cohort_slug": "taego_fpp_squad",
+  "map": "Tiger_Main",
+  "mode": "squad-fpp",
+  "seed": 42,
+  "split_json": "model_stgcn/checkpoints/br_om_ladder_required_v1/taego_fpp_squad/split.json",
+  "eval_only": false,
+  "force": false,
+  "force_eval": false,
+  "experiments": [
+    {
+      "group": "om_ladder",
+      "name": "om0_context",
+      "model": "mr",
+      "global_fusion": "concat",
+      "graph_encoder": "none",
+      "edge_mode": "none",
+      "edge_control": "observed",
+      "team_decoder": "mlp",
+      "pairwise_rank_weight": "0.0",
+      "feature_preset": "om0_context",
+      "note": "clean OM0: phase context plus team-size anchor only"
+    },
+    {
+      "group": "om_ladder",
+      "name": "om1_survival_capital",
+      "model": "mr",
+      "global_fusion": "concat",
+      "graph_encoder": "none",
+      "edge_mode": "none",
+      "edge_control": "observed",
+      "team_decoder": "mlp",
+      "pairwise_rank_weight": "0.0",
+      "feature_preset": "om1_survival_capital",
+      "note": "clean OM1: OM0 plus roster, health, and team cohesion"
+    },
+    {
+      "group": "om_ladder",
+      "name": "om2_movement",
+      "model": "mr",
+      "global_fusion": "concat",
+      "graph_encoder": "none",
+      "edge_mode": "none",
+      "edge_control": "observed",
+      "team_decoder": "mlp",
+      "pairwise_rank_weight": "0.0",
+      "feature_preset": "om2_movement",
+      "note": "clean OM2: OM1 plus movement and rotation response"
+    },
+    {
+      "group": "om_ladder",
+      "name": "om3_pressure_habitat",
+      "model": "mr",
+      "global_fusion": "concat",
+      "graph_encoder": "none",
+      "edge_mode": "none",
+      "edge_control": "observed",
+      "team_decoder": "mlp",
+      "pairwise_rank_weight": "0.0",
+      "feature_preset": "om3_pressure_habitat",
+      "note": "clean OM3: OM2 plus contraction pressure and habitat features"
+    },
+    {
+      "group": "om_ladder",
+      "name": "om4_threat_exposure",
+      "model": "mr",
+      "global_fusion": "concat",
+      "graph_encoder": "none",
+      "edge_mode": "none",
+      "edge_control": "observed",
+      "team_decoder": "mlp",
+      "pairwise_rank_weight": "0.0",
+      "feature_preset": "om4_threat_exposure",
+      "note": "clean OM4: OM3 plus combat and threat exposure"
+    },
+    {
+      "group": "om_ladder",
+      "name": "om5_relation_structure",
+      "model": "mr",
+      "global_fusion": "concat",
+      "graph_encoder": "none",
+      "edge_mode": "none",
+      "edge_control": "observed",
+      "team_decoder": "mlp",
+      "pairwise_rank_weight": "0.0",
+      "feature_preset": "om5_relation_structure",
+      "note": "clean OM5: OM4 plus precomputed O7 network-role summaries; graph message passing remains a separate relation test"
+    },
+    {
+      "group": "om_ladder",
+      "name": "om6_spatial_proxy",
+      "model": "mr",
+      "global_fusion": "concat",
+      "graph_encoder": "none",
+      "edge_mode": "none",
+      "edge_control": "observed",
+      "team_decoder": "mlp",
+      "pairwise_rank_weight": "0.0",
+      "feature_preset": "om6_spatial_proxy",
+      "note": "clean OM6: OM5 plus remaining PUBG spatial-exposure proxies not already assigned to habitat"
+    }
+  ]
+}

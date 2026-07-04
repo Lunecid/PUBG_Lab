@@ -62,6 +62,70 @@ CONVENTIONAL_NODE_FEATURES: tuple[str, ...] = tuple(
     + list(PHASE_NODE_FEATURE_NAMES[42:65])
 )
 STDB_SPATIAL_NODE_FEATURES: tuple[str, ...] = tuple(PHASE_NODE_FEATURE_NAMES[25:42])
+OM0_CONTEXT_FEATURES: tuple[str, ...] = MINIMAL_TEMPORAL_CONTEXT_FEATURES + (
+    "team_size_norm",
+)
+O1_SURVIVAL_CAPITAL_FEATURES: tuple[str, ...] = (
+    "alive_players_start_norm",
+    "alive_players_end_norm",
+    "alive_players_min_norm",
+    "alive_players_avg_norm",
+    "mean_health_avg_norm",
+    "min_health_min_norm",
+    "health_slope_norm",
+    "team_spread_avg_norm",
+    "team_spread_max_norm",
+)
+O3_MOVEMENT_FEATURES: tuple[str, ...] = (
+    "path_length_norm",
+    "displacement_norm",
+    "log1p_sinuosity",
+    "avg_speed_norm",
+    "rotation_timing",
+    "safe_alignment",
+    "zone_entry_time",
+)
+O2_PRESSURE_GLOBAL_FEATURES: tuple[str, ...] = tuple(
+    name for name in BASE_GLOBAL_FEATURES if name not in MINIMAL_TEMPORAL_CONTEXT_FEATURES
+)
+O2_LOCAL_PRESSURE_FEATURES: tuple[str, ...] = (
+    "outside_safe_duration_10min",
+    "boundary_distance_slope_norm",
+    "mean_dist_to_boundary_norm",
+    "min_dist_to_boundary_norm",
+    "outside_safe_ratio",
+)
+O4_THREAT_EXPOSURE_FEATURES: tuple[str, ...] = (
+    "recent_damage_taken_norm",
+    "combat_zone_pass_count_norm",
+    "damage_dealt_norm",
+    "damage_taken_norm",
+    "damage_events_dealt_norm",
+    "damage_events_taken_norm",
+    "groggy_dealt_norm",
+    "groggy_taken_norm",
+    "kills_dealt_norm",
+    "kills_taken_norm",
+    "distinct_opponents_damaged_norm",
+    "distinct_opponents_damaged_by_norm",
+    "combat_initiated",
+)
+O6_SPATIAL_PROXY_FEATURES: tuple[str, ...] = (
+    "avg_enemy_density_100m_norm",
+    "min_nearest_enemy_norm",
+    "path_near_enemy_ratio",
+)
+O6_Z_AFFORDANCE_FEATURES: tuple[str, ...] = (
+    "team_z_mean_norm",
+    "team_z_percentile_alive",
+    "team_z_range_norm",
+    "contact_delta_z_mean_norm",
+    "contact_delta_z_positive_ratio",
+    "high_ground_contact_advantage",
+    "high_ground_x_boundary_pressure",
+    "z_percentile_x_hab_crowding_pressure",
+    "contact_delta_z_x_outside_safe_ratio",
+)
 NETWORK_NODE_FEATURES: tuple[str, ...] = tuple(
     name
     for name in PHASE_NODE_FEATURE_NAMES_V2
@@ -70,6 +134,30 @@ NETWORK_NODE_FEATURES: tuple[str, ...] = tuple(
 HABITAT_FEATURES: tuple[str, ...] = tuple(
     name for name in PHASE_NODE_FEATURE_NAMES_V2 if name.startswith("hab_")
 )
+
+OM1_SURVIVAL_CAPITAL_FEATURES: tuple[str, ...] = OM0_CONTEXT_FEATURES + O1_SURVIVAL_CAPITAL_FEATURES
+OM2_MOVEMENT_FEATURES: tuple[str, ...] = OM1_SURVIVAL_CAPITAL_FEATURES + O3_MOVEMENT_FEATURES
+OM3_PRESSURE_HABITAT_FEATURES: tuple[str, ...] = (
+    OM2_MOVEMENT_FEATURES
+    + O2_PRESSURE_GLOBAL_FEATURES
+    + O2_LOCAL_PRESSURE_FEATURES
+    + HABITAT_FEATURES
+)
+OM4_THREAT_EXPOSURE_FEATURES: tuple[str, ...] = OM3_PRESSURE_HABITAT_FEATURES + O4_THREAT_EXPOSURE_FEATURES
+OM5_RELATION_STRUCTURE_FEATURES: tuple[str, ...] = OM4_THREAT_EXPOSURE_FEATURES + NETWORK_NODE_FEATURES
+OM6_SPATIAL_PROXY_FEATURES: tuple[str, ...] = OM5_RELATION_STRUCTURE_FEATURES + O6_SPATIAL_PROXY_FEATURES
+OM6Z_SPATIAL_AFFORDANCE_FEATURES: tuple[str, ...] = OM5_RELATION_STRUCTURE_FEATURES + O6_Z_AFFORDANCE_FEATURES
+
+OM_PRESET_FEATURES: dict[str, tuple[str, ...]] = {
+    "om0_context": OM0_CONTEXT_FEATURES,
+    "om1_survival_capital": OM1_SURVIVAL_CAPITAL_FEATURES,
+    "om2_movement": OM2_MOVEMENT_FEATURES,
+    "om3_pressure_habitat": OM3_PRESSURE_HABITAT_FEATURES,
+    "om4_threat_exposure": OM4_THREAT_EXPOSURE_FEATURES,
+    "om5_relation_structure": OM5_RELATION_STRUCTURE_FEATURES,
+    "om6_spatial_proxy": OM6_SPATIAL_PROXY_FEATURES,
+    "om6z_spatial_affordance": OM6Z_SPATIAL_AFFORDANCE_FEATURES,
+}
 
 FEATURE_PRESETS: tuple[str, ...] = (
     "full",
@@ -83,6 +171,14 @@ FEATURE_PRESETS: tuple[str, ...] = (
     "core_habitat",
     "core_stdb_network",
     "core_stdb_habitat",
+    "om0_context",
+    "om1_survival_capital",
+    "om2_movement",
+    "om3_pressure_habitat",
+    "om4_threat_exposure",
+    "om5_relation_structure",
+    "om6_spatial_proxy",
+    "om6z_spatial_affordance",
 )
 
 # Exact feature names that must never appear in model inputs.  Keep this exact
@@ -140,7 +236,9 @@ def feature_names_for_preset(preset: str, available_feature_names: Iterable[str]
 
     available = tuple(available_feature_names)
     available_set = set(available)
-    if preset == "full":
+    if preset in OM_PRESET_FEATURES:
+        selected = set(OM_PRESET_FEATURES[preset])
+    elif preset == "full":
         selected = set(available)
     elif preset == "base66":
         selected = set(BASE66_FEATURES)

@@ -1,6 +1,6 @@
 """
 Dataset + collate for the MR-STGNN: each item carries BOTH the phase tier
-tensors (141-d V2 node features + phase graph) and the snapshot tier tensors
+tensors (150-d V2 node features + phase graph) and the snapshot tier tensors
 (team_snapshot_features + snapshot graph + death index), fetched for the same
 match and indexed on the SAME team order (_phase_team_order) so a team keeps
 one node index across resolutions.

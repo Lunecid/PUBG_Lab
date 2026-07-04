@@ -1,0 +1,506 @@
+{
+  "delta_om5_to_om6_old_hazard_auc__early_1_2__phase_rows": {
+    "n_phase_rows": 26,
+    "median": 0.00129331915753933,
+    "mean": 0.0013933180224583836,
+    "positive_phase_rows": 16,
+    "negative_phase_rows": 10
+  },
+  "delta_om5_to_om6_old_hazard_auc__mid_3_4__phase_rows": {
+    "n_phase_rows": 26,
+    "median": 0.0009839740559658972,
+    "mean": 0.00020494567050724713,
+    "positive_phase_rows": 16,
+    "negative_phase_rows": 10
+  },
+  "delta_om5_to_om6_old_hazard_auc__late_5_6__phase_rows": {
+    "n_phase_rows": 26,
+    "median": 0.004772032923417269,
+    "mean": 0.008596185215534641,
+    "positive_phase_rows": 19,
+    "negative_phase_rows": 7
+  },
+  "delta_om5_to_om6_old_hazard_auc__phase_7_exploratory__phase_rows": {
+    "n_phase_rows": 13,
+    "median": -0.006033182503770829,
+    "mean": -0.01964705382759443,
+    "positive_phase_rows": 3,
+    "negative_phase_rows": 10
+  },
+  "delta_om5_to_om6_old_hazard_auc__early_1_2__cohort_mean": {
+    "n_cohorts": 13,
+    "median": 0.0012843017551230074,
+    "mean": 0.0013933180224583836,
+    "positive_cohorts": 9,
+    "negative_cohorts": 4
+  },
+  "delta_om5_to_om6_old_hazard_auc__mid_3_4__cohort_mean": {
+    "n_cohorts": 13,
+    "median": 0.0005145950602589711,
+    "mean": 0.00020494567050724713,
+    "positive_cohorts": 7,
+    "negative_cohorts": 6
+  },
+  "delta_om5_to_om6_old_hazard_auc__late_5_6__cohort_mean": {
+    "n_cohorts": 13,
+    "median": 0.005429476558664603,
+    "mean": 0.008596185215534641,
+    "positive_cohorts": 10,
+    "negative_cohorts": 3
+  },
+  "delta_om5_to_om6_old_hazard_auc__phase_7_exploratory__cohort_mean": {
+    "n_cohorts": 13,
+    "median": -0.006033182503770829,
+    "mean": -0.01964705382759443,
+    "positive_cohorts": 3,
+    "negative_cohorts": 10
+  },
+  "delta_om5_to_om6z_hazard_auc__early_1_2__phase_rows": {
+    "n_phase_rows": 26,
+    "median": 0.0004624665886537316,
+    "mean": 0.00026071413616454497,
+    "positive_phase_rows": 13,
+    "negative_phase_rows": 13
+  },
+  "delta_om5_to_om6z_hazard_auc__mid_3_4__phase_rows": {
+    "n_phase_rows": 26,
+    "median": -0.002929465215914251,
+    "mean": -0.00476042021228785,
+    "positive_phase_rows": 5,
+    "negative_phase_rows": 21
+  },
+  "delta_om5_to_om6z_hazard_auc__late_5_6__phase_rows": {
+    "n_phase_rows": 26,
+    "median": -0.005194216310472344,
+    "mean": -0.0016256872296457165,
+    "positive_phase_rows": 7,
+    "negative_phase_rows": 19
+  },
+  "delta_om5_to_om6z_hazard_auc__phase_7_exploratory__phase_rows": {
+    "n_phase_rows": 13,
+    "median": -0.022624434389140413,
+    "mean": -0.03671511704484207,
+    "positive_phase_rows": 3,
+    "negative_phase_rows": 10
+  },
+  "delta_om5_to_om6z_hazard_auc__early_1_2__cohort_mean": {
+    "n_cohorts": 13,
+    "median": 0.0003601953773984534,
+    "mean": 0.00026071413616454497,
+    "positive_cohorts": 7,
+    "negative_cohorts": 6
+  },
+  "delta_om5_to_om6z_hazard_auc__mid_3_4__cohort_mean": {
+    "n_cohorts": 13,
+    "median": -0.0035616952214719833,
+    "mean": -0.00476042021228785,
+    "positive_cohorts": 1,
+    "negative_cohorts": 12
+  },
+  "delta_om5_to_om6z_hazard_auc__late_5_6__cohort_mean": {
+    "n_cohorts": 13,
+    "median": -0.003027984859866051,
+    "mean": -0.0016256872296457165,
+    "positive_cohorts": 3,
+    "negative_cohorts": 10
+  },
+  "delta_om5_to_om6z_hazard_auc__phase_7_exploratory__cohort_mean": {
+    "n_cohorts": 13,
+    "median": -0.022624434389140413,
+    "mean": -0.03671511704484207,
+    "positive_cohorts": 3,
+    "negative_cohorts": 10
+  },
+  "delta_om6_old_to_om6z_hazard_auc__early_1_2__phase_rows": {
+    "n_phase_rows": 26,
+    "median": -0.0017849782203735454,
+    "mean": -0.0011326038862938387,
+    "positive_phase_rows": 11,
+    "negative_phase_rows": 15
+  },
+  "delta_om6_old_to_om6z_hazard_auc__mid_3_4__phase_rows": {
+    "n_phase_rows": 26,
+    "median": -0.004224815817646499,
+    "mean": -0.004965365882795097,
+    "positive_phase_rows": 2,
+    "negative_phase_rows": 24
+  },
+  "delta_om6_old_to_om6z_hazard_auc__late_5_6__phase_rows": {
+    "n_phase_rows": 26,
+    "median": -0.0092592592592593,
+    "mean": -0.010221872445180358,
+    "positive_phase_rows": 5,
+    "negative_phase_rows": 21
+  },
+  "delta_om6_old_to_om6z_hazard_auc__phase_7_exploratory__phase_rows": {
+    "n_phase_rows": 13,
+    "median": -0.0085657974530019,
+    "mean": -0.017068063217247638,
+    "positive_phase_rows": 5,
+    "negative_phase_rows": 8
+  },
+  "delta_om6_old_to_om6z_hazard_auc__early_1_2__cohort_mean": {
+    "n_cohorts": 13,
+    "median": -0.0019960798072088948,
+    "mean": -0.0011326038862938387,
+    "positive_cohorts": 5,
+    "negative_cohorts": 8
+  },
+  "delta_om6_old_to_om6z_hazard_auc__mid_3_4__cohort_mean": {
+    "n_cohorts": 13,
+    "median": -0.004173439165427728,
+    "mean": -0.004965365882795097,
+    "positive_cohorts": 1,
+    "negative_cohorts": 12
+  },
+  "delta_om6_old_to_om6z_hazard_auc__late_5_6__cohort_mean": {
+    "n_cohorts": 13,
+    "median": -0.005488772716682133,
+    "mean": -0.010221872445180358,
+    "positive_cohorts": 2,
+    "negative_cohorts": 11
+  },
+  "delta_om6_old_to_om6z_hazard_auc__phase_7_exploratory__cohort_mean": {
+    "n_cohorts": 13,
+    "median": -0.0085657974530019,
+    "mean": -0.017068063217247638,
+    "positive_cohorts": 5,
+    "negative_cohorts": 8
+  },
+  "delta_om5_to_om6_old_rank_spearman__early_1_2__phase_rows": {
+    "n_phase_rows": 26,
+    "median": -0.00393188945676029,
+    "mean": -0.004920775172276897,
+    "positive_phase_rows": 8,
+    "negative_phase_rows": 18
+  },
+  "delta_om5_to_om6_old_rank_spearman__mid_3_4__phase_rows": {
+    "n_phase_rows": 26,
+    "median": -0.0019782252165062575,
+    "mean": 0.001662538324656404,
+    "positive_phase_rows": 12,
+    "negative_phase_rows": 14
+  },
+  "delta_om5_to_om6_old_rank_spearman__late_5_6__phase_rows": {
+    "n_phase_rows": 26,
+    "median": -0.008389986940811,
+    "mean": -0.03638852877024911,
+    "positive_phase_rows": 8,
+    "negative_phase_rows": 18
+  },
+  "delta_om5_to_om6_old_rank_spearman__phase_7_exploratory__phase_rows": {
+    "n_phase_rows": 13,
+    "median": -0.024146598672933173,
+    "mean": -0.04727819227062376,
+    "positive_phase_rows": 4,
+    "negative_phase_rows": 9
+  },
+  "delta_om5_to_om6_old_rank_spearman__early_1_2__cohort_mean": {
+    "n_cohorts": 13,
+    "median": -0.0037441801438089783,
+    "mean": -0.004920775172276897,
+    "positive_cohorts": 2,
+    "negative_cohorts": 11
+  },
+  "delta_om5_to_om6_old_rank_spearman__mid_3_4__cohort_mean": {
+    "n_cohorts": 13,
+    "median": -0.0004449644833228461,
+    "mean": 0.001662538324656404,
+    "positive_cohorts": 5,
+    "negative_cohorts": 8
+  },
+  "delta_om5_to_om6_old_rank_spearman__late_5_6__cohort_mean": {
+    "n_cohorts": 13,
+    "median": -0.013561242749349445,
+    "mean": -0.03638852877024911,
+    "positive_cohorts": 4,
+    "negative_cohorts": 9
+  },
+  "delta_om5_to_om6_old_rank_spearman__phase_7_exploratory__cohort_mean": {
+    "n_cohorts": 13,
+    "median": -0.024146598672933173,
+    "mean": -0.04727819227062376,
+    "positive_cohorts": 4,
+    "negative_cohorts": 9
+  },
+  "delta_om5_to_om6z_rank_spearman__early_1_2__phase_rows": {
+    "n_phase_rows": 26,
+    "median": -0.003996627272847553,
+    "mean": -0.006112548989300133,
+    "positive_phase_rows": 6,
+    "negative_phase_rows": 20
+  },
+  "delta_om5_to_om6z_rank_spearman__mid_3_4__phase_rows": {
+    "n_phase_rows": 26,
+    "median": -0.010066845445313888,
+    "mean": -0.01014158369705325,
+    "positive_phase_rows": 5,
+    "negative_phase_rows": 21
+  },
+  "delta_om5_to_om6z_rank_spearman__late_5_6__phase_rows": {
+    "n_phase_rows": 26,
+    "median": -0.018855752957032484,
+    "mean": -0.031370337083761954,
+    "positive_phase_rows": 8,
+    "negative_phase_rows": 18
+  },
+  "delta_om5_to_om6z_rank_spearman__phase_7_exploratory__phase_rows": {
+    "n_phase_rows": 13,
+    "median": -0.07348642596457855,
+    "mean": -0.13448909363292694,
+    "positive_phase_rows": 3,
+    "negative_phase_rows": 10
+  },
+  "delta_om5_to_om6z_rank_spearman__early_1_2__cohort_mean": {
+    "n_cohorts": 13,
+    "median": -0.0038874301857439453,
+    "mean": -0.006112548989300133,
+    "positive_cohorts": 2,
+    "negative_cohorts": 11
+  },
+  "delta_om5_to_om6z_rank_spearman__mid_3_4__cohort_mean": {
+    "n_cohorts": 13,
+    "median": -0.013174293640185825,
+    "mean": -0.01014158369705325,
+    "positive_cohorts": 2,
+    "negative_cohorts": 11
+  },
+  "delta_om5_to_om6z_rank_spearman__late_5_6__cohort_mean": {
+    "n_cohorts": 13,
+    "median": -0.03187657319529891,
+    "mean": -0.03137033708376195,
+    "positive_cohorts": 4,
+    "negative_cohorts": 9
+  },
+  "delta_om5_to_om6z_rank_spearman__phase_7_exploratory__cohort_mean": {
+    "n_cohorts": 13,
+    "median": -0.07348642596457855,
+    "mean": -0.13448909363292694,
+    "positive_cohorts": 3,
+    "negative_cohorts": 10
+  },
+  "delta_om6_old_to_om6z_rank_spearman__early_1_2__phase_rows": {
+    "n_phase_rows": 26,
+    "median": 0.0003431682056973251,
+    "mean": -0.001191773817023236,
+    "positive_phase_rows": 14,
+    "negative_phase_rows": 12
+  },
+  "delta_om6_old_to_om6z_rank_spearman__mid_3_4__phase_rows": {
+    "n_phase_rows": 26,
+    "median": -0.009426523660224811,
+    "mean": -0.011804122021709653,
+    "positive_phase_rows": 5,
+    "negative_phase_rows": 21
+  },
+  "delta_om6_old_to_om6z_rank_spearman__late_5_6__phase_rows": {
+    "n_phase_rows": 26,
+    "median": -0.004970872492723349,
+    "mean": 0.005018191686487167,
+    "positive_phase_rows": 10,
+    "negative_phase_rows": 16
+  },
+  "delta_om6_old_to_om6z_rank_spearman__phase_7_exploratory__phase_rows": {
+    "n_phase_rows": 13,
+    "median": -0.06745192724250021,
+    "mean": -0.08721090136230315,
+    "positive_phase_rows": 4,
+    "negative_phase_rows": 9
+  },
+  "delta_om6_old_to_om6z_rank_spearman__early_1_2__cohort_mean": {
+    "n_cohorts": 13,
+    "median": -0.000730736813444488,
+    "mean": -0.001191773817023236,
+    "positive_cohorts": 6,
+    "negative_cohorts": 7
+  },
+  "delta_om6_old_to_om6z_rank_spearman__mid_3_4__cohort_mean": {
+    "n_cohorts": 13,
+    "median": -0.007668738111991785,
+    "mean": -0.011804122021709653,
+    "positive_cohorts": 3,
+    "negative_cohorts": 10
+  },
+  "delta_om6_old_to_om6z_rank_spearman__late_5_6__cohort_mean": {
+    "n_cohorts": 13,
+    "median": 0.007135579801423431,
+    "mean": 0.005018191686487165,
+    "positive_cohorts": 7,
+    "negative_cohorts": 6
+  },
+  "delta_om6_old_to_om6z_rank_spearman__phase_7_exploratory__cohort_mean": {
+    "n_cohorts": 13,
+    "median": -0.06745192724250021,
+    "mean": -0.08721090136230315,
+    "positive_cohorts": 4,
+    "negative_cohorts": 9
+  },
+  "delta_om5_to_om6_old_top10_auc__early_1_2__phase_rows": {
+    "n_phase_rows": 26,
+    "median": -0.0012853507187412516,
+    "mean": -0.0020010074429363364,
+    "positive_phase_rows": 9,
+    "negative_phase_rows": 17
+  },
+  "delta_om5_to_om6_old_top10_auc__mid_3_4__phase_rows": {
+    "n_phase_rows": 21,
+    "median": -0.0016829764591284047,
+    "mean": -0.0003297140851273914,
+    "positive_phase_rows": 8,
+    "negative_phase_rows": 13
+  },
+  "delta_om5_to_om6_old_top10_auc__late_5_6__phase_rows": {
+    "n_phase_rows": 8,
+    "median": 0.006105123412580515,
+    "mean": 0.018264368778438275,
+    "positive_phase_rows": 6,
+    "negative_phase_rows": 2
+  },
+  "delta_om5_to_om6_old_top10_auc__phase_7_exploratory__phase_rows": {
+    "n_phase_rows": 0,
+    "median": null,
+    "mean": null,
+    "positive_phase_rows": 0,
+    "negative_phase_rows": 0
+  },
+  "delta_om5_to_om6_old_top10_auc__early_1_2__cohort_mean": {
+    "n_cohorts": 13,
+    "median": -0.001937216105795836,
+    "mean": -0.0020010074429363364,
+    "positive_cohorts": 3,
+    "negative_cohorts": 10
+  },
+  "delta_om5_to_om6_old_top10_auc__mid_3_4__cohort_mean": {
+    "n_cohorts": 11,
+    "median": -0.0022174823864804516,
+    "mean": -0.00012665757500663797,
+    "positive_cohorts": 4,
+    "negative_cohorts": 7
+  },
+  "delta_om5_to_om6_old_top10_auc__late_5_6__cohort_mean": {
+    "n_cohorts": 7,
+    "median": 0.004576659038901587,
+    "mean": 0.012119258095417584,
+    "positive_cohorts": 5,
+    "negative_cohorts": 2
+  },
+  "delta_om5_to_om6_old_top10_auc__phase_7_exploratory__cohort_mean": {
+    "n_cohorts": 0,
+    "median": null,
+    "mean": null,
+    "positive_cohorts": 0,
+    "negative_cohorts": 0
+  },
+  "delta_om5_to_om6z_top10_auc__early_1_2__phase_rows": {
+    "n_phase_rows": 26,
+    "median": -0.0004323805132259162,
+    "mean": -0.0006589269445488663,
+    "positive_phase_rows": 13,
+    "negative_phase_rows": 13
+  },
+  "delta_om5_to_om6z_top10_auc__mid_3_4__phase_rows": {
+    "n_phase_rows": 21,
+    "median": -0.0008776367725327194,
+    "mean": -0.00487850317654346,
+    "positive_phase_rows": 6,
+    "negative_phase_rows": 15
+  },
+  "delta_om5_to_om6z_top10_auc__late_5_6__phase_rows": {
+    "n_phase_rows": 8,
+    "median": 0.0005342583087361019,
+    "mean": -0.00035202791711660963,
+    "positive_phase_rows": 5,
+    "negative_phase_rows": 2
+  },
+  "delta_om5_to_om6z_top10_auc__phase_7_exploratory__phase_rows": {
+    "n_phase_rows": 0,
+    "median": null,
+    "mean": null,
+    "positive_phase_rows": 0,
+    "negative_phase_rows": 0
+  },
+  "delta_om5_to_om6z_top10_auc__early_1_2__cohort_mean": {
+    "n_cohorts": 13,
+    "median": -0.0001319570539137227,
+    "mean": -0.0006589269445488663,
+    "positive_cohorts": 6,
+    "negative_cohorts": 7
+  },
+  "delta_om5_to_om6z_top10_auc__mid_3_4__cohort_mean": {
+    "n_cohorts": 11,
+    "median": -0.0007346852611913035,
+    "mean": -0.004741516753282478,
+    "positive_cohorts": 3,
+    "negative_cohorts": 8
+  },
+  "delta_om5_to_om6z_top10_auc__late_5_6__cohort_mean": {
+    "n_cohorts": 7,
+    "median": 0.0002874885004600092,
+    "mean": 0.00020667202767090824,
+    "positive_cohorts": 4,
+    "negative_cohorts": 2
+  },
+  "delta_om5_to_om6z_top10_auc__phase_7_exploratory__cohort_mean": {
+    "n_cohorts": 0,
+    "median": null,
+    "mean": null,
+    "positive_cohorts": 0,
+    "negative_cohorts": 0
+  },
+  "delta_om6_old_to_om6z_top10_auc__early_1_2__phase_rows": {
+    "n_phase_rows": 26,
+    "median": 0.001932583251760267,
+    "mean": 0.00134208049838747,
+    "positive_phase_rows": 19,
+    "negative_phase_rows": 7
+  },
+  "delta_om6_old_to_om6z_top10_auc__mid_3_4__phase_rows": {
+    "n_phase_rows": 21,
+    "median": -0.0017061155833233421,
+    "mean": -0.004548789091416068,
+    "positive_phase_rows": 9,
+    "negative_phase_rows": 12
+  },
+  "delta_om6_old_to_om6z_top10_auc__late_5_6__phase_rows": {
+    "n_phase_rows": 8,
+    "median": -0.004017436147692843,
+    "mean": -0.018616396695554885,
+    "positive_phase_rows": 1,
+    "negative_phase_rows": 7
+  },
+  "delta_om6_old_to_om6z_top10_auc__phase_7_exploratory__phase_rows": {
+    "n_phase_rows": 0,
+    "median": null,
+    "mean": null,
+    "positive_phase_rows": 0,
+    "negative_phase_rows": 0
+  },
+  "delta_om6_old_to_om6z_top10_auc__early_1_2__cohort_mean": {
+    "n_cohorts": 13,
+    "median": 0.0026983762283368518,
+    "mean": 0.00134208049838747,
+    "positive_cohorts": 10,
+    "negative_cohorts": 3
+  },
+  "delta_om6_old_to_om6z_top10_auc__mid_3_4__cohort_mean": {
+    "n_cohorts": 11,
+    "median": -0.0029338187718505604,
+    "mean": -0.00461485917827584,
+    "positive_cohorts": 4,
+    "negative_cohorts": 7
+  },
+  "delta_om6_old_to_om6z_top10_auc__late_5_6__cohort_mean": {
+    "n_cohorts": 7,
+    "median": -0.0034582132564840995,
+    "mean": -0.011912586067746676,
+    "positive_cohorts": 1,
+    "negative_cohorts": 6
+  },
+  "delta_om6_old_to_om6z_top10_auc__phase_7_exploratory__cohort_mean": {
+    "n_cohorts": 0,
+    "median": null,
+    "mean": null,
+    "positive_cohorts": 0,
+    "negative_cohorts": 0
+  }
+}

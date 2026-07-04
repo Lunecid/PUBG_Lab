@@ -188,7 +188,7 @@ def dynamic_hazard_predictions(
 ) -> pd.DataFrame:
     model, ckpt, edge_mode, edge_types = _load_dynamic_model(checkpoint, device)
     active_mask = edge_active_mask(edge_mode, edge_types=edge_types, device=device)
-    # V2 node layout (F6+F7) is recorded in ckpt args; fall back to feature_dim.
+    # V2 node layout (F6+F7+O6Z) is recorded in ckpt args; fall back to feature_dim.
     include_v2 = bool(ckpt.get("args", {}).get("v2_node_features")) or int(
         ckpt.get("feature_dim", PHASE_FEATURE_DIM)
     ) > PHASE_FEATURE_DIM

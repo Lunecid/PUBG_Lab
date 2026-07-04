@@ -1,0 +1,14 @@
+cohort,cohort_slug,map,perspective,team_size,split,n_matches,n_rows,hazard_rate,degenerate_feature_count,max_abs_pearson_hazard,strongest_feature,strongest_feature_pearson_hazard,alive_players_end_pearson_hazard,alive_players_end_eliminated_minus_survived
+Erangel TPP squad,erangel_tpp_squad,Erangel,TPP,squad,test,620,31628,0.31680789589881897,0,0.1527074001837161,mean_health_avg_norm,-0.1527074001837161,-0.07406550829706614,-0.014018094872823794
+Taego TPP squad,taego_tpp_squad,Taego,TPP,squad,test,415,21805,0.29704195261001587,0,0.16441770649461496,alive_players_avg_norm,-0.16441770649461496,-0.08554879506805786,-0.016428008529780824
+Miramar / Desert TPP squad,miramar_desert_tpp_squad,Miramar / Desert,TPP,squad,test,154,9068,0.2891486585140228,0,0.174557443182635,alive_players_avg_norm,-0.174557443182635,-0.09162760533484807,-0.018432809045776766
+Rondo TPP squad,rondo_tpp_squad,Rondo,TPP,squad,test,103,5200,0.2886538505554199,0,0.1801591515315599,mean_health_avg_norm,-0.1801591515315599,-0.09315319603078918,-0.018641037542062144
+Sanhok TPP squad,sanhok_tpp_squad,Sanhok,TPP,squad,test,94,4637,0.3241319954395294,0,0.15551361027649116,alive_players_avg_norm,-0.15551361027649116,-0.09739285517719248,-0.018835441221364935
+Erangel TPP solo,erangel_tpp_solo,Erangel,TPP,solo,test,80,12065,0.3582262694835663,3,0.2221943341906322,mean_health_avg_norm,-0.2221943341906322,nan,0.0
+Erangel TPP duo,erangel_tpp_duo,Erangel,TPP,duo,test,65,5763,0.3296893835067749,0,0.12458818511939411,alive_players_min_norm,-0.12458818511939411,-0.08817147637408738,-0.011636783519762384
+Taego TPP duo,taego_tpp_duo,Taego,TPP,duo,test,57,4610,0.328199565410614,0,0.14842003294255657,alive_players_min_norm,-0.14842003294255657,-0.08495951276136995,-0.012320090589340749
+Vikendi TPP squad,vikendi_tpp_squad,Vikendi,TPP,squad,test,49,2778,0.3016558587551117,0,0.15209583901909438,alive_players_avg_norm,-0.15209583901909438,-0.08459779155104548,-0.016977093226385853
+Taego FPP squad,taego_fpp_squad,Taego,FPP,squad,test,43,1995,0.3333333432674408,0,0.20680180059909392,mean_health_avg_norm,-0.20680180059909392,-0.08992503932394144,-0.01541353383458649
+Erangel FPP squad,erangel_fpp_squad,Erangel,FPP,squad,test,43,2204,0.31261342763900757,0,0.177106472272506,mean_health_avg_norm,-0.177106472272506,-0.0553633832354205,-0.010772296387839053
+Paramo TPP squad,paramo_tpp_squad,Paramo,TPP,squad,test,33,948,0.33016878366470337,0,0.1723121124295495,alive_players_min_norm,-0.1723121124295495,-0.04945123282742891,-0.00952554652713139
+Karakin TPP squad,karakin_tpp_squad,Karakin,TPP,squad,test,33,1159,0.3684210479259491,0,0.19097904019063972,alive_players_avg_norm,-0.19097904019063972,-0.10635359708814017,-0.01941842310694769

@@ -185,6 +185,86 @@ GRAPH_RELATION_EXPERIMENTS: list[dict[str, str]] = [
 ]
 
 
+OM_LADDER_EXPERIMENTS: list[dict[str, str]] = [
+    _row(
+        group="om_ladder",
+        name="om0_context",
+        model="mr",
+        graph_encoder="none",
+        edge_mode="none",
+        feature_preset="om0_context",
+        note="clean OM0: phase context plus team-size anchor only",
+    ),
+    _row(
+        group="om_ladder",
+        name="om1_survival_capital",
+        model="mr",
+        graph_encoder="none",
+        edge_mode="none",
+        feature_preset="om1_survival_capital",
+        note="clean OM1: OM0 plus roster, health, and team cohesion",
+    ),
+    _row(
+        group="om_ladder",
+        name="om2_movement",
+        model="mr",
+        graph_encoder="none",
+        edge_mode="none",
+        feature_preset="om2_movement",
+        note="clean OM2: OM1 plus movement and rotation response",
+    ),
+    _row(
+        group="om_ladder",
+        name="om3_pressure_habitat",
+        model="mr",
+        graph_encoder="none",
+        edge_mode="none",
+        feature_preset="om3_pressure_habitat",
+        note="clean OM3: OM2 plus contraction pressure and habitat features",
+    ),
+    _row(
+        group="om_ladder",
+        name="om4_threat_exposure",
+        model="mr",
+        graph_encoder="none",
+        edge_mode="none",
+        feature_preset="om4_threat_exposure",
+        note="clean OM4: OM3 plus combat and threat exposure",
+    ),
+    _row(
+        group="om_ladder",
+        name="om5_relation_structure",
+        model="mr",
+        graph_encoder="none",
+        edge_mode="none",
+        feature_preset="om5_relation_structure",
+        note="clean OM5: OM4 plus precomputed O7 network-role summaries; graph message passing remains a separate relation test",
+    ),
+    _row(
+        group="om_ladder",
+        name="om6_spatial_proxy",
+        model="mr",
+        graph_encoder="none",
+        edge_mode="none",
+        feature_preset="om6_spatial_proxy",
+        note="clean OM6: OM5 plus remaining PUBG spatial-exposure proxies not already assigned to habitat",
+    ),
+]
+
+
+OM6Z_SENSITIVITY_EXPERIMENTS: list[dict[str, str]] = [
+    _row(
+        group="om6z_sensitivity",
+        name="om6z_spatial_affordance",
+        model="mr",
+        graph_encoder="none",
+        edge_mode="none",
+        feature_preset="om6z_spatial_affordance",
+        note="corrected O6: OM5 plus Z1-Z3 vertical, contact-gated relative-height, and zone-pressure affordance features",
+    ),
+]
+
+
 FEATURE_ABLATION_EXPERIMENTS: list[dict[str, str]] = [
     _row(
         group="feature",
@@ -276,6 +356,8 @@ EXPERIMENT_GROUPS: dict[str, list[dict[str, str]]] = {
     "decoder": DECODER_ABLATION_EXPERIMENTS,
     "graph_control": GRAPH_CONTROL_EXPERIMENTS,
     "graph_relation": GRAPH_RELATION_EXPERIMENTS,
+    "om_ladder": OM_LADDER_EXPERIMENTS,
+    "om6z_sensitivity": OM6Z_SENSITIVITY_EXPERIMENTS,
     "feature": FEATURE_ABLATION_EXPERIMENTS,
 }
 

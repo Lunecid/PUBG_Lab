@@ -1,0 +1,22 @@
+{
+  "checkpoint": "model_stgcn/checkpoints/br_om_ladder_required_v1/taego_tpp_duo/om_ladder/om3_pressure_habitat/model.pt",
+  "finished_at_unix": 1783125245.850789,
+  "epochs": 12,
+  "seed": 42,
+  "cohort": "Taego TPP duo",
+  "map": "Tiger_Main",
+  "mode": "duo",
+  "experiment": {
+    "group": "om_ladder",
+    "name": "om3_pressure_habitat",
+    "model": "mr",
+    "global_fusion": "concat",
+    "graph_encoder": "none",
+    "edge_mode": "none",
+    "edge_control": "observed",
+    "team_decoder": "mlp",
+    "pairwise_rank_weight": "0.0",
+    "feature_preset": "om3_pressure_habitat",
+    "note": "clean OM3: OM2 plus contraction pressure and habitat features"
+  }
+}

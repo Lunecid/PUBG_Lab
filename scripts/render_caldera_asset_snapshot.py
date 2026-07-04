@@ -265,7 +265,7 @@ def ensure_mesh_cache(args: argparse.Namespace) -> None:
     for flag_name in ("clip_x", "clip_y", "clip_z"):
         value = getattr(args, flag_name)
         if value:
-            cmd.extend([f"--{flag_name.replace('_', '-')}", value])
+            cmd.append(f"--{flag_name.replace('_', '-')}={value}")
     for value in args.include_path_contains or []:
         cmd.extend(["--include-path-contains", value])
     for value in args.exclude_path_contains or []:
@@ -318,6 +318,47 @@ def fetch_agent_rows(args: argparse.Namespace, bounds: dict[str, tuple[float, fl
 
     with connect_db() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            if args.match_id or args.agent_id:
+                identity_filters = []
+                identity_params: list[Any] = []
+                if args.match_id:
+                    identity_filters.append("t.br_match_id = %s")
+                    identity_params.append(args.match_id)
+                if args.agent_id:
+                    identity_filters.append("t.br_agent_id = %s")
+                    identity_params.append(args.agent_id)
+                identity_sql = " AND " + " AND ".join(identity_filters)
+                cur.execute(
+                    f"""
+                    WITH ranked AS (
+                        SELECT
+                            t.br_match_id,
+                            t.br_agent_id,
+                            t.sample_t,
+                            t.pos_x_m,
+                            t.pos_y_m,
+                            t.pos_z_m,
+                            t.alive_state,
+                            row_number() OVER (
+                                PARTITION BY t.br_match_id, t.br_agent_id
+                                ORDER BY t.sample_t
+                            ) AS rn
+                        FROM br_ground.trajectory_samples t
+                        WHERE t.source_artifact_id = 'caldera_minimal_layers_breadcrumbs_usd'
+                          AND t.pos_x_m BETWEEN %s AND %s
+                          AND t.pos_y_m BETWEEN %s AND %s
+                          {extra_sql.replace("pos_z_m", "t.pos_z_m").replace("sample_t", "t.sample_t")}
+                          {identity_sql}
+                    )
+                    SELECT br_match_id, br_agent_id, sample_t, pos_x_m, pos_y_m, pos_z_m, alive_state
+                    FROM ranked
+                    WHERE (rn - 1) %% %s = 0
+                    ORDER BY br_match_id, br_agent_id, sample_t
+                    """,
+                    tuple(params + identity_params + [args.trajectory_stride]),
+                )
+                return list(cur.fetchall())
+
             cur.execute(
                 f"""
                 WITH region_samples AS (
@@ -663,6 +704,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--include-path-contains", action="append")
     parser.add_argument("--exclude-path-contains", action="append")
     parser.add_argument("--players", type=positive_int, default=14)
+    parser.add_argument("--match-id", help="Exact br_ground match id to render, e.g. caldera:match_31")
+    parser.add_argument("--agent-id", help="Exact br_ground agent id to render, e.g. caldera:match_31:player_25")
     parser.add_argument("--trajectory-stride", type=positive_int, default=6)
     parser.add_argument("--agent-padding-m", type=float, default=80.0)
     parser.add_argument("--agent-z-min", type=float)

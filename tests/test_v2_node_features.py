@@ -1,9 +1,9 @@
-"""V2 노드 피처(F6+F7 → DynamicSTGNN 입력) 배관 검증 — FEATURE_DESIGN_V2 B3/B4.
+"""V2 노드 피처(F6+F7+O6Z → DynamicSTGNN 입력) 배관 검증 — FEATURE_DESIGN_V2 B3/B4.
 
 보장:
-1. 스펙 ↔ manifest family 컬럼 1:1 (43+32), base 66과 무충돌, 총 141
+1. 스펙 ↔ manifest family 컬럼 1:1 (43+32+9), base 66과 무충돌, 총 150
 2. 플래그 off = 기존 66-d 텐서와 바이트 동일 (기존 ckpt 재현성)
-3. 플래그 on = 앞 66채널 불변 + 추가 75채널이 테이블 값/scale과 일치,
+3. 플래그 on = 앞 66채널 불변 + 추가 84채널이 테이블 값/scale과 일치,
    NULL→0.0 채움
 """
 
@@ -32,11 +32,12 @@ def test_v2_specs_match_manifest_families():
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     f6 = manifest["families"]["f6_network_phase_role_tier1"]["columns"]
     f7 = manifest["families"]["f7_habitat_pressure_tier1"]["columns"]
+    z = manifest["families"]["o6_z_affordance_tier1"]["columns"]
 
     spec_cols = [col for (_name, col, _scale, _tr) in PHASE_NODE_FEATURE_SPECS_V2]
-    assert spec_cols == f6 + f7, "V2 spec column order must mirror manifest F6+F7"
-    assert len(spec_cols) == 75
-    assert PHASE_FEATURE_DIM_V2 == PHASE_FEATURE_DIM + 75 == 141
+    assert spec_cols == f6 + f7 + z, "V2 spec column order must mirror manifest F6+F7+O6Z"
+    assert len(spec_cols) == 84
+    assert PHASE_FEATURE_DIM_V2 == PHASE_FEATURE_DIM + 84 == 150
 
     overlap = set(spec_cols) & set(PHASE_NODE_FEATURE_NAMES)
     assert not overlap, f"V2 columns collide with base feature names: {overlap}"
@@ -93,7 +94,11 @@ def test_v2_channels_match_tables(v2_match_pair):
 
     rows: dict[tuple[int, int], dict] = {}
     with get_cur(dict_cursor=True) as (_conn, cur):
-        for table in ("stdb.team_phase_network_features", "stdb.team_phase_habitat_features"):
+        for table in (
+            "stdb.team_phase_network_features",
+            "stdb.team_phase_habitat_features",
+            "stdb.team_phase_z_affordance_features",
+        ):
             cur.execute(
                 f"SELECT * FROM {table} WHERE match_id = %s",
                 (v2.match_id,),

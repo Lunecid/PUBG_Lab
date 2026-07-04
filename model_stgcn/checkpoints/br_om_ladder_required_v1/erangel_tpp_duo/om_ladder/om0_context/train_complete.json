@@ -1,0 +1,22 @@
+{
+  "checkpoint": "model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_duo/om_ladder/om0_context/model.pt",
+  "finished_at_unix": 1783119782.8831518,
+  "epochs": 12,
+  "seed": 42,
+  "cohort": "Erangel TPP duo",
+  "map": "Baltic_Main",
+  "mode": "duo",
+  "experiment": {
+    "group": "om_ladder",
+    "name": "om0_context",
+    "model": "mr",
+    "global_fusion": "concat",
+    "graph_encoder": "none",
+    "edge_mode": "none",
+    "edge_control": "observed",
+    "team_decoder": "mlp",
+    "pairwise_rank_weight": "0.0",
+    "feature_preset": "om0_context",
+    "note": "clean OM0: phase context plus team-size anchor only"
+  }
+}

@@ -4,10 +4,13 @@ import numpy as np
 import torch
 
 from model_stgcn.v3.factorized_data import _global_from_broadcast
+from model_stgcn.v3.experiment_matrix import EXPERIMENT_GROUPS
 from model_stgcn.v3.models import FactorizedMRGNN, FactorizedPhaseGNN, GRAPH_ENCODERS
+from model_stgcn.v3.run_matrix import _is_train_complete
 from model_stgcn.v3.spec import (
     FEATURE_PRESETS,
     GLOBAL_FEATURES,
+    OM_PRESET_FEATURES,
     feature_names_for_preset,
     expected_phase_feature_names,
     split_feature_names,
@@ -46,6 +49,97 @@ def test_feature_presets_select_nonempty_node_and_global_features():
     assert "hab_crowding_pressure" in feature_names_for_preset("habitat", names)
     assert "path_length_norm" in feature_names_for_preset("stdb", names)
     assert "net_combat_out_degree" not in feature_names_for_preset("base66", names)
+
+
+def test_om_feature_presets_are_clean_cumulative_ladder():
+    names = expected_phase_feature_names(include_v2=True)
+    order = [
+        "om0_context",
+        "om1_survival_capital",
+        "om2_movement",
+        "om3_pressure_habitat",
+        "om4_threat_exposure",
+        "om5_relation_structure",
+        "om6_spatial_proxy",
+    ]
+    selected = {preset: set(feature_names_for_preset(preset, names)) for preset in order}
+
+    for prev, nxt in zip(order, order[1:]):
+        assert selected[prev] < selected[nxt]
+
+    assert "alive_players_start_norm" not in selected["om0_context"]
+    assert "alive_players_start_norm" in selected["om1_survival_capital"]
+    assert "path_length_norm" in selected["om2_movement"]
+    assert "hab_crowding_pressure" in selected["om3_pressure_habitat"]
+    assert "damage_taken_norm" in selected["om4_threat_exposure"]
+    assert "net_prox_degree_200m" in selected["om5_relation_structure"]
+    assert "avg_enemy_density_100m_norm" in selected["om6_spatial_proxy"]
+    assert "avg_enemy_density_100m_norm" not in selected["om5_relation_structure"]
+
+    om6z = set(feature_names_for_preset("om6z_spatial_affordance", names))
+    assert selected["om5_relation_structure"] < om6z
+    assert "team_z_mean_norm" in om6z
+    assert "contact_delta_z_mean_norm" in om6z
+    assert "high_ground_x_boundary_pressure" in om6z
+    assert "avg_enemy_density_100m_norm" not in om6z
+
+
+def test_om_ladder_excludes_resource_sensitivity_features():
+    resource_features = {
+        "pickup_count_norm",
+        "equip_count_norm",
+        "use_count_norm",
+        "unique_item_count_norm",
+        "weapon_pickup_count_norm",
+        "weapon_equip_count_norm",
+        "ammo_pickup_count_norm",
+        "armor_pickup_count_norm",
+        "throwable_pickup_count_norm",
+        "heal_use_count_norm",
+        "boost_use_count_norm",
+        "carepackage_pickup_count_norm",
+        "lootbox_pickup_count_norm",
+        "vehicle_ratio",
+        "vehicle_speed_mean_norm",
+        "vehicle_speed_max_norm",
+    }
+    for preset, features in OM_PRESET_FEATURES.items():
+        assert not (set(features) & resource_features), preset
+
+
+def test_om_ladder_experiment_group_uses_clean_presets_in_order():
+    rows = EXPERIMENT_GROUPS["om_ladder"]
+    assert [row["feature_preset"] for row in rows] == [
+        "om0_context",
+        "om1_survival_capital",
+        "om2_movement",
+        "om3_pressure_habitat",
+        "om4_threat_exposure",
+        "om5_relation_structure",
+        "om6_spatial_proxy",
+    ]
+    assert all(row["graph_encoder"] == "none" for row in rows)
+    assert all(row["edge_mode"] == "none" for row in rows)
+
+    z_rows = EXPERIMENT_GROUPS["om6z_sensitivity"]
+    assert [row["feature_preset"] for row in z_rows] == ["om6z_spatial_affordance"]
+    assert all(row["graph_encoder"] == "none" for row in z_rows)
+    assert all(row["edge_mode"] == "none" for row in z_rows)
+
+
+def test_run_matrix_does_not_treat_partial_checkpoint_as_complete(tmp_path):
+    checkpoint = tmp_path / "model.pt"
+    eval_json = tmp_path / "eval_test.json"
+    train_done = tmp_path / "train_complete.json"
+
+    assert not _is_train_complete(checkpoint, eval_json, train_done)
+    checkpoint.write_text("partial", encoding="utf-8")
+    assert not _is_train_complete(checkpoint, eval_json, train_done)
+    train_done.write_text("{}", encoding="utf-8")
+    assert _is_train_complete(checkpoint, eval_json, train_done)
+    train_done.unlink()
+    eval_json.write_text("{}", encoding="utf-8")
+    assert _is_train_complete(checkpoint, eval_json, train_done)
 
 
 def test_factorized_phase_model_forward_all_graph_encoders():

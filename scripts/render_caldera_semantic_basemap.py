@@ -850,6 +850,50 @@ def fetch_trajectory_rows(args: argparse.Namespace, render_bounds: dict) -> list
 
     with connect() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            if args.match_id or args.agent_id:
+                identity_filters = []
+                identity_params: list[Any] = []
+                if args.match_id:
+                    identity_filters.append("t.br_match_id = %s")
+                    identity_params.append(args.match_id)
+                if args.agent_id:
+                    identity_filters.append("t.br_agent_id = %s")
+                    identity_params.append(args.agent_id)
+                identity_sql = " AND " + " AND ".join(identity_filters)
+                cur.execute(
+                    f"""
+                    WITH ranked AS (
+                        SELECT
+                            t.br_match_id,
+                            t.br_agent_id,
+                            t.sample_t,
+                            t.pos_x_m,
+                            t.pos_y_m,
+                            t.pos_z_m,
+                            t.alive_state,
+                            row_number() OVER (
+                                PARTITION BY t.br_match_id, t.br_agent_id
+                                ORDER BY t.sample_t
+                            ) AS rn
+                        FROM br_ground.trajectory_samples t
+                        WHERE t.source_artifact_id = %s
+                          AND t.pos_x_m BETWEEN %s AND %s
+                          AND t.pos_y_m BETWEEN %s AND %s
+                          AND t.pos_x_m IS NOT NULL
+                          AND t.pos_y_m IS NOT NULL
+                          {extra_sql.replace("sample_t", "t.sample_t")}
+                          {identity_sql}
+                    )
+                    SELECT br_match_id, br_agent_id, sample_t, pos_x_m, pos_y_m, pos_z_m, alive_state
+                    FROM ranked
+                    WHERE (rn - 1) %% %s = 0
+                    ORDER BY br_match_id, br_agent_id, sample_t
+                    LIMIT %s
+                    """,
+                    tuple(params + identity_params + [args.trajectory_stride, args.trajectory_point_limit]),
+                )
+                return list(cur.fetchall())
+
             cur.execute(
                 f"""
                 WITH region_samples AS (
@@ -1136,6 +1180,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--overlay-trajectories", action="store_true")
     parser.add_argument("--source-artifact-id", default="caldera_minimal_layers_breadcrumbs_usd")
     parser.add_argument("--players", type=int, default=12)
+    parser.add_argument("--match-id", help="Exact br_ground match id to overlay, e.g. caldera:match_31")
+    parser.add_argument("--agent-id", help="Exact br_ground agent id to overlay, e.g. caldera:match_31:player_25")
     parser.add_argument("--trajectory-stride", type=int, default=5)
     parser.add_argument("--trajectory-point-limit", type=int, default=5000)
     parser.add_argument("--snapshot-t", type=float, default=None)

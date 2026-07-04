@@ -1,0 +1,14 @@
+started_at	finished_at	status	cohort_slug	cohort	out_dir	split_json
+2026-07-04T13:41:24Z	2026-07-04T14:35:56Z	passed	erangel_tpp_squad	Erangel TPP squad	model_stgcn/checkpoints/br_om6z_required_v1/erangel_tpp_squad	model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/split.json
+2026-07-04T14:35:56Z	2026-07-04T15:10:52Z	passed	taego_tpp_squad	Taego TPP squad	model_stgcn/checkpoints/br_om6z_required_v1/taego_tpp_squad	model_stgcn/checkpoints/br_om_ladder_required_v1/taego_tpp_squad/split.json
+2026-07-04T15:10:52Z	2026-07-04T15:24:39Z	passed	miramar_desert_tpp_squad	Miramar / Desert TPP squad	model_stgcn/checkpoints/br_om6z_required_v1/miramar_desert_tpp_squad	model_stgcn/checkpoints/br_om_ladder_required_v1/miramar_desert_tpp_squad/split.json
+2026-07-04T15:24:39Z	2026-07-04T15:33:22Z	passed	rondo_tpp_squad	Rondo TPP squad	model_stgcn/checkpoints/br_om6z_required_v1/rondo_tpp_squad	model_stgcn/checkpoints/br_om_ladder_required_v1/rondo_tpp_squad/split.json
+2026-07-04T15:33:22Z	2026-07-04T15:41:07Z	passed	sanhok_tpp_squad	Sanhok TPP squad	model_stgcn/checkpoints/br_om6z_required_v1/sanhok_tpp_squad	model_stgcn/checkpoints/br_om_ladder_required_v1/sanhok_tpp_squad/split.json
+2026-07-04T15:41:07Z	2026-07-04T16:10:47Z	passed	erangel_tpp_solo	Erangel TPP solo	model_stgcn/checkpoints/br_om6z_required_v1/erangel_tpp_solo	model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_solo/split.json
+2026-07-04T16:10:47Z	2026-07-04T16:22:19Z	passed	erangel_tpp_duo	Erangel TPP duo	model_stgcn/checkpoints/br_om6z_required_v1/erangel_tpp_duo	model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_duo/split.json
+2026-07-04T16:22:19Z	2026-07-04T16:31:40Z	passed	taego_tpp_duo	Taego TPP duo	model_stgcn/checkpoints/br_om6z_required_v1/taego_tpp_duo	model_stgcn/checkpoints/br_om_ladder_required_v1/taego_tpp_duo/split.json
+2026-07-04T16:31:40Z	2026-07-04T16:36:31Z	passed	vikendi_tpp_squad	Vikendi TPP squad	model_stgcn/checkpoints/br_om6z_required_v1/vikendi_tpp_squad	model_stgcn/checkpoints/br_om_ladder_required_v1/vikendi_tpp_squad/split.json
+2026-07-04T16:36:31Z	2026-07-04T16:40:29Z	passed	taego_fpp_squad	Taego FPP squad	model_stgcn/checkpoints/br_om6z_required_v1/taego_fpp_squad	model_stgcn/checkpoints/br_om_ladder_required_v1/taego_fpp_squad/split.json
+2026-07-04T16:40:29Z	2026-07-04T16:44:07Z	passed	erangel_fpp_squad	Erangel FPP squad	model_stgcn/checkpoints/br_om6z_required_v1/erangel_fpp_squad	model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_fpp_squad/split.json
+2026-07-04T16:44:07Z	2026-07-04T16:46:54Z	passed	paramo_tpp_squad	Paramo TPP squad	model_stgcn/checkpoints/br_om6z_required_v1/paramo_tpp_squad	model_stgcn/checkpoints/br_om_ladder_required_v1/paramo_tpp_squad/split.json
+2026-07-04T16:46:54Z	2026-07-04T16:49:42Z	passed	karakin_tpp_squad	Karakin TPP squad	model_stgcn/checkpoints/br_om6z_required_v1/karakin_tpp_squad	model_stgcn/checkpoints/br_om_ladder_required_v1/karakin_tpp_squad/split.json

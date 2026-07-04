@@ -1,0 +1,1 @@
+cohort,cohort_slug,map,mode,phase_scope,phase_group,phases,step,from_preset,to_preset,metric,higher_is_better,n_rows,n_matches,point_from,point_to,delta,ci_low,ci_high,n_boot_valid,ci_excludes_zero,supports_to_better

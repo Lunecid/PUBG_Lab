@@ -3,6 +3,7 @@
 
 # DB
 psycopg2-binary>=2.9
+python-dotenv>=1.0
 
 # 수치 계산
 numpy>=1.24

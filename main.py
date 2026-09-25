@@ -21,14 +21,17 @@ V2 피처 설계 (생태학 5축, ~39d agent 노드 피처):
 - 자기장: game_states의 safe_zone(목표) + poison_zone(현재 경계) 이중 시계열
 
 사용법:
-  1. DB_CONFIG를 본인 환경에 맞게 수정
+  1. .env.example을 .env로 복사하고 DB 접속 정보 입력
   2. python3 main.py
   3. 출력되는 진단 정보로 그래프 품질 확인
 """
 
+import os
+
 import psycopg2
 import psycopg2.extras
 import numpy as np
+from dotenv import load_dotenv
 from collections import defaultdict
 from datetime import datetime
 import torch
@@ -40,12 +43,15 @@ from scipy.ndimage import uniform_filter
 # 1. DB 연결 설정
 # ============================================================
 
+# 접속 정보는 환경변수로 받는다. .env.example을 .env로 복사해 값을 채울 것 (.env는 커밋 금지).
+load_dotenv()
+
 DB_CONFIG = {
-    "host": "localhost",
-    "port": 5432,
-    "dbname": "pubg_survival",
-    "user": "postgres",       # ← 수정
-    "password": "104204",   # ← 수정
+    "host": os.environ.get("PUBG_DB_HOST", "localhost"),
+    "port": int(os.environ.get("PUBG_DB_PORT", "5432")),
+    "dbname": os.environ.get("PUBG_DB_NAME", "pubg_survival"),
+    "user": os.environ.get("PUBG_DB_USER", "postgres"),
+    "password": os.environ.get("PUBG_DB_PASSWORD"),  # 미설정 시 PGPASSWORD / ~/.pgpass 사용
 }
 
 SCHEMA = "pubg"

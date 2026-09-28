@@ -178,6 +178,12 @@ pyrightconfig.json
 
 # 데이터 (비공개)
 data/
+# DB and collector dumps (collected rows can hold player names and account IDs).
+# A schema file meant for the repo needs `git add -f`.
+*.csv
+*.sql
+*.sql.gz
+tools/pubg_collector/output/
 
 # Python
 __pycache__/

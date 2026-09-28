@@ -209,3 +209,6 @@ venv/
 # Local papers and talks added from the author machine
 !docs/papers/*.pdf
 !docs/talks/*.pptx
+
+# Talk videos are hosted outside the repository
+*.mp4

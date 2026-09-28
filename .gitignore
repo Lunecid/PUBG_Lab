@@ -199,3 +199,7 @@ venv/
 
 # Output
 *.html
+
+# Local papers and talks added from the author machine
+!docs/papers/*.pdf
+!docs/talks/*.pptx

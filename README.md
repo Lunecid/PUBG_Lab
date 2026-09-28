@@ -10,7 +10,7 @@ PUBG 매치를 시공간 그래프로 표현하고, 매 시점 살아 있는 팀
 
 배틀로얄에서 한 팀이 얼마나 오래 살아남는지는 위치, 자기장, 주변 적 팀과의 교전, 가진 자원이 시간에 따라 얽혀서 정해집니다. 이 저장소는 PUBG 매치를 10초 간격 스냅샷의 그래프로 바꾸고, 그래프 신경망과 순환 신경망으로 팀별 탈락 위험(hazard)을 추정합니다.
 
-백성은(Seongeun Baek)의 석사 연구 주제로, 부산대학교 데이터사이언스전문대학원 [데이터사이언스연구실(DataLab)](https://datalab.pusan.ac.kr/datalab/index.do)에서 진행하고 있습니다(지도교수 권준호).
+백성은(Seongeun Baek)이 부산대학교 데이터사이언스전문대학원 [데이터사이언스연구실(DataLab)](https://datalab.pusan.ac.kr/datalab/index.do)에서 석사과정 중에 진행하고 있는 연구입니다(지도교수 권준호). 석사 학위논문은 이와 다른 주제(리그 오브 레전드 교전의 전략적 가치)입니다.
 
 **그래프** (`main.py`)
 
@@ -33,7 +33,8 @@ PUBG 매치를 시공간 그래프로 표현하고, 매 시점 살아 있는 팀
 - PUBG 공식 API에서 수집한 매치 정보와 텔레메트리 이벤트를 PostgreSQL `pubg` 스키마에 적재해 씁니다. 테이블 구조는 [스키마 다이어그램](pubg_survival%20-%20pubg_survival%20-%20pubg.png)에 있습니다.
 - `main.py`가 읽는 테이블: `v_match_summary`, `rosters`, `participants`, `telem_match_start`, `telem_positions`, `telem_game_states`, `telem_kills`, `telem_damage`. `telem_groggy`, `telem_item_equip`, `telem_item_use`는 없으면 건너뜁니다.
 - 기본 매치 조건: 참가자 20명 이상, 경기 시간 600–2400초, 튜토리얼·연습장 제외.
-- 수집·적재 코드와 데이터(`data/`)는 이 저장소에 없습니다.
+- 수집 코드는 [`tools/pubg_collector/`](tools/pubg_collector/)에 있습니다. API 키와 DB 접속 정보는 `tools/pubg_collector/.env.example`에 적힌 환경변수(`PUBG_API_KEY`, `PG_*`)로 받습니다. `main.py`가 쓰는 `PUBG_DB_*`와 이름이 다릅니다.
+- 테이블을 만드는 스키마(DDL)와 수집한 데이터(`data/`)는 이 저장소에 없습니다. 수집기가 플레이어 이름과 account ID를 DB에 저장하므로, 수집한 원자료는 저장소에 올리지 않습니다.
 
 ### 실행 방법
 
@@ -60,7 +61,9 @@ cp .env.example .env    # DB 접속 정보 입력. .env는 커밋되지 않습�
 
 ### 프로젝트 상태
 
-진행 중인 석사 연구 코드입니다. 결과 수치는 논문이 확정되면 추가합니다.
+진행 중인 연구 코드입니다. 이 README에는 아직 결과 수치를 싣지 않습니다.
+
+[`docs/`](docs/)의 논문 원고와 발표 자료는 서로 다른 시점의 데이터와 모형을 다룹니다. 거기 나오는 DynamicSTGNN, R-GCN, PostGIS 시공간 DB 스키마 등은 이 저장소 코드에 없습니다. 지금 코드(`main.py`, `model/`)는 2026년 4월에 만든 플레이어 그래프 파이프라인입니다.
 
 알려진 한계:
 
@@ -79,7 +82,7 @@ cp .env.example .env    # DB 접속 정보 입력. .env는 커밋되지 않습�
 
 How long a team survives in a battle royale depends on position, the shrinking zone, fights with nearby teams, and the resources it carries, all changing over time. This repository turns PUBG matches into graphs sampled every 10 seconds and estimates each team's elimination hazard with graph neural networks and a recurrent model.
 
-This is the master's research topic of Seongeun Baek (백성은), carried out at the [Data Science Lab (DataLab)](https://datalab.pusan.ac.kr/datalab/index.do) of the Graduate School of Data Science, Pusan National University (advisor: Prof. Joonho Kwon).
+This is ongoing research by Seongeun Baek (백성은) as a master's student at the [Data Science Lab (DataLab)](https://datalab.pusan.ac.kr/datalab/index.do) of the Graduate School of Data Science, Pusan National University (advisor: Prof. Joonho Kwon). It is not the M.S. thesis, which is a separate project on the strategic value of League of Legends engagements.
 
 **Graph** (`main.py`)
 
@@ -102,7 +105,8 @@ player encoder (GNN) → attention pooling to teams → team-level GNN → GRU o
 - Match data and telemetry events collected from the official PUBG API, loaded into a PostgreSQL schema named `pubg`. See the [schema diagram](pubg_survival%20-%20pubg_survival%20-%20pubg.png).
 - Tables read by `main.py`: `v_match_summary`, `rosters`, `participants`, `telem_match_start`, `telem_positions`, `telem_game_states`, `telem_kills`, `telem_damage`. `telem_groggy`, `telem_item_equip`, and `telem_item_use` are skipped if missing.
 - Default match filter: at least 20 players, 600–2400 s long, tutorial and training maps excluded.
-- The collection and loading code and the data itself (`data/`) are not in this repository.
+- The collector is in [`tools/pubg_collector/`](tools/pubg_collector/). It reads the API key and the DB connection from the environment variables listed in `tools/pubg_collector/.env.example` (`PUBG_API_KEY`, `PG_*`). These names differ from the `PUBG_DB_*` variables that `main.py` uses.
+- The schema DDL that creates the tables and the collected data (`data/`) are not in this repository. The collector stores player names and account IDs in the database, so raw collected data is kept out of the repository.
 
 ### How to run
 
@@ -129,7 +133,9 @@ Map and mode names are the raw values stored in the database (Erangel is `Baltic
 
 ### Status
 
-Active master's research code. Results will be added once the thesis is final.
+Ongoing research code. This README does not report results yet.
+
+The manuscripts and talks in [`docs/`](docs/) come from different points in time and use different data and models. Several of those models and schemas, such as DynamicSTGNN, R-GCN and the PostGIS STDB schema, are not in this repository's code. The code here (`main.py`, `model/`) is the player-graph pipeline built in April 2026.
 
 Known limitations:
 

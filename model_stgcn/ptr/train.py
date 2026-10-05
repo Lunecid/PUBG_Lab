@@ -11,7 +11,7 @@ batches of 8 matches, loss = hazard BCE + 0.1 * pairwise rank loss, early stoppi
 start identically across arms), the batch order and dropout; CPU runs are bitwise reproducible, MPS
 runs are not guaranteed to be.
 
-Outputs in ``<out-dir>/<cohort>/<arm>/seed<seed>/``: ``best.pt``, ``pred_val.csv``, ``pred_test.csv``
+Outputs in ``<out-dir>/<cohort>/<arm>/seed<seed>/`` (``sub<N>_ss<s>_seed<seed>/`` with ``--train-subsample N``): ``best.pt``, ``pred_val.csv``, ``pred_test.csv``
 (``metrics.PRED_COLUMNS``; ``phase`` = cut phase k = dump slot p + 1, ``rank_score`` higher = better survival)
 and ``metrics.json`` (config, history with seconds per epoch, val/test metrics, the removed feature columns
 of the noHab arms, the resolved combat-weight mode, elapsed seconds, git provenance).
@@ -51,16 +51,27 @@ from model_stgcn.ptr.data import (
     DEFAULT_MATCH_TYPES,
     LABEL_CHOICES,
     LABEL_FIELDS,
+    PlayerStandardizer,
     PTRDataset,
     Standardizer,
     alive_source,
+    effective_alive,
     event_alive_summary,
     infer_combat_weights,
     load_cohort,
     match_type_counts,
     select_labels,
+    subsample_dump,
+    uses_event_alive,
+    winner_censor_summary,
 )
 from model_stgcn.ptr.loss import RANK_REDUCTIONS, ptr_loss
+from model_stgcn.ptr.player import (
+    default_player_dump_dir,
+    infer_player_combat_weights,
+    load_player_cohort,
+    player_summary,
+)
 from model_stgcn.ptr.relations import COMBAT_WEIGHT_MODES
 from model_stgcn.ptr.model import PTRConfig, PTRFormer
 from model_stgcn.ptr.util import (
@@ -69,6 +80,7 @@ from model_stgcn.ptr.util import (
     config_hash as _hash,
     dump_fingerprint,
     git_info,
+    run_dir_name,
     set_seed,
     write_json,
 )
@@ -124,6 +136,8 @@ class Prepared:
     config: PTRConfig
     combat_weights: str = "raw"  # resolved mode ("raw" -> log1p is applied, "log" -> dump is already ln(1+x))
     combat_weight_max: float | None = None  # largest train combat weight (what "auto" looked at)
+    player_standardizer: PlayerStandardizer | None = None  # stage 2 only
+    player_combat_weights: str = "raw"
     labels: str = DEFAULT_LABELS
     match_types: tuple[str, ...] | None = DEFAULT_MATCH_TYPES
     data: dict | None = None  # what the run saw: matches / risk-set rows / match types per split
@@ -197,11 +211,54 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="torch intra-op threads for this run (restored afterwards); never changes a result, only the speed",
     )
     ap.add_argument(
+        "--train-subsample",
+        type=_positive_int,
+        default=None,
+        metavar="N",
+        help="train on a random subsample of N train matches (learning curve, design doc 4.4); val and test are "
+        "unchanged, the standardiser is fitted on the subsample.  Results go to <cohort>/<arm>/sub<N>_ss<s>_seed<seed>/",
+    )
+    ap.add_argument(
+        "--subsample-seed",
+        type=int,
+        default=None,
+        help="seed of the subsample (default: --seed); subsamples of one seed are nested across N",
+    )
+    ap.add_argument(
+        "--player-dump-dir",
+        default=None,
+        help="stage-2 arms (M11RZ-P, M11RZ-P-tm): directory of the player dumps <cohort>/{train,val,test}.pt "
+        "(default: bigcomp2027_player_v1 next to --dump-dir)",
+    )
+    ap.add_argument("--player-layers", type=int, default=1, help="stage-2 arms: relation-biased player attention blocks")
+    ap.add_argument(
         "--no-pos-feature",
         action="store_true",
         help="do not append the 2-d normalised team centre to the token features",
     )
     return ap.parse_args(argv)
+
+
+def _player_dir(args: argparse.Namespace) -> Path:
+    return Path(args.player_dump_dir) if args.player_dump_dir else default_player_dump_dir(args.dump_dir)
+
+
+def _player_spec(args: argparse.Namespace) -> dict:
+    """Only stage-2 arms carry the player fields, so the hash of every other run is what it was."""
+    if not get_arm(args.arm).player:
+        return {}
+    return {"player_layers": args.player_layers, "player_dump": dump_fingerprint(_player_dir(args), args.cohort)}
+
+
+def _subsample_seed(args: argparse.Namespace) -> int:
+    return args.seed if args.subsample_seed is None else args.subsample_seed
+
+
+def _subsample_spec(args: argparse.Namespace) -> dict:
+    """Only present for subsampled runs, so the hash of a full-size run does not depend on the feature."""
+    if args.train_subsample is None:
+        return {}
+    return {"train_subsample": args.train_subsample, "subsample_seed": _subsample_seed(args)}
 
 
 def config_spec(args: argparse.Namespace) -> dict:
@@ -216,6 +273,7 @@ def config_spec(args: argparse.Namespace) -> dict:
         "combat_weights": args.combat_weights, "d_model": args.d_model, "n_heads": args.n_heads,
         "n_layers": args.n_layers, "dropout": args.dropout, "pos_feature": not args.no_pos_feature,
         "dump": dump_fingerprint(args.dump_dir, args.cohort), "code": code_fingerprint(),
+        **_subsample_spec(args), **_player_spec(args),
     }  # fmt: skip
 
 
@@ -227,7 +285,27 @@ def config_hash(args: argparse.Namespace) -> str:
 def prepare(args: argparse.Namespace) -> Prepared:
     arm = get_arm(args.arm, implemented_only=True)  # stubs fail before any data is read
     splits = load_cohort(args.dump_dir, args.cohort, labels=args.labels, match_types=args.match_types)
-    standardizer = Standardizer.fit(splits["train"], args.labels)  # train alive tokens only
+    splits["train"], sub_info = subsample_dump(splits["train"], args.train_subsample, _subsample_seed(args))
+    if sub_info is not None:
+        logger.info("train subsample: %s", sub_info)
+    standardizer = Standardizer.fit(splits["train"], args.labels)  # train alive tokens only (of the subsample)
+    players = player_std = player_info = None
+    player_mode, player_max = "raw", None
+    if arm.player:
+        if args.labels != "v2":
+            raise ValueError(
+                f"{arm.name} (stage 2) is defined for --labels v2: the player alive flag and the edges are aligned to the "
+                "event-based team alive mask of the v2 labels, which the pipeline labels do not use"
+            )
+        player_dir = _player_dir(args)
+        players, player_info = load_player_cohort(player_dir, args.cohort, splits, labels=args.labels)  # joined to the (sub)sampled matches
+        player_std = PlayerStandardizer.fit(splits["train"], players["train"], args.labels)
+        inferred, player_max = infer_player_combat_weights(players["train"].values())
+        player_mode = inferred if args.combat_weights == "auto" else args.combat_weights
+        logger.info(
+            "player layer: %d features, relation channels %s, combat weights mode=%s (largest train weight %.3f), dump %s",
+            len(player_info["feature_names"]), list(arm.player_relation_types), player_mode, player_max, player_dir,
+        )  # fmt: skip
     combat_mode, combat_max = "raw", None
     if arm.relation:
         inferred, combat_max = infer_combat_weights(splits["train"])
@@ -248,23 +326,48 @@ def prepare(args: argparse.Namespace) -> Prepared:
             shuffle_seed=args.seed if arm.shuffle else None,
             labels=args.labels,
             validate=False,  # load_cohort validated
+            players=None if players is None else players[name],
+            player_standardizer=player_std,
+            player_relation_types=arm.player_relation_types if arm.player else None,
+            player_combat_weights=player_mode,
         )
         for name, dump in splits.items()
     }
     data = {
         "labels": args.labels,
+        "train_subsample": sub_info,
         "match_types_allowed": None if args.match_types is None else list(args.match_types),
         "n_matches": {k: len(v["matches"]) for k, v in splits.items()},
         "n_target_rows": {
             k: sum(int(select_labels(m, args.labels)[1].sum()) for m in v["matches"]) for k, v in splits.items()
         },
         "match_types": {k: match_type_counts(v) for k, v in splits.items()},
+        "winner_censor": {k: winner_censor_summary(v, args.labels) for k, v in splits.items()},
         "alive_mask": {
             "source": alive_source(splits["train"], args.labels),
             "per_split": {k: event_alive_summary(v, args.labels) for k, v in splits.items()},
         },
     }
+    if arm.player:
+        data["player"] = {
+            "dump_dir": str(_player_dir(args)),
+            "feature_names": player_info["feature_names"],
+            "join": player_info["per_split"],  # incl. edge_endpoints_not_live: teammate / enemy_prox must be 0 (asserted)
+            "ignored_edge_types": player_info["ignored_edge_types"],
+            "combat_weights": player_mode,
+            "combat_weight_max_train": player_max,
+            "relation_types": list(arm.player_relation_types),
+            "layers": args.player_layers,
+            "per_split": {
+                k: player_summary(
+                    [players[k][str(m["match_id"])] for m in v["matches"]],
+                    [effective_alive(m, args.labels, uses_event_alive(v, args.labels)) for m in v["matches"]],
+                )
+                for k, v in splits.items()
+            },
+        }
     logger.info("labels=%s  target rows per split: %s", args.labels, data["n_target_rows"])
+    logger.info("winner censoring (train): %s", data["winner_censor"]["train"])
     tr = data["alive_mask"]["per_split"]["train"]
     logger.info(
         "alive tokens: %s (train: %d alive, %d ghost tokens removed from node_mask, %d tokens added to it)",
@@ -285,13 +388,16 @@ def prepare(args: argparse.Namespace) -> Prepared:
         n_heads=args.n_heads,
         n_layers=args.n_layers,
         dropout=args.dropout,
+        player_features=ref.n_player_features,
+        player_layers=args.player_layers,
     )
     for name, ds in datasets.items():
         if ds.n_phases != ref.n_phases:
             raise ValueError(f"{name} has {ds.n_phases} phase slots, train has {ref.n_phases}")
     return Prepared(
-        arm, standardizer, datasets, config, combat_mode, combat_max, args.labels, args.match_types, data
-    )
+        arm, standardizer, datasets, config, combat_mode, combat_max, player_std, player_mode, args.labels,
+        args.match_types, data,
+    )  # fmt: skip
 
 
 # --------------------------------------------------------------------------- evaluation
@@ -424,6 +530,7 @@ def _save_checkpoint(path: Path, model, prep: Prepared, args, epoch: int, val_nl
             "epoch": epoch,
             "val_nll": val_nll,
             "standardizer": prep.standardizer.state_dict(),
+            "player_standardizer": None if prep.player_standardizer is None else prep.player_standardizer.state_dict(),
             "feature_names": ref.feature_names,
             "keep_columns": ref.keep,
             "cohort": args.cohort,
@@ -454,7 +561,7 @@ def _run(args: argparse.Namespace) -> dict:
     t_start = time.perf_counter()
     device = _device(args.device)
     prep = prepare(args)
-    out = Path(args.out_dir) / args.cohort / args.arm / f"seed{args.seed}"
+    out = Path(args.out_dir) / args.cohort / args.arm / run_dir_name(args.seed, args.train_subsample, _subsample_seed(args))
     check_run_dir(out, args.labels)  # never overwrite the results of the other label choice
     out.mkdir(parents=True, exist_ok=True)
     removal = prep.datasets["train"].removal

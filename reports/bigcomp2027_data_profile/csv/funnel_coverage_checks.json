@@ -1,0 +1,8 @@
+{
+ "csv_in_pubg_matches": 27491,
+ "csv_in_stdb_matches": 21833,
+ "csv_in_telem_match_start": 27491,
+ "csv_in_telem_phase_changes": 23401,
+ "pubg_matches_not_in_csv": 967,
+ "stdb_matches_total": 21833
+}

@@ -54,6 +54,8 @@ from model_stgcn.ptr.data import (
     keep_columns,
     load_cohort,
     select_labels,
+    subsample_dump,
+    winner_censor_summary,
     uses_event_alive,
     validate_dump,
 )
@@ -63,6 +65,7 @@ from model_stgcn.ptr.util import (
     config_hash as _hash,
     dump_fingerprint,
     git_info,
+    run_dir_name,
     write_json,
 )
 
@@ -169,20 +172,22 @@ def _prediction_frame(rows: Rows, p: np.ndarray) -> pd.DataFrame:
     return df
 
 
-def run_config_hash(dump_dir, cohort, variant, seed, labels, match_types) -> str:
+def run_config_hash(dump_dir, cohort, variant, seed, labels, match_types, subsample=None, subsample_seed=None) -> str:
     """Hash of everything that can change an HGB run's result (the classifier settings live in the code fingerprint)."""
-    return _hash(
-        {
-            "kind": "hgb", "variant": variant, "cohort": cohort, "seed": seed, "labels": labels,
-            "match_types": None if match_types is None else list(match_types),
-            "dump": dump_fingerprint(dump_dir, cohort), "code": code_fingerprint(),
-        }
-    )  # fmt: skip
+    spec = {
+        "kind": "hgb", "variant": variant, "cohort": cohort, "seed": seed, "labels": labels,
+        "match_types": None if match_types is None else list(match_types),
+        "dump": dump_fingerprint(dump_dir, cohort), "code": code_fingerprint(),
+    }  # fmt: skip
+    if subsample is not None:  # only subsampled runs carry the fields: full-size hashes do not depend on the feature
+        spec.update(train_subsample=subsample, subsample_seed=seed if subsample_seed is None else subsample_seed)
+    return _hash(spec)
 
 
 def config_hash(args: argparse.Namespace) -> str:
     """Hash stamped into ``metrics.json``; the runner skips a run whose stamp equals this value."""
-    return run_config_hash(args.dump_dir, args.cohort, args.variant, args.seed, args.labels, args.match_types)
+    return run_config_hash(args.dump_dir, args.cohort, args.variant, args.seed, args.labels, args.match_types,
+                           args.train_subsample, args.subsample_seed)  # fmt: skip
 
 
 def run(
@@ -194,18 +199,26 @@ def run(
     labels: str = DEFAULT_LABELS,
     match_types: tuple[str, ...] | None = DEFAULT_MATCH_TYPES,
     threads: int | None = None,
+    subsample: int | None = None,
+    subsample_seed: int | None = None,
 ) -> dict:
+    """``subsample`` / ``subsample_seed``: train on a random subsample of that many train matches (see
+    :func:`model_stgcn.ptr.data.subsample_dump`); val and test are unchanged."""
     if threads:
         from threadpoolctl import threadpool_limits
 
         with threadpool_limits(limits=threads):
-            return _run(dump_dir, cohort, variant, seed, out_dir, labels, match_types)
-    return _run(dump_dir, cohort, variant, seed, out_dir, labels, match_types)
+            return _run(dump_dir, cohort, variant, seed, out_dir, labels, match_types, subsample, subsample_seed)
+    return _run(dump_dir, cohort, variant, seed, out_dir, labels, match_types, subsample, subsample_seed)
 
 
-def _run(dump_dir, cohort, variant, seed, out_dir, labels, match_types) -> dict:
+def _run(dump_dir, cohort, variant, seed, out_dir, labels, match_types, subsample=None, subsample_seed=None) -> dict:
     t0 = time.perf_counter()
     splits = load_cohort(dump_dir, cohort, labels=labels, match_types=match_types)
+    sub_seed = seed if subsample_seed is None else subsample_seed
+    splits["train"], sub_info = subsample_dump(splits["train"], subsample, sub_seed)
+    if sub_info is not None:
+        logger.info("train subsample: %s", sub_info)
     rows = {s: build_rows(splits[s], variant, labels) for s in splits}
     train = rows["train"]
     if len(np.unique(train.y)) < 2:
@@ -216,7 +229,7 @@ def _run(dump_dir, cohort, variant, seed, out_dir, labels, match_types) -> dict:
     fit_sec = time.perf_counter() - t_fit
 
     logger.info("alive tokens: %s (the rule is used for the lag presence of HGB-lag)", alive_source(splits["train"], labels))
-    out = Path(out_dir) / cohort / variant / f"seed{seed}"
+    out = Path(out_dir) / cohort / variant / run_dir_name(seed, subsample, sub_seed)
     check_run_dir(out, labels)  # never overwrite the results of the other label choice
     result: dict = {
         "variant": variant,
@@ -224,8 +237,11 @@ def _run(dump_dir, cohort, variant, seed, out_dir, labels, match_types) -> dict:
         "seed": seed,
         "labels": labels,
         "label_fields": dict(zip(("y", "target"), LABEL_FIELDS[labels])),
-        "config_hash": run_config_hash(dump_dir, cohort, variant, seed, labels, match_types),
+        "config_hash": run_config_hash(dump_dir, cohort, variant, seed, labels, match_types, subsample, subsample_seed),
+        "train_subsample": sub_info,
+        "n_matches": {s: len(splits[s]["matches"]) for s in splits},
         "alive_mask": {s: event_alive_summary(splits[s], labels) for s in splits},
+        "winner_censor": {s: winner_censor_summary(splits[s], labels) for s in splits},
         "match_types_allowed": None if match_types is None else list(match_types),
         "n_features": int(train.X.shape[1]),
         "n_train_rows": int(len(train.y)),
@@ -291,13 +307,28 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=None,
         help="OpenMP threads for the boosting (never changes a result, only the speed)",
     )
+    ap.add_argument(
+        "--train-subsample",
+        type=_positive_int,
+        default=None,
+        metavar="N",
+        help="train on a random subsample of N train matches (learning curve, design doc 4.4); val and test are "
+        "unchanged.  Results go to <cohort>/<variant>/sub<N>_ss<s>_seed<seed>/",
+    )
+    ap.add_argument(
+        "--subsample-seed",
+        type=int,
+        default=None,
+        help="seed of the subsample (default: --seed); subsamples of one seed are nested across N",
+    )
     return ap.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    run(args.dump_dir, args.cohort, args.variant, args.seed, args.out_dir, args.labels, args.match_types, args.threads)
+    run(args.dump_dir, args.cohort, args.variant, args.seed, args.out_dir, args.labels, args.match_types, args.threads,
+        args.train_subsample, args.subsample_seed)  # fmt: skip
     return 0
 
 

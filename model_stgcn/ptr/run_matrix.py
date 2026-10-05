@@ -58,11 +58,12 @@ from typing import Callable, Iterable, Sequence
 
 from model_stgcn.ptr import hgb as H
 from model_stgcn.ptr import train as T
-from model_stgcn.ptr.arms import EXPLORATORY_ARMS, MAIN_ARMS
+from model_stgcn.ptr.arms import EXPLORATORY_ARMS, MAIN_ARMS, STAGE2_ARMS
 from model_stgcn.ptr.cohorts import discover_cohorts
 from model_stgcn.ptr.data import DEFAULT_LABELS, DEFAULT_MATCH_TYPES, LABEL_CHOICES
 from model_stgcn.ptr.hgb import HGB_VARIANTS
-from model_stgcn.ptr.util import REPO_ROOT
+from model_stgcn.ptr.player import default_player_dump_dir
+from model_stgcn.ptr.util import REPO_ROOT, run_dir_name
 
 logger = logging.getLogger("model_stgcn.ptr.run_matrix")
 
@@ -71,11 +72,20 @@ EXTRA_SEEDS: tuple[int, ...] = (13, 2026)
 SEED_ARMS: tuple[str, ...] = ("M00", "M11", "M11R", "M11R-shuf", "M11RZ")
 LARGE_COHORTS: tuple[str, ...] = ("erangel_tpp_squad", "taego_tpp_squad")
 GROUPS: tuple[str, ...] = ("main", "exploratory", "seeds", "hgb")
-ONLY_KEYS: tuple[str, ...] = ("cohort", "arm", "seed", "kind", "group")
+LC_GROUPS: tuple[str, ...] = ("lc", "lc_full")  # learning curve (design doc 4.4): subsampled runs, full-size extra seeds
+STAGE2_GROUP = "stage2"  # M11RZ-P and M11RZ-P-tm x every cohort, seed 42 (design doc 4.4: needs the player dump)
+ONLY_KEYS: tuple[str, ...] = ("cohort", "arm", "seed", "kind", "group", "subsample")
 STATUS_FIELDS = (
-    "run_id", "group", "kind", "cohort", "arm", "seed", "labels", "config_hash", "status", "exit_code",
-    "start_utc", "end_utc", "elapsed_sec", "log", "metrics", "note",
+    "run_id", "group", "kind", "cohort", "arm", "seed", "subsample", "max_epochs", "labels", "config_hash", "status",
+    "exit_code", "start_utc", "end_utc", "elapsed_sec", "log", "metrics", "note",
 )  # fmt: skip
+# learning curve (design doc 4.4): two large cohorts, train subsamples of N matches, three replicate seeds (the seed is
+# both the subsample seed and the model seed), five models; at full size the missing seeds of HGB-cut, M10, M01 are added
+LC_SIZES: tuple[int, ...] = (300, 600, 1200)
+LC_SEEDS: tuple[int, ...] = (13, 42, 2026)
+LC_MODELS: tuple[str, ...] = ("HGB-cut", "M00", "M10", "M01", "M11R")
+LC_FULL_EXTRA: tuple[str, ...] = ("HGB-cut", "M10", "M01")
+LC_EPOCH_CAP = 150
 
 # --------------------------------------------------------------------------- sizes used for the wall-clock model
 # mean teams per match and per-split matches of the cohorts, estimated for the registry that remains after the
@@ -143,7 +153,7 @@ def population_stats(dump_dir: str | Path) -> dict[str, CohortStats] | None:
 CALIBRATION = {
     "startup_s": 5.0,  # interpreter + imports + dump loading + standardiser, per run
     # ms per training match and epoch = a + b * mean_teams, per arm class
-    "epoch_ms": {"base": (1.9, 0.095), "rel": (2.4, 0.135), "relzone": (2.7, 0.165)},
+    "epoch_ms": {"base": (1.9, 0.095), "rel": (2.4, 0.135), "relzone": (2.7, 0.165), "player": (5.4, 0.33)},  # player: ~2x relzone (measured)
     "predict_epochs": 0.5,  # final val / test predictions, in epochs of the same arm
     # HGB fit seconds = us_per_cell * rows * columns / 1e6
     "hgb_us_per_cell": 1.4,
@@ -152,6 +162,7 @@ ARM_CLASS = {
     **{a: "base" for a in ("M00", "M10", "M01", "M11")},
     **{a: "rel" for a in ("M11R", "M11R-shuf", "M11R-noHab", "M11R-noProx", "M11R-noCombat", "M11R-noCopress")},
     **{a: "relzone" for a in ("M11RZ", "M11RZ-noHab")},
+    **{a: "player" for a in STAGE2_ARMS},
 }
 
 
@@ -161,17 +172,24 @@ class RunSpec:
     cohort: str
     arm: str  # arm name, or the HGB variant
     seed: int
-    group: str  # main | exploratory | seeds | hgb
+    group: str  # main | exploratory | seeds | hgb | lc | lc_full
+    subsample: int | None = None  # train on this many random train matches (learning curve)
+    subsample_seed: int | None = None
+    epochs: int | None = None  # per-run override of --max-epochs (steps-matched learning curve)
+
+    @property
+    def dirname(self) -> str:
+        return run_dir_name(self.seed, self.subsample, self.subsample_seed)
 
     @property
     def run_id(self) -> str:
-        return f"{self.cohort}/{self.arm}/seed{self.seed}"
+        return f"{self.cohort}/{self.arm}/{self.dirname}"
 
     def run_dir(self, out_dir: str | Path) -> Path:
-        return Path(out_dir) / self.cohort / self.arm / f"seed{self.seed}"
+        return Path(out_dir) / self.cohort / self.arm / self.dirname
 
     def log_path(self, out_dir: str | Path) -> Path:
-        return Path(out_dir) / "logs" / f"{self.cohort}__{self.arm}__seed{self.seed}.log"
+        return Path(out_dir) / "logs" / f"{self.cohort}__{self.arm}__{self.dirname}.log"
 
 
 @dataclass
@@ -184,6 +202,7 @@ class Settings:
     device: str = "cpu"
     threads: int = 2
     python: str = field(default_factory=lambda: sys.executable)
+    player_dump_dir: str | None = None  # stage-2 arms; None: next to dump_dir (train.default_player_dump_dir)
 
 
 # --------------------------------------------------------------------------- enumeration and filters
@@ -205,6 +224,46 @@ def enumerate_runs(
     runs += [RunSpec("neural", c, a, s, "seeds") for c in present for s in EXTRA_SEEDS for a in SEED_ARMS]
     runs += [RunSpec("hgb", c, v, MAIN_SEED, "hgb") for c in cohorts for v in HGB_VARIANTS]
     return runs, notes
+
+
+def enumerate_stage2_runs(cohorts: Iterable[str]) -> list[RunSpec]:
+    """Stage 2 (design doc 4.4): ``M11RZ-P`` and ``M11RZ-P-tm`` on every cohort at seed 42."""
+    return [RunSpec("neural", c, a, MAIN_SEED, STAGE2_GROUP) for c in sorted(set(cohorts)) for a in STAGE2_ARMS]
+
+
+def enumerate_lc_runs(
+    cohorts: Iterable[str],
+    *,
+    sizes: Sequence[int] = LC_SIZES,
+    seeds: Sequence[int] = LC_SEEDS,
+    models: Sequence[str] = LC_MODELS,
+    full_extra: Sequence[str] = LC_FULL_EXTRA,
+    steps_matched: bool = False,
+    full_sizes: dict[str, int] | None = None,
+    base_epochs: int = 12,
+) -> list[RunSpec]:
+    """Learning-curve runs (design doc 4.4): ``models`` x ``sizes`` x ``seeds`` per cohort (group ``lc``; the seed is the
+    subsample seed and the model seed), plus the missing full-size seeds of ``full_extra`` (group ``lc_full``).
+
+    ``steps_matched``: every subsampled run gets ``ceil(base_epochs * n_full / N)`` epochs (capped at
+    :data:`LC_EPOCH_CAP`) so that the number of optimiser steps stays close to the full-size run, and no extra
+    full-size runs are planned (they are the runs of the fixed-epoch learning curve)."""
+    runs = []
+    for c in sorted(set(cohorts)):
+        for n in sizes:
+            epochs = None
+            if steps_matched:
+                if not full_sizes or c not in full_sizes:
+                    raise ValueError(f"steps-matched epochs need the full train size of {c}")
+                epochs = min(LC_EPOCH_CAP, -(-base_epochs * full_sizes[c] // n))
+            for s in seeds:
+                for a in models:
+                    runs.append(RunSpec("hgb" if a in HGB_VARIANTS else "neural", c, a, s, "lc", n, s, epochs if a not in HGB_VARIANTS else None))
+        if not steps_matched:
+            for s in EXTRA_SEEDS:
+                for a in full_extra:
+                    runs.append(RunSpec("hgb" if a in HGB_VARIANTS else "neural", c, a, s, "lc_full"))
+    return runs
 
 
 def parse_only(entries: Iterable[str]) -> dict[str, list[str]]:
@@ -243,8 +302,12 @@ def build_argv(spec: RunSpec, st: Settings) -> list[str]:
         "--match-types", "any" if st.match_types is None else ",".join(st.match_types),
         "--threads", str(st.threads),
     ]  # fmt: skip
+    if spec.subsample is not None:
+        argv += ["--train-subsample", str(spec.subsample), "--subsample-seed", str(spec.seed if spec.subsample_seed is None else spec.subsample_seed)]
     if spec.kind == "neural":
-        argv += ["--device", st.device, "--max-epochs", str(st.max_epochs)]
+        argv += ["--device", st.device, "--max-epochs", str(spec.epochs or st.max_epochs)]
+        if st.player_dump_dir and spec.arm in STAGE2_ARMS:
+            argv += ["--player-dump-dir", str(st.player_dump_dir)]
     return argv
 
 
@@ -300,12 +363,14 @@ def _guess_teams(cohort: str) -> float:
 def estimate_seconds(spec: RunSpec, stats: CohortStats, st: Settings) -> float:
     """Upper-bound seconds of one run: every epoch used (neural), measured per-cell cost (HGB)."""
     c = CALIBRATION
+    n_train = min(spec.subsample, stats.n_train) if spec.subsample else stats.n_train
     if spec.kind == "neural":
         a, b = c["epoch_ms"][ARM_CLASS.get(spec.arm, "relzone")]
-        epoch = stats.n_train * (a + b * stats.mean_teams) / 1000.0
-        return c["startup_s"] + epoch * (st.max_epochs + c["predict_epochs"])
+        per_match = (a + b * stats.mean_teams) / 1000.0
+        # the final val / test predictions do not depend on the subsample: priced as before, on the full train size
+        return c["startup_s"] + n_train * per_match * (spec.epochs or st.max_epochs) + stats.n_train * per_match * c["predict_epochs"]
     cols = 3 * 150 + 1 if spec.arm == "HGB-lag" else 150 + 1 - (44 if spec.arm == "HGB-noHab" else 0)
-    return c["startup_s"] + c["hgb_us_per_cell"] * stats.n_train * stats.rows_per_match * cols / 1e6
+    return c["startup_s"] + c["hgb_us_per_cell"] * n_train * stats.rows_per_match * cols / 1e6
 
 
 def makespan(costs: Sequence[float], workers: int) -> float:
@@ -369,10 +434,17 @@ def format_plan(plan: Plan, st: Settings, workers: int, *, list_runs: bool = Fal
         f"cohorts ({len(plan.cohorts)}): {', '.join(plan.cohorts) if plan.cohorts else '-'}",
     ]
     lines += [f"note: {n}" for n in plan.notes]
-    lines.append(
-        f"runs: {len(plan.items)} = main {counts['main']} + exploratory {counts['exploratory']}"
-        f" + seeds {counts['seeds']} + hgb {counts['hgb']}"
-    )
+    lc = {g: sum(1 for i in plan.items if i.spec.group == g) for g in LC_GROUPS}
+    n_stage2 = sum(1 for i in plan.items if i.spec.group == STAGE2_GROUP)
+    if n_stage2:
+        lines.append(f"runs: {len(plan.items)} = stage 2 ({', '.join(STAGE2_ARMS)}) x {len(plan.cohorts)} cohorts")
+    elif any(lc.values()):
+        lines.append(f"runs: {len(plan.items)} = learning curve {lc['lc']} + full-size extra seeds {lc['lc_full']}")
+    else:
+        lines.append(
+            f"runs: {len(plan.items)} = main {counts['main']} + exploratory {counts['exploratory']}"
+            f" + seeds {counts['seeds']} + hgb {counts['hgb']}"
+        )
     lines.append(f"to run: {len(todo)} (already done with the same config hash: {n_done})")
     est = [i.est_seconds for i in todo]
     hours = makespan(est, workers) / 3600.0
@@ -421,7 +493,9 @@ class StatusTable:
             s = item.spec
             self.rows[s.run_id] = {
                 "run_id": s.run_id, "group": s.group, "kind": s.kind, "cohort": s.cohort, "arm": s.arm,
-                "seed": str(s.seed), "labels": st.labels, "config_hash": item.expected_hash,
+                "seed": str(s.seed), "subsample": "" if s.subsample is None else str(s.subsample),
+                "max_epochs": str(s.epochs or st.max_epochs) if s.kind == "neural" else "",
+                "labels": st.labels, "config_hash": item.expected_hash,
                 "status": "skipped_done" if item.done else "planned", "exit_code": "", "start_utc": "",
                 "end_utc": "", "elapsed_sec": "", "log": str(s.log_path(st.out_dir)),
                 "metrics": str(s.run_dir(st.out_dir) / "metrics.json"), "note": "",
@@ -528,6 +602,19 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     ap.add_argument("--strict", action="store_true", help="fail if a large cohort is missing from the dump dir")
     ap.add_argument("--poll-seconds", type=float, default=1.0)
     ap.add_argument("--python", default=sys.executable)
+    ap.add_argument("--status-name", default="run_matrix_status.csv",
+                    help="file name of the status CSV inside --out-dir (use another name when adding runs to an existing matrix)")  # fmt: skip
+    ap.add_argument("--stage2", action="store_true",
+                    help="plan the stage-2 runs (M11RZ-P, M11RZ-P-tm on every cohort, seed 42) instead of the main matrix")  # fmt: skip
+    ap.add_argument("--player-dump-dir", default=None, help="stage-2 arms: the player dump directory (default: next to --dump-dir)")
+    ap.add_argument("--lc", action="store_true",
+                    help="plan the learning curve of design doc 4.4 instead of the main matrix")  # fmt: skip
+    ap.add_argument("--lc-cohorts", default=",".join(LARGE_COHORTS), help="learning-curve cohorts")
+    ap.add_argument("--lc-sizes", default=",".join(map(str, LC_SIZES)), help="train subsample sizes (matches)")
+    ap.add_argument("--lc-seeds", default=",".join(map(str, LC_SEEDS)), help="replicate seeds (subsample and model seed)")
+    ap.add_argument("--lc-models", default=",".join(LC_MODELS), help="arms / HGB variants of the learning curve")
+    ap.add_argument("--lc-steps-matched", action="store_true",
+                    help="epochs = ceil(max_epochs * n_full / N) per subsample (same number of optimiser steps as full size)")  # fmt: skip
     return ap.parse_args(argv)
 
 
@@ -541,6 +628,7 @@ def main(argv: list[str] | None = None, popen: Callable = subprocess.Popen) -> i
     st = Settings(
         dump_dir=args.dump_dir, out_dir=args.out_dir, labels=args.labels, match_types=args.match_types,
         max_epochs=args.max_epochs, device=args.device, threads=threads, python=args.python,
+        player_dump_dir=args.player_dump_dir,
     )  # fmt: skip
     large = [c for c in args.large_cohorts.split(",") if c]
     if args.projected:
@@ -549,8 +637,35 @@ def main(argv: list[str] | None = None, popen: Callable = subprocess.Popen) -> i
     else:
         cohorts = discover_cohorts(args.dump_dir)
         stats = {c: cohort_stats(args.dump_dir, c, args.labels) for c in cohorts} if args.dry_run or cohorts else {}
-    runs, notes = enumerate_runs(cohorts, large, strict=args.strict)
-    if not args.projected:
+    if args.stage2 and args.lc:
+        raise SystemExit("--stage2 and --lc plan different matrices; pick one")
+    if args.stage2:
+        player_dir = Path(args.player_dump_dir) if args.player_dump_dir else default_player_dump_dir(args.dump_dir)
+        have = [c for c in cohorts if all((player_dir / c / f"{s}.pt").is_file() for s in ("train", "val", "test"))]
+        notes = []
+        if len(have) < len(cohorts):
+            msg = f"no complete player dump in {player_dir} for {sorted(set(cohorts) - set(have))}: no stage-2 runs for them"
+            if args.strict:
+                raise ValueError(msg)
+            notes.append(msg)
+        cohorts = have
+        runs = enumerate_stage2_runs(cohorts)
+    elif args.lc:
+        lc_cohorts = [c for c in args.lc_cohorts.split(",") if c]
+        absent = [c for c in lc_cohorts if c not in cohorts]
+        if absent:
+            raise SystemExit(f"--lc cohorts not in the dump directory: {absent}")
+        sizes = [int(x) for x in args.lc_sizes.split(",") if x]
+        full = {c: stats[c].n_train for c in lc_cohorts} if args.lc_steps_matched else None
+        runs = enumerate_lc_runs(
+            lc_cohorts, sizes=sizes, seeds=[int(x) for x in args.lc_seeds.split(",") if x],
+            models=[m for m in args.lc_models.split(",") if m], steps_matched=args.lc_steps_matched,
+            full_sizes=full, base_epochs=args.max_epochs,
+        )  # fmt: skip
+        notes = []
+    else:
+        runs, notes = enumerate_runs(cohorts, large, strict=args.strict)
+    if not args.projected and not args.lc and not args.stage2:
         kept = population_stats(args.dump_dir)
         if kept is not None and set(kept) - set(cohorts):
             notes.append(f"population.json keeps {len(kept)} cohorts; not in the dump dir yet: {sorted(set(kept) - set(cohorts))}")
@@ -560,11 +675,12 @@ def main(argv: list[str] | None = None, popen: Callable = subprocess.Popen) -> i
     print(format_plan(plan, st, workers, list_runs=args.list))
     if args.dry_run:
         return 0
-    rows = execute(plan, st, workers, popen=popen, poll_seconds=args.poll_seconds)
+    status_path = Path(st.out_dir) / args.status_name
+    rows = execute(plan, st, workers, popen=popen, poll_seconds=args.poll_seconds, status_path=status_path)
     failed = [r for r in rows.values() if r["status"] in ("failed", "interrupted")]
     n_done = sum(1 for r in rows.values() if r["status"] == "done")
     print(f"finished: {n_done} done, {len(rows) - n_done - len(failed)} skipped, {len(failed)} failed "
-          f"(status: {Path(st.out_dir) / 'run_matrix_status.csv'})")  # fmt: skip
+          f"(status: {status_path})")  # fmt: skip
     for r in failed:
         print(f"  failed: {r['run_id']} -> {r['log']}")
     return 1 if failed else 0

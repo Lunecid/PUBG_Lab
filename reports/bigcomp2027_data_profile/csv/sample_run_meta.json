@@ -1,0 +1,15 @@
+{
+ "args": {
+  "per_cohort": 400,
+  "workers": 2,
+  "batch": 6,
+  "seed": 42,
+  "tag": "sample"
+ },
+ "wall_s": 88.66129112243652,
+ "n_matches_ok": 5066,
+ "n_errors": 0,
+ "fetch_s_total": 81.96315479278564,
+ "proc_s_total": 87.32573914527893,
+ "n_batches": 849
+}

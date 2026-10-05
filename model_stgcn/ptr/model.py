@@ -25,6 +25,16 @@ Masking contract (all verified in ``tests/test_ptr_model.py``):
 * Rows with no valid key return zeros (never NaN).
 * The hazard head reads the final token ``(p, i)``; the rank head is a separate linear score
   (higher = worse expected final placement, see :mod:`model_stgcn.ptr.loss`).
+
+Stage 2 (``cfg.player``, the M11RZ-P arms; design doc 3 / 4.1).  Before the blocks above, every alive player token of a
+phase slot -- ``[Xp (player features) | the team's token features | player_is_ai]`` -- passes ``player_layers``
+:class:`PlayerBlock` s (relation-biased attention over ALL alive players of the match in that slot, FFN) and is pooled
+into its team by :class:`TeamPool` (attention pooling over the team's alive players); the pooled vector is added to the
+team's stage-1 token embedding, so the team token = ``token_mlp(x) + phase + pool(players)`` and M11RZ-P nests M11RZ
+(shared components have the same init streams).  The player attention bias is ``sum_r b[r, h] W_r[i, j]`` over the
+channels ``player_relation_types`` (teammate, enemy_prox, combat_out, combat_in; the ``-tm`` arm has no teammate
+channel).  A player is alive only if the dump says so AND its team is alive at that slot; dead players are zeroed and
+masked everywhere (never ``* mask``), and a team without an alive player gets a zero pooled vector.
 """
 
 from __future__ import annotations
@@ -37,6 +47,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from model_stgcn.ptr.player import check_player_relation_types
 from model_stgcn.ptr.relations import RELATION_TYPES, check_relation_types
 
 GEO_DIM = 6  # (pos - c)/r (2) + dist/r (1), for the current and the next zone circle
@@ -60,6 +71,10 @@ class PTRConfig:
     relation_types: tuple[str, ...] = RELATION_TYPES
     zone: bool = False
     zone_hidden: int = 16
+    player: bool = False  # stage 2: player tokens, player attention, pooling to the team tokens
+    player_features: int = 0  # columns of Xp
+    player_relation_types: tuple[str, ...] = ()
+    player_layers: int = 1  # PlayerBlocks before the pooling (0: pool the player embeddings directly)
 
     def __post_init__(self) -> None:
         if self.d_model % self.n_heads:
@@ -69,6 +84,12 @@ class PTRConfig:
         if self.zone and not self.team_axis:
             raise ValueError("the zone token joins the team-axis set: zone=True needs team_axis=True")
         object.__setattr__(self, "relation_types", check_relation_types(self.relation_types))
+        if self.player:
+            if self.player_features < 1:
+                raise ValueError("player=True needs player_features >= 1 (columns of Xp)")
+            if self.player_layers < 0:
+                raise ValueError("player_layers must be >= 0")
+            object.__setattr__(self, "player_relation_types", check_player_relation_types(self.player_relation_types))
 
 
 class _Init:
@@ -245,6 +266,61 @@ class PTRBlock(nn.Module):
         return h, z
 
 
+class PlayerBlock(nn.Module):
+    """Pre-LN block of the player layer: attention over ALL alive players of one phase slot with the additive relation
+    bias ``sum_r b[r, h] W_r[i, j]`` (``b`` per block and head), then an FFN.  Dead players neither attend nor are
+    attended to and stay exactly zero."""
+
+    def __init__(self, cfg: PTRConfig, layer: int, init: _Init) -> None:
+        super().__init__()
+        d, H = cfg.d_model, cfg.n_heads
+        with init.scope(f"p{layer}.attn"):
+            self.ln = nn.LayerNorm(d)
+            self.attn = MultiHeadAttention(d, H, cfg.dropout)
+        with init.scope(f"p{layer}.rel"):
+            self.rel_b = nn.Parameter(torch.randn(len(cfg.player_relation_types), H) * REL_INIT_STD)
+        with init.scope(f"p{layer}.ffn"):
+            self.ln_f = nn.LayerNorm(d)
+            self.ffn = nn.Sequential(
+                nn.Linear(d, cfg.ffn_mult * d), nn.GELU(), nn.Dropout(cfg.dropout), nn.Linear(cfg.ffn_mult * d, d)
+            )
+        self.drop = nn.Dropout(cfg.dropout)
+
+    def forward(self, h: torch.Tensor, alive: torch.Tensor, rel: torch.Tensor) -> torch.Tensor:
+        """``h [B,P,M,d]`` (phase slot P, player M), ``alive [B,P,M]``, ``rel [B,P,R,M,M]`` (diagonal 0, dead pairs 0)."""
+        a = alive.unsqueeze(-1)
+        zero = torch.zeros((), dtype=h.dtype, device=h.device)
+        bias = torch.einsum("bprij,rh->bphij", rel, self.rel_b)
+        t = self.ln(h)
+        upd = self.attn(t, t, alive[:, :, None, None, :], bias)
+        h = h + torch.where(a, self.drop(upd), zero)
+        return h + torch.where(a, self.drop(self.ffn(self.ln_f(h))), zero)
+
+
+class TeamPool(nn.Module):
+    """Attention pooling of the alive players of a team into one vector per (phase slot, team).
+
+    ``score = w . LN(h)``, a softmax over the team's alive players, values ``V LN(h)``; a team without an alive player
+    (or a padded team) gets exactly zero.  Players only ever contribute to their own team."""
+
+    def __init__(self, d_model: int, init: _Init) -> None:
+        super().__init__()
+        with init.scope("player_pool"):
+            self.ln = nn.LayerNorm(d_model)
+            self.score = nn.Linear(d_model, 1)
+            self.value = nn.Linear(d_model, d_model)
+
+    def forward(self, h: torch.Tensor, alive: torch.Tensor, team: torch.Tensor, n_teams: int):
+        """``h [B,P,M,d]``, ``alive [B,P,M]``, ``team [B,M]`` (team index of every player) -> ``([B,P,N,d], weights [B,P,N,M])``."""
+        t = self.ln(h)
+        s = self.score(t).squeeze(-1)
+        member = team[:, None, :] == torch.arange(n_teams, device=h.device)[None, :, None]  # [B,N,M]
+        ok = member[:, None] & alive[:, :, None, :]  # [B,P,N,M]
+        logits = s[:, :, None, :].masked_fill(~ok, torch.finfo(s.dtype).min / 2)
+        attn = torch.softmax(logits, dim=-1) * ok.any(dim=-1, keepdim=True).to(s.dtype)
+        return torch.einsum("bpnm,bpmd->bpnd", attn, self.value(t)), attn
+
+
 class PTRFormer(nn.Module):
     def __init__(self, cfg: PTRConfig, init_seed: int | None = None) -> None:
         super().__init__()
@@ -259,6 +335,13 @@ class PTRFormer(nn.Module):
         if cfg.zone:
             with init.scope("zone_token"):
                 self.zone_mlp = nn.Sequential(nn.Linear(cfg.zone_dim, d), nn.GELU(), nn.Linear(d, d))
+        if cfg.player:
+            with init.scope("player_token"):
+                self.player_mlp = nn.Sequential(
+                    nn.Linear(cfg.player_features + cfg.in_features + 1, d), nn.GELU(), nn.Linear(d, d)
+                )
+            self.player_blocks = nn.ModuleList(PlayerBlock(cfg, layer, init) for layer in range(cfg.player_layers))
+            self.team_pool = TeamPool(d, init)
         self.emb_drop = nn.Dropout(cfg.dropout)
         self.blocks = nn.ModuleList(PTRBlock(cfg, layer, init) for layer in range(cfg.n_layers))
         with init.scope("heads"):
@@ -280,6 +363,42 @@ class PTRFormer(nn.Module):
         pair_alive = (alive.unsqueeze(-1) & alive.unsqueeze(-2) & ~eye).unsqueeze(2)
         return torch.where(pair_alive, rel, torch.zeros_like(rel))
 
+    def _player_relations(self, batch, p_alive):
+        rel = batch.get("rel_p")
+        B, P, M = p_alive.shape
+        want = (B, P, len(self.cfg.player_relation_types), M, M)
+        if rel is None or tuple(rel.shape) != want:
+            got = None if rel is None else tuple(rel.shape)
+            raise ValueError(f"the player attention needs batch['rel_p'] of shape {want}, got {got}")
+        eye = torch.eye(M, dtype=torch.bool, device=p_alive.device)  # relation bias diagonal = 0
+        pair_alive = (p_alive.unsqueeze(-1) & p_alive.unsqueeze(-2) & ~eye).unsqueeze(2)
+        return torch.where(pair_alive, rel, torch.zeros_like(rel))
+
+    def pool_players(self, batch: dict, x: torch.Tensor, alive: torch.Tensor, phase: torch.Tensor) -> torch.Tensor:
+        """Stage 2: player tokens -> player attention -> attention pooling; returns ``[B, P, N, d]``.
+
+        ``x`` is the (dead-token zeroed) team token features, ``alive`` the team alive mask, ``phase`` the phase embeddings."""
+        cfg = self.cfg
+        for key in ("xp", "p_alive", "p_team", "p_ai", "rel_p"):
+            if key not in batch:
+                raise ValueError(f"arm with a player layer needs batch['{key}'] (build the dataset with the player dump)")
+        xp, team = batch["xp"], batch["p_team"].long()
+        B, P, M, _ = xp.shape
+        N = x.shape[2]
+        # a player is alive iff the dump says so and its team is alive at the slot (dead teams cannot leak in)
+        p_alive = batch["p_alive"].bool() & torch.gather(alive, 2, team[:, None, :].expand(B, P, M))
+        xt = torch.gather(x, 2, team[:, None, :, None].expand(B, P, M, x.shape[-1]))
+        ai = batch["p_ai"][:, None, :, None].expand(B, P, M, 1).to(xp.dtype)
+        tok = torch.cat([xp, xt, ai], dim=-1)
+        tok = torch.where(p_alive.unsqueeze(-1), tok, torch.zeros_like(tok))
+        hp = self.player_mlp(tok) + phase[None, :, None, :]
+        hp = torch.where(p_alive.unsqueeze(-1), self.emb_drop(hp), torch.zeros_like(hp))
+        rel = self._player_relations(batch, p_alive)
+        for block in self.player_blocks:
+            hp = block(hp, p_alive, rel)
+        pooled, _ = self.team_pool(hp, p_alive, team, N)
+        return pooled
+
     def forward(self, batch: dict) -> dict[str, torch.Tensor]:
         cfg = self.cfg
         x, alive = batch["x"], batch["node_mask"].bool()
@@ -289,6 +408,8 @@ class PTRFormer(nn.Module):
         x = torch.where(alive.unsqueeze(-1), x, torch.zeros_like(x))
         phase = self.phase_emb.weight[:P]
         h = self.token_mlp(x) + phase[None, :, None, :]
+        if cfg.player:
+            h = h + self.pool_players(batch, x, alive, phase)
         h = self.emb_drop(h)
         h = torch.where(alive.unsqueeze(-1), h, torch.zeros_like(h))
 

@@ -49,26 +49,29 @@ def check_relation_types(types: Sequence[str]) -> tuple[str, ...]:
 
 
 def densify_edges_batch(
-    edges_list: Sequence[Mapping | None], n_phases: int, n_max: int
+    edges_list: Sequence[Mapping | None],
+    n_phases: int,
+    n_max: int,
+    *,
+    edge_types: Sequence[str] = EDGE_TYPES,
+    symmetric: Sequence[str] = SYMMETRIC_EDGE_TYPES,
+    directed: str = "combat",
 ) -> dict[str, torch.Tensor]:
-    """Sparse edge dicts -> dense ``[B, P, N, N]`` tensors (zero padded to ``n_max`` teams).
+    """Sparse edge dicts -> dense ``[B, P, N, N]`` tensors (zero padded to ``n_max`` nodes).
 
-    Returns ``prox``, ``combat`` (raw directed weights), ``combat_exists`` (bool, directed) and
-    ``copress``.  Duplicated entries collapse with ``max``; self loops are dropped; non-finite or
-    negative weights become 0.
+    Returns one tensor per ``edge_types`` entry (team layer: ``prox``, ``combat`` = raw directed weights,
+    ``copress``; the player layer passes its own types), ``combat_exists`` (bool, directed: which pairs have an edge of
+    the ``directed`` type) and symmetrises the ``symmetric`` types.  Duplicated entries collapse with ``max``; self
+    loops are dropped; non-finite or negative weights become 0.
     """
     batch = len(edges_list)
     shape = (batch, n_phases, n_max, n_max)
-    dense = {
-        "prox": torch.zeros(shape),
-        "combat": torch.zeros(shape),
-        "copress": torch.zeros(shape),
-    }
+    dense = {name: torch.zeros(shape) for name in edge_types}
     exists = torch.zeros(shape, dtype=torch.bool)
     for b, edges in enumerate(edges_list):
         if not edges:
             continue
-        for name in EDGE_TYPES:
+        for name in edge_types:
             item = edges.get(name)
             if item is None:
                 continue
@@ -81,9 +84,9 @@ def densify_edges_batch(
             w = torch.nan_to_num(w, nan=0.0, posinf=0.0, neginf=0.0).clamp(min=0.0)
             flat = (idx[:, 0] * n_max + idx[:, 1]) * n_max + idx[:, 2]
             dense[name][b].view(-1).scatter_reduce_(0, flat, w, reduce="amax", include_self=True)
-            if name == "combat":
+            if name == directed:
                 exists[b].view(-1)[flat] = True
-    for name in SYMMETRIC_EDGE_TYPES:
+    for name in symmetric:
         dense[name] = torch.maximum(dense[name], dense[name].transpose(-1, -2))
     dense["combat_exists"] = exists
     return dense

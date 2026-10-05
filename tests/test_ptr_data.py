@@ -949,3 +949,35 @@ def test_standardizer_fits_on_the_event_alive_tokens():
     np.testing.assert_allclose(sz2.x_mean, sz.x_mean)
     np.testing.assert_allclose(sz2.x_std, sz.x_std)
     assert not np.allclose(D.Standardizer.fit(train, labels="pipeline").x_mean, sz.x_mean)  # pipeline sees ghosts
+
+
+def test_winner_censoring_under_v2_only():
+    """team_won => death = +inf: y = 0 at every cut, at risk wherever phase k+1 exists, alive in every slot."""
+    dump = make_dump(6, seed=91)
+    m = dump["matches"][0]
+    w = int(m["team_won"].nonzero()[0])
+    P = m["phase_end_s"].shape[0]
+    cut_ok = torch.zeros(P, dtype=torch.bool)
+    cut_ok[: P - 1] = m["phase_mask"][: P - 1] & m["phase_mask"][1:]
+    # corrupt the winner as the real dumps do: a finite last-kill time inside the match and a v2 positive
+    m["team_death_s"][w] = float(m["phase_end_s"][2]) - 1.0
+    m["target_mask_v2"][:, w] = False
+    m["y_hazard_v2"][:, w] = 0.0
+    m["target_mask_v2"][:3, w] = True
+    m["y_hazard_v2"][2, w] = 1.0
+    y, t = D.select_labels(m, "v2")
+    assert torch.equal(t[:, w], cut_ok) and not y[:, w].any()
+    assert D.event_alive_mask(m)[:, w][m["phase_mask"]].all()  # immortal in every present slot
+    _, t_pipe = D.select_labels(m, "pipeline")  # pipeline labels untouched
+    assert torch.equal(t_pipe, m["target_mask"].bool())
+    others = torch.arange(len(m["team_won"])) != w
+    raw_t = m["target_mask_v2"].bool()
+    assert torch.equal(t[:, others], raw_t[:, others])  # other teams unchanged
+    D.validate_dump(dump)
+    s = D.winner_censor_summary(dump, "v2")
+    assert s["applied"] and s["winners_finite_death"] >= 1 and s["positives_removed"] >= 1 and s["target_rows_added"] >= 1
+    assert D.winner_censor_summary(dump, "pipeline") == {**s, "applied": False, "winner_teams": 0, "winners_finite_death": 0,
+        "positives_removed": 0, "target_rows_added": 0, "target_rows_removed": 0}  # fmt: skip
+    ds = D.PTRDataset(dump, D.Standardizer.fit(dump))
+    item = ds[0]
+    assert not item["y_hazard"][:, w].any() and bool(item["target_mask"][:, w].equal(cut_ok))

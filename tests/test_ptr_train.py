@@ -15,7 +15,7 @@ from model_stgcn.ptr import hgb as H
 from model_stgcn.ptr import metrics as M
 from model_stgcn.ptr import relations as R
 from model_stgcn.ptr import train as T
-from model_stgcn.ptr.arms import ARMS, EXPLORATORY_ARMS, MAIN_ARMS, STUB_ARMS, get_arm
+from model_stgcn.ptr.arms import ARMS, EXPLORATORY_ARMS, MAIN_ARMS, STAGE2_ARMS, STUB_ARMS, get_arm
 from model_stgcn.ptr.synthetic import write_cohort_dumps
 
 # design doc section 4 (phase axis, team axis, relation bias, zone object, shuffle, dropped groups)
@@ -84,18 +84,25 @@ def test_arm_registry_matches_design_table():
         ), name  # fmt: skip
         assert a.name == name and a.implemented and not a.exploratory and a.stage == 1
         assert a.relation_types == ("prox", "combat_out", "combat_in", "copress")
-    assert set(ARMS) == set(MAIN_ARMS) | set(EXPLORATORY_ARMS) | set(STUB_ARMS)
+    assert set(ARMS) == set(MAIN_ARMS) | set(EXPLORATORY_ARMS) | set(STAGE2_ARMS)
     with pytest.raises(KeyError):
         get_arm("M99")
 
 
-def test_stage_two_stubs_resolve_but_cannot_run():
-    assert STUB_ARMS == ("M11RZ-P", "M11RZ-P-tm")
-    for name in STUB_ARMS:
-        a = get_arm(name)
-        assert not a.implemented and a.stage == 2
-        with pytest.raises(NotImplementedError):
-            get_arm(name, implemented_only=True)
+def test_stage_two_arms_are_registered_with_the_player_layer():
+    assert STAGE2_ARMS == ("M11RZ-P", "M11RZ-P-tm") and STUB_ARMS == ()  # nothing is a stub any more
+    full, tm = get_arm("M11RZ-P", implemented_only=True), get_arm("M11RZ-P-tm", implemented_only=True)
+    for a in (full, tm):
+        assert a.implemented and a.stage == 2 and a.player and not a.exploratory and not a.shuffle and a.drop_groups == ()
+        assert (a.phase_axis, a.team_axis, a.relation, a.zone) == (True, True, True, True)  # everything of M11RZ
+        assert a.relation_types == get_arm("M11RZ").relation_types
+    assert full.player_relation_types == ("teammate", "enemy_prox", "combat_out", "combat_in")
+    assert tm.player_relation_types == ("enemy_prox", "combat_out", "combat_in")  # -tm: the teammate bias only is gone
+    assert not any(get_arm(n).player for n in (*MAIN_ARMS, *EXPLORATORY_ARMS))
+    with pytest.raises(ValueError, match="player"):
+        from model_stgcn.ptr.arms import model_config
+
+        model_config(full, 10)  # a player arm needs the player feature count
 
 
 def test_exploratory_relation_type_arms_follow_section_4_1():
@@ -190,14 +197,14 @@ def test_every_arm_trains_and_predicts_one_epoch(tmp_path, cohort_dir, arm):
         assert met["n_input_features"] == 24 + 3  # features + team centre (2) + team_ai_frac (1)
 
 
-def test_cli_rejects_stub_and_unknown_arms(tmp_path, cohort_dir):
-    for stub in STUB_ARMS:
-        with pytest.raises(NotImplementedError):
-            T.main(cli(cohort_dir, tmp_path, stub))
+def test_cli_rejects_unknown_arms_and_cohorts(tmp_path, cohort_dir):
     with pytest.raises(SystemExit):
         T.main(cli(cohort_dir, tmp_path, "M99"))
     with pytest.raises(FileNotFoundError):
         T.main(cli(cohort_dir, tmp_path, "M00", cohort="nope"))
+    for arm in STAGE2_ARMS:  # the player dump of the cohort is missing: a clear error before anything is trained
+        with pytest.raises(FileNotFoundError, match="player"):
+            T.main(cli(cohort_dir, tmp_path, arm, *SMALL))
 
 
 @pytest.mark.parametrize("arm", EXPLORATORY_ARMS)

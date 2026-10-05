@@ -404,6 +404,125 @@ def write_cohort_dumps(
     return out
 
 
+# =========================================================================== synthetic *player* dumps (stage 2)
+def make_player_dump(
+    phase_dump: dict,
+    *,
+    seed: int = 0,
+    n_player_features: int = 6,
+    team_size: tuple[int, int] = (1, 4),
+    signal: float = 0.0,
+    combat_weights: str = "log",
+    edge_prob: float = 0.06,
+    nan_frac: float = 0.0,
+    dead_garbage: bool = True,
+    both_directions: bool = True,
+    ai_frac: float = 0.2,
+    gap_prob: float = 0.15,
+    revive_prob: float = 0.03,
+) -> dict:
+    """A player dump (see :mod:`model_stgcn.ptr.player`) for every match of a synthetic phase dump.
+
+    Every team gets ``team_size`` players (ids ``acct.<k>`` strings, as in the real dump).  The player alive flags mimic
+    the real dump: ``player_node_mask`` (event based, alive at the phase start: a team that is alive at a slot has
+    at least one such player, a player stays dead once dead) and the causal ``player_alive_cut`` (what the model uses): a
+    node-alive player is dead at the cut with probability ``gap_prob`` (killed inside the phase, later "recalled": the
+    node mask keeps it, the cut flag does not), and a node-dead player is alive at the cut with probability
+    ``revive_prob``.  Dead players carry garbage (``dead_garbage``: huge values and NaN) at every cell where the cut flag
+    is False, so that any leak shows.  ``signal`` plants ``Xp[..., 0] = signal * y_hazard_v2[p, team] + noise`` for
+    cut-alive players, a hazard cue that exists *only* at the player level.  Edges: teammate and enemy-proximity pairs
+    among live tokens (cut-alive players of alive teams) and directed ``combat`` edges whose victim may be dead at the cut
+    (as in the real dump, where about 70 % of the combat edges end on a player that was killed in the window)."""
+    if combat_weights not in ("raw", "log"):
+        raise ValueError("combat_weights must be 'raw' or 'log'")
+    rng = np.random.default_rng(seed)
+    meta = {
+        "player_feature_names": [f"player_{k}" for k in range(n_player_features)],
+        "cohort": phase_dump["meta"].get("cohort", ""),
+        "split": phase_dump["meta"].get("split", ""),
+    }
+    matches = []
+    for m in phase_dump["matches"]:
+        n_teams = len(m["team_ids"])
+        team_node = (m["node_mask_v2"] if "node_mask_v2" in m else m["node_mask"]).numpy().astype(bool)  # [P, N]
+        n_phases = team_node.shape[0]
+        sizes = rng.integers(team_size[0], team_size[1] + 1, size=n_teams)
+        team_idx = np.repeat(np.arange(n_teams), sizes)
+        n_players = int(sizes.sum())
+        node = np.zeros((n_phases, n_players), dtype=bool)  # event based, alive at the phase start
+        start = 0
+        for i in range(n_teams):
+            slots = np.flatnonzero(team_node[:, i])
+            for k in range(int(sizes[i])):
+                if slots.size:
+                    last = int(slots.max()) if k == 0 else int(rng.integers(int(slots.min()), int(slots.max()) + 1))
+                    node[: last + 1, start + k] = team_node[: last + 1, i]
+            start += int(sizes[i])
+        gap = rng.random(node.shape) < gap_prob
+        revive = rng.random(node.shape) < revive_prob
+        cut = (node & ~gap) | (~node & revive)  # the causal flag: differs from the node mask in both directions
+        live = cut & team_node[:, team_idx]  # live token = alive at the cut and in an alive team
+        xp = rng.normal(size=(n_phases, n_players, n_player_features)).astype(np.float32)
+        if signal:
+            y = m["y_hazard_v2"].numpy() if "y_hazard_v2" in m else m["y_hazard"].numpy()
+            xp[..., 0] = signal * y[:, team_idx] + 0.3 * rng.normal(size=(n_phases, n_players))
+        if nan_frac:
+            xp[rng.random(xp.shape) < nan_frac] = np.nan
+        if dead_garbage:
+            dead = ~cut
+            xp[dead] = np.where(rng.random(xp[dead].shape) < 0.5, 1e6, np.nan)
+        idx = {"teammate": ([], []), "enemy_prox": ([], []), "combat": ([], [])}
+        for p in range(n_phases):
+            ids = np.flatnonzero(live[p])
+            for a in range(len(ids)):
+                for b in range(a + 1, len(ids)):
+                    i, j = int(ids[a]), int(ids[b])
+                    if team_idx[i] == team_idx[j]:
+                        wt = float(rng.uniform(0.3, 1.0))
+                        idx["teammate"][0].append((p, i, j))
+                        idx["teammate"][1].append(wt)
+                        if both_directions:
+                            idx["teammate"][0].append((p, j, i))
+                            idx["teammate"][1].append(wt)
+                    elif rng.random() < edge_prob:
+                        wt = float(rng.uniform(0.1, 1.0))
+                        idx["enemy_prox"][0].append((p, i, j))
+                        idx["enemy_prox"][1].append(wt)
+                        if both_directions:
+                            idx["enemy_prox"][0].append((p, j, i))
+                            idx["enemy_prox"][1].append(wt)
+            starters = np.flatnonzero(node[p])  # combat: the victim may have been killed inside the window (dead at the cut)
+            for a in ids:
+                for v in starters:
+                    if team_idx[a] != team_idx[v] and rng.random() < edge_prob / 3:
+                        intensity = float(rng.uniform(20.0, 400.0))
+                        idx["combat"][0].append((p, int(a), int(v)))
+                        idx["combat"][1].append(float(np.log1p(intensity)) if combat_weights == "log" else intensity)
+        matches.append({
+            "match_id": m["match_id"],
+            "player_ids": [f"acct.{k}" for k in range(n_players)],
+            "player_team_idx": torch.from_numpy(team_idx.astype(np.int64)),
+            "player_is_ai": torch.from_numpy(rng.random(n_players) < ai_frac),
+            "Xp": torch.from_numpy(xp),
+            "player_node_mask": torch.from_numpy(node),
+            "player_alive_cut": torch.from_numpy(cut),
+            "edges_player": {k: _edge_tensors(*v) for k, v in idx.items()},
+        })  # fmt: skip
+    return {"meta": meta, "matches": matches}
+
+
+def write_player_dumps(
+    phase_root: str | Path, cohort: str, player_root: str | Path, *, seed: int = 0, splits=("train", "val", "test"), **kwargs
+) -> Path:
+    """Write ``player_root/<cohort>/{split}.pt`` for the phase dumps ``phase_root/<cohort>/{split}.pt``; returns the directory."""
+    out = Path(player_root) / cohort
+    out.mkdir(parents=True, exist_ok=True)
+    for k, split in enumerate(splits):
+        phase = torch.load(Path(phase_root) / cohort / f"{split}.pt", map_location="cpu", weights_only=False)
+        torch.save(make_player_dump(phase, seed=seed * 1000 + k, **kwargs), out / f"{split}.pt")
+    return out
+
+
 # =========================================================================== synthetic *prediction* runs (aggregator)
 def write_prediction_runs(
     runs_dir: str | Path,
@@ -420,6 +539,7 @@ def write_prediction_runs(
     skip: set[tuple[str, str]] | None = None,
     labels: str = "v2",
     match_types: tuple[str, ...] = ("official", "official", "competitive"),
+    n_train: dict[str, int] | None = None,
 ) -> Path:
     """Write ``<runs_dir>/<cohort>/<arm>/seed<s>/{pred_test.csv, metrics.json}`` with *known* effects.
 
@@ -434,7 +554,8 @@ def write_prediction_runs(
     written next to seed 42 for the arms M00, M11, M11R, M11R-shuf and M11RZ only, like the real matrix.
     ``near_copy`` maps an arm to the arm whose *hazard* scores it copies up to 1e-3 noise (a null hazard contrast
     with a tiny bootstrap standard error; the rank head still follows ``rank_quality``).  ``skip`` removes ``(cohort, arm)`` pairs.  Every ``metrics.json`` carries ``labels``
-    and a placeholder config hash.
+    and a placeholder config hash; ``n_train[cohort]`` adds ``n_matches.train`` to the ``metrics.json`` of the neural arms
+    (the training size the meta-regression of the aggregator regresses on).
     """
     import pandas as pd  # local: pandas is only needed by the tests / aggregator
 
@@ -483,14 +604,15 @@ def write_prediction_runs(
             for run_seed in run_seeds:
                 df = base.copy()
                 df["p_hazard"] = 1.0 / (1.0 + np.exp(-hazard_scores(arm, run_seed)))
-                if arm.startswith("HGB"):  # a tree model has no rank head: -p_hazard is the survival-like score
+                if arm.startswith(("HGB", "SAGONG")):  # a tree model has no rank head: -p_hazard is the survival-like score
                     df["rank_score"] = -df["p_hazard"]
                 else:
                     df["rank_score"] = rank_scores(arm, run_seed)
                 out = root / cohort / arm / f"seed{run_seed}"
                 M.write_predictions(df, out / "pred_test.csv")
-                (out / "metrics.json").write_text(
-                    json.dumps({"labels": labels, "config_hash": f"synthetic-{cohort}-{arm}-{run_seed}",
-                                "arm": arm, "cohort": cohort, "seed": run_seed})  # fmt: skip
-                )
+                meta = {"labels": labels, "config_hash": f"synthetic-{cohort}-{arm}-{run_seed}",
+                        "arm": arm, "cohort": cohort, "seed": run_seed}  # fmt: skip
+                if n_train and cohort in n_train and not arm.startswith(("HGB", "SAGONG")):
+                    meta["n_matches"] = {"train": int(n_train[cohort]), "val": 10, "test": 10}
+                (out / "metrics.json").write_text(json.dumps(meta))
     return root

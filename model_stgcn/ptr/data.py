@@ -49,12 +49,14 @@ float64, Chan merge), constant columns get ``std = 1``, NaN / inf become 0 after
 
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 from typing import Iterable, Mapping, Sequence
 
 import numpy as np
 import torch
 
+from model_stgcn.ptr import player as PL
 from model_stgcn.ptr import relations as R
 
 ZONE_COLUMNS: tuple[str, ...] = (
@@ -111,8 +113,32 @@ def check_labels(labels: str) -> str:
     return labels
 
 
+def _cut_exists(m: Mapping, target: torch.Tensor) -> torch.Tensor:
+    """``[P]`` bool: cut slot ``p`` exists iff phases ``p`` and ``p+1`` (dump slots) exist (``phase_mask``); without
+    ``phase_mask`` the slots where any team is at risk."""
+    P = target.shape[0]
+    if "phase_mask" in m:
+        pm = _bool(m["phase_mask"])
+        ok = torch.zeros(P, dtype=torch.bool)
+        ok[: P - 1] = pm[: P - 1] & pm[1:P]
+        return ok
+    return target.any(dim=1)
+
+
+def winners(m: Mapping) -> torch.Tensor:
+    """``[N]`` bool, ``team_won`` (all False when the match carries no such field)."""
+    if "team_won" in m:
+        return _bool(m["team_won"])
+    n = len(m["team_death_s"]) if "team_death_s" in m else len(m["team_ids"])
+    return torch.zeros(n, dtype=torch.bool)
+
+
 def select_labels(m: Mapping, labels: str = DEFAULT_LABELS) -> tuple[torch.Tensor, torch.Tensor]:
-    """``(y [P,N] float32 zero outside the risk set, target [P,N] bool)`` of the chosen label set."""
+    """``(y [P,N] float32 zero outside the risk set, target [P,N] bool)`` of the chosen label set.
+
+    Winner censoring (labels v2 only): a team with ``team_won`` is treated as ``team_death_s = +inf`` whatever its
+    last kill event says (a winner can carry a finite time from a kill event after its last teammate fell): it is
+    at risk at every cut whose phase ``k+1`` exists and never has a positive label."""
     y_key, t_key = LABEL_FIELDS[check_labels(labels)]
     missing = [k for k in (y_key, t_key) if k not in m]
     if missing:
@@ -122,7 +148,35 @@ def select_labels(m: Mapping, labels: str = DEFAULT_LABELS) -> tuple[torch.Tenso
         )
     target = _bool(m[t_key])
     y = torch.where(target, torch.nan_to_num(_t(m[y_key], torch.float32)), torch.zeros(()))
+    if labels == "v2":
+        won = winners(m)
+        if won.any():
+            target = target.clone()
+            target[:, won] = _cut_exists(m, target)[:, None]
+            y = y.clone()
+            y[:, won] = 0.0
     return y, target
+
+
+def winner_censor_summary(dump: Mapping, labels: str = DEFAULT_LABELS) -> dict:
+    """What the winner censoring changed over a dump (zeros for pipeline labels)."""
+    out = {"applied": labels == "v2", "winner_teams": 0, "winners_finite_death": 0, "positives_removed": 0,
+           "target_rows_added": 0, "target_rows_removed": 0}  # fmt: skip
+    if labels != "v2":
+        return out
+    for m in dump["matches"]:
+        if "team_won" not in m:
+            continue
+        won = winners(m)
+        out["winner_teams"] += int(won.sum())
+        raw_t, raw_y = _bool(m["target_mask_v2"]), _t(m["y_hazard_v2"], torch.float32)
+        fin = won & ~torch.isinf(_t(m["team_death_s"], torch.float64))
+        out["winners_finite_death"] += int(fin.sum())
+        y, t = select_labels(m, labels)
+        out["positives_removed"] += int(((raw_y > 0.5) & raw_t & won[None, :]).sum() - ((y > 0.5) & t & won[None, :]).sum())
+        out["target_rows_added"] += int((t & ~raw_t).sum())
+        out["target_rows_removed"] += int((~t & raw_t).sum())
+    return out
 
 
 def uses_event_alive(dump: Mapping, labels: str = DEFAULT_LABELS) -> bool:
@@ -151,6 +205,7 @@ def event_alive_mask(m: Mapping) -> torch.Tensor:
     fallback keeps a few more teams.  NaN death times (unknown) are never alive; slots of absent phases (``phase_mask``
     False, NaN phase end or NaN start) are empty."""
     death = _t(m["team_death_s"], torch.float64)
+    death = torch.where(winners(m), torch.full_like(death, float("inf")), death)  # winner censoring (labels v2)
     end = _t(m["phase_end_s"], torch.float64)
     if "phase_start_s" in m:
         start = _t(m["phase_start_s"], torch.float64)
@@ -213,6 +268,36 @@ def event_alive_summary(dump: Mapping, labels: str = DEFAULT_LABELS) -> dict:
     if audited:
         out.update(audit)
     return out
+
+
+def subsample_dump(dump: Mapping, n: int | None, seed: int) -> tuple[Mapping, dict | None]:
+    """A dump whose ``matches`` are a random subset of ``n`` matches (learning-curve runs; design doc 4.4).
+
+    One seed defines one random permutation of the matches and a subsample of size ``n`` is its first ``n``
+    entries, so the subsamples of one seed are *nested* (300 inside 600 inside 1200) and the neural and HGB runs
+    with the same ``(n, seed)`` train on exactly the same matches.  The kept matches keep their dump order.
+    ``n=None`` or ``n`` >= the number of matches returns the dump itself.  The returned info dict (None for no
+    subsampling) goes into ``metrics.json``; ``match_ids_sha1`` identifies the subset."""
+    if n is None:
+        return dump, None
+    if n < 1:
+        raise ValueError(f"train subsample must be >= 1 match, got {n}")
+    matches = dump["matches"]
+    total = len(matches)
+    if n >= total:
+        idx = np.arange(total)
+    else:
+        idx = np.sort(np.random.default_rng(int(seed)).permutation(total)[:n])
+    ids = sorted(str(matches[i]["match_id"]) for i in idx)
+    info = {
+        "n_requested": int(n), "n_used": int(len(idx)), "n_full": int(total), "seed": int(seed),
+        "match_ids_sha1": hashlib.sha1("\n".join(ids).encode("utf-8")).hexdigest(),
+    }  # fmt: skip
+    if len(idx) == total:
+        return dump, info
+    out = dict(dump)
+    out["matches"] = [matches[i] for i in idx]
+    return out, info
 
 
 def zone_layout(meta: Mapping) -> dict[str, int]:
@@ -556,6 +641,43 @@ class Standardizer:
         return self._scale(_t(team_ai_frac, torch.float32).numpy(), self.ai_mean[0], self.ai_std[0])
 
 
+class PlayerStandardizer:
+    """Train-only z-scoring of the player features ``Xp`` over the alive player tokens (stage 2)."""
+
+    FIELDS = ("xp_mean", "xp_std")
+
+    def __init__(self, **arrays: np.ndarray) -> None:
+        for name in self.FIELDS:
+            setattr(self, name, np.asarray(arrays[name], dtype=np.float64))
+
+    @classmethod
+    def fit(
+        cls, phase_dump: Mapping, players: Mapping[str, Mapping], labels: str = DEFAULT_LABELS, event: bool | None = None
+    ) -> "PlayerStandardizer":
+        """Statistics over the alive players (:func:`player.alive_players` under the label choice's team alive rule)."""
+        event = uses_event_alive(phase_dump, labels) if event is None else event
+        matches = phase_dump["matches"]
+        first = players[str(matches[0]["match_id"])]
+        mom = _Moments(int(_t(first["Xp"]).shape[-1]))
+        for m in matches:
+            pm = players[str(m["match_id"])]
+            p_alive = PL.alive_players(effective_alive(m, labels, event), pm).numpy()
+            mom.update(_t(pm["Xp"]).numpy()[p_alive])
+        mean, std = mom.finalize()
+        return cls(xp_mean=mean, xp_std=std)
+
+    def state_dict(self) -> dict[str, np.ndarray]:
+        return {name: getattr(self, name).copy() for name in self.FIELDS}
+
+    @classmethod
+    def from_state_dict(cls, state: Mapping) -> "PlayerStandardizer":
+        return cls(**{name: np.asarray(state[name]) for name in cls.FIELDS})
+
+    def transform(self, xp) -> torch.Tensor:
+        """``[P, M, Fp]`` raw -> z-scores, NaN / inf -> 0 (after scaling, like the team features)."""
+        return Standardizer._scale(_t(xp).numpy(), self.xp_mean, self.xp_std)
+
+
 # --------------------------------------------------------------------------- dataset / collate
 class PTRDataset:
     """One item per match (unpadded); :meth:`get_batch` pads within the batch.
@@ -581,6 +703,10 @@ class PTRDataset:
         shuffle_seed: int | None = None,
         labels: str = DEFAULT_LABELS,
         validate: bool = True,
+        players: Mapping[str, Mapping] | None = None,
+        player_standardizer: PlayerStandardizer | None = None,
+        player_relation_types: Sequence[str] | None = None,
+        player_combat_weights: str = "raw",
     ) -> None:
         self.labels = check_labels(labels)
         if validate:
@@ -606,6 +732,18 @@ class PTRDataset:
         self.n_features = len(self.feature_names)
         self.n_phases = int(_t(self.matches[0]["X"]).shape[0])
         self.zone_dim = len(ZONE_COLUMNS)
+        # stage 2: the joined player matches (match_id -> player match); None for the team-level arms
+        self.players = players
+        self.player_standardizer = player_standardizer
+        if player_combat_weights not in R.COMBAT_WEIGHT_MODES:
+            raise ValueError(f"player_combat_weights must be one of {R.COMBAT_WEIGHT_MODES}, got '{player_combat_weights}'")
+        self.player_combat_weights = player_combat_weights
+        self.player_relation_types = None if player_relation_types is None else PL.check_player_relation_types(player_relation_types)
+        self.n_player_features = 0
+        if players is not None:
+            if player_standardizer is None:
+                raise ValueError("players given without a player_standardizer")
+            self.n_player_features = int(_t(players[str(self.matches[0]["match_id"])]["Xp"]).shape[-1])
 
     def __len__(self) -> int:
         return len(self.matches)
@@ -647,16 +785,34 @@ class PTRDataset:
                 perms = R.shuffle_permutations(m["match_id"], self.shuffle_seed, alive.numpy())
                 edges = R.shuffle_edges(edges, perms)
             item["edges"] = edges
+        if self.players is not None:
+            pm = self.players[str(m["match_id"])]
+            p_alive = PL.alive_players(alive, pm)
+            xp = self.player_standardizer.transform(pm["Xp"])
+            item.update(
+                xp=torch.where(p_alive.unsqueeze(-1), xp, zero),
+                p_alive=p_alive,
+                p_team=_t(pm["player_team_idx"], torch.int64).clamp(min=0),
+                p_ai=torch.nan_to_num(_t(pm["player_is_ai"], torch.float32)),
+                p_edges=pm["edges_player"],
+            )
         return item
 
     def get_batch(self, indices: Sequence[int]) -> dict:
-        return collate_batch([self[int(i)] for i in indices], self.relation_types, self.combat_weights)
+        return collate_batch(
+            [self[int(i)] for i in indices], self.relation_types, self.combat_weights,
+            self.player_relation_types, self.player_combat_weights,
+        )  # fmt: skip
 
 
 def collate_batch(
-    items: Sequence[dict], relation_types: Sequence[str] | None = None, combat_weights: str = "raw"
+    items: Sequence[dict],
+    relation_types: Sequence[str] | None = None,
+    combat_weights: str = "raw",
+    player_relation_types: Sequence[str] | None = None,
+    player_combat_weights: str = "raw",
 ) -> dict:
-    """Pad teams to the largest match in the batch; padding is dead (all masks False, labels 0)."""
+    """Pad teams (and, in stage 2, players) to the largest match in the batch; padding is dead (all masks False, labels 0)."""
     if not items:
         raise ValueError("empty batch")
     B = len(items)
@@ -695,4 +851,20 @@ def collate_batch(
     if relation_types is not None:
         dense = R.densify_edges_batch([it.get("edges") for it in items], P, n_max)
         batch["rel"] = R.build_relation_tensor(dense, relation_types, combat_weights)
+    if "xp" in items[0]:
+        m_max = max(int(it["xp"].shape[1]) for it in items)
+        Fp = int(items[0]["xp"].shape[-1])
+        batch["xp"] = torch.zeros(B, P, m_max, Fp)
+        batch["p_alive"] = torch.zeros(B, P, m_max, dtype=torch.bool)
+        batch["p_team"] = torch.zeros(B, m_max, dtype=torch.int64)
+        batch["p_ai"] = torch.zeros(B, m_max)
+        for b, it in enumerate(items):
+            m_b = int(it["xp"].shape[1])
+            batch["xp"][b, :, :m_b] = it["xp"]
+            batch["p_alive"][b, :, :m_b] = it["p_alive"]
+            batch["p_team"][b, :m_b] = it["p_team"]
+            batch["p_ai"][b, :m_b] = it["p_ai"]
+        if player_relation_types is not None:
+            dense_p = PL.densify_player_edges_batch([it.get("p_edges") for it in items], P, m_max)
+            batch["rel_p"] = PL.build_player_relation_tensor(dense_p, player_relation_types, player_combat_weights)
     return batch

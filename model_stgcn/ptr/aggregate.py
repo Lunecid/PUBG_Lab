@@ -24,6 +24,16 @@ Pipeline
    percentile interval of the ratio of the pooled numerator / denominator formed from the per-cohort resamples with the
    DL weights held fixed.  Per-cohort kappa is descriptive.
 6. Seed 42 feeds every contrast; seeds 13 / 2026 only give the seed-to-seed SD (``seed_stability.csv``), never pooled.
+7. External baselines (design doc 4.3, exploratory): ``SAGONG-xgb/rf/lr`` and ``KRAFTON-tf/mlp`` are inventoried as kind
+   ``external`` and enter only five paired, DL-pooled contrasts without Holm (M11R / HGB-cut vs SAGONG-xgb and KRAFTON-tf,
+   KRAFTON-tf vs KRAFTON-mlp); ``tables/tab_external.tex`` (arm means next to the references) and
+   ``tab_external_contrasts.tex`` exist only when such runs exist.  Adding arms never changes another contrast: the bootstrap
+   resamples depend on the cohort and stratum only.
+8. Meta-regression on the training size (design doc 4.4, exploratory): the per-cohort AUC contrasts of P1, P2, P5, M11 - M00 and
+   M11R - HGB-cut regressed on ln(training matches), random effects with the method-of-moments (generalised DerSimonian-Laird)
+   tau^2 and inverse-variance weights; slope, normal and Knapp-Hartung intervals / p, tau^2 with and without the moderator,
+   and the crossover N where the fitted effect is zero (Fieller interval, bounded only for a significant slope):
+   ``metareg.csv``, ``metareg_data.csv``, ``figures/metareg_bubble.{pdf,png}``.
 
 Outputs (``--out-dir``, default ``reports/bigcomp2027_results``): tidy CSVs, ``summary.json``, LaTeX ``tabular`` files
 (``tables/``) with the structure of the paper skeletons, and the forest plot of P1-P5 (``figures/``, PDF + PNG and a
@@ -79,7 +89,11 @@ MAIN_ARMS: tuple[str, ...] = (
 EXPLORATORY_ARMS: tuple[str, ...] = ("M11R-noProx", "M11R-noCombat", "M11R-noCopress")
 STAGE2_ARMS: tuple[str, ...] = ("M11RZ-P", "M11RZ-P-tm")
 HGB_ARMS: tuple[str, ...] = ("HGB-cut", "HGB-lag", "HGB-noHab")
-ARM_ORDER: tuple[str, ...] = MAIN_ARMS + EXPLORATORY_ARMS + STAGE2_ARMS + HGB_ARMS
+# external baselines (design doc 4.3, exploratory): re-implementations of Sagong et al. (2025) and the KRAFTON win-probability
+# models, run on the same cohorts / splits / label v2 / rows; they only ever enter exploratory contrasts, never the primary family
+EXTERNAL_ARMS: tuple[str, ...] = ("SAGONG-xgb", "SAGONG-rf", "SAGONG-lr", "KRAFTON-tf", "KRAFTON-mlp")
+EXTERNAL_PREFIXES: tuple[str, ...] = ("SAGONG-", "KRAFTON-")
+ARM_ORDER: tuple[str, ...] = MAIN_ARMS + EXPLORATORY_ARMS + STAGE2_ARMS + HGB_ARMS + EXTERNAL_ARMS
 KAPPA_ARMS = {"num_a": "M11RZ-noHab", "num_b": "M11R-noHab", "den_a": "M11R", "den_b": "M11R-noHab"}
 
 
@@ -118,7 +132,13 @@ FORMULAS: dict[str, Formula] = {
         Formula("hgb_lag_cut", {"HGB-lag": 1, "HGB-cut": -1}, "HGB-lag - HGB-cut", "hgb"),
         Formula("p_m11rz", {"M11RZ-P": 1, "M11RZ": -1}, "M11RZ-P - M11RZ", "stage2", optional=True),
         Formula("p_tm", {"M11RZ-P": 1, "M11RZ-P-tm": -1}, "M11RZ-P - M11RZ-P-tm", "stage2", optional=True),
-        Formula("m11_m00", {"M11": 1, "M00": -1}, "M11 - M00", "stability", pooled=False),
+        Formula("m11_m00", {"M11": 1, "M00": -1}, "M11 - M00", "simple"),
+        Formula("m11r_vs_hgbcut", {"M11R": 1, "HGB-cut": -1}, "M11R - HGB-cut", "hgb"),
+        Formula("m11r_vs_sagong_xgb", {"M11R": 1, "SAGONG-xgb": -1}, "M11R - SAGONG-xgb", "external", optional=True),
+        Formula("hgbcut_vs_sagong_xgb", {"HGB-cut": 1, "SAGONG-xgb": -1}, "HGB-cut - SAGONG-xgb", "external", optional=True),
+        Formula("m11r_vs_krafton_tf", {"M11R": 1, "KRAFTON-tf": -1}, "M11R - KRAFTON-tf", "external", optional=True),
+        Formula("hgbcut_vs_krafton_tf", {"HGB-cut": 1, "KRAFTON-tf": -1}, "HGB-cut - KRAFTON-tf", "external", optional=True),
+        Formula("krafton_tf_mlp", {"KRAFTON-tf": 1, "KRAFTON-mlp": -1}, "KRAFTON-tf - KRAFTON-mlp", "external", optional=True),
     )
 }  # fmt: skip
 PRIMARY: dict[str, tuple[str, str]] = {
@@ -157,6 +177,14 @@ EXPLORATORY_ROWS = [  # (RQ cell, contrast cell, formula | "kappa", stage-2 only
     ("RQ4", "HGB-cut $-$ HGB-noHab (reference)", "hgb_cut_nohab", False),
     ("Player layer", "M11RZ-P $-$ M11RZ", "p_m11rz", True),
     ("RQ3 (teammates)", "M11RZ-P $-$ M11RZ-P$-$tm", "p_tm", True),
+]  # fmt: skip
+EXTERNAL_TABLE_REFERENCES = (("HGB-cut", "HGB-cut (reference)"), ("M11R", "M11R (reference)"))
+EXTERNAL_CONTRAST_ROWS = [  # (label, formula): exploratory, pooled over the cohorts, no Holm
+    ("M11R $-$ SAGONG-xgb", "m11r_vs_sagong_xgb"),
+    ("HGB-cut $-$ SAGONG-xgb", "hgbcut_vs_sagong_xgb"),
+    ("M11R $-$ KRAFTON-tf", "m11r_vs_krafton_tf"),
+    ("HGB-cut $-$ KRAFTON-tf", "hgbcut_vs_krafton_tf"),
+    ("KRAFTON-tf $-$ KRAFTON-mlp", "krafton_tf_mlp"),
 ]  # fmt: skip
 ARMS_TABLE_ROWS = [  # (arm, row label); the stage-2 rows appear only when those arms were run
     *[(a, a) for a in MAIN_ARMS], ("M11RZ-P", "M11RZ-P"), ("M11RZ-P-tm", "M11RZ-P$-$tm"),
@@ -292,10 +320,13 @@ class Run:
     pred: Path
     labels: str | None
     config_hash: str | None
+    n_train: int | None = None  # training matches of the cohort (metrics.json n_matches.train), None if not recorded
 
     @property
     def kind(self) -> str:
-        return "hgb" if self.arm.startswith("HGB") else "neural"
+        if self.arm.startswith("HGB"):
+            return "hgb"
+        return "external" if self.arm.startswith(EXTERNAL_PREFIXES) else "neural"
 
     @property
     def role(self) -> str:
@@ -329,7 +360,9 @@ def scan_runs(runs_dir: str | Path, cohorts: Iterable[str] | None = None) -> tup
                 except (ValueError, OSError) as exc:
                     issues.append(("warning", cdir.name, adir.name, "", f"{where}: metrics.json unreadable ({exc}); run ignored"))
                     continue
-                runs.append(Run(cdir.name, adir.name, seed, pred, meta.get("labels"), meta.get("config_hash")))
+                n_train = (meta.get("n_matches") or {}).get("train") if isinstance(meta.get("n_matches"), dict) else None
+                runs.append(Run(cdir.name, adir.name, seed, pred, meta.get("labels"), meta.get("config_hash"),
+                                int(n_train) if n_train is not None else None))  # fmt: skip
     if wanted is not None:
         for name in sorted(wanted - {r.cohort for r in runs}):
             issues.append(("warning", name, "", "", f"{name}: no finished runs found"))
@@ -727,6 +760,69 @@ def render_arms_table(means: pd.DataFrame) -> str:
     return "\n".join(out)
 
 
+def render_external_table(means: pd.DataFrame) -> str:
+    """Arm-level metrics of the external baselines next to the references M11R and HGB-cut (unweighted mean over the
+    cohorts that have the arm, seed 42, descriptive).  Arms that were not run are left out."""
+    sel = means[means["stratum"] == STRATUM_ALL] if len(means) else means
+    lookup = {(r.arm, r.metric): r.mean for r in sel.itertuples(index=False)}
+    n_coh = {r.arm: int(r.n_cohorts) for r in sel[sel["metric"] == "auc"].itertuples(index=False)} if len(sel) else {}
+    top = max(n_coh.values()) if n_coh else 0
+    out = [
+        _tex_comment("tab_external", [
+            "external baselines (design doc 4.3, exploratory): unweighted mean over the cohorts that have the model, seed 42;",
+            "a '(k cohorts)' label means fewer cohorts than the references, so its row is not comparable with theirs",
+        ]),
+        "\\begin{tabular}{@{}lccccccc@{}}",
+        "\\toprule",
+        " & \\multicolumn{4}{c}{Hazard} & \\multicolumn{3}{c}{Relative standing} \\\\",
+        "\\cmidrule(lr){2-5}\\cmidrule(l){6-8}",
+        "Model & AUC & AP & NLL & Brier & Spearman & Top-5 AUC & C-index \\\\",
+        "\\midrule",
+    ]
+
+    def row(arm: str, label: str) -> str | None:
+        have = [lookup.get((arm, m), float("nan")) for m in METRICS]
+        if not any(math.isfinite(v) for v in have):
+            return None
+        suffix = f" ({n_coh[arm]} cohorts)" if arm in n_coh and n_coh[arm] < top else ""
+        return " & ".join([label + suffix, *[fmt_value(v) for v in have]]) + " \\\\"
+
+    for arm, label in EXTERNAL_TABLE_REFERENCES:
+        line = row(arm, label)
+        if line:
+            out.append(line)
+    out.append("\\midrule")
+    for arm in EXTERNAL_ARMS:
+        line = row(arm, arm)
+        if line:
+            out.append(line)
+    out += ["\\bottomrule", "\\end{tabular}", ""]
+    return "\n".join(out)
+
+
+def render_external_contrasts_table(pooled: pd.DataFrame) -> str:
+    """Paired, DL-pooled exploratory contrasts between our models and the external baselines (no Holm correction)."""
+    idx = _index_rows(pooled)
+    out = [
+        _tex_comment("tab_external_contrasts", [
+            "delta [95% CI], paired match-level bootstrap on identical rows per cohort, DerSimonian-Laird pooled; exploratory, no Holm",
+            "(k cohorts) marks a contrast pooled over fewer cohorts than the analysis has",
+        ]),
+        "\\begin{tabular}{@{}l c c c c@{}}",
+        "\\toprule",
+        "Contrast & $\\Delta$AUC & $\\Delta$Spearman & $\\Delta$Top-5 AUC & $\\Delta$C-index \\\\",
+        "\\midrule",
+    ]
+    present = [(label, name) for label, name in EXTERNAL_CONTRAST_ROWS if any(_lookup(idx, name, m) is not None for m in METRICS)]
+    for label, name in present:
+        auc = _lookup(idx, name, "auc")
+        suffix = f" ({int(auc.k)} cohorts)" if auc is not None and int(auc.k) < int(auc.k_total) else ""
+        cells = [_delta_cell(_lookup(idx, name, m)) for m in ("auc", "spearman", "top5_auc", "cindex")]
+        out.append(" & ".join([label + suffix, *cells]) + " \\\\")
+    out += ["\\bottomrule", "\\end{tabular}", ""]
+    return "\n".join(out)
+
+
 def render_strata_table(pooled: pd.DataFrame) -> str:
     idx = _index_rows(pooled)
     strata = _display_strata(pooled["stratum"]) if len(pooled) else [STRATUM_ALL]
@@ -854,6 +950,238 @@ def draw_forest(data: pd.DataFrame, pooled: pd.DataFrame, stem: Path) -> None:
         fig.savefig(stem.with_suffix(".pdf"), facecolor="white")
 
 
+
+# --------------------------------------------------------------------------- meta-regression on the training size (4.4)
+METAREG_CONTRASTS: dict[str, tuple[str, str]] = {  # panel -> (formula, metric); all exploratory (design doc 4.4)
+    "P1": ("phase_main", "auc"),
+    "P2": ("team_main", "auc"),
+    "P5": ("zone_nohab", "auc"),
+    "m11_m00": ("m11_m00", "auc"),
+    "m11r_vs_hgbcut": ("m11r_vs_hgbcut", "auc"),
+}
+METAREG_TITLES = {
+    "P1": "P1 phase axis", "P2": "P2 team axis", "P5": "P5 zone object (noHab)", "m11_m00": "M11 \u2212 M00",
+    "m11r_vs_hgbcut": "M11R \u2212 HGB-cut",
+}  # fmt: skip
+METAREG_COLUMNS = [
+    "panel", "contrast", "metric", "exploratory", "k", "n_min", "n_max", "slope", "se", "ci95_low", "ci95_high", "z", "p", "p_kh",
+    "ci95_low_kh", "ci95_high_kh", "intercept_at_mean_log_n", "mean_log_n", "tau2", "tau2_no_moderator", "r2_heterogeneity",
+    "QE", "QE_df", "QE_p", "QM", "crossover_n", "crossover_ci_low", "crossover_ci_high", "crossover_where", "pred_at_n_min",
+    "pred_at_n_max", "note",
+]  # fmt: skip
+METAREG_DATA_COLUMNS = ["panel", "contrast", "exploratory", "cohort", "n_train", "log_n", "estimate", "se", "weight_re", "fitted", "residual"]
+
+
+def meta_regression(y, se, x, *, alpha: float = ALPHA) -> dict:
+    """Random-effects meta-regression ``y_i = a + b (x_i - mean x) + u_i + e_i`` with a method-of-moments tau^2.
+
+    ``y`` / ``se``: per-study estimate and standard error (here the per-cohort contrast and its bootstrap SE), ``x`` the
+    moderator (``ln`` of the training matches).  tau^2 is the generalised DerSimonian-Laird moment estimator,
+    ``max(0, (Q_E - (k - 2)) / tr(P))`` with ``Q_E`` the residual weighted sum of squares of the fixed-effect fit and
+    ``tr(P) = sum w - tr((X'WX)^-1 X'W^2 X)``, ``w = 1 / se^2``; the coefficients are then the weighted least squares
+    fit with weights ``1 / (se^2 + tau2)``.
+
+    Returned: ``slope`` (per unit of ``x``), ``se``, normal-theory interval and two-sided ``p``; the Knapp-Hartung
+    variant (t with k - 2 df, variance scaled by ``max(1, s^2)``) as ``p_kh`` / ``ci95_*_kh``; ``tau2`` of the
+    regression and of the intercept-only model and ``r2_heterogeneity`` (share of tau^2 the moderator removes), the
+    residual heterogeneity test ``QE``, the moderator test ``QM = z^2``; and the point where the fitted effect
+    crosses zero, ``crossover_x = mean x - a / b``, with a Fieller interval (bounded only when the slope is
+    significant at ``alpha``; otherwise NaN).  Studies with a non-finite estimate or SE <= 0 are dropped; fewer than
+    three leave every statistic NaN."""
+    y, se, x = (np.asarray(v, dtype=np.float64) for v in (y, se, x))
+    ok = np.isfinite(y) & np.isfinite(se) & (se > 0) & np.isfinite(x)
+    y, se, x = y[ok], se[ok], x[ok]
+    k = int(y.size)
+    nan = float("nan")
+    out = {key: nan for key in (
+        "slope", "se", "ci95_low", "ci95_high", "z", "p", "p_kh", "ci95_low_kh", "ci95_high_kh", "intercept", "mean_x", "tau2",
+        "tau2_no_moderator", "r2_heterogeneity", "QE", "QE_p", "QM", "crossover_x", "crossover_ci_low", "crossover_ci_high",
+    )}  # fmt: skip
+    out.update(k=k, QE_df=max(k - 2, 0), crossover_note="", weights=np.full(k, nan), fitted=np.full(k, nan))
+    if k < 3 or np.ptp(x) <= 0:
+        out["crossover_note"] = "needs at least 3 cohorts with different training sizes"
+        return out
+    mean_x = float(x.mean())
+    X = np.column_stack([np.ones(k), x - mean_x])
+    w = 1.0 / se**2
+    a_fe = X.T @ (w[:, None] * X)
+    beta_fe = np.linalg.solve(a_fe, X.T @ (w * y))
+    qe = float((w * (y - X @ beta_fe) ** 2).sum())
+    trace_p = float(w.sum() - np.trace(np.linalg.solve(a_fe, X.T @ ((w**2)[:, None] * X))))
+    tau2 = max(0.0, (qe - (k - 2)) / trace_p) if trace_p > 0 else 0.0
+    ws = 1.0 / (se**2 + tau2)
+    cov = np.linalg.inv(X.T @ (ws[:, None] * X))
+    beta = cov @ (X.T @ (ws * y))
+    a, b = float(beta[0]), float(beta[1])
+    b_se = float(np.sqrt(cov[1, 1]))
+    z_crit = float(stats.norm.ppf(1 - alpha / 2))
+    z = b / b_se
+    resid = y - X @ beta
+    scale = float((ws * resid**2).sum() / (k - 2))  # Knapp-Hartung residual scale
+    kh_se = b_se * np.sqrt(max(1.0, scale))
+    t_crit = float(stats.t.ppf(1 - alpha / 2, k - 2))
+    tau2_0 = M.dersimonian_laird(y, se)["tau2"]
+    out.update(
+        slope=b, se=b_se, ci95_low=b - z_crit * b_se, ci95_high=b + z_crit * b_se, z=z, p=float(2 * stats.norm.sf(abs(z))),
+        p_kh=float(2 * stats.t.sf(abs(b / kh_se), k - 2)), ci95_low_kh=b - t_crit * kh_se, ci95_high_kh=b + t_crit * kh_se,
+        intercept=a, mean_x=mean_x, tau2=float(tau2), tau2_no_moderator=float(tau2_0),
+        r2_heterogeneity=float(min(1.0, max(0.0, 1.0 - tau2 / tau2_0))) if tau2_0 > 0 else nan,
+        QE=qe, QE_p=float(stats.chi2.sf(qe, k - 2)), QM=float(z**2), weights=ws, fitted=X @ beta, cov=cov,
+    )  # fmt: skip
+    if b != 0.0:
+        out["crossover_x"] = mean_x - a / b
+        # Fieller: all u = x* - mean_x with (a + b u)^2 <= z^2 Var(a + b u); bounded iff b is significantly non-zero
+        v00, v01, v11 = cov[0, 0], cov[0, 1], cov[1, 1]
+        qa, qb, qc = b**2 - z_crit**2 * v11, 2.0 * (a * b - z_crit**2 * v01), a**2 - z_crit**2 * v00
+        disc = qb**2 - 4.0 * qa * qc
+        if qa > 0 and disc >= 0:
+            r1, r2 = (-qb - np.sqrt(disc)) / (2 * qa), (-qb + np.sqrt(disc)) / (2 * qa)
+            out["crossover_ci_low"], out["crossover_ci_high"] = mean_x + min(r1, r2), mean_x + max(r1, r2)
+        else:
+            out["crossover_note"] = "slope not significant: the crossover interval is unbounded"
+    else:
+        out["crossover_note"] = "zero slope: no crossover"
+    return out
+
+
+def metareg_tables(contrasts: pd.DataFrame, train_matches: Mapping[str, int]) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Meta-regressions of the per-cohort contrasts of :data:`METAREG_CONTRASTS` (stratum ``all``) on ``ln`` of the cohort's
+    training matches.  Returns ``(one row per contrast, one row per contrast and cohort)``."""
+    rows, data = [], []
+    for panel, (name, metric) in METAREG_CONTRASTS.items():
+        sub = contrasts[(contrasts["contrast"] == name) & (contrasts["metric"] == metric) & (contrasts["stratum"] == STRATUM_ALL)]
+        sub = sub[sub["cohort"].isin(train_matches)].sort_values("cohort")
+        if sub.empty:
+            continue
+        n = sub["cohort"].map(train_matches).to_numpy(dtype=float)
+        fit = meta_regression(sub["estimate"].to_numpy(), sub["se"].to_numpy(), np.log(n))
+        usable = np.isfinite(sub["estimate"].to_numpy()) & np.isfinite(sub["se"].to_numpy()) & (sub["se"].to_numpy() > 0)
+        n_ok = n[usable]
+        crossover = float(np.exp(fit["crossover_x"])) if np.isfinite(fit["crossover_x"]) else float("nan")
+        lo = float(np.exp(fit["crossover_ci_low"])) if np.isfinite(fit["crossover_ci_low"]) else float("nan")
+        hi = float(np.exp(fit["crossover_ci_high"])) if np.isfinite(fit["crossover_ci_high"]) else float("nan")
+        where = ""
+        if np.isfinite(crossover) and n_ok.size:
+            where = "below the observed sizes" if crossover < n_ok.min() else "above the observed sizes" if crossover > n_ok.max() else "inside the observed sizes"
+        pred = lambda nn: (fit["intercept"] + fit["slope"] * (np.log(nn) - fit["mean_x"])) if np.isfinite(fit["slope"]) else float("nan")  # noqa: E731
+        rows.append({
+            "panel": panel, "contrast": name, "metric": metric, "exploratory": True, "k": fit["k"], "n_min": float(n_ok.min()) if n_ok.size else float("nan"),
+            "n_max": float(n_ok.max()) if n_ok.size else float("nan"), "slope": fit["slope"], "se": fit["se"], "ci95_low": fit["ci95_low"],
+            "ci95_high": fit["ci95_high"], "z": fit["z"], "p": fit["p"], "p_kh": fit["p_kh"], "ci95_low_kh": fit["ci95_low_kh"],
+            "ci95_high_kh": fit["ci95_high_kh"], "intercept_at_mean_log_n": fit["intercept"], "mean_log_n": fit["mean_x"],
+            "tau2": fit["tau2"], "tau2_no_moderator": fit["tau2_no_moderator"], "r2_heterogeneity": fit["r2_heterogeneity"],
+            "QE": fit["QE"], "QE_df": fit["QE_df"], "QE_p": fit["QE_p"], "QM": fit["QM"], "crossover_n": crossover,
+            "crossover_ci_low": lo, "crossover_ci_high": hi, "crossover_where": where,
+            "pred_at_n_min": pred(n_ok.min()) if n_ok.size else float("nan"), "pred_at_n_max": pred(n_ok.max()) if n_ok.size else float("nan"),
+            "note": fit["crossover_note"],
+        })  # fmt: skip
+        weights, fitted = iter(fit["weights"]), iter(fit["fitted"])
+        for r, good, nn in zip(sub.itertuples(index=False), usable, n):
+            w_i, f_i = (next(weights), next(fitted)) if good else (float("nan"), float("nan"))
+            data.append({"panel": panel, "contrast": name, "exploratory": True, "cohort": r.cohort, "n_train": int(nn), "log_n": float(np.log(nn)),
+                         "estimate": r.estimate, "se": r.se, "weight_re": w_i, "fitted": f_i, "residual": r.estimate - f_i})  # fmt: skip
+    return _frame(rows, METAREG_COLUMNS), _frame(data, METAREG_DATA_COLUMNS)
+
+
+def _nice_ticks(lo: float, hi: float) -> list[float]:
+    """Round tick values on a log axis between ``lo`` and ``hi``, at least a factor 1.9 apart."""
+    cand = [50, 100, 200, 300, 500, 1000, 2000, 3000, 5000, 10000]
+    ticks: list[float] = []
+    for c in cand:
+        if lo / 1.15 <= c <= hi * 1.15 and (not ticks or c / ticks[-1] >= 1.9):
+            ticks.append(c)
+    return ticks if len(ticks) >= 2 else [lo, hi]
+
+
+def draw_metareg(table: pd.DataFrame, data: pd.DataFrame, stem: Path) -> None:
+    """Bubble plot (area ~ random-effects weight) of the per-cohort contrast against the training matches, with the
+    meta-regression line and its 95% band; one panel per contrast.  Exploratory."""
+    from matplotlib import rc_context
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+    from matplotlib.figure import Figure
+    from matplotlib.lines import Line2D
+    from matplotlib.patches import Patch
+    from matplotlib.ticker import FixedLocator, NullFormatter, NullLocator
+
+    panels = [p for p in METAREG_CONTRASTS if (table["panel"] == p).any()]
+    ncol = 3
+    nrow = max(1, -(-len(panels) // ncol))
+    fig = Figure(figsize=(7.2, 2.35 * nrow + 0.65), dpi=300, facecolor="white")
+    FigureCanvasAgg(fig)
+    axes = fig.subplots(nrow, ncol, squeeze=False, gridspec_kw={"wspace": 0.34, "hspace": 0.62})
+    top = 1 - 0.50 / (2.35 * nrow + 0.65)
+    fig.subplots_adjust(left=0.085, right=0.985, top=top - 0.045, bottom=0.215 / nrow + 0.02)
+    wmax = float(np.nanmax(data["weight_re"])) if len(data) and np.isfinite(data["weight_re"]).any() else 1.0
+    for ax in axes.ravel():
+        ax.set_visible(False)
+    for ax, panel in zip(axes.ravel(), panels):
+        ax.set_visible(True)
+        t = table[table["panel"] == panel].iloc[0]
+        d = data[(data["panel"] == panel) & np.isfinite(data["weight_re"])]
+        name, metric = METAREG_CONTRASTS[panel]
+        x = np.log(d["n_train"].to_numpy(dtype=float))
+        grid = np.linspace(x.min() - 0.12, x.max() + 0.12, 80) if len(x) else np.array([0.0, 1.0])
+        ax.axhline(0.0, color=MUTED, lw=0.7, zorder=1)
+        ax.axhspan(-SESOI[metric], SESOI[metric], color=BAND, lw=0, zorder=0)
+        if np.isfinite(t["slope"]):
+            cov_fit = meta_regression(d["estimate"].to_numpy(), d["se"].to_numpy(), x)
+            c = cov_fit["cov"]
+            u = grid - cov_fit["mean_x"]
+            mean = cov_fit["intercept"] + cov_fit["slope"] * u
+            sd = np.sqrt(np.maximum(c[0, 0] + 2 * u * c[0, 1] + u**2 * c[1, 1], 0.0))
+            ax.fill_between(np.exp(grid), mean - 1.96 * sd, mean + 1.96 * sd, color=ACCENT, alpha=0.16, lw=0, zorder=2)
+            ax.plot(np.exp(grid), mean, color=ACCENT, lw=1.4, zorder=3)
+        sizes = 14 + 150 * d["weight_re"].to_numpy() / wmax
+        ax.scatter(d["n_train"], d["estimate"], s=sizes, color=MUTED, alpha=0.82, edgecolor="white", linewidth=0.5, zorder=4)
+        ends = d.sort_values("n_train").iloc[[0, -1]] if len(d) > 1 else d.iloc[:0]
+        for j, r in enumerate(ends.itertuples(index=False)):  # label the smallest and the largest cohort
+            ax.annotate(cohort_label(r.cohort).replace(" squad", "").replace(" TPP", " T").replace(" FPP", " F"), (r.n_train, r.estimate),
+                        xytext=(4 if j == 0 else -4, 5), textcoords="offset points", fontsize=5.2, color=INK2,
+                        ha="left" if j == 0 else "right")  # fmt: skip
+        ax.set_xscale("log")
+        ticks = _nice_ticks(float(d["n_train"].min()), float(d["n_train"].max())) if len(d) else [100, 1000]
+        ax.xaxis.set_major_locator(FixedLocator(ticks))
+        ax.set_xticklabels([f"{v:,.0f}" for v in ticks])
+        ax.xaxis.set_minor_locator(NullLocator())
+        ax.xaxis.set_minor_formatter(NullFormatter())
+        ax.set_xlim(float(d["n_train"].min()) / 1.35, float(d["n_train"].max()) * 1.35) if len(d) else None
+        ax.xaxis.grid(True, color=GRID, lw=0.5)
+        ax.yaxis.grid(True, color=GRID, lw=0.5)
+        ax.set_axisbelow(True)
+        for side in ("top", "right"):
+            ax.spines[side].set_visible(False)
+        for side in ("left", "bottom"):
+            ax.spines[side].set_color(BASELINE)
+            ax.spines[side].set_linewidth(0.7)
+        ax.tick_params(axis="both", labelsize=5.8, length=2, width=0.6, color=BASELINE, labelcolor=INK2, pad=1.5)
+        ax.set_xlabel("training matches", fontsize=6.0, color=INK2, labelpad=1.5)
+        ax.set_ylabel(f"\u0394 {METRIC_LABEL[metric]}", fontsize=6.0, color=INK2, labelpad=1.5)
+        ax.text(0.0, 1.20, METAREG_TITLES[panel], transform=ax.transAxes, fontsize=6.8, color=INK, fontweight="bold", ha="left", va="bottom")
+        p_txt = "p < 0.001" if t["p"] < 0.001 else f"p = {t['p']:.3f}"
+        line = f"slope {t['slope']:+.4f} per ln N, {p_txt}" if np.isfinite(t["slope"]) else "not estimable"
+        ax.text(0.0, 1.05, line, transform=ax.transAxes, fontsize=5.6, color=INK2, ha="left", va="bottom")
+    legend_ax = axes.ravel()[len(panels)] if len(panels) < axes.size else None
+    handles = [
+        Line2D([], [], marker="o", color=MUTED, lw=0, ms=4.2, label="cohort (area ~ RE weight)"),
+        Line2D([], [], color=ACCENT, lw=1.4, label="meta-regression, 95% band"),
+        Patch(facecolor=BAND, label="\u00b1SESOI"),
+    ]
+    if legend_ax is not None:
+        legend_ax.set_visible(True)
+        legend_ax.axis("off")
+        leg = legend_ax.legend(handles=handles, loc="upper left", frameon=False, fontsize=6.0, bbox_to_anchor=(0.0, 0.95))
+        for tx in leg.get_texts():
+            tx.set_color(INK2)
+        legend_ax.text(0.0, 0.40, f"Exploratory (design 4.4). Random-effects\nmeta-regression on ln(training matches),\nmethod-of-moments \u03c4\u00b2, {int(table['k'].max())} cohorts.", fontsize=5.8,
+                       color=INK2, va="top", ha="left", transform=legend_ax.transAxes)  # fmt: skip
+    else:
+        fig.legend(handles=handles, loc="lower center", ncol=3, frameon=False, fontsize=6.0, bbox_to_anchor=(0.5, 0.0))
+    stem.parent.mkdir(parents=True, exist_ok=True)
+    with rc_context({"pdf.fonttype": 42, "ps.fonttype": 42}):
+        fig.savefig(stem.with_suffix(".png"), dpi=300, facecolor="white")
+        fig.savefig(stem.with_suffix(".pdf"), facecolor="white")
+
+
 # --------------------------------------------------------------------------- driver
 @dataclass
 class AggregateResult:
@@ -870,6 +1198,8 @@ class AggregateResult:
     cohorts: list[str]
     strata: list[str]
     out_dir: Path | None = None
+    metareg: pd.DataFrame | None = None  # exploratory meta-regression on the training size (design doc 4.4)
+    metareg_data: pd.DataFrame | None = None
 
 
 def _write_csv(df: pd.DataFrame, path: Path) -> None:
@@ -901,8 +1231,12 @@ def aggregate(
     figures: bool = True,
     skip_misaligned: bool = False,
     min_stratum_matches: int = MIN_STRATUM_MATCHES,
+    train_matches: Mapping[str, int] | None = None,
 ) -> AggregateResult:
-    """Run the whole analysis on ``runs_dir``; writes the outputs when ``out_dir`` is given."""
+    """Run the whole analysis on ``runs_dir``; writes the outputs when ``out_dir`` is given.
+
+    ``train_matches``: ``{cohort: training matches}`` for the meta-regression on the training size (design doc 4.4);
+    cohorts missing from it take the count recorded in their runs' ``metrics.json`` (``n_matches.train``)."""
     if n_boot < 1:
         raise ValueError("n_boot must be >= 1")
     runs_dir = Path(runs_dir)
@@ -1012,6 +1346,18 @@ def aggregate(
     kappa_df = pool_kappa(kappa_in, n_cohorts, n_boot)
     means_df = arm_means(arm_df) if len(arm_df) else _frame([], ["arm", "metric", "stratum", "mean", "sd_cohorts", "n_cohorts"])
     seeds_df = seed_stability(arm_df) if len(arm_df) else _frame([], SEED_COLUMNS)
+    sizes = {c: int(n) for c, n in (train_matches or {}).items()}
+    for c in cohort_list:
+        seen = Counter(r.n_train for r in runs if r.cohort == c and r.n_train)
+        if c not in sizes and seen:
+            sizes[c] = int(seen.most_common(1)[0][0])
+            if len(seen) > 1:
+                issues.append(("warning", c, "", "", f"{c}: the runs record different training sizes {sorted(seen)}; {sizes[c]} used for the meta-regression"))
+    for c in cohort_list:
+        if c not in sizes:
+            issues.append(("info", c, "", "", f"{c}: training size unknown, left out of the meta-regression"))
+    metareg_df, metareg_data = metareg_tables(contrast_df, {c: sizes[c] for c in cohort_list if c in sizes}) if len(contrast_df) else (
+        _frame([], METAREG_COLUMNS), _frame([], METAREG_DATA_COLUMNS))  # fmt: skip
     strata_list = _stratum_order(analysed)
     for df, cols in ((arm_df, ["cohort", "arm", "seed", "stratum", "metric"]), (contrast_df, ["cohort", "contrast", "metric", "stratum"])):
         if len(df):
@@ -1039,8 +1385,13 @@ def aggregate(
         "n_runs": int(len(inventory)), "n_issues": int(len(issue_df)), "skip_misaligned": bool(skip_misaligned),
         "runs_dir": str(runs_dir), "generated_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"), "git": git_info(),
     }  # fmt: skip
+    summary["metareg"] = {
+        r.panel: {"contrast": r.contrast, "k": int(r.k), "slope_per_ln_n": r.slope, "ci95": [r.ci95_low, r.ci95_high], "p": r.p,
+                  "crossover_n": r.crossover_n, "crossover_ci": [r.crossover_ci_low, r.crossover_ci_high]}  # fmt: skip
+        for r in metareg_df.itertuples(index=False)
+    }
     result = AggregateResult(inventory, arm_df, means_df, contrast_df, pooled_df, kappa_df, seeds_df, issue_df, summary, labels,
-                             cohort_list, strata_list, Path(out_dir) if out_dir is not None else None)  # fmt: skip
+                             cohort_list, strata_list, Path(out_dir) if out_dir is not None else None, metareg_df, metareg_data)  # fmt: skip
     if out_dir is not None:
         write_outputs(result, figures=figures)
     return result
@@ -1058,6 +1409,9 @@ def write_outputs(res: AggregateResult, *, figures: bool = True) -> None:
     _write_csv(res.seed_stability, out / "seed_stability.csv")
     _write_csv(res.inventory, out / "run_inventory.csv")
     _write_csv(res.issues, out / "issues.csv")
+    if res.metareg is not None:
+        _write_csv(res.metareg, out / "metareg.csv")
+        _write_csv(res.metareg_data, out / "metareg_data.csv")
     write_json(out / "summary.json", res.summary)
     tables = out / "tables"
     tables.mkdir(exist_ok=True)
@@ -1065,11 +1419,23 @@ def write_outputs(res: AggregateResult, *, figures: bool = True) -> None:
     (tables / "tab_exploratory.tex").write_text(render_exploratory_table(res.pooled, res.kappa), encoding="utf-8")
     (tables / "tab_arms_metrics.tex").write_text(render_arms_table(res.arm_means), encoding="utf-8")
     (tables / "tab_primary_strata.tex").write_text(render_strata_table(res.pooled), encoding="utf-8")
+    # external baselines (4.3): the tables exist only when at least one external model was run (a stale file is removed)
+    have_external = len(res.arm_means) > 0 and bool(res.arm_means["arm"].isin(EXTERNAL_ARMS).any())
+    ext_means = res.arm_means[res.arm_means["arm"].isin((*EXTERNAL_ARMS, *(a for a, _ in EXTERNAL_TABLE_REFERENCES)))] if have_external else res.arm_means
+    for name, text in (("tab_external.tex", render_external_table(ext_means) if have_external else None),
+                       ("tab_external_contrasts.tex", render_external_contrasts_table(res.pooled) if have_external else None)):  # fmt: skip
+        path = tables / name
+        if text is not None and "\\midrule\n\\midrule" not in text and "\\midrule\n\\bottomrule" not in text:
+            path.write_text(text, encoding="utf-8")
+        elif path.exists():
+            path.unlink()
     if figures:
         data = forest_data(res.pooled, res.contrasts)
         _write_csv(data, out / "figures" / "forest_primary_data.csv")
         if len(data):
             draw_forest(data, res.pooled, out / "figures" / "forest_primary")
+        if res.metareg is not None and len(res.metareg):
+            draw_metareg(res.metareg, res.metareg_data, out / "figures" / "metareg_bubble")
 
 
 # --------------------------------------------------------------------------- CLI
@@ -1093,6 +1459,29 @@ def format_primary(res: AggregateResult) -> str:
     return "\n".join(lines)
 
 
+def format_metareg(res: AggregateResult) -> str:
+    """Plain-text table of the exploratory meta-regression on the training size (design doc 4.4)."""
+    t = res.metareg
+    if t is None or t.empty:
+        return "meta-regression: no cohort with a known training size"
+    lines = ["exploratory meta-regression of the per-cohort AUC contrast on ln(training matches); random effects, method-of-moments tau2",
+             f"{'panel':<16} {'k':>2} {'slope per ln N [95% CI]':<34} {'p':>8} {'tau2':>9}  crossover N [95% CI] (where the effect is 0)"]  # fmt: skip
+    for r in t.itertuples(index=False):
+        if not np.isfinite(r.slope):
+            lines.append(f"{r.panel:<16} {int(r.k):>2} {'not estimable':<34}")
+            continue
+        ci = f"{r.slope:+.4f} [{r.ci95_low:+.4f}, {r.ci95_high:+.4f}]"
+        if np.isfinite(r.crossover_n) and not (1.0 <= r.crossover_n <= 1e7):
+            cross = "outside any plausible size (slope ~ 0)"
+        elif np.isfinite(r.crossover_n):
+            bounds = f"[{r.crossover_ci_low:,.0f}, {r.crossover_ci_high:,.0f}]" if np.isfinite(r.crossover_ci_low) else "[unbounded]"
+            cross = f"{r.crossover_n:,.0f} {bounds} {r.crossover_where}"
+        else:
+            cross = "none"
+        lines.append(f"{r.panel:<16} {int(r.k):>2} {ci:<34} {r.p:>8.4f} {r.tau2:>9.2e}  {cross}")
+    return "\n".join(lines)
+
+
 def _positive_int(text: str) -> int:
     v = int(text)
     if v < 1:
@@ -1111,6 +1500,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     ap.add_argument("--strata", default="auto", help="'auto' (every match type found), 'none', or a comma-separated list of match types")
     ap.add_argument("--no-figures", action="store_true")
     ap.add_argument("--skip-misaligned", action="store_true", help="drop runs whose rows differ from the other arms instead of failing")
+    ap.add_argument("--dump-dir", default=None,
+                    help="dump directory: its population.json gives the training sizes of cohorts whose runs do not record them")  # fmt: skip
     return ap.parse_args(argv)
 
 
@@ -1121,12 +1512,19 @@ def main(argv: Sequence[str] | None = None) -> int:
         logging.getLogger(noisy).setLevel(logging.WARNING)
     workers = args.workers or max(1, (os.cpu_count() or 2) // 2)
     cohorts = [c for c in args.cohorts.split(",") if c] if args.cohorts else None
+    sizes = None
+    if args.dump_dir:
+        pop = Path(args.dump_dir) / "population.json"
+        if pop.is_file():
+            info = json.loads(pop.read_text(encoding="utf-8")).get("cohorts", {})
+            sizes = {c: int(v["after"]["train"]) for c, v in info.items() if v.get("status") == "kept"}
     res = aggregate(
         args.runs_dir, args.out_dir, n_boot=args.n_boot, seed=args.seed, workers=workers, cohorts=cohorts, strata=args.strata,
-        figures=not args.no_figures, skip_misaligned=args.skip_misaligned,
+        figures=not args.no_figures, skip_misaligned=args.skip_misaligned, train_matches=sizes,
     )  # fmt: skip
     print(f"{res.summary['n_cohorts']} cohorts, {res.summary['n_runs']} runs, labels={res.labels}, {args.n_boot} resamples")
     print(format_primary(res))
+    print(format_metareg(res))
     if len(res.issues):
         print(f"{len(res.issues)} issue(s), see {Path(args.out_dir) / 'issues.csv'}", file=sys.stderr)
     print(f"outputs in {args.out_dir}")

@@ -17,7 +17,7 @@ PTR_DIR = Path(__file__).resolve().parent
 # modules whose source can change a result: any edit invalidates cached runs (config hash).  The runner, the
 # aggregator, the cohort lister and the synthetic generator do not feed results and are left out on purpose.
 RESULT_MODULES: tuple[str, ...] = (
-    "arms", "data", "hgb", "loss", "metrics", "model", "relations", "train", "util",
+    "arms", "data", "hgb", "loss", "metrics", "model", "player", "relations", "train", "util",
 )  # fmt: skip
 
 
@@ -66,6 +66,14 @@ def dump_fingerprint(dump_dir: str | Path, cohort: str, splits: Sequence[str] = 
 def config_hash(spec: Mapping[str, Any]) -> str:
     """16-hex digest of a run specification (canonical JSON)."""
     return hashlib.sha1(json.dumps(to_jsonable(dict(spec)), sort_keys=True).encode()).hexdigest()[:16]
+
+
+def run_dir_name(seed: int, subsample: int | None = None, subsample_seed: int | None = None) -> str:
+    """Directory of a run below ``<out>/<cohort>/<arm>/``: ``seed<s>`` for a full-size run, and
+    ``sub<N>_ss<subsample seed>_seed<s>`` when the training set is a random subsample of N matches."""
+    if subsample is None:
+        return f"seed{seed}"
+    return f"sub{int(subsample)}_ss{seed if subsample_seed is None else int(subsample_seed)}_seed{seed}"
 
 
 def check_run_dir(out_dir: str | Path, labels: str) -> None:

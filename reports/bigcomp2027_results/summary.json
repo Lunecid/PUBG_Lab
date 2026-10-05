@@ -1,0 +1,273 @@
+{
+  "n_boot": 2000,
+  "seed": 0,
+  "labels": "v2",
+  "n_cohorts": 12,
+  "cohorts": [
+    "erangel_fpp_squad",
+    "erangel_tpp_duo",
+    "erangel_tpp_solo",
+    "erangel_tpp_squad",
+    "karakin_tpp_squad",
+    "miramar_desert_tpp_squad",
+    "paramo_tpp_squad",
+    "rondo_tpp_squad",
+    "sanhok_tpp_squad",
+    "taego_fpp_squad",
+    "taego_tpp_duo",
+    "taego_tpp_squad"
+  ],
+  "strata": [
+    "all",
+    "competitive",
+    "official"
+  ],
+  "sesoi": {
+    "auc": 0.005,
+    "spearman": 0.01,
+    "top5_auc": 0.005,
+    "cindex": 0.005
+  },
+  "alpha": 0.05,
+  "holm_family": [
+    "P1",
+    "P2",
+    "P3",
+    "P4",
+    "P5"
+  ],
+  "primary": {
+    "P1": [
+      "phase_main",
+      "auc"
+    ],
+    "P2": [
+      "team_main",
+      "auc"
+    ],
+    "P3": [
+      "team_main",
+      "spearman"
+    ],
+    "P4": [
+      "rel_vs_shuf",
+      "auc"
+    ],
+    "P5": [
+      "zone_nohab",
+      "auc"
+    ]
+  },
+  "primary_results": {
+    "P1": {
+      "contrast": "phase_main",
+      "metric": "auc",
+      "theta": 0.0007106587392112993,
+      "ci95": [
+        -0.0012863959367325657,
+        0.002707713415155164
+      ],
+      "ci90": [
+        -0.0009653223772057579,
+        0.0023866398556283567
+      ],
+      "p_one_sided": 0.24275751634626885,
+      "p_holm": 0.24275751634626885,
+      "tau2": 6.868816252838421e-06,
+      "k": 12,
+      "same_sign": 7,
+      "verdict": "equivalent"
+    },
+    "P2": {
+      "contrast": "team_main",
+      "metric": "auc",
+      "theta": 0.003311663212124473,
+      "ci95": [
+        0.002395012107969221,
+        0.004228314316279726
+      ],
+      "ci90": [
+        0.002542385355382292,
+        0.004080941068866655
+      ],
+      "p_one_sided": 7.159605760583738e-13,
+      "p_holm": 3.579802880291869e-12,
+      "tau2": 1.3016481696380281e-09,
+      "k": 12,
+      "same_sign": 10,
+      "verdict": "equivalent"
+    },
+    "P3": {
+      "contrast": "team_main",
+      "metric": "spearman",
+      "theta": 0.009401477283832895,
+      "ci95": [
+        0.0045290230117740705,
+        0.014273931555891718
+      ],
+      "ci90": [
+        0.005312384757251641,
+        0.01349056981041415
+      ],
+      "p_one_sided": 7.785503979717893e-05,
+      "p_holm": 0.0003114201591887157,
+      "tau2": 1.4098088691649971e-05,
+      "k": 12,
+      "same_sign": 9,
+      "verdict": "inconclusive"
+    },
+    "P4": {
+      "contrast": "rel_vs_shuf",
+      "metric": "auc",
+      "theta": 0.0004820991525346541,
+      "ci95": [
+        -5.7188856372994337e-05,
+        0.0010213871614423026
+      ],
+      "ci90": [
+        2.9514388518519456e-05,
+        0.0009346839165507888
+      ],
+      "p_one_sided": 0.0398766405939514,
+      "p_holm": 0.0797532811879028,
+      "tau2": 3.330292451939719e-07,
+      "k": 12,
+      "same_sign": 10,
+      "verdict": "equivalent"
+    },
+    "P5": {
+      "contrast": "zone_nohab",
+      "metric": "auc",
+      "theta": 0.003177671649819872,
+      "ci95": [
+        0.001209818172275075,
+        0.005145525127364669
+      ],
+      "ci90": [
+        0.001526196951621162,
+        0.004829146348018582
+      ],
+      "p_one_sided": 0.0007755966101745476,
+      "p_holm": 0.002326789830523643,
+      "tau2": 7.271203373577275e-06,
+      "k": 12,
+      "same_sign": 10,
+      "verdict": "equivalent"
+    }
+  },
+  "kappa": {
+    "kappa": 0.28608967483124353,
+    "ci_low": 0.18926641422506646,
+    "ci_high": 0.38774283102572515,
+    "numerator": 0.003177671649819872,
+    "denominator": 0.011107257371991119,
+    "den_ci95_low": 0.009548008154519168,
+    "estimable": true,
+    "k": 12,
+    "note": "pooled over 12 cohorts; interval: percentile of the pooled ratio over 2000 resamples"
+  },
+  "n_runs": 247,
+  "n_issues": 3,
+  "skip_misaligned": false,
+  "runs_dir": "model_stgcn/checkpoints/bigcomp2027_ptr_v1",
+  "generated_utc": "2026-10-05T15:14:49+00:00",
+  "git": {
+    "commit": "f59bac9d9b52117935733758daebc419787825e9",
+    "branch": "paper/bigcomp2027",
+    "dirty_tracked": true,
+    "dirty_tracked_files": [
+      "M docs/experiment_design/BIGCOMP2027_PTR_STUDY_DESIGN_2026-10-05.md",
+      " M model_stgcn/ptr/aggregate.py",
+      " M model_stgcn/ptr/arms.py",
+      " M model_stgcn/ptr/data.py",
+      " M model_stgcn/ptr/hgb.py",
+      " M model_stgcn/ptr/model.py",
+      " M model_stgcn/ptr/relations.py",
+      " M model_stgcn/ptr/run_matrix.py",
+      " M model_stgcn/ptr/synthetic.py",
+      " M model_stgcn/ptr/train.py",
+      " M model_stgcn/ptr/util.py",
+      " M tests/test_ptr_aggregate.py",
+      " M tests/test_ptr_data.py",
+      " M tests/test_ptr_run_matrix.py",
+      " M tests/test_ptr_train.py"
+    ]
+  },
+  "metareg": {
+    "P1": {
+      "contrast": "phase_main",
+      "k": 12,
+      "slope_per_ln_n": 0.002520424611598307,
+      "ci95": [
+        0.0011611814761412897,
+        0.0038796677470553246
+      ],
+      "p": 0.00027870128040160153,
+      "crossover_n": 589.2194310533883,
+      "crossover_ci": [
+        205.5114699763879,
+        983.0781304224957
+      ]
+    },
+    "P2": {
+      "contrast": "team_main",
+      "k": 12,
+      "slope_per_ln_n": 0.00017655124164960194,
+      "ci95": [
+        -0.0010299047302634644,
+        0.001383007213562668
+      ],
+      "p": 0.7742511807988153,
+      "crossover_n": 1.0082941548044674e-05,
+      "crossover_ci": [
+        null,
+        null
+      ]
+    },
+    "P5": {
+      "contrast": "zone_nohab",
+      "k": 12,
+      "slope_per_ln_n": 0.00242174735154671,
+      "ci95": [
+        0.0012490277893894512,
+        0.0035944669137039685
+      ],
+      "p": 5.177603626253971e-05,
+      "crossover_n": 182.9503191010344,
+      "crossover_ci": [
+        35.97112391289908,
+        355.6332910938676
+      ]
+    },
+    "m11_m00": {
+      "contrast": "m11_m00",
+      "k": 12,
+      "slope_per_ln_n": 0.0029145103523906075,
+      "ci95": [
+        0.0013581930180310072,
+        0.004470827686750208
+      ],
+      "p": 0.0002421540452673148,
+      "crossover_n": 215.05143684862765,
+      "crossover_ci": [
+        20.931677126712884,
+        465.93374780187816
+      ]
+    },
+    "m11r_vs_hgbcut": {
+      "contrast": "m11r_vs_hgbcut",
+      "k": 12,
+      "slope_per_ln_n": 0.006660126869901528,
+      "ci95": [
+        0.004355135388208708,
+        0.008965118351594348
+      ],
+      "p": 1.4858294298084161e-08,
+      "crossover_n": 700.0441223787545,
+      "crossover_ci": [
+        424.3715039867403,
+        964.4490334480129
+      ]
+    }
+  }
+}

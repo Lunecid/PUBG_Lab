@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from scipy.stats import norm
+from scipy.stats import t as t_dist
 
 from model_stgcn.ptr import aggregate as A
 from model_stgcn.ptr import metrics as M
@@ -553,3 +554,362 @@ def test_cohort_filter_and_cli(tmp_path, capsys):
     assert A.main(["--runs-dir", str(root), "--out-dir", str(tmp_path / "o4"), "--n-boot", "20", "--workers", "1",
                    "--no-figures", "--strata", "none"]) == 0  # fmt: skip
     assert set(pd.read_csv(tmp_path / "o4" / "contrasts_pooled.csv").stratum) == {"all"}
+
+
+# --------------------------------------------------------------------------- meta-regression on the training size (design 4.4)
+def reference_metareg(y, se, x):
+    """Independent implementation: generalised DerSimonian-Laird tau2, then weighted least squares by row scaling."""
+    y, se, x = map(np.asarray, (y, se, x))
+    k = len(y)
+    xc = x - x.mean()
+    X = np.column_stack([np.ones(k), xc])
+    w = 1 / se**2
+    beta0 = np.linalg.lstsq(X * np.sqrt(w)[:, None], y * np.sqrt(w), rcond=None)[0]
+    qe = float(np.sum(w * (y - X @ beta0) ** 2))
+    xtwx_inv = np.linalg.inv(X.T @ (X * w[:, None]))
+    tr_p = w.sum() - np.trace(xtwx_inv @ (X.T @ (X * (w**2)[:, None])))
+    tau2 = max(0.0, (qe - (k - 2)) / tr_p)
+    w2 = 1 / (se**2 + tau2)
+    beta = np.linalg.lstsq(X * np.sqrt(w2)[:, None], y * np.sqrt(w2), rcond=None)[0]
+    cov = np.linalg.inv(X.T @ (X * w2[:, None]))
+    scale = float(np.sum(w2 * (y - X @ beta) ** 2) / (k - 2))  # Knapp-Hartung residual scale
+    return beta, np.sqrt(np.diag(cov)), tau2, qe, scale
+
+
+def test_meta_regression_matches_an_independent_implementation():
+    rng = np.random.default_rng(3)
+    for k in (5, 12):
+        x = np.log(rng.uniform(150, 4000, k))
+        se = rng.uniform(0.002, 0.01, k)
+        y = 0.03 * (x - 6) - 0.01 + rng.normal(0, 0.012, k) + rng.normal(0, se)
+        fit = A.meta_regression(y, se, x)
+        beta, beta_se, tau2, qe, scale = reference_metareg(y, se, x)
+        assert fit["slope"] == pytest.approx(beta[1]) and fit["intercept"] == pytest.approx(beta[0])
+        kh_se = beta_se[1] * np.sqrt(max(1.0, scale))  # Knapp-Hartung: variance scaled by max(1, s^2), t with k - 2 df
+        assert fit["p_kh"] == pytest.approx(2 * t_dist.sf(abs(beta[1] / kh_se), k - 2))
+        assert (fit["ci95_low_kh"], fit["ci95_high_kh"]) == pytest.approx((beta[1] - t_dist.ppf(0.975, k - 2) * kh_se, beta[1] + t_dist.ppf(0.975, k - 2) * kh_se))
+        assert fit["se"] == pytest.approx(beta_se[1]) and fit["tau2"] == pytest.approx(tau2) and fit["QE"] == pytest.approx(qe)
+        assert fit["k"] == k and fit["QE_df"] == k - 2 and fit["mean_x"] == pytest.approx(x.mean())
+        assert fit["z"] == pytest.approx(beta[1] / beta_se[1]) and fit["p"] == pytest.approx(2 * norm.sf(abs(beta[1] / beta_se[1])))
+        assert fit["QM"] == pytest.approx(fit["z"] ** 2)
+        assert (fit["ci95_low"], fit["ci95_high"]) == pytest.approx((beta[1] - 1.959964 * beta_se[1], beta[1] + 1.959964 * beta_se[1]), rel=1e-5)
+        assert fit["p_kh"] >= fit["p"] - 1e-12  # Knapp-Hartung with the max(1, s^2) rule is never more liberal
+        assert fit["ci95_low_kh"] <= fit["ci95_low"] + 1e-12 and fit["ci95_high_kh"] >= fit["ci95_high"] - 1e-12
+        assert fit["weights"] == pytest.approx(1 / (se**2 + tau2)) and len(fit["fitted"]) == k
+
+
+def test_meta_regression_recovers_a_noiseless_line_and_its_crossover():
+    n = np.array([150.0, 300, 600, 1200, 2400, 3300])
+    x = np.log(n)
+    y = 0.02 * (x - np.log(500.0))  # zero at N = 500, slope 0.02 per ln N
+    fit = A.meta_regression(y, np.full(6, 0.004), x)
+    assert fit["slope"] == pytest.approx(0.02) and fit["tau2"] == 0.0 and fit["QE"] == pytest.approx(0.0, abs=1e-18)
+    assert np.exp(fit["crossover_x"]) == pytest.approx(500.0)
+    assert fit["tau2_no_moderator"] > 0 and fit["r2_heterogeneity"] == pytest.approx(1.0)  # N explains all the between-cohort spread
+    lo, hi = np.exp(fit["crossover_ci_low"]), np.exp(fit["crossover_ci_high"])
+    assert lo < 500 < hi  # Fieller interval brackets the crossover; the line is (almost) exact so it is narrow
+    assert (hi - lo) / 500 < 0.5
+    # the fitted line is zero at the crossover and the sign flips around it
+    a, b = fit["intercept"], fit["slope"]
+    assert a + b * (fit["crossover_x"] - fit["mean_x"]) == pytest.approx(0.0, abs=1e-12)
+
+
+def test_meta_regression_with_heterogeneity_and_with_no_slope():
+    x = np.log([200.0, 400, 800, 1600, 3200, 6400])
+    pattern = np.array([1.0, -1, -1, -1, -1, 1])  # sums to zero against the centred x: a null slope by construction
+    assert abs(np.sum(pattern * (x - x.mean()))) < 1e-12
+    se = np.full(6, 0.003)
+    y = 0.01 + 0.02 * pattern  # large between-cohort spread, no relation with x
+    fit = A.meta_regression(y, se, x)
+    assert fit["slope"] == pytest.approx(0.0, abs=1e-12) and fit["p"] > 0.95 and fit["tau2"] > 1e-4
+    assert fit["intercept"] == pytest.approx(0.01 + 0.02 * pattern.mean())
+    assert np.isnan(fit["crossover_ci_low"]) and np.isnan(fit["crossover_ci_high"]) and "unbounded" in fit["crossover_note"]
+    assert fit["p_kh"] > 0.95 and fit["r2_heterogeneity"] == pytest.approx(0.0, abs=1e-9)  # the moderator explains nothing
+    # a clear slope on top of the same spread: heterogeneity shrinks (R2 > 0), the interval is bounded
+    y2 = y - 0.03 + 0.04 * (x - x.mean())
+    fit2 = A.meta_regression(y2, se, x)
+    assert fit2["slope"] == pytest.approx(0.04) and fit2["p"] < 0.01
+    assert fit2["tau2"] == pytest.approx(fit["tau2"]) and fit2["tau2"] < 0.5 * fit2["tau2_no_moderator"] and fit2["r2_heterogeneity"] > 0.5
+    assert np.isfinite(fit2["crossover_ci_low"]) and fit2["crossover_ci_low"] < fit2["crossover_x"] < fit2["crossover_ci_high"]
+    # heterogeneity widens the SE of the slope w.r.t. the fixed-effect fit (weights 1/se^2)
+    fixed_se = 0.003 / np.sqrt(np.sum((x - x.mean()) ** 2))
+    assert fit2["se"] > 2 * fixed_se
+
+
+def test_the_fieller_interval_is_the_set_of_crossovers_not_rejected_at_the_95_percent_level():
+    """Direct check of the definition: u in the interval <=> (a + b u)^2 <= z^2 Var(a + b u), u = ln N* - mean ln N."""
+    rng = np.random.default_rng(8)
+    z = norm.ppf(0.975)
+    checked = 0
+    for trial in range(5):
+        x = np.log(rng.uniform(150, 4000, 10))
+        se = rng.uniform(0.002, 0.006, 10)
+        y = 0.02 * (x - 6.8) + rng.normal(0, 0.006, 10) + rng.normal(0, se)
+        f = A.meta_regression(y, se, x)
+        if not np.isfinite(f["crossover_ci_low"]):
+            continue
+        a, b, c = f["intercept"], f["slope"], f["cov"]
+        stat = lambda u: (a + b * u) ** 2 - z**2 * (c[0, 0] + 2 * u * c[0, 1] + u**2 * c[1, 1])  # <= 0 inside  # noqa: E731
+        lo, hi = f["crossover_ci_low"] - f["mean_x"], f["crossover_ci_high"] - f["mean_x"]
+        assert abs(stat(lo)) < 1e-12 and abs(stat(hi)) < 1e-12  # the endpoints solve the equation
+        mid = 0.5 * (lo + hi)
+        assert stat(mid) < 0 and stat(lo - 0.05) > 0 and stat(hi + 0.05) > 0  # inside accepted, outside rejected
+        assert lo < f["crossover_x"] - f["mean_x"] < hi
+        checked += 1
+    assert checked >= 3  # most draws have a significant slope, i.e. a bounded interval
+
+
+def test_meta_regression_degenerate_inputs():
+    for y, se, x in (([1.0, 2.0], [0.1, 0.1], [0.0, 1.0]),  # two studies: no degrees of freedom
+                     ([1.0, 2.0, 3.0], [0.1, 0.1, 0.1], [2.0, 2.0, 2.0]),  # no spread in the moderator
+                     ([np.nan, 2.0, 3.0], [0.1, 0.1, 0.1], [0.0, 1.0, 2.0])):  # a missing estimate leaves two
+        fit = A.meta_regression(y, se, x)
+        assert np.isnan(fit["slope"]) and np.isnan(fit["p"]) and np.isnan(fit["crossover_x"]) and "at least 3" in fit["crossover_note"]
+    assert A.meta_regression([1, 2, 3, 4], [0.1, 0, 0.1, 0.1], [0, 1, 2, 3])["k"] == 3  # SE <= 0 dropped
+
+
+def test_meta_regression_is_nearly_unbiased_and_the_knapp_hartung_interval_covers():
+    rng = np.random.default_rng(5)
+    hits_z = hits_kh = 0
+    slopes = []
+    reps = 400
+    for _ in range(reps):
+        x = np.log(rng.uniform(150, 4000, 12))
+        se = rng.uniform(0.003, 0.008, 12)
+        y = 0.02 * (x - 6.5) + rng.normal(0, 0.01, 12) + rng.normal(0, se)
+        f = A.meta_regression(y, se, x)
+        slopes.append(f["slope"])
+        hits_z += f["ci95_low"] <= 0.02 <= f["ci95_high"]
+        hits_kh += f["ci95_low_kh"] <= 0.02 <= f["ci95_high_kh"]
+    assert np.mean(slopes) == pytest.approx(0.02, abs=0.002)
+    assert hits_kh / reps > 0.92 and hits_z / reps > 0.88  # k = 12: the normal interval is a little liberal, KH is not
+
+
+@pytest.fixture(scope="module")
+def sized(tmp_path_factory):
+    """Seven cohorts whose planted effects grow with ln(training matches); the HGB reference does not."""
+    sizes = {f"s{i}": n for i, n in enumerate((150, 300, 600, 1200, 2400, 3300, 5000))}
+    scale = {c: 0.35 + 0.28 * (np.log(n) - np.log(150)) for c, n in sizes.items()}
+    arms = ("M00", "M10", "M01", "M11", "M11R", "M11R-shuf", "M11R-noHab", "M11RZ-noHab", "M11RZ", "HGB-cut")
+    quality = {a: QUALITY[a] for a in arms}
+    root, out = tmp_path_factory.mktemp("sized_runs"), tmp_path_factory.mktemp("sized_res")
+    write_prediction_runs(root, list(sizes), quality, {a: RANK_QUALITY[a] for a in arms}, n_matches=40, seed=7, cohort_scale=scale,
+                          near_copy=NEAR_COPY, n_train=sizes)  # fmt: skip
+    res = A.aggregate(root, out, n_boot=100, seed=3, workers=2)
+    return res, sizes, scale, root, out
+
+
+def test_metareg_of_the_five_contrasts_is_written_and_labelled_exploratory(sized):
+    res, sizes, scale, root, out = sized
+    assert list(res.metareg.panel) == ["P1", "P2", "P5", "m11_m00", "m11r_vs_hgbcut"]
+    assert list(res.metareg.columns) == A.METAREG_COLUMNS and (res.metareg.metric == "auc").all() and (res.metareg.k == 7).all()
+    assert set(res.metareg_data.panel) == set(res.metareg.panel) and len(res.metareg_data) == 5 * 7
+    for name in ("metareg.csv", "metareg_data.csv"):
+        assert (out / name).stat().st_size > 0
+    for name in ("metareg_bubble.pdf", "metareg_bubble.png"):
+        assert (out / "figures" / name).stat().st_size > 0
+    assert (out / "figures" / "metareg_bubble.pdf").read_bytes()[:4] == b"%PDF"
+    summary = json.loads((out / "summary.json").read_text())
+    assert set(summary["metareg"]) == set(res.metareg.panel)
+    assert pd.read_csv(out / "metareg.csv").shape[0] == 5
+    # P1 grows with the training size by construction: a clear positive slope per ln N
+    p1 = res.metareg.set_index("panel").loc["P1"]
+    assert p1.slope > 0.01 and p1.p < 0.01 and p1.ci95_low > 0 and p1.n_min == 150 and p1.n_max == 5000
+    assert p1.mean_log_n == pytest.approx(np.mean(np.log(list(sizes.values()))))
+    # the regression is made on the per-cohort estimates and SEs of the contrasts table, with ln(n)
+    sub = res.contrasts[(res.contrasts.contrast == "phase_main") & (res.contrasts.metric == "auc") & (res.contrasts.stratum == "all")].sort_values("cohort")
+    beta, beta_se, tau2, *_ = reference_metareg(sub.estimate, sub.se, np.log([sizes[c] for c in sub.cohort]))
+    assert p1.slope == pytest.approx(beta[1]) and p1.se == pytest.approx(beta_se[1]) and p1.tau2 == pytest.approx(tau2)
+    d = res.metareg_data[res.metareg_data.panel == "P1"].sort_values("cohort")
+    assert list(d.n_train) == [sizes[c] for c in sub.cohort] and np.allclose(d.log_n, np.log(d.n_train))
+    assert np.allclose(d.weight_re, 1 / (sub.se**2 + tau2)) and np.allclose(d.estimate - d.fitted, d.residual)
+    # the HGB reference is flat in N while the neural model improves: M11R - HGB-cut grows with N and crosses zero in the range
+    h = res.metareg.set_index("panel").loc["m11r_vs_hgbcut"]
+    assert h.slope > 0 and np.isfinite(h.crossover_n) and h.crossover_n > 0
+    assert h.crossover_where in ("below the observed sizes", "inside the observed sizes", "above the observed sizes")
+    # the new contrast is a normal pooled secondary contrast too
+    assert pooled(res, "m11r_vs_hgbcut", "auc").k == 7 and pooled(res, "m11_m00", "auc").kind == "secondary"
+
+
+def test_metareg_crossover_matches_the_fitted_line(sized):
+    res, *_ = sized
+    for r in res.metareg.itertuples():
+        if np.isfinite(r.crossover_n):
+            line = r.intercept_at_mean_log_n + r.slope * (np.log(r.crossover_n) - r.mean_log_n)
+            assert line == pytest.approx(0.0, abs=1e-9), r.panel
+        if np.isfinite(r.crossover_ci_low):
+            assert r.crossover_ci_low < r.crossover_n < r.crossover_ci_high
+        assert r.p_kh >= r.p - 1e-12 and r.pred_at_n_max == pytest.approx(r.intercept_at_mean_log_n + r.slope * (np.log(r.n_max) - r.mean_log_n))
+
+
+def test_training_sizes_from_the_runs_the_argument_and_the_population_file(tmp_path):
+    sizes = {"s0": 200, "s1": 400, "s2": 800, "s3": 1600}
+    arms = ("M00", "M10", "M01", "M11")
+    quality = {a: QUALITY[a] for a in arms}
+    root = tmp_path / "r"
+    write_prediction_runs(root, list(sizes), quality, {a: RANK_QUALITY[a] for a in arms}, n_matches=30, seed=2, n_train={"s0": 200, "s1": 400})  # fmt: skip
+    res = A.aggregate(root, None, n_boot=30, seed=1, workers=1, figures=False)
+    assert (res.metareg_data.cohort.unique() == ["s0", "s1"]).all() or set(res.metareg_data.cohort) == {"s0", "s1"}
+    assert res.metareg.empty or (res.metareg.k.max() <= 2 and res.metareg.slope.isna().all())  # two cohorts: no slope
+    msgs = " ".join(res.issues.message)
+    assert "s2" in msgs and "training size unknown" in msgs
+    res2 = A.aggregate(root, None, n_boot=30, seed=1, workers=1, figures=False, train_matches=sizes)  # the argument fills the gaps
+    assert set(res2.metareg_data.cohort) == set(sizes) and (res2.metareg.k == 4).all()
+    # the CLI reads population.json of a dump directory
+    dumps = tmp_path / "dumps"
+    dumps.mkdir()
+    (dumps / "population.json").write_text(json.dumps({"cohorts": {c: {"status": "kept", "after": {"train": n}} for c, n in sizes.items()}}))
+    rc = A.main(["--runs-dir", str(root), "--out-dir", str(tmp_path / "o"), "--n-boot", "30", "--workers", "1", "--no-figures", "--dump-dir", str(dumps)])
+    assert rc == 0 and (pd.read_csv(tmp_path / "o" / "metareg.csv").k == 4).all()
+
+
+def test_runs_that_disagree_on_the_training_size_are_reported(tmp_path):
+    arms = ("M00", "M10", "M01", "M11")
+    quality = {a: QUALITY[a] for a in arms}
+    root = tmp_path / "r"
+    write_prediction_runs(root, ["s0", "s1", "s2"], quality, {a: RANK_QUALITY[a] for a in arms}, n_matches=30, seed=2,
+                          n_train={"s0": 200, "s1": 400, "s2": 800})  # fmt: skip
+    meta = root / "s1" / "M10" / "seed42" / "metrics.json"
+    meta.write_text(json.dumps({**json.loads(meta.read_text()), "n_matches": {"train": 777}}))
+    res = A.aggregate(root, None, n_boot=20, seed=1, workers=1, figures=False)
+    assert "different training sizes" in " ".join(res.issues.message) and "s1" in " ".join(res.issues.message)
+    assert int(res.metareg_data[res.metareg_data.cohort == "s1"].n_train.iloc[0]) == 400  # the majority (the mode: 3 of 4 arms)
+
+
+def test_the_cli_prints_the_metareg_table(tmp_path, capsys):
+    sizes = {"s0": 200, "s1": 400, "s2": 800, "s3": 1600, "s4": 3200}
+    arms = ("M00", "M10", "M01", "M11", "HGB-cut", "M11R")
+    quality = {a: QUALITY[a] for a in arms}
+    scale = {c: 0.4 + 0.3 * i for i, c in enumerate(sizes)}
+    root = tmp_path / "r"
+    write_prediction_runs(root, list(sizes), quality, {a: RANK_QUALITY[a] for a in arms}, n_matches=30, seed=4, cohort_scale=scale, n_train=sizes)  # fmt: skip
+    assert A.main(["--runs-dir", str(root), "--out-dir", str(tmp_path / "o"), "--n-boot", "40", "--workers", "1", "--no-figures"]) == 0
+    text = capsys.readouterr().out
+    assert "meta-regression" in text and "P1" in text and "m11r_vs_hgbcut" in text and "crossover" in text
+    assert not (tmp_path / "o" / "figures" / "metareg_bubble.png").exists()  # --no-figures
+
+
+# --------------------------------------------------------------------------- external baselines (design doc 4.3)
+EXTERNAL_QUALITY = {"SAGONG-xgb": 0.75, "SAGONG-rf": 0.7, "SAGONG-lr": 0.6, "KRAFTON-tf": 0.85, "KRAFTON-mlp": 0.8}
+EXT_FORMULAS = {
+    "m11r_vs_sagong_xgb": {"M11R": 1, "SAGONG-xgb": -1}, "hgbcut_vs_sagong_xgb": {"HGB-cut": 1, "SAGONG-xgb": -1},
+    "m11r_vs_krafton_tf": {"M11R": 1, "KRAFTON-tf": -1}, "hgbcut_vs_krafton_tf": {"HGB-cut": 1, "KRAFTON-tf": -1},
+    "krafton_tf_mlp": {"KRAFTON-tf": 1, "KRAFTON-mlp": -1},
+}  # fmt: skip
+
+
+def external_runs(tmp_path, cohorts=COHORTS[:3], arms=tuple(EXTERNAL_QUALITY), skip=frozenset()):
+    quality = {**{a: q for a, q in QUALITY.items() if a not in EXPLORATORY}, **{a: EXTERNAL_QUALITY[a] for a in arms}}
+    rank_quality = {**{a: q for a, q in RANK_QUALITY.items() if a in quality}, "KRAFTON-tf": 1.3, "KRAFTON-mlp": 1.1}
+    return make_runs(tmp_path, cohorts=cohorts, quality=quality, rank_quality=rank_quality, skip=set(skip), seeds={})
+
+
+def test_external_arms_and_their_exploratory_contrasts_are_registered():
+    assert A.EXTERNAL_ARMS == ("SAGONG-xgb", "SAGONG-rf", "SAGONG-lr", "KRAFTON-tf", "KRAFTON-mlp")
+    assert A.ARM_ORDER[-5:] == A.EXTERNAL_ARMS  # after the HGB references
+    for name, coefs in EXT_FORMULAS.items():
+        f = A.FORMULAS[name]
+        assert f.coefs == coefs and f.optional and f.pooled and f.group == "external"
+        assert name not in {k for k, _ in A.PRIMARY.values()}  # never part of the Holm family
+
+
+def test_external_runs_are_kind_external_and_the_contrasts_are_pooled_without_holm(tmp_path):
+    root = external_runs(tmp_path / "r")
+    res = A.aggregate(root, tmp_path / "o", n_boot=80, seed=2, workers=1, figures=False)
+    inv = res.inventory
+    assert set(inv[inv.arm.str.startswith(("SAGONG", "KRAFTON"))].kind) == {"external"}
+    assert set(inv[inv.arm.str.startswith("HGB")].kind) == {"hgb"} and set(inv[inv.arm.str.startswith("M")].kind) == {"neural"}
+    truth = {
+        "m11r_vs_sagong_xgb": ("M11R", "SAGONG-xgb"), "hgbcut_vs_sagong_xgb": ("HGB-cut", "SAGONG-xgb"),
+        "m11r_vs_krafton_tf": ("M11R", "KRAFTON-tf"), "hgbcut_vs_krafton_tf": ("HGB-cut", "KRAFTON-tf"),
+        "krafton_tf_mlp": ("KRAFTON-tf", "KRAFTON-mlp"),
+    }  # fmt: skip
+    for name, (a, b) in truth.items():
+        row = pooled(res, name, "auc")
+        want = np.mean([auc_theory(eff(c, a, {**QUALITY, **EXTERNAL_QUALITY})) - auc_theory(eff(c, b, {**QUALITY, **EXTERNAL_QUALITY})) for c in COHORTS[:3]])
+        assert row.k == 3 and row.kind == "secondary" and row.exploratory and np.isnan(row.p_holm) and row.verdict_basis == "unadjusted"
+        assert row.theta == pytest.approx(want, abs=0.03), name
+        assert row.primary_id == ""
+    assert pooled(res, "m11r_vs_sagong_xgb", "auc").verdict == "gain" and pooled(res, "krafton_tf_mlp", "ap").verdict == "n/a"
+    # all seven metrics, three strata
+    assert (res.pooled.contrast == "krafton_tf_mlp").sum() == 7 * 3
+    # the contrast on identical rows is a paired bootstrap of the per-arm resamples: it is what the engine gives
+    sub = res.contrasts[(res.contrasts.contrast == "krafton_tf_mlp") & (res.contrasts.metric == "auc") & (res.contrasts.stratum == "all")]
+    assert (sub.se > 0).all() and len(sub) == 3
+    assert "no external" not in " ".join(res.issues.message)
+
+
+def test_adding_external_arms_changes_none_of_the_primary_results(tmp_path):
+    with_ext = A.aggregate(external_runs(tmp_path / "a"), tmp_path / "oa", n_boot=60, seed=4, workers=1, figures=False)
+    without = A.aggregate(external_runs(tmp_path / "b", arms=()), tmp_path / "ob", n_boot=60, seed=4, workers=1, figures=False)
+    key = ["contrast", "metric", "stratum"]
+    a = with_ext.pooled.merge(without.pooled, on=key, suffixes=("_a", "_b"))
+    assert len(a) == len(without.pooled) > 0
+    for col in ("theta", "se", "ci95_low", "ci95_high", "tau2", "p_one_sided", "p_holm"):
+        assert np.array_equal(a[col + "_a"].to_numpy(), a[col + "_b"].to_numpy(), equal_nan=True), col  # bitwise, shared resamples
+    pa = with_ext.arm_metrics.merge(without.arm_metrics, on=["cohort", "arm", "seed", "stratum", "metric"], suffixes=("_a", "_b"))
+    assert np.array_equal(pa.value_a.to_numpy(), pa.value_b.to_numpy())
+    assert with_ext.summary["primary_results"] == without.summary["primary_results"]
+
+
+def test_external_tables_follow_the_arms_table_layout(tmp_path):
+    root = external_runs(tmp_path / "r")
+    res = A.aggregate(root, tmp_path / "o", n_boot=60, seed=2, workers=1, figures=False)
+    spec, rows = parse_tabular((tmp_path / "o" / "tables" / "tab_external.tex").read_text())
+    arms_spec, arms_rows = parse_tabular((tmp_path / "o" / "tables" / "tab_arms_metrics.tex").read_text())
+    raw = (tmp_path / "o" / "tables" / "tab_external.tex").read_text()
+    assert spec == arms_spec and "\\begin{tabular}{@{}lccccccc@{}}" in raw
+    assert rows[0][1:] == arms_rows[0][1:] and rows[1][1:] == arms_rows[1][1:]  # the two header rows of the arms table
+    body = [r for r in rows if r[0].startswith(("HGB", "M11R", "SAGONG", "KRAFTON"))]
+    assert [r[0] for r in body] == ["HGB-cut (reference)", "M11R (reference)", "SAGONG-xgb", "SAGONG-rf", "SAGONG-lr", "KRAFTON-tf", "KRAFTON-mlp"]
+    m = res.arm_means
+    for r in body:
+        arm = r[0].replace(" (reference)", "")
+        for j, metric in enumerate(("auc", "ap", "nll", "brier", "spearman", "top5_auc", "cindex"), start=1):
+            val = float(m[(m.arm == arm) & (m.metric == metric) & (m.stratum == "all")].iloc[0]["mean"])
+            assert r[j] == A.fmt_value(val), (arm, metric)
+    text = (tmp_path / "o" / "tables" / "tab_external.tex").read_text()
+    assert "generated by model_stgcn.ptr.aggregate" in text and "\\midrule" in text
+    # the main arms table does not list the external models (it follows the paper skeleton)
+    assert not any(r[0].startswith(("SAGONG", "KRAFTON")) for r in arms_rows)
+    # contrasts table
+    spec2, rows2 = parse_tabular((tmp_path / "o" / "tables" / "tab_external_contrasts.tex").read_text())
+    assert "\\begin{tabular}{@{}l c c c c@{}}" in (tmp_path / "o" / "tables" / "tab_external_contrasts.tex").read_text() and rows2[0][0] == "Contrast" and [r[0] for r in rows2[1:]] == [
+        "M11R $-$ SAGONG-xgb", "HGB-cut $-$ SAGONG-xgb", "M11R $-$ KRAFTON-tf", "HGB-cut $-$ KRAFTON-tf", "KRAFTON-tf $-$ KRAFTON-mlp",
+    ]  # fmt: skip
+    for r, (label, name) in zip(rows2[1:], A.EXTERNAL_CONTRAST_ROWS):
+        for cell, metric in zip(r[1:], ("auc", "spearman", "top5_auc", "cindex")):
+            p = pooled(res, name, metric)
+            assert cell == A.fmt_delta(p.theta, p.ci95_low, p.ci95_high), (name, metric)
+
+
+def test_external_tables_only_list_what_was_run_and_flag_partial_coverage(tmp_path):
+    only_sagong = external_runs(tmp_path / "r", arms=("SAGONG-xgb", "SAGONG-rf", "SAGONG-lr"), skip={("c_gamma", "SAGONG-xgb"), ("c_gamma", "SAGONG-rf"), ("c_gamma", "SAGONG-lr")})
+    res = A.aggregate(only_sagong, tmp_path / "o", n_boot=40, seed=1, workers=1, figures=False)
+    text = (tmp_path / "o" / "tables" / "tab_external.tex").read_text()
+    assert "SAGONG-xgb (2 cohorts)" in text and "KRAFTON" not in text and "HGB-cut (reference)" in text
+    _, rows = parse_tabular((tmp_path / "o" / "tables" / "tab_external_contrasts.tex").read_text())
+    labels = [r[0] for r in rows[1:]]
+    assert labels == ["M11R $-$ SAGONG-xgb (2 cohorts)", "HGB-cut $-$ SAGONG-xgb (2 cohorts)"]  # no KRAFTON rows: not run
+    assert pooled(res, "m11r_vs_sagong_xgb", "auc").k == 2 and (res.pooled.contrast == "m11r_vs_krafton_tf").sum() == 0
+    msgs = " ".join(res.issues.message)
+    assert "KRAFTON" not in msgs and "SAGONG" not in msgs  # optional external arms never raise warnings
+    # no external arm at all: no external tables (and a stale file is removed)
+    plain = external_runs(tmp_path / "p", arms=())
+    out = tmp_path / "o2"
+    (out / "tables").mkdir(parents=True)
+    (out / "tables" / "tab_external.tex").write_text("stale")
+    A.aggregate(plain, out, n_boot=30, seed=1, workers=1, figures=False)
+    assert not (out / "tables" / "tab_external.tex").exists() and not (out / "tables" / "tab_external_contrasts.tex").exists()
+
+
+def test_an_external_run_with_other_rows_is_reported_or_rejected(tmp_path):
+    root = external_runs(tmp_path / "r", cohorts=COHORTS[:2])
+    path = root / "c_beta" / "SAGONG-xgb" / "seed42" / "pred_test.csv"
+    df = pd.read_csv(path)
+    df.iloc[2:].to_csv(path, index=False)  # the baseline scored fewer rows
+    with pytest.raises(ValueError, match=r"c_beta.*SAGONG-xgb|SAGONG-xgb.*c_beta"):
+        A.aggregate(root, tmp_path / "o", n_boot=20, workers=1, figures=False)
+    res = A.aggregate(root, tmp_path / "o2", n_boot=30, seed=1, workers=1, figures=False, skip_misaligned=True)
+    assert "SAGONG-xgb" in " ".join(res.issues.message) and pooled(res, "m11r_vs_sagong_xgb", "auc").k == 1
+    assert pooled(res, "phase_main", "auc").k == 2  # nothing else is affected

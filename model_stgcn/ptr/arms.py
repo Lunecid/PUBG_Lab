@@ -22,9 +22,10 @@ Exploratory arms (``EXPLORATORY_ARMS``; section 4.1, run on the two large cohort
 (``noCombat`` removes both directed channels and also switches escalation off, so the prox channel
 cannot leak the combat edge set).
 
-Stage-2 stubs (``STUB_ARMS``; player hierarchy, not implemented): ``M11RZ-P`` and ``M11RZ-P-tm``
-(``-tm`` = teammate bias removed).  They are registered so that names resolve, but
-``get_arm(..., implemented_only=True)`` / the CLI raise ``NotImplementedError``.
+Stage-2 arms (``STAGE2_ARMS``; player hierarchy, design doc 3 / 4.1, they need the player dump
+``model_stgcn/dumps/bigcomp2027_player_v1``): ``M11RZ-P`` = M11RZ plus the player layer (relation-biased attention over
+all alive players with the teammate, enemy-proximity and combat biases, attention pooling to team tokens), and
+``M11RZ-P-tm`` = the same without the teammate bias only.  ``STUB_ARMS`` is empty now: no arm is a stub any more.
 """
 
 from __future__ import annotations
@@ -34,6 +35,7 @@ from dataclasses import dataclass
 from model_stgcn.ptr.data import ALIVE_COUNT_FEATURES
 from model_stgcn.ptr.model import PTRConfig
 from model_stgcn.ptr.relations import RELATION_TYPES
+from model_stgcn.ptr.player import PLAYER_RELATION_TYPES
 
 NOHAB_GROUPS: tuple[str, ...] = ("zone", "habitat")
 # noHab removes the zone and habitat groups but keeps the alive-count variables that sit inside them
@@ -54,6 +56,8 @@ class ArmSpec:
     exploratory: bool = False
     stage: int = 1
     implemented: bool = True
+    player: bool = False  # stage 2: player tokens + relation-biased player attention + pooling to team tokens
+    player_relation_types: tuple[str, ...] = ()  # bias channels of the player attention (subset of PLAYER_RELATION_TYPES)
 
 
 def _arm(name: str, phase: bool, team: bool, relation: bool, zone: bool, **kw) -> ArmSpec:
@@ -79,16 +83,18 @@ _EXPLORATORY = (
     _arm("M11R-noCopress", True, True, True, False, exploratory=True,
          relation_types=("prox", "combat_out", "combat_in")),
 )  # fmt: skip
-_STUBS = (
-    # stage 2 (player layer, decided 10/9 18:00): the flags describe the intended arm only
-    _arm("M11RZ-P", True, True, True, True, stage=2, implemented=False),
-    _arm("M11RZ-P-tm", True, True, True, True, stage=2, implemented=False),
-)
+_STAGE2 = (
+    # stage 2 (player layer, decided 10/9 18:00): M11RZ + players; -tm removes the teammate bias channel only
+    _arm("M11RZ-P", True, True, True, True, stage=2, player=True, player_relation_types=PLAYER_RELATION_TYPES),
+    _arm("M11RZ-P-tm", True, True, True, True, stage=2, player=True,
+         player_relation_types=tuple(t for t in PLAYER_RELATION_TYPES if t != "teammate")),
+)  # fmt: skip
 
-ARMS: dict[str, ArmSpec] = {a.name: a for a in (*_MAIN, *_EXPLORATORY, *_STUBS)}
+ARMS: dict[str, ArmSpec] = {a.name: a for a in (*_MAIN, *_EXPLORATORY, *_STAGE2)}
 MAIN_ARMS: tuple[str, ...] = tuple(a.name for a in _MAIN)
 EXPLORATORY_ARMS: tuple[str, ...] = tuple(a.name for a in _EXPLORATORY)
-STUB_ARMS: tuple[str, ...] = tuple(a.name for a in _STUBS)
+STAGE2_ARMS: tuple[str, ...] = tuple(a.name for a in _STAGE2)
+STUB_ARMS: tuple[str, ...] = ()  # no arm is registered-but-unimplemented any more
 
 
 def get_arm(name: str, *, implemented_only: bool = False) -> ArmSpec:
@@ -112,10 +118,16 @@ def model_config(
     dropout: float = 0.1,
     ffn_mult: int = 4,
     zone_hidden: int = 16,
+    player_features: int = 0,
+    player_layers: int = 1,
 ) -> PTRConfig:
-    """Model configuration of an arm (defaults are the shared spec: d=128, H=4, L=2, dropout 0.1)."""
+    """Model configuration of an arm (defaults are the shared spec: d=128, H=4, L=2, dropout 0.1).
+
+    ``player_features``: columns of the player feature tensor (``Xp``), required by the stage-2 arms."""
     if not arm.implemented:
         raise NotImplementedError(f"arm {arm.name} is not implemented")
+    if arm.player and player_features < 1:
+        raise ValueError(f"arm {arm.name} needs the player dump: player_features must be >= 1")
     return PTRConfig(
         in_features=in_features,
         n_phases=n_phases,
@@ -131,4 +143,8 @@ def model_config(
         relation_types=arm.relation_types,
         zone=arm.zone,
         zone_hidden=zone_hidden,
+        player=arm.player,
+        player_features=player_features if arm.player else 0,
+        player_relation_types=arm.player_relation_types if arm.player else (),
+        player_layers=player_layers if arm.player else 0,
     )

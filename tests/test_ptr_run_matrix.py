@@ -416,3 +416,70 @@ def test_population_json_drives_the_projection(tmp_path, capsys):
     assert RM.population_stats(tmp_path / "nowhere") is None
     assert RM.main(["--dump-dir", str(tmp_path), "--out-dir", str(tmp_path / "o"), "--dry-run", "--projected"]) == 0
     assert "cohorts (2)" in capsys.readouterr().out
+
+
+# --------------------------------------------------------------------------- stage 2 (player layer)
+def test_stage_two_plan_argv_and_hash(tmp_path, capsys):
+    from model_stgcn.ptr.synthetic import write_player_dumps
+
+    root = tmp_path / "dumps"
+    for c in ("karakin_tpp_squad", "paramo_tpp_squad"):
+        write_cohort_dumps(root / "bigcomp2027_phase_v1", c, sizes={"train": 5, "val": 3, "test": 3}, seed=1)
+    write_player_dumps(root / "bigcomp2027_phase_v1", "karakin_tpp_squad", root / "bigcomp2027_player_v1", seed=2)  # paramo has none
+    runs = RM.enumerate_stage2_runs(["karakin_tpp_squad", "paramo_tpp_squad"])
+    assert [(r.cohort, r.arm, r.seed, r.group, r.kind) for r in runs] == [
+        (c, a, 42, "stage2", "neural") for c in ("karakin_tpp_squad", "paramo_tpp_squad") for a in ("M11RZ-P", "M11RZ-P-tm")
+    ]
+    assert len(RM.enumerate_stage2_runs(list(RM.PROJECTED_REGISTRY))) == 24
+    st = RM.Settings(dump_dir=str(root / "bigcomp2027_phase_v1"), out_dir=str(tmp_path / "o"), max_epochs=2, threads=1)
+    argv = RM.build_argv(runs[0], st)
+    assert "--player-dump-dir" not in argv  # default: next to the phase dump (train.py resolves it)
+    assert RM.expected_hash(runs[0], st) == T.config_hash(T.parse_args(argv[3:]))
+    st2 = RM.Settings(**{**st.__dict__, "player_dump_dir": str(root / "elsewhere")})
+    argv2 = RM.build_argv(runs[0], st2)
+    assert argv2[argv2.index("--player-dump-dir") + 1] == str(root / "elsewhere")
+    assert "--player-dump-dir" not in RM.build_argv(RM.RunSpec("neural", "karakin_tpp_squad", "M11RZ", 42, "main"), st2)  # team arms never
+    # the dry run plans only the cohorts that have a complete player dump, and says so
+    base = ["--dump-dir", str(root / "bigcomp2027_phase_v1"), "--out-dir", str(tmp_path / "o"), "--stage2", "--dry-run", "--workers", "2"]
+    assert RM.main(base) == 0
+    text = capsys.readouterr().out
+    assert "runs: 2 = stage 2 (M11RZ-P, M11RZ-P-tm) x 1 cohorts" in text and "paramo_tpp_squad" in text and "no complete player dump" in text
+    with pytest.raises(ValueError, match="no complete player dump"):
+        RM.main([*base, "--strict"])
+    with pytest.raises(SystemExit):
+        RM.main([*base, "--lc"])
+    # estimates: the player arms cost more than M11RZ, never less
+    stats = RM.CohortStats(n_train=500, n_val=60, n_test=60, mean_teams=26.0, rows_per_match=57.0)
+    st3 = RM.Settings(dump_dir="x", out_dir="y", max_epochs=12, threads=2)
+    est = lambda arm: RM.estimate_seconds(RM.RunSpec("neural", "c", arm, 42, "stage2"), stats, st3)  # noqa: E731
+    assert est("M11RZ") < est("M11RZ-P") and est("M11RZ-P") == est("M11RZ-P-tm")
+
+
+def test_stage_two_real_subprocess_run_writes_the_player_arm(tmp_path):
+    from model_stgcn.ptr.synthetic import write_player_dumps
+
+    root = tmp_path / "dumps"
+    write_cohort_dumps(root / "bigcomp2027_phase_v1", "karakin_tpp_squad", sizes={"train": 6, "val": 3, "test": 3}, seed=1)
+    write_player_dumps(root / "bigcomp2027_phase_v1", "karakin_tpp_squad", root / "bigcomp2027_player_v1", seed=2)
+    out = tmp_path / "out"
+    argv = ["--dump-dir", str(root / "bigcomp2027_phase_v1"), "--out-dir", str(out), "--stage2", "--max-epochs", "1", "--workers", "2",
+            "--threads", "1", "--poll-seconds", "0.1"]  # fmt: skip
+    assert RM.main(argv) == 0
+    rows = read_status(out)
+    assert {(r["arm"], r["group"], r["status"]) for r in rows} == {("M11RZ-P", "stage2", "done"), ("M11RZ-P-tm", "stage2", "done")}
+    for r in rows:
+        met = json.loads(Path(r["metrics"]).read_text())
+        assert met["config_hash"] == r["config_hash"] and "player" in met["data"]
+    assert RM.main(argv) == 0 and {r["status"] for r in read_status(out)} == {"skipped_done"}
+
+
+def test_status_file_name_can_be_changed_so_added_runs_do_not_overwrite_the_matrix_status(tmp_path):
+    root = tiny_dump(tmp_path, ("karakin_tpp_squad",))
+    out = tmp_path / "out"
+    base = ["--dump-dir", str(root), "--out-dir", str(out), "--max-epochs", "1", "--workers", "1", "--threads", "1", "--poll-seconds", "0.1",
+            "--only", "arm=M00"]  # fmt: skip
+    assert RM.main(base) == 0
+    assert RM.main([*base[:-1], "arm=HGB-cut", "--status-name", "run_matrix_status_extra.csv"]) == 0
+    first = (out / "run_matrix_status.csv").read_text()
+    assert "M00" in first and "HGB-cut" not in first  # the first status file is untouched
+    assert "HGB-cut" in (out / "run_matrix_status_extra.csv").read_text()

@@ -12,6 +12,13 @@ Edge types:
     copressure : symmetric edge when teams are close while both under zone pressure
 
 The script is match-scoped and resumable.
+
+Fix B + single clock (2026-10-05): the proximity and co-pressure edges aggregate the 10 s grid
+(stdb.team_proximity / stdb.moving_objects) that lives on the game clock, while the phase bounds are
+LogMatchStart-clock numbers.  Their grid window is therefore
+``[phase_start_s - delta, phase_end_s - delta - SNAPSHOT_INTERVAL]`` (stdb/causal_cut.py).  Combat
+edges use exact event timestamps on the LogMatchStart clock and keep the ``[phase_start_s,
+phase_end_s]`` window unchanged.
 """
 
 from __future__ import annotations
@@ -21,6 +28,13 @@ import hashlib
 import logging
 import time
 
+from stdb.causal_cut import (
+    CUT_COLUMN,
+    WIN_START_COLUMN,
+    fetch_clock_delta,
+    sql_delta_literal,
+    sql_window_columns,
+)
 from stdb.conn import connect
 
 logger = logging.getLogger("stdb.phase_edge_etl")
@@ -66,12 +80,15 @@ def apply_schema() -> None:
 
 
 def build_match(cur, match_id: str) -> dict[str, int]:
+    delta_s = fetch_clock_delta(cur, match_id)
+    win_cols = sql_window_columns(sql_delta_literal(delta_s))
     cur.execute("DELETE FROM stdb.team_phase_edge_cache WHERE match_id = %s", (match_id,))
 
     cur.execute(
-        """
+        f"""
         WITH phase_bounds AS (
-            SELECT match_id, phase_idx, phase_start_s, phase_end_s, phase_duration_s
+            SELECT match_id, phase_idx, phase_start_s, phase_end_s, phase_duration_s,
+                   {win_cols}
               FROM stdb.v_match_phase_bounds
              WHERE match_id = %s
                AND phase_idx > 0
@@ -85,7 +102,8 @@ def build_match(cur, match_id: str) -> dict[str, int]:
               FROM phase_bounds pb
               JOIN stdb.team_proximity tp
                 ON tp.match_id = pb.match_id
-               AND tp.snapshot_t BETWEEN pb.phase_start_s AND pb.phase_end_s
+               -- Fix B + one clock: grid window on the game clock, capped at the end
+               AND tp.snapshot_t BETWEEN pb.{WIN_START_COLUMN} AND pb.{CUT_COLUMN}
              GROUP BY pb.phase_idx, tp.team_a, tp.team_b
         ),
         directed AS (
@@ -175,9 +193,10 @@ def build_match(cur, match_id: str) -> dict[str, int]:
     combat_rows = int(cur.rowcount)
 
     cur.execute(
-        """
+        f"""
         WITH phase_bounds AS (
-            SELECT match_id, phase_idx, phase_start_s, phase_end_s
+            SELECT match_id, phase_idx, phase_start_s, phase_end_s,
+                   {win_cols}
               FROM stdb.v_match_phase_bounds
              WHERE match_id = %s
                AND phase_idx > 0
@@ -218,7 +237,8 @@ def build_match(cur, match_id: str) -> dict[str, int]:
               FROM phase_bounds pb
               JOIN stdb.team_proximity tp
                 ON tp.match_id = pb.match_id
-               AND tp.snapshot_t BETWEEN pb.phase_start_s AND pb.phase_end_s
+               -- Fix B + one clock: grid window on the game clock, capped at the end
+               AND tp.snapshot_t BETWEEN pb.{WIN_START_COLUMN} AND pb.{CUT_COLUMN}
               JOIN pressure pa
                 ON pa.team_id = tp.team_a
                AND pa.snapshot_t = tp.snapshot_t

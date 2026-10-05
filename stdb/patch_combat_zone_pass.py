@@ -9,6 +9,11 @@ event_t BETWEEN phase_start_s AND phase_end_s and UPDATEs only that one column
 (no trajectory rebuild). The ETL itself is already fixed for future builds.
 
 Idempotent UPDATE; match-scoped. Mirrors the network/habitat batch runner.
+
+Fix B + single clock (2026-10-05): the grid joins below use the same game-clock window
+``[phase_start_s - delta, phase_end_s - delta - SNAPSHOT_INTERVAL]`` as
+stdb/phase_spatial_feature_etl.py (and move the event buckets onto the grid clock), so running this
+patch can no longer re-introduce a post-cut grid read into ``combat_zone_pass_count``.
 """
 
 from __future__ import annotations
@@ -18,13 +23,20 @@ import hashlib
 import logging
 import time
 
+from stdb.causal_cut import (
+    CUT_COLUMN,
+    WIN_START_COLUMN,
+    fetch_clock_delta,
+    sql_window_columns,
+)
 from stdb.conn import connect
 
 logger = logging.getLogger("stdb.patch_combat_zone_pass")
 
-PATCH_SQL = """
+PATCH_SQL = f"""
 WITH phase_bounds AS (
-    SELECT phase_idx, phase_start_s, phase_end_s
+    SELECT phase_idx, phase_start_s, phase_end_s,
+           {sql_window_columns("%(delta_s)s")}
       FROM stdb.v_match_phase_bounds
      WHERE match_id = %(m)s AND phase_idx > 0
 ),
@@ -33,18 +45,18 @@ snaps AS (
       FROM phase_bounds b
       JOIN stdb.moving_objects mo
         ON mo.match_id = %(m)s AND mo.agent_kind = 'team' AND mo.is_alive
-       AND mo.snapshot_t BETWEEN b.phase_start_s AND b.phase_end_s
+       AND mo.snapshot_t BETWEEN b.{WIN_START_COLUMN} AND b.{CUT_COLUMN}
 ),
 team_snaps AS (
     SELECT b.phase_idx, mo.team_id, mo.snapshot_t, ST_Force2D(mo.pos) AS pos2d
       FROM phase_bounds b
       JOIN stdb.moving_objects mo
         ON mo.match_id = %(m)s AND mo.agent_kind = 'team' AND mo.is_alive
-       AND mo.snapshot_t BETWEEN b.phase_start_s AND b.phase_end_s
+       AND mo.snapshot_t BETWEEN b.{WIN_START_COLUMN} AND b.{CUT_COLUMN}
 ),
 combat_points AS (
     SELECT event_id, event_t,
-           floor(event_t / 10.0)::int * 10 AS snapshot_t,
+           floor((event_t - %(delta_s)s) / 10.0)::int * 10 AS snapshot_t,
            COALESCE(ST_Force2D(victim_pos), ST_Force2D(attacker_pos)) AS event_pos
       FROM stdb.spatial_events
      WHERE match_id = %(m)s
@@ -73,7 +85,7 @@ UPDATE stdb.team_phase_exposure e
 
 
 def patch_match(cur, match_id: str) -> int:
-    cur.execute(PATCH_SQL, {"m": match_id})
+    cur.execute(PATCH_SQL, {"m": match_id, "delta_s": fetch_clock_delta(cur, match_id)})
     return int(cur.rowcount)
 
 

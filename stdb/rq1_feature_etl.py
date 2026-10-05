@@ -23,6 +23,14 @@ import time
 from pathlib import Path
 from typing import Iterable
 
+from stdb.causal_cut import (
+    CUT_COLUMN,
+    WIN_END_COLUMN,
+    WIN_START_COLUMN,
+    fetch_clock_delta,
+    sql_delta_literal,
+    sql_window_columns,
+)
 from stdb.conn import apply_sql_file, connect
 
 logger = logging.getLogger("stdb.rq1_feature_etl")
@@ -65,12 +73,16 @@ def list_current_match_ids(
 
 
 def build_match_phase_global(cur, match_id: str) -> int:
+    # Fix B + single clock (2026-10-05, stdb/causal_cut.py): the phase bounds are LogMatchStart-clock
+    # numbers while game states and the dynamic_regions grid are on the lagging elapsed_time clock.
+    win_cols = sql_window_columns(sql_delta_literal(fetch_clock_delta(cur, match_id)))
     _execute(cur, "DELETE FROM stdb.match_phase_global WHERE match_id = %s", (match_id,))
     _execute(
         cur,
-        """
+        f"""
         WITH b AS (
-            SELECT *
+            SELECT *,
+                   {win_cols}
               FROM stdb.v_match_phase_bounds
              WHERE match_id = %s
         ),
@@ -90,36 +102,49 @@ def build_match_phase_global(cur, match_id: str) -> int:
               FROM b
               JOIN pubg.telem_game_states gs
                 ON gs.match_id = b.match_id
-               AND gs.elapsed_time BETWEEN b.phase_start_s AND b.phase_end_s
+               -- exact game-state events: shifted onto the game clock, not capped
+               AND gs.elapsed_time BETWEEN b.{WIN_START_COLUMN} AND b.{WIN_END_COLUMN}
              GROUP BY b.phase_idx
         ),
         safe_start AS (
-            SELECT DISTINCT ON (phase_idx)
-                   phase_idx, center_pos, radius_m
-              FROM stdb.dynamic_regions
-             WHERE match_id = %s AND region_kind = 'safe' AND phase_idx IS NOT NULL
-             ORDER BY phase_idx, snapshot_t
+            SELECT DISTINCT ON (b.phase_idx)
+                   b.phase_idx, dr.center_pos, dr.radius_m
+              FROM b
+              JOIN stdb.dynamic_regions dr
+                ON dr.match_id = %s AND dr.region_kind = 'safe'
+               AND dr.snapshot_t BETWEEN b.{WIN_START_COLUMN} AND b.{CUT_COLUMN}
+             ORDER BY b.phase_idx, dr.snapshot_t
         ),
         safe_end AS (
-            SELECT DISTINCT ON (phase_idx)
-                   phase_idx, center_pos, radius_m
-              FROM stdb.dynamic_regions
-             WHERE match_id = %s AND region_kind = 'safe' AND phase_idx IS NOT NULL
-             ORDER BY phase_idx, snapshot_t DESC
+            -- Fix B + one clock: last grid point <= phase_end_s - delta - SNAPSHOT_INTERVAL (the
+            -- last grid point resamples game states up to 5 s past it; the bounds are not on the
+            -- grid's clock)
+            SELECT DISTINCT ON (b.phase_idx)
+                   b.phase_idx, dr.center_pos, dr.radius_m
+              FROM b
+              JOIN stdb.dynamic_regions dr
+                ON dr.match_id = %s AND dr.region_kind = 'safe'
+               AND dr.snapshot_t BETWEEN b.{WIN_START_COLUMN} AND b.{CUT_COLUMN}
+             ORDER BY b.phase_idx, dr.snapshot_t DESC
         ),
         poison_start AS (
-            SELECT DISTINCT ON (phase_idx)
-                   phase_idx, center_pos, radius_m
-              FROM stdb.dynamic_regions
-             WHERE match_id = %s AND region_kind = 'poison' AND phase_idx IS NOT NULL
-             ORDER BY phase_idx, snapshot_t
+            SELECT DISTINCT ON (b.phase_idx)
+                   b.phase_idx, dr.center_pos, dr.radius_m
+              FROM b
+              JOIN stdb.dynamic_regions dr
+                ON dr.match_id = %s AND dr.region_kind = 'poison'
+               AND dr.snapshot_t BETWEEN b.{WIN_START_COLUMN} AND b.{CUT_COLUMN}
+             ORDER BY b.phase_idx, dr.snapshot_t
         ),
         poison_end AS (
-            SELECT DISTINCT ON (phase_idx)
-                   phase_idx, center_pos, radius_m
-              FROM stdb.dynamic_regions
-             WHERE match_id = %s AND region_kind = 'poison' AND phase_idx IS NOT NULL
-             ORDER BY phase_idx, snapshot_t DESC
+            -- Fix B + one clock: last grid point <= phase_end_s - delta - SNAPSHOT_INTERVAL
+            SELECT DISTINCT ON (b.phase_idx)
+                   b.phase_idx, dr.center_pos, dr.radius_m
+              FROM b
+              JOIN stdb.dynamic_regions dr
+                ON dr.match_id = %s AND dr.region_kind = 'poison'
+               AND dr.snapshot_t BETWEEN b.{WIN_START_COLUMN} AND b.{CUT_COLUMN}
+             ORDER BY b.phase_idx, dr.snapshot_t DESC
         ),
         match_start AS (
             SELECT match_id, weather_id::text AS weather_id, camera_view_type::text AS camera_view_type,
@@ -194,12 +219,16 @@ def build_match_phase_global(cur, match_id: str) -> int:
 
 
 def build_team_phase_state(cur, match_id: str) -> int:
+    # Fix B + single clock (2026-10-05): raw positions are on the elapsed_time (game) clock, the
+    # phase bounds on the LogMatchStart clock; the window is [start - delta, end - delta - 10 s].
+    win_cols = sql_window_columns(sql_delta_literal(fetch_clock_delta(cur, match_id)))
     _execute(cur, "DELETE FROM stdb.team_phase_state WHERE match_id = %s", (match_id,))
     _execute(
         cur,
-        """
+        f"""
         WITH b AS (
-            SELECT *
+            SELECT *,
+                   {win_cols}
               FROM stdb.v_match_phase_bounds
              WHERE match_id = %s
         ),
@@ -221,7 +250,7 @@ def build_team_phase_state(cur, match_id: str) -> int:
               FROM pubg.telem_positions p
               JOIN b
                 ON b.match_id = p.match_id
-               AND p.elapsed_time BETWEEN b.phase_start_s AND b.phase_end_s
+               AND p.elapsed_time BETWEEN b.{WIN_START_COLUMN} AND b.{CUT_COLUMN}
              WHERE p.match_id = %s
                AND p.account_id IS NOT NULL
                AND p.team_id IS NOT NULL

@@ -1,0 +1,93 @@
+\section{Problem and Data}\label{sec:problem}
+
+\subsection{Phase-conditioned discrete hazard}\label{sec:hazard}
+Let $\mathcal{I}_m$ be the teams of match $m$. The safe-zone schedule divides the match into phases $k=1,2,\dots$, which serve as the discrete clock. A team is alive while at least one member has not been eliminated; knocked-down members still count as alive. The risk set $\mathcal{R}_m(k)\subseteq\mathcal{I}_m$ contains the teams alive at the end of phase $k$. For $i\in\mathcal{R}_m(k)$ the label is
+\begin{equation}
+Y_i^m(k{+}1)=\ind{\,i\text{ is eliminated in phase }k{+}1\,}.
+\label{eq:label}
+\end{equation}
+A prediction case is $(m,i,k)$ with $k\in\{1,\dots,7\}$; the last surviving team is censored. For match $m$, let $\mathbf{x}_j(l)\in\R^{150}$ be the feature vector of team $j$ in phase $l$, $\mathbf{c}_j(l)$ its centroid, $\mathbf{u}(l)$ the raw zone geometry (Section~\ref{sec:method}), and $A_r(l)$ the relation matrix of type $r\in\{\mathrm{prox},\mathrm{comb},\mathrm{copress}\}$ (Section~\ref{sec:data}). The telemetry is a spectator view, so the information available at the end of phase $k$ covers all teams:
+\begin{equation}
+\mathcal{F}^m(k)=\bigl\{\mathbf{x}_j(l),\,\mathbf{c}_j(l),\,\mathbf{u}(l),\,A_r(l)\bigr\}_{j,\,r,\,l\le k}.
+\label{eq:info}
+\end{equation}
+The target is the discrete-time hazard
+\begin{equation}
+\lambda_i^m(k)=\Pr\bigl(Y_i^m(k{+}1)=1\mid\mathcal{F}^m(k)\bigr).
+\label{eq:hazard}
+\end{equation}
+Nothing from phase $k{+}1$ or later enters $\mathcal{F}^m(k)$; every quantity uses samples taken no later than 10 s before the phase cut (Section~\ref{sec:experiments}). The components studied here restrict what a model reads from $\mathcal{F}^m(k)$ when it scores team $i$: the \emph{phase axis} allows phases $l\le k$ instead of $l=k$, the \emph{team axis} teams $j\neq i$, the \emph{relation} biases the matrices $A_r(l)$, and the \emph{zone object} the geometry $\mathbf{u}(l)$. Section~\ref{sec:method} turns these into switches.
+
+\subsection{Data}\label{sec:data}
+\emph{Cohorts and cases.} We use match metadata and telemetry from the official PUBG API, collected between 2026-03-26 and 2026-06-02. Matches are grouped into 13 cohorts by map, perspective (TPP or FPP), and team size (solo, duo, or squad), from 333 matches (Karakin and Paramo, TPP squad) to 6,204 (Erangel, TPP squad). Tutorial, training, and incomplete matches, and map--mode combinations with too few matches, are excluded. For $k=1,\dots,7$ the 17,943 matches yield 1,033,471 cases, with per-cohort elimination rates between 28.6\% and 36.3\%; the roughly 0.3\% of cases in phase 8 or later are dropped. Auxiliary labels (normalised final placement and top-5 membership) are never inputs; the rank loss and the relative-standing metrics use them.
+
+% OPTIONAL cohort table (about 0.17 page), cut for space: uncomment if the
+% final page count allows, and refer to it as Table~\ref{tab:cohorts}.
+% \begin{table}[t]
+% \caption{The 13 cohorts: matches, prediction cases ($k=1,\dots,7$), and share of cases with an elimination in the next phase.}
+% \label{tab:cohorts}
+% \centering\scriptsize
+% \setlength{\tabcolsep}{3.5pt}
+% \begin{tabular}{@{}lllrrr@{}}
+% \toprule
+% Map & View & Size & Matches & Cases & Elim. rate \\
+% \midrule
+% Erangel & TPP & Squad & 6,204 & 315,108 & 31.8\% \\
+% Taego & TPP & Squad & 4,159 & 213,401 & 29.1\% \\
+% Miramar & TPP & Squad & 1,543 & 87,810 & 28.6\% \\
+% Rondo & TPP & Squad & 1,039 & 51,984 & 28.8\% \\
+% Sanhok & TPP & Squad & 940 & 46,793 & 32.3\% \\
+% Erangel & TPP & Solo & 800 & 117,031 & 36.3\% \\
+% Erangel & TPP & Duo & 656 & 59,480 & 32.3\% \\
+% Taego & TPP & Duo & 573 & 48,036 & 32.6\% \\
+% Vikendi & TPP & Squad & 498 & 28,237 & 30.3\% \\
+% Taego & FPP & Squad & 435 & 22,702 & 33.3\% \\
+% Erangel & FPP & Squad & 430 & 20,974 & 31.4\% \\
+% Karakin & TPP & Squad & 333 & 12,243 & 35.6\% \\
+% Paramo & TPP & Squad & 333 & 9,672 & 34.2\% \\
+% \midrule
+% Total & & & 17,943 & 1,033,471 & \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+\emph{Splits.} Each cohort is split at the match level into 80/10/10 train, validation, and test sets with seed 42. The saved split files are shared by every arm and baseline. Test sets hold roughly 33 to 620 matches.
+% VERIFY: 33 is 10% of 333 (rounding not checked); 620 is the Erangel TPP
+% squad test set (6,204 matches: 4,964/620/620).
+
+\emph{Inputs.} Only the phase tier is used. Per match it holds a feature tensor $X\in\R^{8\times N\times150}$ (phases, team slots, features) with $N=128$; 2-D team centroids $C\in\R^{8\times N\times2}$ at the phase boundary (normalised map coordinates); one raw zone-geometry vector per phase (Section~\ref{sec:method}); and a relation tensor $A\in\R^{8\times3\times N\times N}$ of raw weights. Masks mark absent phases and team slots. The 150 features are 125 team-level values plus 25 match-level values repeated for every team slot, grouped into nine families (Table~\ref{tab:features}); the Zone and Habitat families, except the two alive-count variables, form the 45-feature block called Hab below. All features, centroids, zone geometry, and edges are built from samples taken no later than 10 s before the phase cut. The 10-second snapshot tier is not used, which keeps the arm definitions simple.
+% VERIFY: the 125/25 split is taken from the project's data-chapter notes; the
+% family-to-split mapping is not stated there.
+
+\begin{table}[t]
+\caption{Feature families of the 150-d phase-tier input. Zone (without the alive counts) and Habitat form the Hab block.}
+\label{tab:features}
+\centering\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.05}
+\begin{tabular}{@{}l r p{2.2in}@{}}
+\toprule
+Family & Dim. & Content \\
+\midrule
+Context & 3 & phase index, duration, team size \\
+Team state & 9 & alive members, health, intra-team spread \\
+Zone & 15 & alive counts, zone shifts, time outside, boundary distance \\
+Movement & 7 & distance, displacement, tortuosity, speed, zone heading \\
+Exposure & 13 & recent damage, red-zone passes, damage, knocks, kills \\
+Resources & 16 & vehicle use (3), item pick-up, equip, use (13) \\
+Spatial & 12 & nearby-enemy distribution (3), altitude (9) \\
+Relational & 43 & combat (13), proximity (10), co-pressure (6), cumulative (14) \\
+Habitat & 32 & crowding (13), zone entry (12), local competition (7) \\
+\midrule
+Total & 150 & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\emph{Relations.} Three relation types are built per phase from the same records: proximity, combat, and zone co-pressure (two teams within 200 m of each other while both are outside the safe zone or within 150 m inside its boundary). Let $\bar d_{ij}$ be the mean distance in metres between teams $i$ and $j$ in the phase; $D_{ij}$, $K_{ij}$, and $N_{ij}$ the damage, kills, and knock-downs inflicted by $i$ on $j$; and $c_{ij}/n_{ij}$ the share of joint observations in which the co-pressure condition holds, with mean distance $\bar d^{\mathrm{co}}_{ij}$ over those observations. The raw weights are
+\begin{align}
+w^{\mathrm{prox}}_{ij}&=\exp(-\bar d_{ij}/200),\\
+w^{\mathrm{comb}}_{ij}&=\log\bigl(1+D_{ij}+100K_{ij}+50N_{ij}\bigr),\\
+w^{\mathrm{copress}}_{ij}&=\tfrac{c_{ij}}{n_{ij}}\exp(-\bar d^{\mathrm{co}}_{ij}/200).
+\end{align}
+Proximity and co-pressure are symmetric, and combat is directed from attacker to victim. The tensor $A$ stores these raw weights; they are not row-normalised. Section~\ref{sec:method} derives the model's relation matrices, in which a pair that exchanged damage has its proximity weight set to zero (escalation).

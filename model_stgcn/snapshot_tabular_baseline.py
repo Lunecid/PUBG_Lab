@@ -238,7 +238,8 @@ def _snapshot_tabular_sql() -> str:
     return f"""
     WITH base_labels AS (
         SELECT
-            ROW_NUMBER() OVER () AS rid,
+            -- deterministic row ids / row order (2026-10-05 HGB determinism fix):
+            ROW_NUMBER() OVER (ORDER BY l.match_id, l.team_id, l.cut_phase) AS rid,
             l.match_id,
             l.team_id,
             DENSE_RANK() OVER (PARTITION BY l.match_id ORDER BY l.team_id) - 1 AS team_idx,
@@ -309,6 +310,7 @@ def _snapshot_tabular_sql() -> str:
       JOIN agg ON agg.rid = l.rid
       JOIN last_s ON last_s.rid = l.rid
       JOIN first_s ON first_s.rid = l.rid
+     ORDER BY l.match_id, l.team_id, l.cut_phase
     """
 
 
@@ -405,6 +407,10 @@ def _classifier(args: argparse.Namespace, *, learner: str = "hgb") -> Pipeline:
             max_iter=args.max_iter,
             learning_rate=args.learning_rate,
             l2_regularization=args.l2_regularization,
+            # 'auto' switches early stopping on for n > 10_000 rows and then holds out a
+            # row-order-dependent 10% validation split: the source of the run-to-run HGB
+            # drift (up to 0.0048 AUC per cohort).  Off => fixed max_iter, deterministic.
+            early_stopping=False,
             random_state=args.seed,
         )
     elif learner == "lr":

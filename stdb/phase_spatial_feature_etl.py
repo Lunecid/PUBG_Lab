@@ -9,6 +9,12 @@ STDB objects rather than directly from raw telemetry:
         -> stdb.team_phase_exposure
 
 It is intentionally match-scoped and idempotent so large batches can be resumed.
+
+Fix B + single clock (2026-10-05): every join to the 10 s grid (stdb.moving_objects and, through
+the shared snapshot_t, stdb.dynamic_regions / stdb.team_proximity) runs on the game clock window
+``[phase_start_s - delta, phase_end_s - delta - SNAPSHOT_INTERVAL]``: the phase bounds are
+LogMatchStart-clock numbers, the grid is on the elapsed_time clock that lags by the per-match
+``delta`` (see stdb/causal_cut.py).  Event buckets (combat_points) are moved onto the same grid.
 """
 
 from __future__ import annotations
@@ -18,6 +24,13 @@ import logging
 import time
 from pathlib import Path
 
+from stdb.causal_cut import (
+    CUT_COLUMN,
+    WIN_START_COLUMN,
+    fetch_clock_delta,
+    sql_delta_literal,
+    sql_window_columns,
+)
 from stdb.conn import apply_sql_file, connect
 
 SNAPSHOT_INTERVAL = 10.0
@@ -92,13 +105,17 @@ def apply_schema() -> None:
 
 
 def build_match(cur, match_id: str) -> dict[str, int]:
+    delta_s = fetch_clock_delta(cur, match_id)
+    dsql = sql_delta_literal(delta_s)
+    win_cols = sql_window_columns(dsql)
     cur.execute("DELETE FROM stdb.team_phase_trajectory WHERE match_id = %s", (match_id,))
     cur.execute("DELETE FROM stdb.team_phase_exposure WHERE match_id = %s", (match_id,))
 
     cur.execute(
-        """
+        f"""
         WITH phase_bounds AS (
-            SELECT match_id, phase_idx, phase_start_s, phase_end_s, phase_duration_s
+            SELECT match_id, phase_idx, phase_start_s, phase_end_s, phase_duration_s,
+                   {win_cols}
               FROM stdb.v_match_phase_bounds
              WHERE match_id = %s
                AND phase_idx > 0
@@ -109,6 +126,7 @@ def build_match(cur, match_id: str) -> dict[str, int]:
                    pb.phase_start_s,
                    pb.phase_end_s,
                    pb.phase_duration_s,
+                   pb.{WIN_START_COLUMN},
                    mo.snapshot_t::real AS snapshot_t,
                    mo.is_alive,
                    mo.pos AS pos3d,
@@ -127,7 +145,8 @@ def build_match(cur, match_id: str) -> dict[str, int]:
               JOIN stdb.moving_objects mo
                 ON mo.match_id = pb.match_id
                AND mo.agent_kind = 'team'
-               AND mo.snapshot_t BETWEEN pb.phase_start_s AND pb.phase_end_s
+               -- Fix B + one clock: grid window on the game clock, capped at the end
+               AND mo.snapshot_t BETWEEN pb.{WIN_START_COLUMN} AND pb.{CUT_COLUMN}
                AND mo.is_alive
          LEFT JOIN stdb.dynamic_regions dr
                 ON dr.match_id = mo.match_id
@@ -142,6 +161,7 @@ def build_match(cur, match_id: str) -> dict[str, int]:
                    min(phase_start_s)::real AS phase_start_s,
                    max(phase_end_s)::real AS phase_end_s,
                    max(phase_duration_s)::real AS phase_duration_s,
+                   min({WIN_START_COLUMN}) AS {WIN_START_COLUMN},
                    bool_or(is_alive)::boolean AS any_alive,
                    CASE
                        WHEN count(*) >= 2 THEN ST_MakeLine(pos3d ORDER BY snapshot_t)
@@ -218,7 +238,7 @@ def build_match(cur, match_id: str) -> dict[str, int]:
                END::real AS avg_speed_mps,
                CASE
                    WHEN g.phase_duration_s > 0 AND r.rot_t IS NOT NULL
-                   THEN greatest(0, least(1, (r.rot_t - g.phase_start_s) / g.phase_duration_s))
+                   THEN greatest(0, least(1, (r.rot_t - g.{WIN_START_COLUMN}) / g.phase_duration_s))
                    ELSE NULL
                END::real AS rotation_timing,
                CASE
@@ -235,7 +255,7 @@ def build_match(cur, match_id: str) -> dict[str, int]:
                END::real AS safe_alignment,
                CASE
                    WHEN g.phase_duration_s > 0 AND g.first_safe_t IS NOT NULL
-                   THEN greatest(0, least(1, (g.first_safe_t - g.phase_start_s) / g.phase_duration_s))
+                   THEN greatest(0, least(1, (g.first_safe_t - g.{WIN_START_COLUMN}) / g.phase_duration_s))
                    ELSE NULL
                END::real AS zone_entry_time,
                g.outside_safe_duration_s,
@@ -251,9 +271,10 @@ def build_match(cur, match_id: str) -> dict[str, int]:
     trajectory_rows = cur.rowcount
 
     cur.execute(
-        """
+        f"""
         WITH phase_bounds AS (
-            SELECT match_id, phase_idx, phase_start_s, phase_end_s, phase_duration_s
+            SELECT match_id, phase_idx, phase_start_s, phase_end_s, phase_duration_s,
+                   {win_cols}
               FROM stdb.v_match_phase_bounds
              WHERE match_id = %s
                AND phase_idx > 0
@@ -276,7 +297,8 @@ def build_match(cur, match_id: str) -> dict[str, int]:
               JOIN stdb.moving_objects mo
                 ON mo.match_id = pb.match_id
                AND mo.agent_kind = 'team'
-               AND mo.snapshot_t BETWEEN pb.phase_start_s AND pb.phase_end_s
+               -- Fix B + one clock: grid window on the game clock, capped at the end
+               AND mo.snapshot_t BETWEEN pb.{WIN_START_COLUMN} AND pb.{CUT_COLUMN}
                AND mo.is_alive
          LEFT JOIN stdb.dynamic_regions dr
                 ON dr.match_id = mo.match_id
@@ -321,7 +343,8 @@ def build_match(cur, match_id: str) -> dict[str, int]:
         combat_points AS (
             SELECT e.event_id,
                    e.event_t,
-                   floor(e.event_t / %s)::integer * %s::integer AS snapshot_t,
+                   -- events are on the LogMatchStart clock, the grid on the game clock
+                   floor((e.event_t - {dsql}) / %s)::integer * %s::integer AS snapshot_t,
                    COALESCE(ST_Force2D(e.victim_pos), ST_Force2D(e.attacker_pos)) AS event_pos
               FROM stdb.spatial_events e
              WHERE e.match_id = %s

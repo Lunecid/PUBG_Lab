@@ -1,0 +1,57 @@
+\section{Introduction}\label{sec:intro}
+
+In a battle royale game, many teams land on one map and a safe zone shrinks in discrete phases until one team remains. Each phase changes which teams are still at risk, how much space is left, and how often teams meet. Predicting next-phase eliminations can support live overlays, post-match review, and player feedback, and it is a natural discrete-time survival problem whose intervals are the safe-zone phases.
+
+Prior work on PUBG uses different slices of the available information (Table~\ref{tab:axes}). Sagong et al.~\cite{sagong2025hunterCamper} predict, once per phase, whether a player survives into the next half-phase; they use solo matches only, and their only signal about other players is a count of players within 100 m. Sagong and Kim~\cite{sagong2025survivalSequences} feed per-phase strategy sequences to recurrent models to predict the winner. Both use a \emph{phase axis}. The KRAFTON \texttt{pubg-winprob} release~\cite{krafton_pubg_winprob} instead applies self-attention across all squads at one time point, a \emph{team axis}, with counts of enemies and teammates within 150 m among its inputs. Interaction-graph transformers~\cite{wang2025higformer,ying2021graphormer} and graph models for sports and esports~\cite{xenopoulos2021gnnSports,bisberg2022gcnWp} encode typed \emph{relations}. Each line comes with its own data, label, split, and backbone, so their results cannot be compared axis by axis. In our literature search (October 2026), we did not find a study that separates these axes under a shared label, split, and backbone, or one that represents the shrinking safe zone as an explicit object node.
+
+\begin{table}[t]
+\caption{The components studied, the closest prior line, and what is used here.}
+\label{tab:axes}
+\centering\footnotesize
+\setlength{\tabcolsep}{2.5pt}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{@{}l p{1.05in} p{1.3in} c@{}}
+\toprule
+Axis & Closest prior line & Used here & RQ \\
+\midrule
+Phase & Sagong et al.~\cite{sagong2025hunterCamper}, Sagong and Kim~\cite{sagong2025survivalSequences} & causal attention over a team's phases $1,\dots,k$ & 1 \\
+Team & KRAFTON \texttt{pubg-winprob}~\cite{krafton_pubg_winprob} & masked attention over the teams alive in a phase & 2 \\
+Relation & HIGFormer~\cite{wang2025higformer}, Graphormer~\cite{ying2021graphormer} & typed relation biases on attention logits & 3 \\
+Zone object & none found & one node per phase, raw zone geometry only & 4 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Relative to Sagong et al.~\cite{sagong2025hunterCamper}, this work (a) moves from player units in solo matches to team units%
+% STAGE2: delete if not run by 10/9
+, with teammate relations, which addresses part of their stated future work (team-coordination variables for squad modes)%
+% STAGE2 end
+; (b) recasts the next-phase label as a discrete-time hazard evaluated with proper scores; (c) replaces scalar density counts (players within 100 m in~\cite{sagong2025hunterCamper}; \texttt{n\_enemies} and \texttt{n\_teammates} within 150 m in the KRAFTON code~\cite{krafton_pubg_winprob}) with typed relations; and (d) uses public matches in 13 map $\times$ perspective $\times$ team-size cohorts.
+
+We therefore decompose rather than compare: on the same data, labels, splits, loss, and backbone, we switch each component on or off and measure paired differences in next-phase elimination prediction. The configuration with all axes, relation biases, and the safe-zone object on is called PTR-Former (Phase--Team--Relation Transformer); it is the vehicle for the decomposition, not a claim of improvement over other models. We ask four research questions.
+% RQ texts below are verbatim from design v2 (EN column).  If the player layer
+% is not run (see STAGE2 blocks), also drop ", and teammates" from RQ3.
+\begin{itemize}
+\item[] \textbf{RQ1 (phase axis).} Does encoding each team's phase-by-phase history improve next-phase elimination prediction beyond its current-phase state?
+\item[] \textbf{RQ2 (team axis).} When KRAFTON-style cross-team attention is applied to next-phase hazard, does it improve absolute elimination risk, within-match relative standing, or both?
+\item[] \textbf{RQ3 (relation).} Do explicit battle-royale relations (proximity, combat escalation, zone co-pressure, and teammates) add information beyond learned cross-team attention?
+\item[] \textbf{RQ4 (safe-zone object).} Does representing the shrinking safe zone as an explicit object node recover the information carried by hand-crafted zone and habitat features?
+\end{itemize}
+The only confirmatory test for RQ3 is the shuffled-relations contrast P4 (Section~\ref{sec:experiments}); per-type contributions are exploratory.
+% STAGE2: delete if not run by 10/9
+The teammate relation of RQ3 is tested only in the player-level variant M11RZ-P (Section~\ref{sec:method}).
+% STAGE2 end
+All claims concern predictive information; none is a causal claim.
+
+The contributions follow the four claims we can support.
+\begin{itemize}
+\item \emph{Controlled decomposition.} Switches for the phase axis, team axis, relation biases, and a safe-zone object in one backbone with a fixed loss (Sections~\ref{sec:problem} and~\ref{sec:method}).
+\item \emph{Battle-royale relations.} Combat escalation and zone co-pressure between teams as typed biases%
+% STAGE2: delete if not run by 10/9
+, and teammates in the player layer%
+% STAGE2 end
+\ (Section~\ref{sec:method}).
+\item \emph{Safe-zone object.} The shrinking safe zone as an object node with raw geometry only; we found no prior work that does this (Section~\ref{sec:method}).
+\item \emph{Public data and protocol.} 13 public cohorts, fixed splits, five Holm-corrected primary contrasts, and an equivalence rule for null outcomes (Sections~\ref{sec:problem} and~\ref{sec:experiments}).
+\end{itemize}
+\todo{One sentence with the headline pooled differences and verdicts per RQ (Section~\ref{sec:results}).}

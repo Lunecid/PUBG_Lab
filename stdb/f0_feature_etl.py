@@ -17,6 +17,12 @@ TODO). The F0 view joins base + this table + (pass 2).
 Leakage: all columns are phase-local observed state (start/end snapshot within
 the phase). Centroid uses alive team rows; zone center is public game state.
 match-scoped, resumable — mirrors stdb/habitat_feature_etl.py.
+
+Fix B + single clock (2026-10-05): the grid is on the game clock, the phase bounds on the
+LogMatchStart clock, so every grid read uses the window
+``[phase_start_s - delta, phase_end_s - delta - SNAPSHOT_INTERVAL]`` on the game clock
+(stdb/causal_cut.py).  The ``*_end`` columns (zone centres and team centroid at the end of the phase)
+are the last grid point of that window; the ``*_start`` columns its first grid point.
 """
 
 from __future__ import annotations
@@ -26,6 +32,12 @@ import hashlib
 import logging
 import time
 
+from stdb.causal_cut import (
+    CUT_COLUMN,
+    WIN_START_COLUMN,
+    fetch_clock_delta,
+    sql_window_columns,
+)
 from stdb.conn import connect
 
 logger = logging.getLogger("stdb.f0_feature_etl")
@@ -64,33 +76,41 @@ CREATE INDEX IF NOT EXISTS ix_tpf0_match_phase
 """
 
 
-BUILD_SQL = """
+BUILD_SQL = f"""
 WITH bounds AS (
-    SELECT phase_idx, phase_start_s, phase_end_s, phase_duration_s
+    SELECT phase_idx, phase_start_s, phase_end_s, phase_duration_s,
+           {sql_window_columns("%(delta_s)s")}
       FROM stdb.v_match_phase_bounds
      WHERE match_id = %(match_id)s AND phase_idx > 0
 ),
 safe AS (
-    SELECT phase_idx,
-           (array_agg(ST_X(center_pos) ORDER BY snapshot_t))[1]      AS cx_s,
-           (array_agg(ST_Y(center_pos) ORDER BY snapshot_t))[1]      AS cy_s,
-           (array_agg(ST_X(center_pos) ORDER BY snapshot_t DESC))[1] AS cx_e,
-           (array_agg(ST_Y(center_pos) ORDER BY snapshot_t DESC))[1] AS cy_e
-      FROM stdb.dynamic_regions
-     WHERE match_id = %(match_id)s AND region_kind = 'safe' AND phase_idx > 0
-     GROUP BY phase_idx
+    -- Fix B + one clock: grid window on the game clock, capped at the end
+    SELECT b.phase_idx,
+           (array_agg(ST_X(dr.center_pos) ORDER BY dr.snapshot_t))[1]      AS cx_s,
+           (array_agg(ST_Y(dr.center_pos) ORDER BY dr.snapshot_t))[1]      AS cy_s,
+           (array_agg(ST_X(dr.center_pos) ORDER BY dr.snapshot_t DESC))[1] AS cx_e,
+           (array_agg(ST_Y(dr.center_pos) ORDER BY dr.snapshot_t DESC))[1] AS cy_e
+      FROM bounds b
+      JOIN stdb.dynamic_regions dr
+        ON dr.match_id = %(match_id)s AND dr.region_kind = 'safe'
+       AND dr.snapshot_t BETWEEN b.{WIN_START_COLUMN} AND b.{CUT_COLUMN}
+     GROUP BY b.phase_idx
 ),
 poison AS (
-    SELECT phase_idx,
-           (array_agg(ST_X(center_pos) ORDER BY snapshot_t))[1]      AS cx_s,
-           (array_agg(ST_Y(center_pos) ORDER BY snapshot_t))[1]      AS cy_s,
-           (array_agg(ST_X(center_pos) ORDER BY snapshot_t DESC))[1] AS cx_e,
-           (array_agg(ST_Y(center_pos) ORDER BY snapshot_t DESC))[1] AS cy_e
-      FROM stdb.dynamic_regions
-     WHERE match_id = %(match_id)s AND region_kind = 'poison' AND phase_idx > 0
-     GROUP BY phase_idx
+    -- Fix B + one clock: grid window on the game clock, capped at the end
+    SELECT b.phase_idx,
+           (array_agg(ST_X(dr.center_pos) ORDER BY dr.snapshot_t))[1]      AS cx_s,
+           (array_agg(ST_Y(dr.center_pos) ORDER BY dr.snapshot_t))[1]      AS cy_s,
+           (array_agg(ST_X(dr.center_pos) ORDER BY dr.snapshot_t DESC))[1] AS cx_e,
+           (array_agg(ST_Y(dr.center_pos) ORDER BY dr.snapshot_t DESC))[1] AS cy_e
+      FROM bounds b
+      JOIN stdb.dynamic_regions dr
+        ON dr.match_id = %(match_id)s AND dr.region_kind = 'poison'
+       AND dr.snapshot_t BETWEEN b.{WIN_START_COLUMN} AND b.{CUT_COLUMN}
+     GROUP BY b.phase_idx
 ),
 centroid AS (
+    -- Fix B: the team centroid at phase end = last alive grid point <= phase_end_s - SNAPSHOT_INTERVAL
     SELECT b.phase_idx, mo.team_id,
            (array_agg(ST_X(ST_Force2D(mo.pos)) ORDER BY mo.snapshot_t))[1]      AS cx_s,
            (array_agg(ST_Y(ST_Force2D(mo.pos)) ORDER BY mo.snapshot_t))[1]      AS cy_s,
@@ -99,7 +119,7 @@ centroid AS (
       FROM bounds b
       JOIN stdb.moving_objects mo
         ON mo.match_id = %(match_id)s AND mo.agent_kind = 'team' AND mo.is_alive
-       AND mo.snapshot_t BETWEEN b.phase_start_s AND b.phase_end_s
+       AND mo.snapshot_t BETWEEN b.{WIN_START_COLUMN} AND b.{CUT_COLUMN}
      GROUP BY b.phase_idx, mo.team_id
 ),
 universe AS (
@@ -203,7 +223,7 @@ def apply_view() -> None:
 
 def build_match(cur, match_id: str) -> int:
     cur.execute("DELETE FROM stdb.team_phase_f0_extra WHERE match_id = %s", (match_id,))
-    cur.execute(BUILD_SQL, {"match_id": match_id})
+    cur.execute(BUILD_SQL, {"match_id": match_id, "delta_s": fetch_clock_delta(cur, match_id)})
     return int(cur.rowcount)
 
 

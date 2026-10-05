@@ -49,6 +49,14 @@ Measurement conventions
   state is public) and NULL for team-relative features.
 
 The script is match-scoped and resumable, mirroring phase_edge_etl.py.
+
+Fix B + single clock (2026-10-05): every grid join (team snapshots, the cut-time white circle, and
+through them the proximity lookups at ``t_cut`` / entry time) runs on the game-clock window
+``[phase_start_s - delta, phase_end_s - delta - SNAPSHOT_INTERVAL]`` (stdb/causal_cut.py; the phase
+bounds are LogMatchStart-clock numbers, the grid is on the lagging elapsed_time clock).  ``t_cut`` is
+therefore the last grid point inside that window at which the team is alive, so no grid sample can
+read past the true phase boundary.  The rotation delay compares the game-clock entry time with the
+game-clock phase start.
 """
 
 from __future__ import annotations
@@ -58,6 +66,12 @@ import hashlib
 import logging
 import time
 
+from stdb.causal_cut import (
+    CUT_COLUMN,
+    WIN_START_COLUMN,
+    fetch_clock_delta,
+    sql_window_columns,
+)
 from stdb.conn import connect
 
 logger = logging.getLogger("stdb.habitat_feature_etl")
@@ -121,15 +135,17 @@ CREATE INDEX IF NOT EXISTS ix_tphf_match_phase
 """
 
 
-BUILD_SQL = """
+BUILD_SQL = f"""
 WITH bounds AS (
-    SELECT phase_idx, phase_start_s, phase_end_s, phase_duration_s
+    SELECT phase_idx, phase_start_s, phase_end_s, phase_duration_s,
+           {sql_window_columns("%(delta_s)s")}
       FROM stdb.v_match_phase_bounds
      WHERE match_id = %(match_id)s
        AND phase_idx > 0
 ),
 universe AS (
-    SELECT t.team_id, b.phase_idx, b.phase_start_s, b.phase_end_s, b.phase_duration_s
+    SELECT t.team_id, b.phase_idx, b.phase_start_s, b.phase_end_s, b.phase_duration_s,
+           b.{WIN_START_COLUMN}
       FROM stdb.teams t
      CROSS JOIN bounds b
      WHERE t.match_id = %(match_id)s
@@ -148,14 +164,15 @@ team_snaps AS (
         ON mo.match_id = %(match_id)s
        AND mo.agent_kind = 'team'
        AND mo.is_alive
-       AND mo.snapshot_t BETWEEN b.phase_start_s AND b.phase_end_s
+       -- Fix B + one clock: grid window on the game clock, capped at the end
+       AND mo.snapshot_t BETWEEN b.{WIN_START_COLUMN} AND b.{CUT_COLUMN}
  LEFT JOIN stdb.dynamic_regions sr
         ON sr.match_id = %(match_id)s
        AND sr.region_kind = 'safe'
        AND sr.snapshot_t = mo.snapshot_t
 ),
 cut_target AS (
-    -- white circle visible at the cut: last poison snapshot within the phase
+    -- white circle visible at the cut: last poison snapshot at or before phase_end_s - 10
     SELECT b.phase_idx, dr.region AS target_region, ST_Force2D(dr.center_pos) AS target_center
       FROM bounds b
       JOIN LATERAL (
@@ -163,7 +180,8 @@ cut_target AS (
             FROM stdb.dynamic_regions
            WHERE match_id = %(match_id)s
              AND region_kind = 'poison'
-             AND snapshot_t BETWEEN b.phase_start_s AND b.phase_end_s
+             -- Fix B + one clock: the circle visible at the cut, not the next announcement
+             AND snapshot_t BETWEEN b.{WIN_START_COLUMN} AND b.{CUT_COLUMN}
            ORDER BY snapshot_t DESC
            LIMIT 1
       ) dr ON TRUE
@@ -171,7 +189,7 @@ cut_target AS (
 team_phase AS (
     SELECT phase_idx, team_id,
            count(*) AS n_snaps,
-           max(snapshot_t) AS t_cut,
+           max(snapshot_t) AS t_cut,   -- last alive grid point <= phase_end_s - SNAPSHOT_INTERVAL
            (array_agg(pos ORDER BY snapshot_t))[1]      AS first_pos,
            (array_agg(pos ORDER BY snapshot_t DESC))[1] AS last_pos,
            (array_agg(d_blue ORDER BY snapshot_t)
@@ -290,7 +308,7 @@ SELECT
         WHEN tp.n_snaps IS NULL OR ct.phase_idx IS NULL THEN NULL
         WHEN en.entry_t IS NULL THEN 1.0
         ELSE greatest(0, least(1,
-            (en.entry_t - u.phase_start_s) / nullif(u.phase_duration_s, 0)))
+            (en.entry_t - u.{WIN_START_COLUMN}) / nullif(u.phase_duration_s, 0)))
     END::real,
     CASE
         WHEN tp.last_pos IS NULL OR ct.target_center IS NULL THEN NULL
@@ -354,7 +372,14 @@ def build_match(cur, match_id: str) -> int:
         "DELETE FROM stdb.team_phase_habitat_features WHERE match_id = %s",
         (match_id,),
     )
-    cur.execute(BUILD_SQL, {"match_id": match_id, "edge_pressure_m": EDGE_PRESSURE_M})
+    cur.execute(
+        BUILD_SQL,
+        {
+            "match_id": match_id,
+            "edge_pressure_m": EDGE_PRESSURE_M,
+            "delta_s": fetch_clock_delta(cur, match_id),
+        },
+    )
     return int(cur.rowcount)
 
 

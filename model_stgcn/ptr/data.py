@@ -1,0 +1,698 @@
+"""PTR dump loading, standardisation, dataset and collate (DB-free).
+
+Dump schema (one ``torch.save`` dict per cohort split, ``<dump-dir>/<cohort>/{train,val,test}.pt``)::
+
+    meta    feature_names (F), feature_groups {name: cols} incl. 'zone' and 'habitat',
+            cohort, split, [zone_columns]
+    matches list of dicts: match_id, match_type (str), team_ids[N], X[P,N,F], node_mask[P,N] (alive at
+            phase start), final_rank_norm[N], top5[N], [top10[N] - ignored], team_ai_frac[N],
+            edges{prox|combat|copress: (idx[E,3]=(p,i,j), w[E])}, team_pos[P,N,2], zone[P,8], zone_valid[P],
+            labels, two sets: pipeline = target_mask[P,N] + y_hazard[P,N] (team_phase_labels) and
+            v2 = target_mask_v2[P,N] + y_hazard_v2[P,N] (event based, design doc v2.3),
+            [team_death_s[N] - carried by the dump, not used here]
+
+Label choice (``labels='v2'`` by default, ``'pipeline'`` for the old ones): ONE choice drives the risk set (the
+target rows), the hazard labels, the alive tokens, the standardisation statistics, the HGB rows and therefore
+every metric.  Everything reads the labels through :func:`select_labels` / :func:`effective_alive`.
+
+Alive tokens (= the tokens and the attention keys of the model).  Under ``labels='v2'`` on an event-based dump
+(ghost fix, design doc v2.3 / label audit) a team is alive at the start of slot ``k`` iff its last-kill death time
+is later than the phase start, ``team_death_s > phase_start(k)`` with ``phase_start(0) = 0`` and
+``phase_start(k) = phase_end_s[k-1]`` (:func:`event_alive_mask`; NaN = unknown = never alive).  That is exactly "was
+at risk at cut k-1" (``node_v2[k] == target_v2[k-1]``) and it drops the *ghost* teams that the position-based
+``node_mask`` still reads as alive.  ``target_mask_v2`` must lie inside that mask (checked).  A dump is
+event-based when ``meta['team_death_source'] == 'last_kill_event'`` or when its matches carry the dump script's
+own ``node_mask_v2`` (that field uses ``phase_start_s[k]``, which is 10 s later than ``phase_end_s[k-1]``; it is
+only used as a marker and for the audit in :func:`event_alive_summary`).  For old dumps (no marker) and for
+``labels='pipeline'`` the mask stays ``node_mask | target_mask(choice)``: the dump script raises ``node_mask`` over
+the pipeline targets (alive at the END of a phase = alive at its start) and the loader raises it over the v2
+targets the same way, otherwise such a row would be scored from a dead token.  :func:`alive_source` names the
+rule in use; the training / HGB CLIs log it and write it to ``metrics.json``.
+
+Team-level token features: the normalised team centre (``pos_in_token``) and ``team_ai_frac`` (share of the
+roster that are AI accounts, broadcast over phases like the position).  ``team_ai_frac`` and ``match_type`` are
+**required**: a dump without them fails loudly (no silent skip).  ``match_type`` is carried to the prediction
+CSV and must be one of :data:`DEFAULT_MATCH_TYPES` unless the caller widens the list (airoyale is excluded by
+the registered population).
+
+Assumptions that are not pinned down by the schema (change them here, in one place):
+
+* ``zone`` columns, in this order: current centre x/y, current radius, next centre x/y, next radius,
+  phase-elapsed ratio, phase number (:data:`ZONE_COLUMNS`).  ``meta['zone_columns']`` (a list of
+  those names) overrides the order if the dump script uses another one.
+* ``zone`` centre/radius and ``team_pos`` share one coordinate system (only ratios are used).
+* ``final_rank_norm = final_rank / n_teams`` with rank 1 = winner (small = good placement).
+
+Standardisation: mean/std are fitted on **train** tokens with ``node_mask`` True only (NaN-aware,
+float64, Chan merge), constant columns get ``std = 1``, NaN / inf become 0 after scaling.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Iterable, Mapping, Sequence
+
+import numpy as np
+import torch
+
+from model_stgcn.ptr import relations as R
+
+ZONE_COLUMNS: tuple[str, ...] = (
+    "cur_cx", "cur_cy", "cur_r", "next_cx", "next_cy", "next_r", "phase_frac", "phase_no",
+)  # fmt: skip
+SPLITS: tuple[str, ...] = ("train", "val", "test")
+POS_FEATURE_NAMES: tuple[str, ...] = ("team_pos_x", "team_pos_y")
+AI_FEATURE_NAME = "team_ai_frac"
+STD_FLOOR = 1e-8
+# label sets: (hazard label field, risk-set field).  v2 = event based labels (design doc v2.3), the default.
+LABEL_CHOICES: tuple[str, ...] = ("v2", "pipeline")
+DEFAULT_LABELS = "v2"
+LABEL_FIELDS: dict[str, tuple[str, str]] = {
+    "v2": ("y_hazard_v2", "target_mask_v2"),
+    "pipeline": ("y_hazard", "target_mask"),
+}
+# registered population (design doc v2.3): official + competitive; airoyale is excluded upstream
+DEFAULT_MATCH_TYPES: tuple[str, ...] = ("official", "competitive")
+# ghost fix: markers of an event-based dump (death times = last kill event, +inf = alive at the end)
+TEAM_DEATH_SOURCE_KEY = "team_death_source"
+EVENT_DEATH_SOURCES: tuple[str, ...] = ("last_kill_event",)
+EVENT_ALIVE_FIELD = "node_mask_v2"  # the dump script's own mask: marker + audit, not the mask the loader uses
+# Alive-count variables are not spatial features, so the noHab arms keep them even though two of them sit in
+# the dump's 'zone' group and one in the 'habitat' group (design doc v2.2).  ``hab_safe_area_per_alive_team``
+# is a safe-area ratio (spatial) and is removed.  Names that a dump does not have are simply ignored.
+ALIVE_COUNT_FEATURES: tuple[str, ...] = (
+    "avg_alive_teams_norm", "avg_alive_players_norm", "hab_alive_teams",
+)  # fmt: skip
+# max |combat weight| above which the dump cannot hold ln(1 + intensity): intensities of a team pair in one
+# phase reach >= 100 as soon as a kill is involved (ln(101) = 4.6), while ln(1 + intensity) stays below ~12
+COMBAT_LOG_MAX = 30.0
+
+# ``top10`` is part of the dump but unused (design doc v2.1): neither required nor carried.  The label fields
+# depend on the label choice (LABEL_FIELDS); everything else is required for every choice.
+_MATCH_KEYS = (
+    "match_id", "team_ids", "X", "node_mask", "final_rank_norm", "top5", "edges", "team_pos", "zone",
+    "zone_valid", "team_ai_frac", "match_type",
+)  # fmt: skip
+
+
+# --------------------------------------------------------------------------- small helpers
+def _t(x, dtype=None) -> torch.Tensor:
+    t = torch.as_tensor(x)
+    return t if dtype is None else t.to(dtype)
+
+
+def _bool(x) -> torch.Tensor:
+    return _t(x).bool()
+
+
+def check_labels(labels: str) -> str:
+    if labels not in LABEL_FIELDS:
+        raise ValueError(f"labels must be one of {LABEL_CHOICES}, got {labels!r}")
+    return labels
+
+
+def select_labels(m: Mapping, labels: str = DEFAULT_LABELS) -> tuple[torch.Tensor, torch.Tensor]:
+    """``(y [P,N] float32 zero outside the risk set, target [P,N] bool)`` of the chosen label set."""
+    y_key, t_key = LABEL_FIELDS[check_labels(labels)]
+    missing = [k for k in (y_key, t_key) if k not in m]
+    if missing:
+        raise ValueError(
+            f"match {m.get('match_id', '?')}: labels={labels!r} needs {missing}, which the dump does not carry"
+            + ("" if labels == "pipeline" else " (use labels='pipeline' for a dump written before design doc v2.3)")
+        )
+    target = _bool(m[t_key])
+    y = torch.where(target, torch.nan_to_num(_t(m[y_key], torch.float32)), torch.zeros(()))
+    return y, target
+
+
+def uses_event_alive(dump: Mapping, labels: str = DEFAULT_LABELS) -> bool:
+    """True iff the alive tokens come from the event-based death times (labels v2 on an event-based dump)."""
+    if check_labels(labels) != "v2":
+        return False
+    meta = dump.get("meta") or {}
+    if meta.get(TEAM_DEATH_SOURCE_KEY) in EVENT_DEATH_SOURCES:
+        return True
+    matches = dump.get("matches") or []
+    return bool(matches) and EVENT_ALIVE_FIELD in matches[0]
+
+
+def alive_source(dump: Mapping, labels: str = DEFAULT_LABELS) -> str:
+    """Name of the alive-token rule in use: ``node_mask_v2`` | ``node_mask|target_v2`` | ``node_mask|target_pipeline``."""
+    if uses_event_alive(dump, labels):
+        return "node_mask_v2"
+    return "node_mask|target_v2" if labels == "v2" else "node_mask|target_pipeline"
+
+
+def event_alive_mask(m: Mapping) -> torch.Tensor:
+    """``[P, N]`` bool: ``team_death_s > phase_start(k)`` (the dump's ``node_mask_v2`` rule).
+
+    ``phase_start(k)`` is the dump's own ``phase_start_s[k]`` when the match carries it; otherwise (older event dumps)
+    ``phase_start(0) = 0`` and ``phase_start(k) = phase_end_s[k-1]``, which is up to one grid gap earlier, so that
+    fallback keeps a few more teams.  NaN death times (unknown) are never alive; slots of absent phases (``phase_mask``
+    False, NaN phase end or NaN start) are empty."""
+    death = _t(m["team_death_s"], torch.float64)
+    end = _t(m["phase_end_s"], torch.float64)
+    if "phase_start_s" in m:
+        start = _t(m["phase_start_s"], torch.float64)
+    else:
+        start = torch.cat([torch.zeros(1, dtype=torch.float64), end[:-1]])
+    alive = ~torch.isnan(death)[None, :] & (death[None, :] > start[:, None])  # comparisons with NaN are False
+    alive &= (torch.isfinite(end) & torch.isfinite(start))[:, None]  # a slot exists only if its phase has bounds
+    if "phase_mask" in m:
+        alive &= _bool(m["phase_mask"])[:, None]
+    return alive
+
+
+def event_alive_rule(m: Mapping) -> str:
+    """Which phase-start rule :func:`event_alive_mask` applies to this match."""
+    return "phase_start_s" if "phase_start_s" in m else "phase_end_s[k-1]"
+
+
+def effective_alive(m: Mapping, labels: str, event: bool) -> torch.Tensor:
+    """Alive tokens ``[P, N]`` of a match: the event-based mask (``event=True``, labels v2 on an event-based dump) or
+    ``node_mask`` raised over the risk set of the chosen label set."""
+    if event and check_labels(labels) == "v2":
+        return event_alive_mask(m)
+    return _bool(m["node_mask"]) | select_labels(m, labels)[1]
+
+
+def event_alive_audit(m: Mapping) -> dict | None:
+    """Compare the loader's event mask with the dump's own ``node_mask_v2`` (None if the match has no such field)."""
+    if EVENT_ALIVE_FIELD not in m:
+        return None
+    mine, theirs = event_alive_mask(m), _bool(m[EVENT_ALIVE_FIELD])
+    return {
+        "n_loader": int(mine.sum()),
+        "n_dump": int(theirs.sum()),
+        "agree": int((mine & theirs).sum()),
+        "only_loader": int((mine & ~theirs).sum()),
+        "only_dump": int((~mine & theirs).sum()),
+    }
+
+
+def event_alive_summary(dump: Mapping, labels: str = DEFAULT_LABELS) -> dict:
+    """Token counts of the alive rule in use over a whole dump (what was added / removed w.r.t. ``node_mask``)."""
+    event = uses_event_alive(dump, labels)
+    out = {"source": alive_source(dump, labels), "n_alive": 0, "n_node_mask": 0, "ghost_removed": 0, "raised": 0}
+    if event:
+        rules = sorted({event_alive_rule(m) for m in dump["matches"]})
+        out["start_rule"] = rules[0] if len(rules) == 1 else "mixed"
+    audit = {"only_loader": 0, "only_dump": 0, "agree": 0}
+    audited = False
+    for m in dump["matches"]:
+        alive, node = effective_alive(m, labels, event), _bool(m["node_mask"])
+        out["n_alive"] += int(alive.sum())
+        out["n_node_mask"] += int(node.sum())
+        out["ghost_removed"] += int((node & ~alive).sum())  # read as alive by the position-based table only
+        out["raised"] += int((alive & ~node).sum())  # alive here, missing from node_mask
+        a = event_alive_audit(m) if event else None
+        if a is not None:
+            audited = True
+            for k in audit:
+                audit[k] += a[k]
+    if audited:
+        out.update(audit)
+    return out
+
+
+def zone_layout(meta: Mapping) -> dict[str, int]:
+    """Map canonical zone column names to their column index in the dump's ``zone`` tensor."""
+    names = meta.get("zone_columns") if meta else None
+    if names is None:
+        return {name: i for i, name in enumerate(ZONE_COLUMNS)}
+    names = list(names)
+    if sorted(names) != sorted(ZONE_COLUMNS):
+        raise ValueError(f"meta['zone_columns'] must be a permutation of {ZONE_COLUMNS}, got {names}")
+    return {name: names.index(name) for name in ZONE_COLUMNS}
+
+
+def _zone_order(meta: Mapping) -> np.ndarray:
+    layout = zone_layout(meta)
+    return np.array([layout[name] for name in ZONE_COLUMNS], dtype=np.int64)
+
+
+# --------------------------------------------------------------------------- validation / IO
+def validate_dump(dump: Mapping, labels: str = DEFAULT_LABELS) -> None:
+    """Raise ``ValueError`` if the dump violates the schema or the invariants of the chosen label set."""
+    check_labels(labels)
+    meta = dump.get("meta") if isinstance(dump, Mapping) else None
+    event = isinstance(dump, Mapping) and uses_event_alive(dump, labels)
+    if not isinstance(meta, Mapping):
+        raise ValueError("dump has no 'meta' dict")
+    for key in ("feature_names", "feature_groups"):
+        if key not in meta:
+            raise ValueError(f"meta is missing '{key}'")
+    n_feat = len(meta["feature_names"])
+    for name, cols in meta["feature_groups"].items():
+        cols = np.asarray(cols, dtype=np.int64)
+        if cols.size and (cols.min() < 0 or cols.max() >= n_feat):
+            raise ValueError(f"feature group '{name}' has columns outside [0, {n_feat})")
+    zone_layout(meta)
+    matches = dump.get("matches")
+    if not isinstance(matches, (list, tuple)) or not matches:
+        raise ValueError("dump has no matches")
+    n_phases = None
+    for k, m in enumerate(matches):
+        n_phases = _validate_match(m, n_feat, len(ZONE_COLUMNS), k, n_phases, labels, event)
+
+
+def _validate_match(
+    m: Mapping, n_feat: int, n_zone: int, k: int, n_phases: int | None, labels: str, event: bool = False
+) -> int:
+    where = f"match #{k} ({m.get('match_id', '?') if isinstance(m, Mapping) else '?'})"
+    y_key, t_key = LABEL_FIELDS[labels]
+    event_keys = ("team_death_s", "phase_end_s") if event else ()
+    missing = [key for key in (*_MATCH_KEYS, y_key, t_key, *event_keys) if key not in m]
+    if missing:
+        raise ValueError(f"{where}: missing keys {missing} (labels={labels!r})")
+    mt = m["match_type"]
+    if not isinstance(mt, str) or not mt:
+        raise ValueError(f"{where}: match_type must be a non-empty string, got {mt!r}")
+    X = _t(m["X"])
+    if X.dim() != 3 or X.shape[2] != n_feat:
+        raise ValueError(f"{where}: X must be [P, N, {n_feat}], got {tuple(X.shape)}")
+    P, N, _ = X.shape
+    if n_phases is not None and P != n_phases:
+        raise ValueError(f"{where}: {P} phases, earlier matches have {n_phases}")
+    expect = {
+        "team_ids": (N,), "node_mask": (P, N), t_key: (P, N), y_key: (P, N),
+        "final_rank_norm": (N,), "top5": (N,), "team_pos": (P, N, 2),
+        "zone": (P, n_zone), "zone_valid": (P,), "team_ai_frac": (N,),
+    }  # fmt: skip
+    if event:
+        expect["team_death_s"] = (N,)
+        expect["phase_end_s"] = (P,)
+    for key, shape in expect.items():
+        if tuple(_t(m[key]).shape) != shape:
+            raise ValueError(f"{where}: {key} must have shape {shape}, got {tuple(_t(m[key]).shape)}")
+    ai = _t(m["team_ai_frac"], torch.float32)
+    ai = ai[torch.isfinite(ai)]
+    if ai.numel() and (float(ai.min()) < 0.0 or float(ai.max()) > 1.0):
+        raise ValueError(f"{where}: team_ai_frac must lie in [0, 1] (NaN = no participants)")
+    node, target = _bool(m["node_mask"]), _bool(m[t_key])
+    # the dump script raises node_mask over the pipeline targets, so that invariant is checked for them;
+    # the v2 risk set may sit on uncovered tokens: the loader raises node_mask over it (effective_alive)
+    if labels == "pipeline" and (target & ~node).any():
+        raise ValueError(f"{where}: target_mask must be a subset of node_mask (alive at phase start)")
+    if target[-1].any():  # the hazard of the last slot would need a phase after it (evaluation rows: cuts 1..7)
+        raise ValueError(f"{where}: {t_key} marks targets in the last phase slot; cut phases are 1..{P - 1}")
+    if event:  # ghost fix: the v2 risk set must sit on tokens that the death times call alive
+        if bool((_t(m["team_death_s"], torch.float64) == float("-inf")).any()):
+            raise ValueError(f"{where}: team_death_s must be finite, +inf (alive at the end) or NaN (unknown)")
+        outside = target & ~event_alive_mask(m)
+        if outside.any():
+            raise ValueError(
+                f"{where}: {t_key} must be a subset of the event-based alive mask (team_death_s > phase start): "
+                f"{int(outside.sum())} target rows are on dead tokens"
+            )
+    if target.any():
+        y = _t(m[y_key], torch.float32)[target]
+        if not torch.isin(y, torch.tensor([0.0, 1.0])).all():
+            raise ValueError(f"{where}: {y_key} must be 0/1 on target rows")
+        cols = target.any(0)
+        for key in ("final_rank_norm", "top5"):
+            if not torch.isfinite(_t(m[key], torch.float32)[cols]).all():
+                raise ValueError(f"{where}: {key} must be finite for every team that is a target")
+    edges = m["edges"]
+    if not isinstance(edges, Mapping):
+        raise ValueError(f"{where}: edges must be a dict")
+    for name, item in edges.items():
+        idx, w = _t(item[0]), _t(item[1])
+        if idx.numel() == 0 and w.numel() == 0:
+            continue
+        if idx.dim() != 2 or idx.shape[1] != 3 or w.shape != (idx.shape[0],):
+            raise ValueError(f"{where}: edges['{name}'] must be (idx[E,3], w[E])")
+        if (idx < 0).any() or (idx[:, 0] >= P).any() or (idx[:, 1:] >= N).any():
+            raise ValueError(f"{where}: edges['{name}'] has indices outside P={P}, N={N}")
+    return P
+
+
+def load_dump(path: str | Path, labels: str = DEFAULT_LABELS) -> dict:
+    """``torch.load`` one split (safe loader first, trusted-pickle fallback) and validate it."""
+    path = Path(path)
+    if not path.exists():
+        raise FileNotFoundError(path)
+    try:
+        dump = torch.load(path, map_location="cpu", weights_only=True)
+    except Exception:  # dumps written with numpy scalars need the full unpickler (local, trusted)
+        dump = torch.load(path, map_location="cpu", weights_only=False)
+    validate_dump(dump, labels)
+    return dump
+
+
+def match_type_counts(dump: Mapping) -> dict[str, int]:
+    """Number of matches per ``match_type`` in a dump."""
+    counts: dict[str, int] = {}
+    for m in dump["matches"]:
+        counts[str(m["match_type"])] = counts.get(str(m["match_type"]), 0) + 1
+    return counts
+
+
+def check_match_types(
+    dump: Mapping, allowed: Iterable[str] | None = DEFAULT_MATCH_TYPES, where: str = ""
+) -> None:
+    """Raise ``ValueError`` if the dump holds matches outside the registered population (None = no check)."""
+    if allowed is None:
+        return
+    allowed = tuple(allowed)
+    unexpected = {t: n for t, n in match_type_counts(dump).items() if t not in allowed}
+    if unexpected:
+        raise ValueError(
+            f"{where + ': ' if where else ''}match_type {unexpected} is outside the registered population "
+            f"{allowed} (airoyale is excluded by design doc v2.3; widen the list explicitly to include it)"
+        )
+
+
+def load_cohort(
+    dump_dir: str | Path,
+    cohort: str,
+    splits: Sequence[str] = SPLITS,
+    labels: str = DEFAULT_LABELS,
+    match_types: Iterable[str] | None = DEFAULT_MATCH_TYPES,
+) -> dict[str, dict]:
+    """Load ``<dump_dir>/<cohort>/<split>.pt`` for every split; meta must agree across splits.
+
+    ``labels`` selects which label set is validated; ``match_types`` is the allowed population (None = any).
+    """
+    base = Path(dump_dir) / cohort
+    if not base.is_dir():
+        from model_stgcn.ptr.cohorts import discover_cohorts  # lazy: cohorts imports this module
+
+        have = discover_cohorts(dump_dir) if Path(dump_dir).is_dir() else []
+        raise FileNotFoundError(f"cohort '{cohort}' not found in {dump_dir}; available cohorts: {have}")
+    out = {s: load_dump(base / f"{s}.pt", labels) for s in splits}
+    for s in splits:
+        check_match_types(out[s], match_types, f"{cohort}/{s}")
+    ref = out[splits[0]]["meta"]
+    for s in splits[1:]:
+        meta = out[s]["meta"]
+        if list(meta["feature_names"]) != list(ref["feature_names"]):
+            raise ValueError(f"{cohort}: feature_names differ between {splits[0]} and {s}")
+        a = {k: list(map(int, v)) for k, v in meta["feature_groups"].items()}
+        b = {k: list(map(int, v)) for k, v in ref["feature_groups"].items()}
+        if a != b:
+            raise ValueError(f"{cohort}: feature_groups differ between {splits[0]} and {s}")
+    return out
+
+
+def removed_columns(
+    meta: Mapping, drop_groups: Iterable[str] = (), keep_names: Iterable[str] = ()
+) -> np.ndarray:
+    """Sorted column indices removed with the named feature groups, except columns named in ``keep_names``."""
+    groups = meta["feature_groups"]
+    names = list(meta["feature_names"])
+    keep = set(keep_names)
+    drop: set[int] = set()
+    for name in drop_groups:
+        if name not in groups:
+            raise KeyError(f"unknown feature group '{name}'; available: {sorted(groups)}")
+        drop |= {int(c) for c in groups[name]}
+    return np.array(sorted(c for c in drop if names[c] not in keep), dtype=np.int64)
+
+
+def keep_columns(
+    meta: Mapping, drop_groups: Iterable[str] = (), keep_names: Iterable[str] = ()
+) -> np.ndarray:
+    """Sorted column indices that survive removing the named feature groups (``keep_names`` survive too)."""
+    gone = set(removed_columns(meta, drop_groups, keep_names).tolist())
+    return np.array([c for c in range(len(meta["feature_names"])) if c not in gone], dtype=np.int64)
+
+
+def feature_removal_report(
+    meta: Mapping, drop_groups: Iterable[str] = (), keep_names: Iterable[str] = ()
+) -> dict:
+    """What a group removal takes out, by name (written to ``metrics.json`` / the run log)."""
+    drop_groups, keep_names = list(drop_groups), list(keep_names)
+    names = list(meta["feature_names"])
+    removed = removed_columns(meta, drop_groups, keep_names)
+    in_groups = {int(c) for g in drop_groups for c in meta["feature_groups"][g]}
+    spared = sorted(in_groups - set(removed.tolist()))
+    return {
+        "drop_groups": drop_groups,
+        "keep_names": keep_names,
+        "n_removed": int(removed.size),
+        "removed_columns": [names[int(c)] for c in removed],
+        "removed_indices": [int(c) for c in removed],
+        "kept_by_exception": [names[c] for c in spared],
+    }
+
+
+def infer_combat_weights(dump_or_matches: Mapping | Sequence[Mapping]) -> tuple[str, float]:
+    """``("log", max_w)`` when every combat weight is <= :data:`COMBAT_LOG_MAX` (the dump already holds
+    ``ln(1 + intensity)``), else ``("raw", max_w)``.  Fit on the train split and reuse for the others."""
+    matches = dump_or_matches["matches"] if isinstance(dump_or_matches, Mapping) else dump_or_matches
+    top = 0.0
+    for m in matches:
+        item = m["edges"].get("combat") if isinstance(m["edges"], Mapping) else None
+        if item is None:
+            continue
+        w = _t(item[1], torch.float32)
+        w = w[torch.isfinite(w)]
+        if w.numel():
+            top = max(top, float(w.max()))
+    return ("log" if top <= COMBAT_LOG_MAX else "raw"), top
+
+
+# --------------------------------------------------------------------------- standardiser
+class _Moments:
+    """Streaming NaN-aware per-column mean / M2 (Chan et al. parallel merge, float64)."""
+
+    def __init__(self, dim: int) -> None:
+        self.n = np.zeros(dim)
+        self.mean = np.zeros(dim)
+        self.m2 = np.zeros(dim)
+
+    def update(self, block: np.ndarray) -> None:
+        if block.shape[0] == 0:
+            return
+        block = np.asarray(block, dtype=np.float64)
+        valid = np.isfinite(block)
+        nb = valid.sum(0).astype(np.float64)
+        if not nb.any():
+            return
+        safe = np.where(valid, block, 0.0)
+        mean_b = np.divide(safe.sum(0), nb, out=np.zeros_like(nb), where=nb > 0)
+        m2_b = (np.where(valid, block - mean_b, 0.0) ** 2).sum(0)
+        tot = self.n + nb
+        frac = np.divide(nb, tot, out=np.zeros_like(nb), where=tot > 0)
+        delta = mean_b - self.mean
+        self.mean = self.mean + delta * frac
+        self.m2 = self.m2 + m2_b + delta**2 * self.n * frac
+        self.n = tot
+
+    def finalize(self) -> tuple[np.ndarray, np.ndarray]:
+        std = np.sqrt(np.divide(self.m2, self.n, out=np.zeros_like(self.m2), where=self.n > 0))
+        std = np.where(np.isfinite(std) & (std > STD_FLOOR), std, 1.0)
+        return self.mean.copy(), std
+
+
+class Standardizer:
+    """Train-only z-scoring for X (all F columns), team positions and zone features."""
+
+    FIELDS = ("x_mean", "x_std", "pos_mean", "pos_std", "zone_mean", "zone_std", "ai_mean", "ai_std")
+
+    def __init__(self, **arrays: np.ndarray) -> None:
+        for name in self.FIELDS:
+            setattr(self, name, np.asarray(arrays[name], dtype=np.float64))
+
+    @classmethod
+    def fit(
+        cls,
+        dump_or_matches: Mapping | Sequence[Mapping],
+        labels: str = DEFAULT_LABELS,
+        event: bool | None = None,
+    ) -> "Standardizer":
+        """Statistics over the alive tokens (``effective_alive`` of the label choice) of the given matches.
+
+        Given a dump the alive rule follows :func:`uses_event_alive`; for a bare list of matches pass ``event``."""
+        if isinstance(dump_or_matches, Mapping):
+            matches = dump_or_matches["matches"]
+            order = _zone_order(dump_or_matches.get("meta", {}))
+            event = uses_event_alive(dump_or_matches, labels) if event is None else event
+        else:
+            matches, order = dump_or_matches, np.arange(len(ZONE_COLUMNS))
+            event = bool(event)
+        xs = _Moments(int(_t(matches[0]["X"]).shape[-1]))
+        pos, zone, ai = _Moments(2), _Moments(len(ZONE_COLUMNS)), _Moments(1)
+        for m in matches:
+            alive = effective_alive(m, labels, event).numpy()
+            xs.update(_t(m["X"]).numpy()[alive])
+            pos.update(_t(m["team_pos"]).numpy()[alive])
+            share = _t(m["team_ai_frac"], torch.float32).numpy()  # [N], a team property: one value per token
+            ai.update(np.broadcast_to(share[None, :], alive.shape)[alive][:, None])
+            z = _t(m["zone"]).numpy()[:, order]
+            zone.update(z[_bool(m["zone_valid"]).numpy()])
+        out = {}
+        for prefix, mom in (("x", xs), ("pos", pos), ("zone", zone), ("ai", ai)):
+            out[f"{prefix}_mean"], out[f"{prefix}_std"] = mom.finalize()
+        return cls(**out)
+
+    def state_dict(self) -> dict[str, np.ndarray]:
+        return {name: getattr(self, name).copy() for name in self.FIELDS}
+
+    @classmethod
+    def from_state_dict(cls, state: Mapping) -> "Standardizer":
+        return cls(**{name: np.asarray(state[name]) for name in cls.FIELDS})
+
+    @staticmethod
+    def _scale(arr, mean, std) -> torch.Tensor:
+        z = (np.asarray(arr, dtype=np.float64) - mean) / std
+        return torch.from_numpy(np.nan_to_num(z, nan=0.0, posinf=0.0, neginf=0.0).astype(np.float32))
+
+    def transform_x(self, X, keep: np.ndarray | None = None) -> torch.Tensor:
+        X = _t(X).numpy()
+        if keep is None:
+            return self._scale(X, self.x_mean, self.x_std)
+        return self._scale(X[..., keep], self.x_mean[keep], self.x_std[keep])
+
+    def transform_pos(self, pos) -> torch.Tensor:
+        return self._scale(_t(pos).numpy(), self.pos_mean, self.pos_std)
+
+    def transform_zone(self, zone_canonical) -> torch.Tensor:
+        return self._scale(_t(zone_canonical).numpy(), self.zone_mean, self.zone_std)
+
+    def transform_ai(self, team_ai_frac) -> torch.Tensor:
+        """``[N]`` AI shares -> ``[N]`` z-scores (NaN -> 0)."""
+        return self._scale(_t(team_ai_frac, torch.float32).numpy(), self.ai_mean[0], self.ai_std[0])
+
+
+# --------------------------------------------------------------------------- dataset / collate
+class PTRDataset:
+    """One item per match (unpadded); :meth:`get_batch` pads within the batch.
+
+    ``labels`` picks the label set ('v2' default, 'pipeline'): the risk set, the hazard labels and the alive
+    tokens all follow it (``alive_source`` names the rule: the event-based mask for v2 on an event-based dump,
+    else ``node_mask`` raised over that risk set).  ``relation_types=None`` skips edge
+    handling altogether (no ``rel`` tensor).  With ``shuffle_seed`` the relation matrices are relabelled by a
+    fixed per-(match, phase, seed) permutation of the alive teams (the M11R-shuf control), identically on
+    every access.  Token features = kept ``X`` columns, [team centre x/y], ``team_ai_frac`` (always last).
+    """
+
+    def __init__(
+        self,
+        dump: Mapping,
+        standardizer: Standardizer,
+        *,
+        drop_groups: Iterable[str] = (),
+        keep_names: Iterable[str] = (),
+        pos_in_token: bool = True,
+        relation_types: Sequence[str] | None = None,
+        combat_weights: str = "raw",
+        shuffle_seed: int | None = None,
+        labels: str = DEFAULT_LABELS,
+        validate: bool = True,
+    ) -> None:
+        self.labels = check_labels(labels)
+        if validate:
+            validate_dump(dump, self.labels)
+        self.event_alive = uses_event_alive(dump, self.labels)
+        self.alive_source = alive_source(dump, self.labels)
+        if combat_weights not in R.COMBAT_WEIGHT_MODES:
+            raise ValueError(f"combat_weights must be one of {R.COMBAT_WEIGHT_MODES}, got '{combat_weights}'")
+        self.meta = dump["meta"]
+        self.matches = dump["matches"]
+        self.standardizer = standardizer
+        self.combat_weights = combat_weights
+        self.drop_groups = tuple(drop_groups)
+        self.keep_names = tuple(keep_names)
+        self.keep = keep_columns(self.meta, self.drop_groups, self.keep_names)
+        self.removal = feature_removal_report(self.meta, self.drop_groups, self.keep_names)
+        self.pos_in_token = bool(pos_in_token)
+        self.relation_types = None if relation_types is None else R.check_relation_types(relation_types)
+        self.shuffle_seed = shuffle_seed
+        self.zone_order = _zone_order(self.meta)
+        names = [self.meta["feature_names"][int(c)] for c in self.keep]
+        self.feature_names = names + (list(POS_FEATURE_NAMES) if self.pos_in_token else []) + [AI_FEATURE_NAME]
+        self.n_features = len(self.feature_names)
+        self.n_phases = int(_t(self.matches[0]["X"]).shape[0])
+        self.zone_dim = len(ZONE_COLUMNS)
+
+    def __len__(self) -> int:
+        return len(self.matches)
+
+    def __getitem__(self, i: int) -> dict:
+        m = self.matches[i]
+        sz = self.standardizer
+        y, target = select_labels(m, self.labels)
+        alive = effective_alive(m, self.labels, self.event_alive)  # event mask, or node_mask raised over the targets
+        x = sz.transform_x(m["X"], self.keep)
+        pos_raw = _t(m["team_pos"], torch.float32)
+        pos_valid = torch.isfinite(pos_raw).all(-1)
+        if self.pos_in_token:
+            x = torch.cat([x, sz.transform_pos(pos_raw)], dim=-1)
+        ai = sz.transform_ai(m["team_ai_frac"])  # [N]: the team's AI share, repeated in every phase slot
+        x = torch.cat([x, ai[None, :, None].expand(x.shape[0], -1, 1)], dim=-1)
+        zone_raw = _t(m["zone"], torch.float32)[:, torch.from_numpy(self.zone_order)]
+        zone_ok = _bool(m["zone_valid"]) & torch.isfinite(zone_raw).all(-1)
+        zero = torch.zeros(())
+        item = {
+            "match_id": str(m["match_id"]),
+            "match_type": str(m["match_type"]),
+            "team_ids": _t(m["team_ids"], torch.int64),
+            "x": x,
+            "node_mask": alive,
+            "target_mask": target,
+            "y_hazard": y,
+            "final_rank_norm": torch.nan_to_num(_t(m["final_rank_norm"], torch.float32)),
+            "top5": torch.nan_to_num(_t(m["top5"], torch.float32)),
+            "pos": torch.where(pos_valid.unsqueeze(-1), pos_raw, zero),
+            "pos_valid": pos_valid,
+            "zone": torch.where(zone_ok.unsqueeze(-1), zone_raw, zero),
+            "zone_std": torch.where(zone_ok.unsqueeze(-1), sz.transform_zone(zone_raw), zero),
+            "zone_valid": zone_ok,
+        }
+        if self.relation_types is not None:
+            edges = m["edges"]
+            if self.shuffle_seed is not None:
+                perms = R.shuffle_permutations(m["match_id"], self.shuffle_seed, alive.numpy())
+                edges = R.shuffle_edges(edges, perms)
+            item["edges"] = edges
+        return item
+
+    def get_batch(self, indices: Sequence[int]) -> dict:
+        return collate_batch([self[int(i)] for i in indices], self.relation_types, self.combat_weights)
+
+
+def collate_batch(
+    items: Sequence[dict], relation_types: Sequence[str] | None = None, combat_weights: str = "raw"
+) -> dict:
+    """Pad teams to the largest match in the batch; padding is dead (all masks False, labels 0)."""
+    if not items:
+        raise ValueError("empty batch")
+    B = len(items)
+    P, _, F = items[0]["x"].shape
+    n_max = max(int(it["x"].shape[1]) for it in items)
+    if any(int(it["x"].shape[0]) != P for it in items):
+        raise ValueError("matches in one batch must share the number of phase slots")
+    Z = items[0]["zone"].shape[-1]
+    batch = {
+        "x": torch.zeros(B, P, n_max, F),
+        "node_mask": torch.zeros(B, P, n_max, dtype=torch.bool),
+        "target_mask": torch.zeros(B, P, n_max, dtype=torch.bool),
+        "y_hazard": torch.zeros(B, P, n_max),
+        "final_rank_norm": torch.zeros(B, n_max),
+        "top5": torch.zeros(B, n_max),
+        "team_ids": torch.full((B, n_max), -1, dtype=torch.int64),
+        "pos": torch.zeros(B, P, n_max, 2),
+        "pos_valid": torch.zeros(B, P, n_max, dtype=torch.bool),
+        "zone": torch.zeros(B, P, Z),
+        "zone_std": torch.zeros(B, P, Z),
+        "zone_valid": torch.zeros(B, P, dtype=torch.bool),
+    }
+    team_keys = ("final_rank_norm", "top5", "team_ids")
+    token_keys = ("x", "node_mask", "target_mask", "y_hazard", "pos", "pos_valid")
+    for b, it in enumerate(items):
+        n = int(it["x"].shape[1])
+        for key in token_keys:
+            batch[key][b, :, :n] = it[key]
+        for key in team_keys:
+            batch[key][b, :n] = it[key]
+        for key in ("zone", "zone_std", "zone_valid"):
+            batch[key][b] = it[key]
+    batch["n_teams"] = torch.tensor([int(it["x"].shape[1]) for it in items], dtype=torch.int64)
+    batch["match_ids"] = [it["match_id"] for it in items]
+    batch["match_types"] = [it["match_type"] for it in items]
+    if relation_types is not None:
+        dense = R.densify_edges_batch([it.get("edges") for it in items], P, n_max)
+        batch["rel"] = R.build_relation_tensor(dense, relation_types, combat_weights)
+    return batch

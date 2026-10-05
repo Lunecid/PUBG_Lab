@@ -1,0 +1,12 @@
+\section{Discussion and Conclusion}\label{sec:discussion}
+
+\emph{Where the information is.} \todo{Two or three sentences synthesising RQ1--RQ4: which axes, relation types, and the safe-zone object added predictive information, which were equivalent, and which were inconclusive. Compare with the expectations fixed in the design document without presenting earlier exploratory runs as confirmation.}
+
+\emph{Reading the results.} All statements concern predictive information: an arm that reads more of $\mathcal{F}^m(k)$ is compared with one that reads less, and nothing here identifies why a team was eliminated. Four scope notes apply. (i) Except in the noHab arms, every arm sees the same 150-d rows, which already contain hand-crafted relational, zone, and habitat summaries and some cumulative terms, so each axis and relation is tested beyond these summaries, not in their absence. (ii) The object node receives raw geometry only; P5 gives the RQ4 verdict, and $\kappa$, which is descriptive, measures how much of the predictive information of the hand-crafted block the object recovers, not whether the two representations are equivalent. (iii) The switches act on attention masks inside one backbone; a differently designed model could read the same axis differently. (iv) The cohorts differ in size (roughly 33 to 620 test matches), so intervals for small cohorts are wide and the random-effects pooled estimate is the primary summary.
+% STAGE2: delete if not run by 10/9
+The player-layer contrast tests all player-level inputs together; only the teammate contrast removes the teammate bias alone.
+% STAGE2 end
+
+\emph{Limitations.} The data come from one game's public API within one collection window, so transfer to later patches or to other battle-royale games is untested. Per-type relation contributions are exploratory (two cohorts, one seed). We do not compare with the accuracies reported by Sagong et al., whose data, label, and class balance differ from ours, and we do not reproduce the KRAFTON model, whose data and checkpoints are unavailable to us; we adapt its team-axis design to a different target.
+
+\emph{Conclusion.} \todo{Two sentences: what the decomposition says about the phase axis, the team axis, the relation types, and the safe-zone object, and what to test next, for example a temporal hold-out on newly collected matches and win-probability heads.}

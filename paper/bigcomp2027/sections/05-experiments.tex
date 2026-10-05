@@ -1,0 +1,90 @@
+\section{Experimental Protocol}\label{sec:experiments}
+% Fallback (design v2, Sec. 7): if the stage-1 runs are not finished by 10/10,
+% rewrite this section and Sec. VI around the existing results and label every
+% result exploratory.
+
+\emph{Setup.} One model is trained per cohort and arm, with no pooling of training data across cohorts. \todo{confirm per-cohort training} All neural arms share one loss, the hazard cross-entropy plus 0.1 times the pairwise rank loss, and one training setup: $d=128$, $H=4$ attention heads, $L=2$ blocks, dropout 0.1, AdamW~\cite{loshchilov2019adamw} (learning rate $10^{-3}$, weight decay $10^{-4}$), a cosine schedule~\cite{loshchilov2017sgdr}, gradient clipping at 5.0, batches of 8 matches, and 12 epochs in PyTorch~\cite{paszke2019pytorch}. \todo{confirm every hyperparameter against the final configuration} The checkpoint with the lowest validation loss is evaluated once on the test split. The HGB references use histogram gradient boosting~\cite{friedman2001gbm,pedregosa2011sklearn} without early stopping and with a fixed seed and row order \todo{iterations and learning rate}. HGB handles missing values natively, and the neural arms z-score each feature on the training tokens and set missing values to zero after scaling. Every contrast uses seed 42. Seeds 13 and 2026 are added for M00, M11, M11R, M11R-shuf, and M11RZ in Erangel TPP squad and Taego TPP squad and are reported only as a seed-to-seed standard deviation, not pooled. In the same two cohorts we also run M11R$-r$ for $r\in\{$prox, combat, copress$\}$ at seed 42, which drops one relation type at a time (exploratory; combat drops both combat\_out and combat\_in). Code and split files: \todo{anonymous repository link or statement}.
+
+\emph{Metrics.} Hazard metrics, computed over all test cases of a cohort, are AUC, average precision (AP), negative log-likelihood (NLL), and Brier score. Relative-standing metrics are computed within each (match, phase) risk set and averaged over risk sets: the Spearman correlation between the standing score and the final placement, top-5 AUC (whether teams that finish in the top five receive higher scores than the rest), and a within-match C-index (the share of team pairs with different final placements that the score orders correctly). Neural arms use the rank-head score $s_{i,k}$; HGB references use $-\hat\lambda_{i,k}$. \todo{confirm the score used for HGB and the averaging of the relative metrics}
+
+\emph{Statistics.} For each cohort, we resample test matches with replacement 2,000 times, recompute each paired difference on the same resample, and take the 95\% percentile interval. The bootstrap standard errors feed a DerSimonian--Laird random-effects meta-analysis~\cite{dersimonian1986metaanalysis} over the 13 cohorts, and we report the between-cohort variance $\tau^2$ and the number of cohorts whose difference has the same sign as the pooled one. The smallest effect sizes of interest (SESOI) are 0.005 for hazard AUC, 0.01 for Spearman, and 0.005 for top-5 AUC and C-index. Each primary contrast (Table~\ref{tab:primary}) is tested with a random-effects pooled $z$ test (one-sided, $H_0\colon\Delta\le0$), and Holm's correction~\cite{holm1979simple} covers these five tests only; everything else is exploratory and uncorrected. A primary contrast is a \emph{gain} if its Holm-adjusted $p$ is below 0.05 and its pooled estimate reaches the SESOI. A contrast is \emph{equivalent} if its pooled 90\% interval lies within $\pm$SESOI (a TOST per contrast, not adjusted) and \emph{inconclusive} otherwise. The 95\% intervals shown are unadjusted. The recovery ratio $\kappa$ (Eq.~\eqref{eq:kappa}) is descriptive: we report it with a bootstrap interval only if the lower end of the pooled 95\% interval of its denominator is at least the SESOI, and write ``not estimable'' otherwise.
+
+\emph{Integrity checks.} All features and edges use samples taken no later than 10 s before each phase cut. This removes a look-ahead of up to 5 s found in an earlier pipeline. HGB baselines run without early stopping and with a fixed row order, and they are trained on identical rows from the same tensors as the neural arms; earlier same-setting HGB reruns differed by up to 0.0048 AUC per cohort, comparable to the SESOI \todo{report the post-fix rerun deviation}. All arms and baselines are scored on the same cases of phases 1--7; the team-axis key mask holds only teams alive at the phase start. The design, arms, and decision rules were committed before any arm was run \todo{confirm the commit precedes the runs}.
+% Design v2, Sec. 6.1 also requires a test that features stay unchanged when
+% samples after the boundary are altered; add a sentence once the test exists.
+
+\begin{table*}[t]
+\caption{Primary contrasts and pooled results (DerSimonian--Laird random effects over 13 cohorts; one-sided pooled $z$ tests with Holm correction over these five only, shown as Holm $p$). $\Delta$ is the left term minus the right term, and the 95\% intervals are unadjusted. Phase-axis main effect $=\tfrac{1}{2}[(\mathrm{M10}-\mathrm{M00})+(\mathrm{M11}-\mathrm{M01})]$; team-axis main effect $=\tfrac{1}{2}[(\mathrm{M01}-\mathrm{M00})+(\mathrm{M11}-\mathrm{M10})]$. \todo{Fill after the runs.}}
+\label{tab:primary}
+\centering\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}l l l c c c c c@{}}
+\toprule
+ & Contrast & Metric & $\Delta$ [95\% CI] & Same sign /13 & $\tau^2$ & Holm $p$ & Verdict \\
+\midrule
+P1 (RQ1) & phase-axis main effect & AUC & & & & & \\
+P2 (RQ2) & team-axis main effect & AUC & & & & & \\
+P3 (RQ2) & team-axis main effect & Spearman & & & & & \\
+P4 (RQ3) & M11R $-$ M11R-shuf & AUC & & & & & \\
+P5 (RQ4) & M11RZ-noHab $-$ M11R-noHab & AUC & & & & & \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{table*}[t]
+\caption{Exploratory contrasts, without Holm correction: $\Delta$ [95\% CI], pooled over 13 cohorts except the relation-type removals, which use the two largest cohorts at seed 42. $\kappa$ is reported only if its denominator qualifies. \todo{Fill after the runs.}}
+\label{tab:exploratory}
+\centering\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}l l c c c c@{}}
+\toprule
+RQ & Contrast & $\Delta$AUC & $\Delta$Spearman & $\Delta$Top-5 AUC & $\Delta$C-index \\
+\midrule
+RQ1 & M10 $-$ M00 & & & & \\
+RQ1 & M11 $-$ M01 & & & & \\
+RQ2 & M01 $-$ M00 & & & & \\
+RQ2 & M11 $-$ M10 & & & & \\
+RQ1, RQ2 & interaction, $(\mathrm{M11}-\mathrm{M10})-(\mathrm{M01}-\mathrm{M00})$ & & & & \\
+RQ3 & M11R $-$ M11 & & & & \\
+RQ3 & M11R $-$ M11R$-$prox, $-$combat, $-$copress (two cohorts; three rows) & & & & \\
+RQ4 & M11RZ $-$ M11R & & & & \\
+RQ4 & $\kappa$ (recovery ratio) & & --- & --- & --- \\
+RQ4 & HGB-cut $-$ HGB-noHab (reference) & & & & \\
+% STAGE2: delete if not run by 10/9
+Player layer & M11RZ-P $-$ M11RZ & & & & \\
+RQ3 (teammates) & M11RZ-P $-$ M11RZ-P$-$tm & & & & \\
+% STAGE2 end
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{table}[t]
+\caption{Arm-level metrics, unweighted mean over the 13 test cohorts (descriptive). \todo{Fill after the runs.}}
+\label{tab:arms-metrics}
+\centering\scriptsize
+\setlength{\tabcolsep}{2.2pt}
+\begin{tabular}{@{}lccccccc@{}}
+\toprule
+ & \multicolumn{4}{c}{Hazard} & \multicolumn{3}{c}{Relative standing} \\
+\cmidrule(lr){2-5}\cmidrule(l){6-8}
+Arm & AUC & AP & NLL & Brier & Spearman & Top-5 AUC & C-index \\
+\midrule
+M00 & & & & & & & \\
+M10 & & & & & & & \\
+M01 & & & & & & & \\
+M11 & & & & & & & \\
+M11R & & & & & & & \\
+M11R-shuf & & & & & & & \\
+M11RZ & & & & & & & \\
+M11R-noHab & & & & & & & \\
+M11RZ-noHab & & & & & & & \\
+% STAGE2: delete if not run by 10/9
+M11RZ-P & & & & & & & \\
+M11RZ-P$-$tm & & & & & & & \\
+% STAGE2 end
+HGB-cut & & & & & & & \\
+HGB-lag & & & & & & & \\
+HGB-noHab & & & & & & & \\
+\bottomrule
+\end{tabular}
+\end{table}

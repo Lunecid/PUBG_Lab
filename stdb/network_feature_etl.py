@@ -30,6 +30,13 @@ Semantics
   The cum_* variants are NOT redundant (edge-row sums vs distinct teams).
 
 The script is match-scoped and resumable, mirroring phase_edge_etl.py.
+
+Fix B (2026-10-05): this builder has NO direct grid join.  Every ``net_*`` / ``cum_*``
+column is an aggregate of ``stdb.team_phase_edge_cache`` rows, whose proximity and
+co-pressure edges are capped at ``phase_end_s - SNAPSHOT_INTERVAL`` in
+stdb/phase_edge_etl.py (see stdb/causal_cut.py).  The causal guarantee is therefore
+inherited from the edge cache: this ETL MUST be re-run after every edge-cache rebuild
+(tools/run_fixb_phase_etl.py runs the stages in dependency order).
 """
 
 from __future__ import annotations

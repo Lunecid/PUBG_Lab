@@ -27,6 +27,13 @@ Z3 Z2 under contraction pressure:
 The source signal is `stdb.team_snapshot_features.pos_z`, which is an
 instantaneous team centroid altitude.  This is a PUBG telemetry proxy, not a
 terrain mesh or true cover/LOS measurement.
+
+Fix B + single clock (2026-10-05): both grid reads (the per-snapshot altitude aggregation and the
+contact pairs from stdb.team_proximity) use the game-clock window
+``[phase_start_s - delta, phase_end_s - delta - SNAPSHOT_INTERVAL]`` (stdb/causal_cut.py).  The
+phase bounds are LogMatchStart-clock numbers while the grid is on the lagging elapsed_time clock,
+so the snapshot rows are selected by that time window, not by their (clock-mixed) ``phase_idx``
+tag.
 """
 
 from __future__ import annotations
@@ -36,6 +43,12 @@ import hashlib
 import logging
 import time
 
+from stdb.causal_cut import (
+    CUT_COLUMN,
+    WIN_START_COLUMN,
+    fetch_clock_delta,
+    sql_window_columns,
+)
 from stdb.conn import connect
 
 logger = logging.getLogger("stdb.z_affordance_feature_etl")
@@ -76,9 +89,10 @@ CREATE INDEX IF NOT EXISTS ix_tpzaf_match_phase
 """
 
 
-BUILD_SQL = """
+BUILD_SQL = f"""
 WITH bounds AS (
-    SELECT phase_idx, phase_start_s, phase_end_s
+    SELECT phase_idx, phase_start_s, phase_end_s,
+           {sql_window_columns("%(delta_s)s")}
       FROM stdb.v_match_phase_bounds
      WHERE match_id = %(match_id)s
        AND phase_idx BETWEEN 1 AND 7
@@ -90,14 +104,16 @@ universe AS (
      WHERE t.match_id = %(match_id)s
 ),
 team_z AS (
-    SELECT s.phase_idx,
+    SELECT b.phase_idx,
            s.team_id,
            avg(s.pos_z)::real AS team_z_mean_m,
            (max(s.pos_z) - min(s.pos_z))::real AS team_z_range_m
-      FROM stdb.team_snapshot_features s
-     WHERE s.match_id = %(match_id)s
-       AND s.phase_idx BETWEEN 1 AND 7
-       AND s.alive_n > 0
+      FROM bounds b
+      JOIN stdb.team_snapshot_features s
+        ON s.match_id = %(match_id)s
+       -- Fix B + one clock: grid window on the game clock, capped at the end
+       AND s.snapshot_t BETWEEN b.{WIN_START_COLUMN} AND b.{CUT_COLUMN}
+     WHERE s.alive_n > 0
        AND s.pos_z IS NOT NULL
      GROUP BY 1, 2
 ),
@@ -119,7 +135,8 @@ prox_pairs AS (
       FROM bounds b
       JOIN stdb.team_proximity p
         ON p.match_id = %(match_id)s
-       AND p.snapshot_t BETWEEN b.phase_start_s AND b.phase_end_s
+       -- Fix B + one clock: grid window on the game clock, capped at the end
+       AND p.snapshot_t BETWEEN b.{WIN_START_COLUMN} AND b.{CUT_COLUMN}
        AND p.distance_m <= %(contact_distance_m)s
       JOIN stdb.team_snapshot_features a
         ON a.match_id = %(match_id)s
@@ -214,6 +231,7 @@ def build_match(cur, match_id: str) -> int:
             "match_id": match_id,
             "contact_distance_m": CONTACT_DISTANCE_M,
             "height_advantage_scale_m": HEIGHT_ADVANTAGE_SCALE_M,
+            "delta_s": fetch_clock_delta(cur, match_id),
         },
     )
     return int(cur.rowcount)

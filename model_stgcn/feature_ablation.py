@@ -231,6 +231,8 @@ def load_phase_rows_from_view(match_ids: list[str], view_name: str) -> tuple[lis
                   FROM {quoted_view}
                  WHERE match_id = ANY(%s)
                    AND target_defined
+                   AND phase_idx BETWEEN 1 AND 7
+                 ORDER BY match_id, team_id, phase_idx
                 """,
                 (match_ids,),
             )
@@ -463,6 +465,9 @@ def _classifier(
             max_iter=max_iter,
             learning_rate=0.06,
             l2_regularization=0.01,
+            # see snapshot_tabular_baseline.py: 'auto' early stopping (n > 10_000) holds out a
+            # row-order-dependent validation split; off => deterministic fixed-iteration fit.
+            early_stopping=False,
             random_state=seed,
         )
     elif learner == "lr":

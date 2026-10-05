@@ -129,10 +129,15 @@ def _upsert_teams(cur, match_id: str) -> None:
     )
 
 
-def _ingest_moving_objects(cur, match_id: str, duration_s: int) -> tuple[int, int]:
+def _ingest_moving_objects(
+    cur, match_id: str, duration_s: int, *, team_only: bool = False
+) -> tuple[int, int]:
     """Resample telem_positions to 10s grid → moving_objects (player + team rows).
 
-    Returns (n_player_rows, n_team_rows).
+    ``team_only=True`` computes the same grid but inserts only the team centroid rows
+    (used by stdb.base_stage for the Fix B reruns, which never read player rows).
+
+    Returns (n_player_rows, n_team_rows).  With ``team_only`` the first element is 0.
     """
     cur.execute(
         """
@@ -241,6 +246,8 @@ def _ingest_moving_objects(cur, match_id: str, duration_s: int) -> tuple[int, in
             in_vehicle = EXCLUDED.in_vehicle,
             is_alive   = EXCLUDED.is_alive
     """
+    if team_only:
+        player_rows = []
     psycopg2.extras.execute_batch(cur, insert_sql, player_rows, page_size=500)
     psycopg2.extras.execute_batch(cur, insert_sql, team_rows, page_size=500)
     return len(player_rows), len(team_rows)

@@ -43,14 +43,29 @@ def _pick_match_id(cur) -> str:
 
 @pytest.fixture()
 def rebuilt_match():
+    from stdb.base_stage import (
+        TempBaseCursor,
+        analyze_temp_base_tables,
+        create_temp_base_tables,
+        stage_base_rows,
+    )
     from stdb.conn import connect
     from stdb.habitat_feature_etl import apply_schema, build_match
 
     apply_schema()
     conn = connect()
     try:
-        with conn.cursor() as cur:
+        create_temp_base_tables(conn)
+        with conn.cursor() as raw_cur:
+            # stdb.moving_objects / team_proximity are empty in the working DB (purged after the
+            # original ETL): without staging, every team-relative feature is NULL and most of
+            # the invariants below pass vacuously.  The staged rows live in session-local temp
+            # tables that the proxy cursor substitutes for the shared ones (nothing is written
+            # to the shared base tables, and everything is rolled back at the end).
+            cur = TempBaseCursor(raw_cur)
             match_id = _pick_match_id(cur)
+            stage_base_rows(cur, match_id)
+            analyze_temp_base_tables(cur)
             rows = build_match(cur, match_id)
             assert rows > 0
             yield conn, cur, match_id
@@ -127,9 +142,12 @@ def test_range_sign_and_formula_invariants(rebuilt_match):
 
 @requires_db
 def test_target_distance_containment_consistency(rebuilt_match):
+    from stdb.causal_cut import GUARD_S, fetch_clock_delta
+
     _conn, cur, mid = rebuilt_match
+    delta = fetch_clock_delta(cur, mid)  # one clock: grid windows are [start - delta, end - delta - GUARD_S]
     cur.execute(
-        """
+        f"""
         WITH b AS (
             SELECT phase_idx, phase_start_s, phase_end_s
               FROM stdb.v_match_phase_bounds WHERE match_id = %(m)s AND phase_idx > 0
@@ -139,7 +157,7 @@ def test_target_distance_containment_consistency(rebuilt_match):
             JOIN LATERAL (
                 SELECT region FROM stdb.dynamic_regions
                  WHERE match_id = %(m)s AND region_kind = 'poison'
-                   AND snapshot_t BETWEEN b.phase_start_s AND b.phase_end_s
+                   AND snapshot_t BETWEEN b.phase_start_s - %(d)s AND b.phase_end_s - %(d)s - {GUARD_S}
                  ORDER BY snapshot_t DESC LIMIT 1
             ) dr ON TRUE
         ),
@@ -148,7 +166,7 @@ def test_target_distance_containment_consistency(rebuilt_match):
                    (array_agg(ST_Force2D(mo.pos) ORDER BY mo.snapshot_t DESC))[1] AS pos
               FROM b JOIN stdb.moving_objects mo
                 ON mo.match_id = %(m)s AND mo.agent_kind = 'team' AND mo.is_alive
-               AND mo.snapshot_t BETWEEN b.phase_start_s AND b.phase_end_s
+               AND mo.snapshot_t BETWEEN b.phase_start_s - %(d)s AND b.phase_end_s - %(d)s - {GUARD_S}
              GROUP BY 1, 2
         )
         SELECT count(*) FILTER (WHERE (h.hab_distance_to_target_safe_m = 0)
@@ -159,7 +177,7 @@ def test_target_distance_containment_consistency(rebuilt_match):
           JOIN ct ON ct.phase_idx = h.phase_idx
          WHERE h.match_id = %(m)s
         """,
-        {"m": mid},
+        {"m": mid, "d": delta},
     )
     mismatched, n = cur.fetchone()
     assert n > 0

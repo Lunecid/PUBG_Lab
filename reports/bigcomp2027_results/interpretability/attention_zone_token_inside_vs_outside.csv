@@ -1,0 +1,13 @@
+block,subset,contrast,n_cohorts,mean_a,mean_b,mean_diff,ci95_lo,ci95_hi,n_a_gt_b,p_signflip
+L0,all_alive,next_inside - next_outside,12,2.09157,2.72402,-0.632458,-1.18665,-0.144642,2,0.0380859
+L0,all_alive,cur_inside - cur_outside,12,2.05053,3.28066,-1.23013,-1.99272,-0.575259,1,0.000976562
+L0,target_rows,next_inside - next_outside,12,2.46349,3.15768,-0.694188,-1.29768,-0.173497,3,0.0283203
+L0,target_rows,cur_inside - cur_outside,12,2.42026,3.91032,-1.49006,-2.4105,-0.698522,1,0.000976562
+L1,all_alive,next_inside - next_outside,12,0.717405,0.736163,-0.0187582,-0.116913,0.0814286,4,0.726562
+L1,all_alive,cur_inside - cur_outside,12,0.697738,0.809371,-0.111633,-0.240841,0.0142353,4,0.129395
+L1,target_rows,next_inside - next_outside,12,0.664726,0.656322,0.00840425,-0.0478118,0.0656628,5,0.78125
+L1,target_rows,cur_inside - cur_outside,12,0.646158,0.721213,-0.0750545,-0.153254,0.002949,4,0.106445
+both,all_alive,next_inside - next_outside,12,1.40449,1.73009,-0.325608,-0.618299,-0.0677314,2,0.0478516
+both,all_alive,cur_inside - cur_outside,12,1.37413,2.04502,-0.670881,-1.07945,-0.312935,1,0.00195312
+both,target_rows,next_inside - next_outside,12,1.56411,1.907,-0.342892,-0.657688,-0.0685983,3,0.0473633
+both,target_rows,cur_inside - cur_outside,12,1.53321,2.31577,-0.782557,-1.27138,-0.358505,1,0.00146484

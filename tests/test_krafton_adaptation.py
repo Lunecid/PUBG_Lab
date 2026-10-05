@@ -377,3 +377,226 @@ def test_csv_inference_uses_57d_input_and_survival_direction(tmp_path):
         h = hd(bb(s0["x_continuous"][None], s0["positions"][None], s0["bluezone_info"][None], s0["whitezone_info"][None], s0["map_idx"][None])).squeeze(0)
     first = df[df.time_point == df.time_point.min()].sort_values("squad_idx")
     assert int(np.argmax(first.win_probability.to_numpy())) == int(torch.argmin(h))
+
+
+def test_token_only_backbone_has_no_position_zone_map_and_ignores_padding():
+    """K2 (KRAFTON-tf-ourfeat): upstream's modules without the position / zone / map embeddings, same key padding mask."""
+    _import_upstream()
+    from adaptation.ourfeat import TokenOnlyBackbone
+
+    torch.manual_seed(0)
+    bb = TokenOnlyBackbone(input_dim=153, embed_dim=16, num_heads=2, num_layers=2, dropout=0.0).eval()
+    assert not ({"position_encoding", "bluezone_embedding", "whitezone_embedding", "map_embedding"} & set(dict(bb.named_children())))
+    x = torch.randn(1, 3, 153)
+    valid = torch.ones(1, 3, dtype=torch.bool)
+    ref = bb(x, None, None, None, None, valid_mask=valid)
+    xp = torch.cat([x, torch.randn(1, 9, 153) * 5], dim=1)
+    vp = torch.cat([valid, torch.zeros(1, 9, dtype=torch.bool)], dim=1)
+    out = bb(xp, torch.zeros(1, 12, 4, 3), torch.zeros(1, 3), torch.zeros(1, 3), torch.zeros(1, dtype=torch.long), valid_mask=vp)
+    assert torch.allclose(ref, out[:, :3], atol=1e-5)
+
+
+def test_step_loader_fills_an_epoch_by_repeating_shuffled_samples():
+    _import_upstream()
+    from adaptation.ourfeat import StepLoader, TokenSampleSet
+
+    n_s = 10
+    n = np.full(n_s, 3, dtype=np.int16)
+    R = int(n.sum())
+    arrays = {"X": np.random.RandomState(0).randn(R, 153).astype(np.float32), "TGT": np.linspace(100, 900, R).astype(np.float32),
+              "TIDX": np.tile(np.arange(3), n_s).astype(np.int16), "S_n": n, "S_cut": np.ones(n_s, dtype=np.int8),
+              "S_mi": np.arange(n_s, dtype=np.int32), "S_t": np.zeros(n_s, dtype=np.float32)}  # fmt: skip
+    ds = TokenSampleSet(arrays, np.array([f"m{i}" for i in range(n_s)]))
+    loader = StepLoader(ds, batch_size=4, shuffle=True, seed=1, epoch_steps=7)
+    batches = list(loader)
+    assert len(batches) == 7 == len(loader)
+    assert sum(b["x_continuous"].shape[0] for b in batches) == 28  # 28 sample draws = 2.8 passes over 10 samples
+    seen = np.concatenate([b["time_point"].numpy() for b in batches])
+    assert len(seen) == 28 and batches[0]["positions"].shape[-2:] == (4, 3)
+    val = list(StepLoader(ds, batch_size=4, shuffle=False))
+    assert len(val) == 3 and sum(b["x_continuous"].shape[0] for b in val) == n_s  # validation: one ordered pass
+
+
+def test_feature_table_rows_cover_alive_at_phase_start_and_risk_set():
+    """adaptation.kftable.table_rows: one row per team alive at the start of each cut phase, risk-set rows flagged, causal cut."""
+    from adaptation import kftable
+
+    raw = make_raw(3, N=6, size=4)
+    N = 6
+    rng = np.random.RandomState(1)
+    death = np.array([150.0, 420.0, 610.0, 900.0, np.inf, np.nan])
+    won = np.array([False, False, False, False, True, False])
+    pe = np.array([290.0, 500.0, 680.0, 800.0, 920.0, 960.0, np.nan, np.nan])
+    ps = np.array([60.0, 300.0, 510.0, 690.0, 810.0, 930.0, np.nan, np.nan])
+    pm = np.array([True] * 6 + [False] * 2)
+    T_eff = np.where(won, np.inf, death)
+    target = np.zeros((8, N), dtype=bool)
+    for p in range(5):  # a risk set at cuts 1..5: alive after the phase end and phase p + 2 exists
+        target[p] = T_eff > pe[p]
+    y = np.where(target, (T_eff <= np.append(pe[1:], np.inf)[:, None].T[0][:, None]).astype(np.float32), 0.0).astype(np.float32)
+    lab = {"match_id": "synthetic", "team_ids": np.arange(10, 10 + N), "team_death_s": death, "team_won": won, "phase_end_s": pe, "phase_start_s": ps,
+           "phase_mask": pm, "target": target, "y": y}  # fmt: skip
+    r = kftable.table_rows("synthetic", lab, raw, {"flags": {"first_state_w": 10.0}})
+    from model_stgcn.ptr.data import event_alive_mask
+
+    alive_start = event_alive_mask(lab).numpy()
+    slots = [p for p in range(7) if pm[p]]
+    assert r["n"] == int(sum(alive_start[p].sum() for p in slots))  # every team alive at phase start, cut phases 1..7 that exist
+    assert int(r["in_risk_set"].sum()) == int(target[slots].sum())
+    assert set(np.unique(r["phase"])) <= set(range(1, 8))
+    cut = r["cut_t"]
+    assert np.allclose(cut, pe[r["phase"] - 1] - 10.0)  # strictly the unified-clock cut
+    team_idx = r["team_id"] - 10
+    assert np.array_equal(r["alive_at_cut"].astype(bool), T_eff[team_idx] > cut)
+    assert np.isnan(r["y"][r["in_risk_set"] == 0]).all() and np.isfinite(r["y"][r["in_risk_set"] == 1]).all()
+    # the features are those of compute_features at the cut times
+    ts = pe[slots] - 10.0
+    full = compute_features(raw, ts)
+    k = slots.index(2)
+    sel = np.flatnonzero(r["phase"] == 3)
+    np.testing.assert_allclose(r["F"][sel], full["F"][team_idx[sel], k, :], rtol=1e-5, atol=1e-5)
+
+
+# --------------------------------------------------------------------------- K3a / K3 (BCE objective, cut-phase bias)
+def _tiny_hazard_samples(seed: int = 0, n_s: int = 9, d: int = 12):
+    """Synthetic cut samples (a TokenSampleSet + label tables) with a known risk set."""
+    from adaptation.ourfeat import TokenSampleSet
+
+    rng = np.random.RandomState(seed)
+    n = rng.randint(3, 7, n_s).astype(np.int16)
+    R = int(n.sum())
+    cuts = (np.arange(n_s) % 7 + 1).astype(np.int8)
+    mids = np.array([f"m{i // 3}" for i in range(n_s)])  # three samples per match
+    uniq = list(dict.fromkeys(mids.tolist()))
+    S_mi = np.array([uniq.index(m) for m in mids], dtype=np.int32)
+    tidx = np.concatenate([np.arange(k) for k in n]).astype(np.int16)
+    arrays = {"X": rng.randn(R, d).astype(np.float32), "TGT": rng.uniform(100, 2000, R).astype(np.float32), "TIDX": tidx, "S_n": n, "S_cut": cuts,
+              "S_mi": S_mi, "S_t": rng.uniform(100, 1500, n_s).astype(np.float32)}  # fmt: skip
+    ss = TokenSampleSet(arrays, np.array(uniq))
+    labs = {}
+    for mi, mid in enumerate(uniq):
+        N = 8
+        target = np.zeros((8, N), dtype=bool)
+        y = np.zeros((8, N), dtype=np.float32)
+        for i in np.flatnonzero(S_mi == mi):
+            p = int(cuts[i]) - 1
+            k = int(n[i])
+            risk = rng.rand(k) < 0.7
+            risk[0] = True  # at least one risk-set row per sample
+            target[p, :k] = risk
+            y[p, :k] = np.where(risk, (rng.rand(k) < 0.4).astype(np.float32), 0.0)
+        labs[mid] = {"match_id": mid, "team_ids": np.arange(N) + 1, "target": target, "y": y}
+    return ss, labs
+
+
+def test_k3_attach_labels_and_batch_encode_risk_rows():
+    _import_upstream()
+    from adaptation.ourfeat_hazard import NO_LOSS, attach_labels
+
+    ss, labs = _tiny_hazard_samples()
+    hs = attach_labels(ss, labs)
+    for i in range(len(hs)):  # rows equal the label tables
+        lab = labs[str(hs.match_ids[hs.S_mi[i]])]
+        p = int(hs.S_cut[i]) - 1
+        r0, r1 = hs.off[i], hs.off[i + 1]
+        t = hs.TIDX[r0:r1].astype(np.int64)
+        assert np.array_equal(hs.RISK[r0:r1], lab["target"][p, t])
+        assert np.array_equal(hs.Y[r0:r1], lab["y"][p, t])
+    b = hs.batch(np.arange(len(hs)))
+    y = b["y"].numpy()
+    valid = b["padding_mask"].numpy()
+    assert (y[~valid] == NO_LOSS).all()  # padding carries no loss
+    n_risk = int(hs.RISK.sum())
+    assert int(((y >= 0) & valid).sum()) == n_risk  # exactly the risk-set rows are labelled
+    assert np.array_equal(b["cut_phase"].numpy(), hs.S_cut.astype(np.int64))
+    assert b["x_continuous"].shape[:2] == b["y"].shape  # same attention set as K2: every alive squad stays a key
+    ref = hs.__class__.__mro__[1].batch(hs, np.arange(len(hs)))  # K2's batch of the same samples
+    assert torch.equal(ref["x_continuous"], b["x_continuous"]) and torch.equal(ref["squad_alive_mask"], b["squad_alive_mask"])
+
+
+def test_k3_phase_head_bias_and_gradient():
+    _import_upstream()
+    from adaptation.ourfeat_hazard import PhaseHead
+    from src.models.heads import HazardHead
+
+    torch.manual_seed(0)
+    head = PhaseHead(HazardHead(16, dropout=0.0)).eval()
+    with torch.no_grad():
+        head.phase_bias.weight.copy_(torch.tensor([[0.5], [-1.0], [2.0], [0.0], [0.0], [0.0], [3.0]]))
+    x = torch.randn(3, 4, 16)
+    phase = torch.tensor([1, 3, 7])
+    out = head(x, phase)
+    base = head.base(x)
+    assert torch.allclose(out - base, torch.tensor([0.5, 2.0, 3.0])[:, None].expand(3, 4), atol=1e-6)
+    head.zero_grad()
+    out[0].sum().backward()  # a loss on sample 0 (phase 1) only
+    g = head.phase_bias.weight.grad[:, 0]
+    assert g[0].abs() > 0 and (g[1:] == 0).all()
+
+
+def test_k3_init_intercepts_and_shared_initial_weights_with_k2():
+    _import_upstream()
+    from adaptation import train as T
+    from adaptation.ourfeat import TokenOnlyBackbone
+    from adaptation.ourfeat_hazard import PhaseHead, build_models, logit
+    from src.models.heads import get_head
+
+    rates = np.array([0.2, 0.25, 0.3, 0.4, 0.45, 0.5, 0.55])
+    pooled = 0.33
+    bb3, h3, init3 = build_models(153, 42, True, pooled, rates)
+    bba, ha, inita = build_models(153, 42, False, pooled, None)
+    assert isinstance(h3, PhaseHead) and not isinstance(ha, PhaseHead)
+    # head bias + phase offset = the logit of the phase base rate; K3a has the pooled intercept only
+    off = h3.phase_bias.weight.detach().numpy()[:, 0]
+    bias = float(h3.base.mlp[-1].bias)
+    np.testing.assert_allclose(bias + off, [logit(r) for r in rates], atol=1e-5)
+    assert abs(float(ha.mlp[-1].bias) - logit(pooled)) < 1e-6 and inita["phase_offsets"] is None
+    # same seed and construction order as K2: backbone and head weights equal, except the last bias
+    T.set_seed(42)
+    bb2 = TokenOnlyBackbone(input_dim=153, embed_dim=T.PAPER["embed_dim"], num_heads=T.PAPER["num_heads"], num_layers=T.PAPER["num_layers"], dropout=T.PAPER["dropout"])
+    h2 = get_head(T.LOSS, embed_dim=T.PAPER["embed_dim"], dropout=T.PAPER["dropout"])
+    for (k, v2), (_, va), (_, v3) in zip(bb2.state_dict().items(), bba.state_dict().items(), bb3.state_dict().items()):
+        assert torch.equal(v2, va) and torch.equal(v2, v3), k
+    for (k, v2), (_, va) in zip(h2.state_dict().items(), ha.state_dict().items()):
+        if k != "mlp.3.bias":
+            assert torch.equal(v2, va), k
+    for (k, v2), (k3, v3) in zip(h2.state_dict().items(), h3.base.state_dict().items()):
+        if k != "mlp.3.bias":
+            assert torch.equal(v2, v3), k
+
+
+def test_k3_trainer_loss_masks_and_pooled_val_nll(tmp_path):
+    _import_upstream()
+    import torch.nn.functional as F
+
+    from adaptation import ourfeat as OF
+    from adaptation import train as T
+    from adaptation.ourfeat_hazard import BCETrainer, HazardSampleSet, PhaseHead, attach_labels, masked_bce, predict_logits
+    from src.models.heads import HazardHead
+
+    # masked BCE: only rows with a label >= 0 inside the valid mask count
+    pred = torch.randn(2, 5)
+    y = torch.tensor([[1.0, 0.0, -1.0, 1.0, -1.0], [0.0, -1.0, 1.0, 0.0, 1.0]])
+    valid = torch.tensor([[1, 1, 1, 0, 0], [1, 1, 1, 1, 0]], dtype=torch.bool)
+    m = valid & (y >= 0)
+    ref = F.binary_cross_entropy_with_logits(pred[m], y[m])
+    assert torch.allclose(masked_bce(pred, y, valid), ref, atol=1e-6)
+    assert torch.allclose(masked_bce(pred, y, valid, reduction="sum"), ref * m.sum(), atol=1e-5)
+
+    ss, labs = _tiny_hazard_samples(seed=3, d=12)
+    hs = attach_labels(ss, labs)
+    torch.manual_seed(0)
+    bb = OF.TokenOnlyBackbone(input_dim=12, embed_dim=16, num_heads=2, num_layers=2, dropout=0.0)
+    head = PhaseHead(HazardHead(16, dropout=0.0))
+    trainer = BCETrainer(backbone=bb, head=head, train_loader=OF.StepLoader(hs, 4, True, 0, 3), val_loader=OF.StepLoader(hs, 4, False), loss_type="weighted_cox",
+                         lr=1e-3, weight_decay=0.0, device="cpu", checkpoint_dir=str(tmp_path), phased=True)  # fmt: skip
+    nll = trainer.validate()  # batches of 4 samples -> unequal row counts per batch: must be the pooled value
+    g = predict_logits(bb, head, hs, "cpu", True)
+    p = 1 / (1 + np.exp(-g[hs.RISK]))
+    y_rows = hs.Y[hs.RISK].astype(np.float64)
+    pooled = float(-(y_rows * np.log(p) + (1 - y_rows) * np.log(1 - p)).mean())
+    assert abs(nll - pooled) < 1e-5
+    # a training epoch runs, updates the phase bias and keeps the loss finite
+    before = head.phase_bias.weight.detach().clone()
+    loss = trainer.train_epoch(1)
+    assert np.isfinite(loss) and not torch.equal(before, head.phase_bias.weight.detach())

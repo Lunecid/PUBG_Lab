@@ -1,0 +1,13 @@
+cohort,n_test_matches,n_matches_used,n_alive_tokens,n_target_rows,combat_mode,selection_seed
+erangel_fpp_squad,43,43,3446,2341,log,20261006
+erangel_tpp_duo,65,65,8976,5912,log,20261006
+erangel_tpp_solo,20,20,4958,3112,log,20261006
+erangel_tpp_squad,324,300,26164,18624,log,20261006
+karakin_tpp_squad,33,33,1779,1232,log,20261006
+miramar_desert_tpp_squad,154,154,13326,9685,log,20261006
+paramo_tpp_squad,33,33,1541,993,log,20261006
+rondo_tpp_squad,103,103,7726,5464,log,20261006
+sanhok_tpp_squad,94,94,7324,4880,log,20261006
+taego_fpp_squad,43,43,3217,2103,log,20261006
+taego_tpp_duo,57,57,7283,4616,log,20261006
+taego_tpp_squad,415,300,24357,16570,log,20261006

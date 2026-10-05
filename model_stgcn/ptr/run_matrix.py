@@ -19,6 +19,12 @@ i.e. ``12 C + 13 L`` runs (170 for the 12 expected cohorts).  The large cohorts 
 ``taego_tpp_squad`` (``--large-cohorts``); one that is not in the dump directory is skipped with a note
 (``--strict`` makes that an error).
 
+``--union`` plans the post hoc union runs of design doc 4.6 instead (they need the kf tables, ``--extra-features DIR``, default
+``bigcomp2027_kraftonfeat_v1`` next to ``--dump-dir``; a cohort without a complete table is left out with a note):
+``HGB-union`` and ``M11R-union`` on every cohort at seed 42, plus ``M11R-union`` at seeds 13 and 2026 on the large cohorts
+(``2 C + 2 L`` runs, 28 for the 12 expected cohorts); group ``union``.  Use ``--status-name`` so that the status of the main matrix is
+not overwritten.
+
 * Every run is one subprocess (``python -m model_stgcn.ptr.train|hgb ...``) with its stdout / stderr in
   ``<out-dir>/logs/<cohort>__<arm>__seed<seed>.log``; ``--workers`` of them run at once (default: cores / 2) with
   ``--threads`` threads each (default 2, 1 if cores are short; set both as arguments and as OMP / MKL / OpenBLAS
@@ -58,10 +64,11 @@ from typing import Callable, Iterable, Sequence
 
 from model_stgcn.ptr import hgb as H
 from model_stgcn.ptr import train as T
-from model_stgcn.ptr.arms import EXPLORATORY_ARMS, MAIN_ARMS, STAGE2_ARMS
+from model_stgcn.ptr import extra as X
+from model_stgcn.ptr.arms import EXPLORATORY_ARMS, MAIN_ARMS, STAGE2_ARMS, UNION_ARMS
 from model_stgcn.ptr.cohorts import discover_cohorts
 from model_stgcn.ptr.data import DEFAULT_LABELS, DEFAULT_MATCH_TYPES, LABEL_CHOICES
-from model_stgcn.ptr.hgb import HGB_VARIANTS
+from model_stgcn.ptr.hgb import HGB_VARIANTS, UNION_VARIANTS
 from model_stgcn.ptr.player import default_player_dump_dir
 from model_stgcn.ptr.util import REPO_ROOT, run_dir_name
 
@@ -74,6 +81,8 @@ LARGE_COHORTS: tuple[str, ...] = ("erangel_tpp_squad", "taego_tpp_squad")
 GROUPS: tuple[str, ...] = ("main", "exploratory", "seeds", "hgb")
 LC_GROUPS: tuple[str, ...] = ("lc", "lc_full")  # learning curve (design doc 4.4): subsampled runs, full-size extra seeds
 STAGE2_GROUP = "stage2"  # M11RZ-P and M11RZ-P-tm x every cohort, seed 42 (design doc 4.4: needs the player dump)
+UNION_GROUP = "union"  # HGB-union + M11R-union x every cohort (seed 42), M11R-union seeds 13 / 2026 on the large cohorts (design doc 4.6)
+UNION_KF_COLUMNS = 55  # kf_* columns of the KRAFTON table (only used by the cost estimate)
 ONLY_KEYS: tuple[str, ...] = ("cohort", "arm", "seed", "kind", "group", "subsample")
 STATUS_FIELDS = (
     "run_id", "group", "kind", "cohort", "arm", "seed", "subsample", "max_epochs", "labels", "config_hash", "status",
@@ -163,6 +172,7 @@ ARM_CLASS = {
     **{a: "rel" for a in ("M11R", "M11R-shuf", "M11R-noHab", "M11R-noProx", "M11R-noCombat", "M11R-noCopress")},
     **{a: "relzone" for a in ("M11RZ", "M11RZ-noHab")},
     **{a: "player" for a in STAGE2_ARMS},
+    **{a: "rel" for a in UNION_ARMS},  # M11R plus 55 input columns: the extra first-layer columns are negligible
 }
 
 
@@ -203,6 +213,7 @@ class Settings:
     threads: int = 2
     python: str = field(default_factory=lambda: sys.executable)
     player_dump_dir: str | None = None  # stage-2 arms; None: next to dump_dir (train.default_player_dump_dir)
+    extra_features_dir: str | None = None  # union runs: the kf tables <dir>/<cohort>/{train,val,test}.csv.gz (required by them)
 
 
 # --------------------------------------------------------------------------- enumeration and filters
@@ -229,6 +240,16 @@ def enumerate_runs(
 def enumerate_stage2_runs(cohorts: Iterable[str]) -> list[RunSpec]:
     """Stage 2 (design doc 4.4): ``M11RZ-P`` and ``M11RZ-P-tm`` on every cohort at seed 42."""
     return [RunSpec("neural", c, a, MAIN_SEED, STAGE2_GROUP) for c in sorted(set(cohorts)) for a in STAGE2_ARMS]
+
+
+def enumerate_union_runs(cohorts: Iterable[str], large: Sequence[str] = LARGE_COHORTS) -> list[RunSpec]:
+    """Union runs (design doc 4.6, post hoc): ``HGB-union`` and ``M11R-union`` on every cohort at seed 42, and ``M11R-union`` at the
+    extra seeds (13, 2026) on the large cohorts that are present."""
+    cohorts = sorted(set(cohorts))
+    runs = [RunSpec("hgb", c, v, MAIN_SEED, UNION_GROUP) for c in cohorts for v in UNION_VARIANTS]
+    runs += [RunSpec("neural", c, a, MAIN_SEED, UNION_GROUP) for c in cohorts for a in UNION_ARMS]
+    runs += [RunSpec("neural", c, a, s, UNION_GROUP) for c in cohorts if c in large for s in EXTRA_SEEDS for a in UNION_ARMS]
+    return runs
 
 
 def enumerate_lc_runs(
@@ -308,6 +329,10 @@ def build_argv(spec: RunSpec, st: Settings) -> list[str]:
         argv += ["--device", st.device, "--max-epochs", str(spec.epochs or st.max_epochs)]
         if st.player_dump_dir and spec.arm in STAGE2_ARMS:
             argv += ["--player-dump-dir", str(st.player_dump_dir)]
+    if spec.arm in UNION_ARMS or spec.arm in UNION_VARIANTS:
+        if not st.extra_features_dir:
+            raise ValueError(f"{spec.arm} needs the kf tables: Settings.extra_features_dir (--extra-features DIR)")
+        argv += ["--extra-features", str(st.extra_features_dir)]
     return argv
 
 
@@ -370,6 +395,7 @@ def estimate_seconds(spec: RunSpec, stats: CohortStats, st: Settings) -> float:
         # the final val / test predictions do not depend on the subsample: priced as before, on the full train size
         return c["startup_s"] + n_train * per_match * (spec.epochs or st.max_epochs) + stats.n_train * per_match * c["predict_epochs"]
     cols = 3 * 150 + 1 if spec.arm == "HGB-lag" else 150 + 1 - (44 if spec.arm == "HGB-noHab" else 0)
+    cols += UNION_KF_COLUMNS if spec.arm in UNION_VARIANTS else 0
     return c["startup_s"] + c["hgb_us_per_cell"] * n_train * stats.rows_per_match * cols / 1e6
 
 
@@ -397,6 +423,7 @@ class Plan:
     notes: list[str]
     cohorts: list[str]
     projected: bool = False
+    union: bool = False  # a union plan (design doc 4.6): format_plan words the run count accordingly
 
     @property
     def todo(self) -> list[PlanItem]:
@@ -413,6 +440,7 @@ def make_plan(
     cohorts: Sequence[str] = (),
     notes: Sequence[str] = (),
     projected: bool = False,
+    union: bool = False,
 ) -> Plan:
     items = []
     for spec in runs:
@@ -420,7 +448,7 @@ def make_plan(
         done = bool(check_done and not force and is_done(spec, st, h))
         est = estimate_seconds(spec, stats[spec.cohort], st) if spec.cohort in stats else 0.0
         items.append(PlanItem(spec, h, done, est))
-    return Plan(items, list(notes), list(cohorts), projected)
+    return Plan(items, list(notes), list(cohorts), projected, union)
 
 
 def format_plan(plan: Plan, st: Settings, workers: int, *, list_runs: bool = False) -> str:
@@ -438,6 +466,11 @@ def format_plan(plan: Plan, st: Settings, workers: int, *, list_runs: bool = Fal
     n_stage2 = sum(1 for i in plan.items if i.spec.group == STAGE2_GROUP)
     if n_stage2:
         lines.append(f"runs: {len(plan.items)} = stage 2 ({', '.join(STAGE2_ARMS)}) x {len(plan.cohorts)} cohorts")
+    elif plan.union:
+        lines.append(
+            f"runs: {len(plan.items)} = union ({', '.join((*UNION_VARIANTS, *UNION_ARMS))}; post hoc, design doc 4.6) "
+            f"x {len(plan.cohorts)} cohorts + extra seeds of {', '.join(UNION_ARMS)} on the large cohorts"
+        )
     elif any(lc.values()):
         lines.append(f"runs: {len(plan.items)} = learning curve {lc['lc']} + full-size extra seeds {lc['lc_full']}")
     else:
@@ -607,6 +640,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     ap.add_argument("--stage2", action="store_true",
                     help="plan the stage-2 runs (M11RZ-P, M11RZ-P-tm on every cohort, seed 42) instead of the main matrix")  # fmt: skip
     ap.add_argument("--player-dump-dir", default=None, help="stage-2 arms: the player dump directory (default: next to --dump-dir)")
+    ap.add_argument("--union", action="store_true",
+                    help="plan the post hoc union runs of design doc 4.6 (HGB-union, M11R-union) instead of the main matrix; "
+                    "they need the kf tables (--extra-features)")  # fmt: skip
+    ap.add_argument("--extra-features", default=None,
+                    help="--union: directory of the kf tables <cohort>/{train,val,test}.csv.gz "
+                    "(default: bigcomp2027_kraftonfeat_v1 next to --dump-dir)")  # fmt: skip
     ap.add_argument("--lc", action="store_true",
                     help="plan the learning curve of design doc 4.4 instead of the main matrix")  # fmt: skip
     ap.add_argument("--lc-cohorts", default=",".join(LARGE_COHORTS), help="learning-curve cohorts")
@@ -623,12 +662,15 @@ def main(argv: list[str] | None = None, popen: Callable = subprocess.Popen) -> i
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     if args.projected and not args.dry_run:
         raise SystemExit("--projected only makes sense with --dry-run (there are no dumps to run)")
+    if args.union and (args.stage2 or args.lc or args.projected):
+        raise SystemExit("--union plans a different matrix than --stage2 / --lc / --projected; pick one")
     workers = args.workers or default_workers()
     threads = args.threads or default_threads(workers)
+    extra_dir = Path(args.extra_features) if args.extra_features else X.default_extra_dir(args.dump_dir)
     st = Settings(
         dump_dir=args.dump_dir, out_dir=args.out_dir, labels=args.labels, match_types=args.match_types,
         max_epochs=args.max_epochs, device=args.device, threads=threads, python=args.python,
-        player_dump_dir=args.player_dump_dir,
+        player_dump_dir=args.player_dump_dir, extra_features_dir=str(extra_dir) if args.union else None,
     )  # fmt: skip
     large = [c for c in args.large_cohorts.split(",") if c]
     if args.projected:
@@ -650,6 +692,23 @@ def main(argv: list[str] | None = None, popen: Callable = subprocess.Popen) -> i
             notes.append(msg)
         cohorts = have
         runs = enumerate_stage2_runs(cohorts)
+    elif args.union:
+        have = []
+        for c in cohorts:
+            try:
+                for split in ("train", "val", "test"):
+                    X.table_path(extra_dir, c, split)
+                have.append(c)
+            except FileNotFoundError:
+                pass
+        notes = []
+        if len(have) < len(cohorts):
+            msg = f"no complete kf table in {extra_dir} for {sorted(set(cohorts) - set(have))}: no union runs for them"
+            if args.strict:
+                raise ValueError(msg)
+            notes.append(msg)
+        cohorts = have
+        runs = enumerate_union_runs(cohorts, large)
     elif args.lc:
         lc_cohorts = [c for c in args.lc_cohorts.split(",") if c]
         absent = [c for c in lc_cohorts if c not in cohorts]
@@ -665,13 +724,13 @@ def main(argv: list[str] | None = None, popen: Callable = subprocess.Popen) -> i
         notes = []
     else:
         runs, notes = enumerate_runs(cohorts, large, strict=args.strict)
-    if not args.projected and not args.lc and not args.stage2:
+    if not args.projected and not args.lc and not args.stage2 and not args.union:
         kept = population_stats(args.dump_dir)
         if kept is not None and set(kept) - set(cohorts):
             notes.append(f"population.json keeps {len(kept)} cohorts; not in the dump dir yet: {sorted(set(kept) - set(cohorts))}")
     runs = apply_only(runs, parse_only(args.only))
     plan = make_plan(runs, st, stats=stats, force=args.force, cohorts=cohorts, notes=notes,
-                     projected=args.projected, check_done=not args.projected)  # fmt: skip
+                     projected=args.projected, check_done=not args.projected, union=args.union)  # fmt: skip
     print(format_plan(plan, st, workers, list_runs=args.list))
     if args.dry_run:
         return 0

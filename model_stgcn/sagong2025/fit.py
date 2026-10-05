@@ -18,10 +18,13 @@ Pipeline (every statistic is fitted on the TRAIN split of the cohort only):
 4. The paper's 12 inputs: the 8 features, FightScore, ActiveScore, PlayerType (1..4) and the survival rate.
 5. XGBoost / RandomForest / LogisticRegression with library defaults, ``random_state = seed``.  Pooled over cuts 1..7
    (``scope='pooled'``, the PTR protocol) or one model per cut (``scope='per_phase'``, sensitivity only).
+   ``hgb`` is a control for the paper headline (not a Sagong model): ``HistGradientBoostingClassifier`` built by
+   ``model_stgcn.ptr.hgb.make_classifier`` (max_iter 200, learning_rate 0.06, l2 0.01, early_stopping False) on the same 12
+   inputs; its parameters are asserted equal to the ``classifier`` block of the cohort's HGB-cut ``metrics.json``.
    LogisticRegression gets a train-fitted StandardScaler (the paper names no preprocessing; raw metres / damage do not
    converge under the default ``max_iter``); the scaler is a deviation and is written to metrics.json.
 
-Outputs: ``<out-dir>/<cohort>/SAGONG-{xgb,rf,lr}/seed<seed>/{pred_val.csv, pred_test.csv, metrics.json}`` in the PTR
+Outputs: ``<out-dir>/<cohort>/SAGONG-{xgb,rf,lr,hgb}/seed<seed>/{pred_val.csv, pred_test.csv, metrics.json}`` in the PTR
 format.  The rows are the PTR risk-set rows (``plan``); they are asserted equal to the existing HGB-cut and M11R
 prediction files of the same cohort when those exist.
 """
@@ -29,6 +32,7 @@ prediction files of the same cohort when those exist.
 from __future__ import annotations
 
 import hashlib
+import json
 import logging
 import time
 import warnings
@@ -44,7 +48,7 @@ from model_stgcn.sagong2025.features import ACTIVE_FEATURES, FEATURES, FIGHT_FEA
 
 logger = logging.getLogger("model_stgcn.sagong2025.fit")
 
-MODELS: dict[str, str] = {"xgb": "SAGONG-xgb", "rf": "SAGONG-rf", "lr": "SAGONG-lr"}
+MODELS: dict[str, str] = {"xgb": "SAGONG-xgb", "rf": "SAGONG-rf", "lr": "SAGONG-lr", "hgb": "SAGONG-hgb"}
 TYPE_CODES: dict[str, int] = {"Hunter": 1, "Sniper": 2, "Traveler": 3, "Camper": 4}
 INPUT_NAMES: list[str] = [
     "phase_attack_count", "phase_kill_count", "phase_total_damage", "phase_assist_count", "distance",
@@ -53,7 +57,8 @@ INPUT_NAMES: list[str] = [
 ]  # fmt: skip
 N_CUTS = 7
 _NOISE_WARNINGS = ("encountered in matmul", "The `disp` and `iprint` options")
-REF_ARMS = ("HGB-cut", "M11R")  # existing arms whose prediction rows must be identical
+REF_ARMS = ("HGB-cut", "M11R")  # existing arms whose prediction rows must be identical (when their files exist)
+REQUIRED_REF_ARM = "HGB-cut"  # ... and HGB-cut must exist
 
 
 # --------------------------------------------------------------------------- pure steps (tested)
@@ -147,6 +152,10 @@ def make_model(kind: str, seed: int, n_jobs: int):
         from sklearn.preprocessing import StandardScaler
 
         return make_pipeline(StandardScaler(), LogisticRegression(random_state=seed))
+    if kind == "hgb":  # the HGB-cut classifier, imported so that its settings cannot drift from model_stgcn/ptr/hgb.py
+        from model_stgcn.ptr.hgb import make_classifier
+
+        return make_classifier(seed)
     raise ValueError(f"unknown model '{kind}', known: {sorted(MODELS)}")
 
 
@@ -275,9 +284,16 @@ def prepare(plan_dir, cohort: str, sr_mode: str = "paper") -> tuple[pd.DataFrame
     return df, {"table": table, "info": info}
 
 
-def run_cohort(plan_dir, cohort: str, out_dir, seed: int = 42, n_jobs: int = 2, models=("xgb", "rf", "lr"),
+def run_cohort(plan_dir, cohort: str, out_dir, seed: int = 42, n_jobs: int = 2, models=("xgb", "rf", "lr", "hgb"),
                scope: str = "pooled", runs_ref=None, sr_mode: str = "paper") -> dict:
-    n_jobs = max(1, min(int(n_jobs), 2))  # resource cap agreed with the coordinator
+    n_jobs = max(1, min(int(n_jobs), 2))  # resource cap agreed with the coordinator (also caps OpenMP / BLAS threads)
+    from threadpoolctl import threadpool_limits
+
+    with threadpool_limits(limits=n_jobs):
+        return _run_cohort(plan_dir, cohort, out_dir, seed, n_jobs, models, scope, runs_ref, sr_mode)
+
+
+def _run_cohort(plan_dir, cohort: str, out_dir, seed: int, n_jobs: int, models, scope: str, runs_ref, sr_mode: str) -> dict:
     if scope not in ("pooled", "per_phase"):
         raise ValueError("scope must be 'pooled' or 'per_phase'")
     if (scope != "pooled" or sr_mode != "paper") and runs_ref is not None and Path(out_dir).resolve() == Path(runs_ref).resolve():
@@ -323,6 +339,8 @@ def run_cohort(plan_dir, cohort: str, out_dir, seed: int = 42, n_jobs: int = 2, 
                     preds[s][m] = pk[s]
                 model_info["per_phase"][str(k)] = {"n_train": int(tr.sum()), "fitted": bool(ok), "warnings": ex["warnings"]}
         fit_sec = time.perf_counter() - t0
+        if kind == "hgb" and runs_ref is not None:
+            _assert_hgb_settings(params, Path(runs_ref), cohort, seed)
         out = Path(out_dir) / cohort / name / f"seed{seed}"
         res = {
             "variant": name, "cohort": cohort, "seed": seed, "labels": "v2",
@@ -350,6 +368,17 @@ def run_cohort(plan_dir, cohort: str, out_dir, seed: int = 42, n_jobs: int = 2, 
     return results
 
 
+def _assert_hgb_settings(params: dict, runs_ref: Path, cohort: str, seed: int) -> None:
+    """The control must use EXACTLY the classifier settings that produced the cohort's HGB-cut run (its ``metrics.json``)."""
+    p = runs_ref / cohort / "HGB-cut" / f"seed{seed}" / "metrics.json"
+    if not p.is_file():
+        raise FileNotFoundError(f"{p} not found: the HGB-cut classifier settings cannot be asserted")
+    recorded = json.loads(p.read_text(encoding="utf-8"))["classifier"]
+    diff = {k: (params.get(k), recorded.get(k)) for k in sorted(set(params) | set(recorded)) if params.get(k) != recorded.get(k)}
+    if diff:
+        raise AssertionError(f"{cohort}: SAGONG-hgb classifier differs from the HGB-cut run (own, recorded): {diff}")
+
+
 def _assert_rows_match(frame: pd.DataFrame, runs_ref: Path, cohort: str, split: str) -> None:
     """The prediction rows (keys, y, final_rank_norm, top5, match_type) must equal those of the existing arms."""
     checked = []
@@ -358,7 +387,7 @@ def _assert_rows_match(frame: pd.DataFrame, runs_ref: Path, cohort: str, split: 
         if p.is_file():
             M.align_predictions(frame, M.read_predictions(p))  # raises ValueError on any difference
             checked.append(arm)
-    if not checked:
-        raise FileNotFoundError(f"{cohort}/{split}: none of {REF_ARMS} has a prediction file under {runs_ref}; "
+    if REQUIRED_REF_ARM not in checked:  # HGB-cut is the reference of the PTR rows: the assertion needs its file
+        raise FileNotFoundError(f"{cohort}/{split}: {REQUIRED_REF_ARM} has no prediction file under {runs_ref}; "
                                 "the PTR row equality cannot be asserted")
     logger.info("%s/%s rows identical to %s", cohort, split, checked)

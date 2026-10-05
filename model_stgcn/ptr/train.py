@@ -27,6 +27,13 @@ Switches beyond the spec (defaults reproduce the spec): ``--rank-reduction pair|
 all pairs, or over per-(match, phase) means), ``--combat-weights auto|raw|log`` (the real dump already holds
 ln(1 + intensity); ``auto`` reads it off the train weights so the combat channel is log1p(intensity) either
 way), ``--no-pos-feature`` (drop the 2-d team centre from the token features).
+
+Union arm (design doc 4.6, post hoc / exploratory): ``--arm M11R-union --extra-features DIR`` appends the ``kf_*`` columns of
+``DIR/<cohort>/{train,val,test}.csv.gz`` (KRAFTON's reconstructed inputs, ``model_stgcn.ptr.extra``) to the team token
+features, after ``X``, the team centre and ``team_ai_frac``: z-scored on the train alive tokens, NaN -> 0, broadcast to the phase
+slots by cut phase.  Every alive token of a cut slot must have a table row (a gap fails before training, with the list); the
+feature set, its hash and the join counts are written to ``metrics.json`` (``extra_features``) and into the config hash.
+``--extra-features`` is refused for every other arm.
 """
 
 from __future__ import annotations
@@ -44,8 +51,9 @@ import torch.nn.functional as F
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
+from model_stgcn.ptr import extra as X
 from model_stgcn.ptr import metrics as M
-from model_stgcn.ptr.arms import ARMS, ArmSpec, get_arm, model_config
+from model_stgcn.ptr.arms import ARMS, UNION_ARMS, ArmSpec, get_arm, model_config
 from model_stgcn.ptr.data import (
     DEFAULT_LABELS,
     DEFAULT_MATCH_TYPES,
@@ -141,6 +149,8 @@ class Prepared:
     labels: str = DEFAULT_LABELS
     match_types: tuple[str, ...] | None = DEFAULT_MATCH_TYPES
     data: dict | None = None  # what the run saw: matches / risk-set rows / match types per split
+    extra_standardizer: X.ExtraStandardizer | None = None  # union arm only
+    extra_info: dict | None = None  # union arm only: the ``extra_features`` block of metrics.json
 
 
 def _positive_int(text: str) -> int:
@@ -236,7 +246,19 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="do not append the 2-d normalised team centre to the token features",
     )
-    return ap.parse_args(argv)
+    ap.add_argument(
+        "--extra-features",
+        default=None,
+        metavar="DIR",
+        help=f"union arms {UNION_ARMS} (design doc 4.6): directory of the kf tables <cohort>/{{train,val,test}}.csv.gz whose "
+        "kf_* columns are appended to the team token features; required by them and refused for every other arm",
+    )
+    args = ap.parse_args(argv)
+    if ARMS[args.arm].extra and not args.extra_features:
+        ap.error(f"arm {args.arm} needs --extra-features DIR (the kf tables <DIR>/<cohort>/{{train,val,test}}.csv.gz)")
+    if args.extra_features and not ARMS[args.arm].extra:
+        ap.error(f"--extra-features is only defined for the union arms {UNION_ARMS}, not for {args.arm}")
+    return args
 
 
 def _player_dir(args: argparse.Namespace) -> Path:
@@ -248,6 +270,14 @@ def _player_spec(args: argparse.Namespace) -> dict:
     if not get_arm(args.arm).player:
         return {}
     return {"player_layers": args.player_layers, "player_dump": dump_fingerprint(_player_dir(args), args.cohort)}
+
+
+def _extra_spec(args: argparse.Namespace) -> dict:
+    """Only union arms carry the extra-feature fields (feature-set hash, size / mtime of the tables): the hash of every other
+    run is what it was."""
+    if not get_arm(args.arm).extra:
+        return {}
+    return {"extra_features": X.extra_spec(getattr(args, "extra_features", None), args.cohort)}
 
 
 def _subsample_seed(args: argparse.Namespace) -> int:
@@ -273,7 +303,7 @@ def config_spec(args: argparse.Namespace) -> dict:
         "combat_weights": args.combat_weights, "d_model": args.d_model, "n_heads": args.n_heads,
         "n_layers": args.n_layers, "dropout": args.dropout, "pos_feature": not args.no_pos_feature,
         "dump": dump_fingerprint(args.dump_dir, args.cohort), "code": code_fingerprint(),
-        **_subsample_spec(args), **_player_spec(args),
+        **_subsample_spec(args), **_player_spec(args), **_extra_spec(args),
     }  # fmt: skip
 
 
@@ -306,6 +336,22 @@ def prepare(args: argparse.Namespace) -> Prepared:
             "player layer: %d features, relation channels %s, combat weights mode=%s (largest train weight %.3f), dump %s",
             len(player_info["feature_names"]), list(arm.player_relation_types), player_mode, player_max, player_dir,
         )  # fmt: skip
+    extra_joined = extra_std = extra_info = None
+    extra_dir = getattr(args, "extra_features", None)
+    if arm.extra:
+        if not extra_dir:
+            raise ValueError(f"arm {arm.name} needs --extra-features DIR")
+        extra_joined = X.load_extra(extra_dir, args.cohort, splits, args.labels)  # a gap / disagreement fails here, before training
+        extra_std = X.ExtraStandardizer.fit(extra_joined["train"], splits["train"], args.labels)  # train alive tokens only
+        extra_info = X.describe(extra_dir, args.cohort, extra_joined, extra_std)
+        logger.info(
+            "extra features: %d kf_ columns (sha1 %s) from %s; constant in train: %s; join %s",
+            extra_info["n_features"], extra_info["names_sha1"][:12], extra_dir,
+            extra_info["standardizer"]["constant_train_columns"],
+            {k: (v["alive_tokens_cut_slots"], v["target_rows"], v["alignment"].get("checked")) for k, v in extra_info["join"].items()},
+        )  # fmt: skip
+    elif extra_dir:
+        raise ValueError(f"--extra-features is only defined for the union arms {UNION_ARMS}, not for {arm.name}")
     combat_mode, combat_max = "raw", None
     if arm.relation:
         inferred, combat_max = infer_combat_weights(splits["train"])
@@ -330,6 +376,8 @@ def prepare(args: argparse.Namespace) -> Prepared:
             player_standardizer=player_std,
             player_relation_types=arm.player_relation_types if arm.player else None,
             player_combat_weights=player_mode,
+            extra=None if extra_joined is None else extra_joined[name],
+            extra_standardizer=extra_std,
         )
         for name, dump in splits.items()
     }
@@ -396,7 +444,7 @@ def prepare(args: argparse.Namespace) -> Prepared:
             raise ValueError(f"{name} has {ds.n_phases} phase slots, train has {ref.n_phases}")
     return Prepared(
         arm, standardizer, datasets, config, combat_mode, combat_max, player_std, player_mode, args.labels,
-        args.match_types, data,
+        args.match_types, data, extra_std, extra_info,
     )  # fmt: skip
 
 
@@ -534,6 +582,11 @@ def _save_checkpoint(path: Path, model, prep: Prepared, args, epoch: int, val_nl
             "feature_names": ref.feature_names,
             "keep_columns": ref.keep,
             "cohort": args.cohort,
+            **(
+                {}
+                if prep.extra_standardizer is None
+                else {"extra_standardizer": prep.extra_standardizer.state_dict(), "extra_feature_names": list(ref.extra_names)}
+            ),
         },
         path,
     )
@@ -603,6 +656,7 @@ def _run(args: argparse.Namespace) -> dict:
             "combat_weight_max_train": prep.combat_weight_max,
             "relation_types": list(prep.config.relation_types) if prep.arm.relation else [],
         },
+        **({} if prep.extra_info is None else {"extra_features": prep.extra_info}),
         "n_matches": {k: len(v) for k, v in prep.datasets.items()},
         "epochs_run": len(fit_res.history),
         "best_epoch": fit_res.best_epoch,

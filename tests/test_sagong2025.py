@@ -248,7 +248,7 @@ def _synthetic_plan(tmp_path, n_matches=60, seed=0):
     return tmp_path
 
 
-@pytest.mark.parametrize("kind", ["lr", "rf", "xgb"])
+@pytest.mark.parametrize("kind", ["lr", "rf", "xgb", "hgb"])
 def test_fit_stage_writes_ptr_format(tmp_path, kind):
     pytest.importorskip("pyarrow")
     if kind == "xgb":
@@ -269,3 +269,27 @@ def test_fit_stage_writes_ptr_format(tmp_path, kind):
         assert len(df) == len(expect) and set(df.match_id) == set(expect.match_id)
     assert res[name]["labels"] == "v2" and res[name]["n_features"] == 12 and "config_hash" in res[name]
     assert res[name]["test"]["hazard"]["auc"] > 0.55  # the toy signal is learnable
+
+
+def test_hgb_control_is_the_hgb_cut_classifier():
+    hgb = pytest.importorskip("model_stgcn.ptr.hgb")
+    own = T.make_model("hgb", 42, 2)
+    assert own.get_params() == hgb.make_classifier(42).get_params()
+    assert own.get_params()["early_stopping"] is False and own.get_params()["random_state"] == 42
+
+
+def test_hgb_settings_must_equal_the_recorded_hgb_cut_run(tmp_path):
+    import json
+
+    pytest.importorskip("model_stgcn.ptr.hgb")
+    params = T.make_model("hgb", 42, 2).get_params()
+    run = tmp_path / "toy" / "HGB-cut" / "seed42"
+    run.mkdir(parents=True)
+    (run / "metrics.json").write_text(json.dumps({"classifier": params}))
+    T._assert_hgb_settings(params, tmp_path, "toy", 42)  # identical: passes
+    (run / "metrics.json").write_text(json.dumps({"classifier": {**params, "max_iter": 100}}))
+    with pytest.raises(AssertionError):
+        T._assert_hgb_settings(params, tmp_path, "toy", 42)
+    (run / "metrics.json").unlink()
+    with pytest.raises(FileNotFoundError):
+        T._assert_hgb_settings(params, tmp_path, "toy", 42)

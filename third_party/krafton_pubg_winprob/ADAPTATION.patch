@@ -1,0 +1,538 @@
+diff -ruN -x adaptation -x __pycache__ -x NOTICE -x README_ADAPTATION.md -x ADAPTATION.patch -x PARITY_TABLE.csv upstream/src/data/dataset.py adapted/src/data/dataset.py
+--- upstream/src/data/dataset.py	2026-08-26 15:34:26
++++ adapted/src/data/dataset.py	2026-10-05 23:14:36
+@@ -1,3 +1,4 @@
++# Modified from krafton-ai/pubg-winprob (99ed9d1) - see README_ADAPTATION.md
+ """
+ PGC Dataset and DataLoader for PyTorch.
+ """
+@@ -22,20 +23,23 @@
+ ZONE_SCALE = 800000.0
+ TARGET_SCALE = 2000.0
+ 
+-# Maximum number of squads (for padding)
++# Maximum number of squads (for padding).  Adaptation: NOT a cap any more.  Upstream copied
++# min(n_squads, 16) squads (silent truncation, audit 2026-10-02).  collate_fn now pads to the largest squad
++# count of the batch (or ``max_squads`` if given) and raises if a sample would be truncated.
+ MAX_SQUADS = 16
+ 
+-# Map types for embedding
+-MAP_TYPES = ['erangel', 'miramar', 'taego', 'rondo']
++# Map types for embedding.  Adaptation: the first four are upstream's (same indices); sanhok, karakin and
++# paramo were appended for the BigComp 2027 cohorts.
++MAP_TYPES = ['erangel', 'miramar', 'taego', 'rondo', 'sanhok', 'karakin', 'paramo']
+ MAP_TO_IDX = {map_name: idx for idx, map_name in enumerate(MAP_TYPES)}
+ NUM_MAPS = len(MAP_TYPES)
+ 
+ 
+-def collate_fn(batch: List[Dict]) -> Dict[str, torch.Tensor]:
++def collate_fn(batch: List[Dict], max_squads: int = None) -> Dict[str, torch.Tensor]:
+     """
+     Custom collate function to handle variable number of squads.
+ 
+-    Pads all samples to MAX_SQUADS and creates a padding mask.
++    Pads all samples to the largest squad count of the batch (adaptation: no 16-squad cap) and creates a padding mask.
+ 
+     Args:
+         batch: List of sample dictionaries from PGCDataset.
+@@ -44,18 +48,21 @@
+         Batched dictionary with padded tensors and masks.
+     """
+     batch_size = len(batch)
++    # adaptation: pad to the largest squad count of the batch (>= max_squads if given); never truncate
++    largest = max(int(sample['num_squads']) for sample in batch)
++    pad_to = largest if max_squads is None else max(int(max_squads), largest)
+ 
+     # Get dimensions from first sample
+     num_features = batch[0]['x_continuous'].shape[1]
+ 
+     # Initialize padded tensors
+-    x_continuous = torch.zeros(batch_size, MAX_SQUADS, num_features)
+-    positions = torch.full((batch_size, MAX_SQUADS, 4, 3), float('nan'))
++    x_continuous = torch.zeros(batch_size, pad_to, num_features)
++    positions = torch.full((batch_size, pad_to, 4, 3), float('nan'))
+     bluezone_info = torch.zeros(batch_size, 3)
+     whitezone_info = torch.zeros(batch_size, 3)
+-    y = torch.zeros(batch_size, MAX_SQUADS)
+-    squad_alive_mask = torch.zeros(batch_size, MAX_SQUADS, dtype=torch.bool)
+-    padding_mask = torch.zeros(batch_size, MAX_SQUADS, dtype=torch.bool)
++    y = torch.zeros(batch_size, pad_to)
++    squad_alive_mask = torch.zeros(batch_size, pad_to, dtype=torch.bool)
++    padding_mask = torch.zeros(batch_size, pad_to, dtype=torch.bool)
+     num_squads = torch.zeros(batch_size, dtype=torch.long)
+     time_point = torch.zeros(batch_size)
+     map_idx = torch.zeros(batch_size, dtype=torch.long)
+@@ -64,8 +71,8 @@
+         n_squads = sample['num_squads']
+         num_squads[i] = n_squads
+ 
+-        # Copy data (up to MAX_SQUADS)
+-        actual_squads = min(n_squads, MAX_SQUADS)
++        # Copy data (adaptation: every squad, no truncation)
++        actual_squads = n_squads
+ 
+         x_continuous[i, :actual_squads] = sample['x_continuous'][:actual_squads]
+         positions[i, :actual_squads] = sample['positions'][:actual_squads]
+@@ -78,13 +85,13 @@
+         map_idx[i] = sample['map_idx']
+ 
+     return {
+-        'x_continuous': x_continuous,      # (batch, MAX_SQUADS, num_features)
+-        'positions': positions,            # (batch, MAX_SQUADS, 4, 3)
++        'x_continuous': x_continuous,      # (batch, n_pad, num_features)
++        'positions': positions,            # (batch, n_pad, 4, 3)
+         'bluezone_info': bluezone_info,    # (batch, 3)
+         'whitezone_info': whitezone_info,  # (batch, 3)
+-        'y': y,                            # (batch, MAX_SQUADS)
+-        'squad_alive_mask': squad_alive_mask,  # (batch, MAX_SQUADS)
+-        'padding_mask': padding_mask,      # (batch, MAX_SQUADS) True if valid
++        'y': y,                            # (batch, n_pad)
++        'squad_alive_mask': squad_alive_mask,  # (batch, n_pad)
++        'padding_mask': padding_mask,      # (batch, n_pad) True if valid
+         'num_squads': num_squads,          # (batch,)
+         'time_point': time_point,          # (batch,)
+         'map_idx': map_idx,                # (batch,)
+diff -ruN -x adaptation -x __pycache__ -x NOTICE -x README_ADAPTATION.md -x ADAPTATION.patch -x PARITY_TABLE.csv upstream/src/data/dataset_v2.py adapted/src/data/dataset_v2.py
+--- upstream/src/data/dataset_v2.py	2026-08-26 15:34:26
++++ adapted/src/data/dataset_v2.py	2026-10-05 23:14:36
+@@ -1,3 +1,4 @@
++# Modified from krafton-ai/pubg-winprob (99ed9d1) - see README_ADAPTATION.md
+ """
+ PGC Dataset and DataLoader for PyTorch (v2).
+ 
+@@ -29,11 +30,14 @@
+ ZONE_SCALE = 800000.0
+ TARGET_SCALE = 2000.0
+ 
+-# Maximum number of squads (for padding)
++# Maximum number of squads (for padding).  Adaptation: NOT a cap any more.  Upstream copied
++# min(n_squads, 16) squads (silent truncation, audit 2026-10-02).  collate_fn now pads to the largest squad
++# count of the batch (or ``max_squads`` if given) and raises if a sample would be truncated.
+ MAX_SQUADS = 16
+ 
+-# Map types for embedding
+-MAP_TYPES = ['erangel', 'miramar', 'taego', 'rondo']
++# Map types for embedding.  Adaptation: the first four are upstream's (same indices); sanhok, karakin and
++# paramo were appended for the BigComp 2027 cohorts.
++MAP_TYPES = ['erangel', 'miramar', 'taego', 'rondo', 'sanhok', 'karakin', 'paramo']
+ MAP_TO_IDX = {map_name: idx for idx, map_name in enumerate(MAP_TYPES)}
+ NUM_MAPS = len(MAP_TYPES)
+ 
+@@ -95,11 +99,11 @@
+     return distance / radius
+ 
+ 
+-def collate_fn(batch: List[Dict]) -> Dict[str, torch.Tensor]:
++def collate_fn(batch: List[Dict], max_squads: int = None) -> Dict[str, torch.Tensor]:
+     """
+     Custom collate function to handle variable number of squads.
+ 
+-    Pads all samples to MAX_SQUADS and creates a padding mask.
++    Pads all samples to the largest squad count of the batch (adaptation: no 16-squad cap) and creates a padding mask.
+ 
+     Args:
+         batch: List of sample dictionaries from PGCDatasetV2.
+@@ -109,18 +113,21 @@
+         x_continuous includes dist_from_bluezone_v2 and dist_from_whitezone_v2.
+     """
+     batch_size = len(batch)
++    # adaptation: pad to the largest squad count of the batch (>= max_squads if given); never truncate
++    largest = max(int(sample['num_squads']) for sample in batch)
++    pad_to = largest if max_squads is None else max(int(max_squads), largest)
+ 
+     # Get dimensions from first sample (includes computed distance features)
+     num_features = batch[0]['x_continuous'].shape[1]
+ 
+     # Initialize padded tensors
+-    x_continuous = torch.zeros(batch_size, MAX_SQUADS, num_features)
+-    positions = torch.full((batch_size, MAX_SQUADS, 4, 3), float('nan'))
++    x_continuous = torch.zeros(batch_size, pad_to, num_features)
++    positions = torch.full((batch_size, pad_to, 4, 3), float('nan'))
+     bluezone_info = torch.zeros(batch_size, 3)
+     whitezone_info = torch.zeros(batch_size, 3)
+-    y = torch.zeros(batch_size, MAX_SQUADS)
+-    squad_alive_mask = torch.zeros(batch_size, MAX_SQUADS, dtype=torch.bool)
+-    padding_mask = torch.zeros(batch_size, MAX_SQUADS, dtype=torch.bool)
++    y = torch.zeros(batch_size, pad_to)
++    squad_alive_mask = torch.zeros(batch_size, pad_to, dtype=torch.bool)
++    padding_mask = torch.zeros(batch_size, pad_to, dtype=torch.bool)
+     num_squads = torch.zeros(batch_size, dtype=torch.long)
+     time_point = torch.zeros(batch_size)
+     map_idx = torch.zeros(batch_size, dtype=torch.long)
+@@ -129,8 +136,8 @@
+         n_squads = sample['num_squads']
+         num_squads[i] = n_squads
+ 
+-        # Copy data (up to MAX_SQUADS)
+-        actual_squads = min(n_squads, MAX_SQUADS)
++        # Copy data (adaptation: every squad, no truncation)
++        actual_squads = n_squads
+ 
+         x_continuous[i, :actual_squads] = sample['x_continuous'][:actual_squads]
+         positions[i, :actual_squads] = sample['positions'][:actual_squads]
+@@ -143,13 +150,13 @@
+         map_idx[i] = sample['map_idx']
+ 
+     return {
+-        'x_continuous': x_continuous,      # (batch, MAX_SQUADS, num_features + 2)
+-        'positions': positions,            # (batch, MAX_SQUADS, 4, 3)
++        'x_continuous': x_continuous,      # (batch, n_pad, num_features + 2)
++        'positions': positions,            # (batch, n_pad, 4, 3)
+         'bluezone_info': bluezone_info,    # (batch, 3)
+         'whitezone_info': whitezone_info,  # (batch, 3)
+-        'y': y,                            # (batch, MAX_SQUADS)
+-        'squad_alive_mask': squad_alive_mask,  # (batch, MAX_SQUADS)
+-        'padding_mask': padding_mask,      # (batch, MAX_SQUADS) True if valid
++        'y': y,                            # (batch, n_pad)
++        'squad_alive_mask': squad_alive_mask,  # (batch, n_pad)
++        'padding_mask': padding_mask,      # (batch, n_pad) True if valid
+         'num_squads': num_squads,          # (batch,)
+         'time_point': time_point,          # (batch,)
+         'map_idx': map_idx,                # (batch,)
+diff -ruN -x adaptation -x __pycache__ -x NOTICE -x README_ADAPTATION.md -x ADAPTATION.patch -x PARITY_TABLE.csv upstream/src/models/backbone.py adapted/src/models/backbone.py
+--- upstream/src/models/backbone.py	2026-08-26 15:34:26
++++ adapted/src/models/backbone.py	2026-10-05 23:14:24
+@@ -1,3 +1,4 @@
++# Modified from krafton-ai/pubg-winprob (99ed9d1) - see README_ADAPTATION.md
+ """
+ Transformer backbone for PGC squad modeling.
+ """
+@@ -34,6 +35,8 @@
+             (per-squad MLP with no cross-squad attention; used for the
+             encoder ablation in Table 2). Same features, losses, and
+             training settings apply to both.
++        num_maps: Size of the map embedding table (adaptation: the BigComp 2027
++            cohorts need 7 maps; upstream has 4). Defaults to NUM_MAPS.
+     """
+ 
+     def __init__(
+@@ -47,6 +50,7 @@
+         dropout: float = 0.1,
+         num_frequencies: int = 8,
+         encoder_type: str = "transformer",
++        num_maps: int = None,
+     ):
+         super().__init__()
+ 
+@@ -81,8 +85,8 @@
+             num_frequencies=num_frequencies,
+         )
+ 
+-        # Map embedding (4 maps: erangel, miramar, taego, rondo)
+-        self.map_embedding = nn.Embedding(NUM_MAPS, embed_dim)
++        # Map embedding (adaptation: 7 maps, see src.data.dataset.MAP_TYPES)
++        self.map_embedding = nn.Embedding(NUM_MAPS if num_maps is None else num_maps, embed_dim)
+ 
+         # Encoder (Transformer vs per-squad MLP)
+         if ff_hidden_dim is None:
+@@ -98,9 +102,11 @@
+                 batch_first=True,
+             )
+ 
++            # adaptation: enable_nested_tensor=False keeps the plain (masked) attention path in eval mode as well
+             self.transformer = nn.TransformerEncoder(
+                 encoder_layer=encoder_layer,
+                 num_layers=num_layers,
++                enable_nested_tensor=False,
+             )
+         else:
+             # MLP encoder: each squad token is processed independently,
+@@ -163,6 +169,7 @@
+         bluezone_info: torch.Tensor,
+         whitezone_info: torch.Tensor,
+         map_idx: torch.Tensor,
++        valid_mask: torch.Tensor = None,
+     ) -> torch.Tensor:
+         """
+         Args:
+@@ -170,7 +177,11 @@
+             positions: (batch, num_squads, 4, 3) - player positions
+             bluezone_info: (batch, 3) - [x, y, radius]
+             whitezone_info: (batch, 3) - [x, y, radius]
+-            map_idx: (batch,) - map index (0-3)
++            map_idx: (batch,) - map index
++            valid_mask: (batch, num_squads) bool, True = real, alive squad. Adaptation: padded and
++                dead squads are excluded from the attention keys (src_key_padding_mask). Upstream passed
++                no mask, so padding tokens and dead squads influenced the alive squads (audit 2026-10-02).
++                None keeps the upstream behaviour (every token is a key).
+ 
+         Returns:
+             (batch, num_squads, embed_dim) - squad embeddings
+@@ -194,8 +205,11 @@
+         map_emb = self.map_embedding(map_idx)
+         tokens = tokens + map_emb.unsqueeze(1)
+ 
+-        # Transformer encoding
+-        encoded = self.transformer(tokens)
++        # Transformer encoding (adaptation: key padding mask for padded / dead squads)
++        if self.encoder_type == "transformer" and valid_mask is not None:
++            encoded = self.transformer(tokens, src_key_padding_mask=~valid_mask.to(torch.bool))
++        else:
++            encoded = self.transformer(tokens)
+ 
+         # Layer normalization
+         output = self.norm(encoded)
+diff -ruN -x adaptation -x __pycache__ -x NOTICE -x README_ADAPTATION.md -x ADAPTATION.patch -x PARITY_TABLE.csv upstream/src/training/calibration.py adapted/src/training/calibration.py
+--- upstream/src/training/calibration.py	2026-08-26 15:34:26
++++ adapted/src/training/calibration.py	2026-10-05 23:15:12
+@@ -1,3 +1,4 @@
++# Modified from krafton-ai/pubg-winprob (99ed9d1) - see README_ADAPTATION.md
+ """
+ Temperature Scaling for model calibration.
+ 
+@@ -24,7 +25,7 @@
+ )
+ from src.models import TransformerBackbone
+ from src.models.heads import get_head
+-from src.training.metrics import compute_ece
++from src.training.metrics import compute_ece, survival_score
+ 
+ 
+ def collect_logits_and_targets(
+@@ -32,6 +33,7 @@
+     head: nn.Module,
+     dataloader: DataLoader,
+     device: str = "cpu",
++    loss_type: str = "mse",
+ ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+     """
+     Collect all logits and targets from a dataloader.
+@@ -65,8 +67,9 @@
+ 
+             valid_mask = alive_mask & padding_mask
+ 
+-            embeddings = backbone(x, positions, bluezone, whitezone, map_idx)
+-            logits = head(embeddings).cpu()
++            # adaptation: key padding mask; survival-direction score (Cox: -hazard) before the softmax / ECE
++            embeddings = backbone(x, positions, bluezone, whitezone, map_idx, valid_mask=valid_mask.to(device))
++            logits = survival_score(head(embeddings), loss_type).cpu()
+ 
+             all_logits.append(logits)
+             all_targets.append(y)
+@@ -279,7 +282,7 @@
+ 
+     # Collect logits and targets
+     logits, targets, valid_mask = collect_logits_and_targets(
+-        backbone, head, val_loader, device
++        backbone, head, val_loader, device, loss_type=loss_type
+     )
+ 
+     print("Finding optimal temperature...")
+diff -ruN -x adaptation -x __pycache__ -x NOTICE -x README_ADAPTATION.md -x ADAPTATION.patch -x PARITY_TABLE.csv upstream/src/training/evaluation.py adapted/src/training/evaluation.py
+--- upstream/src/training/evaluation.py	2026-08-26 15:34:26
++++ adapted/src/training/evaluation.py	2026-10-05 23:15:12
+@@ -1,3 +1,4 @@
++# Modified from krafton-ai/pubg-winprob (99ed9d1) - see README_ADAPTATION.md
+ """
+ Evaluation metrics for PGC models.
+ """
+@@ -13,6 +14,7 @@
+ from src.models import TransformerBackbone, SurvivalTimeHead
+ from src.data.dataset import collate_fn
+ from src.training.metrics import (
++    survival_score,
+     compute_winner_accuracy,
+     compute_c_index,
+     compute_integrated_brier_score,
+@@ -33,6 +35,7 @@
+     test_loader: DataLoader,
+     device: str = "cpu",
+     save_path: str = None,
++    loss_type: str = "mse",
+ ) -> Dict:
+     """
+     Evaluate model on test set with phase-wise accuracy.
+@@ -70,13 +73,16 @@
+             map_idx = batch["map_idx"].to(device)
+             y = batch["y"]
+             time_points = batch["time_point"]
++            # adaptation: key padding mask for padded / dead squads, survival-direction score (Cox: -hazard)
++            valid = (batch["squad_alive_mask"] & batch["padding_mask"]).to(device)
+ 
+             # Forward pass
+-            embeddings = backbone(x, positions, bluezone, whitezone, map_idx)
+-            predictions = head(embeddings)
++            embeddings = backbone(x, positions, bluezone, whitezone, map_idx, valid_mask=valid)
++            predictions = survival_score(head(embeddings), loss_type)
+ 
+-            # Move to CPU
+-            predictions = predictions.cpu()
++            # Move to CPU; adaptation: invalid squads can never be the arg-max winner
++            predictions = predictions.masked_fill(~valid, float("-inf")).cpu()
++            y = y.masked_fill(~valid.cpu(), float("-inf"))
+ 
+             # Process each sample in batch
+             batch_size = x.size(0)
+@@ -152,6 +158,7 @@
+     device: str = "cpu",
+     batch_size: int = 32,
+     save_path: str = None,
++    loss_type: str = "mse",
+ ) -> Dict:
+     """
+     Evaluate model on test set with phase-wise metrics, grouped by match_id.
+@@ -220,9 +227,9 @@
+ 
+             valid_mask = alive_mask & padding_mask
+ 
+-            # Forward pass
+-            embeddings = backbone(x, positions, bluezone, whitezone, map_idx)
+-            predictions = head(embeddings).cpu()
++            # Forward pass (adaptation: key padding mask; survival-direction score, Cox: -hazard)
++            embeddings = backbone(x, positions, bluezone, whitezone, map_idx, valid_mask=valid_mask.to(device))
++            predictions = survival_score(head(embeddings), loss_type).cpu()
+ 
+             # Store by phase
+             batch_size_actual = x.size(0)
+diff -ruN -x adaptation -x __pycache__ -x NOTICE -x README_ADAPTATION.md -x ADAPTATION.patch -x PARITY_TABLE.csv upstream/src/training/inference.py adapted/src/training/inference.py
+--- upstream/src/training/inference.py	2026-08-26 15:34:26
++++ adapted/src/training/inference.py	2026-10-05 23:15:12
+@@ -1,3 +1,4 @@
++# Modified from krafton-ai/pubg-winprob (99ed9d1) - see README_ADAPTATION.md
+ """
+ Batch inference on arbitrary CSV files using a trained checkpoint.
+ 
+@@ -19,6 +20,8 @@
+ 
+ from src.data import PGCDataset, CONTINUOUS_FEATURES
+ from src.data.dataset import TARGET_SCALE
++from src.data.dataset_v2 import PGCDatasetV2, COMPUTED_FEATURES
++from src.training.metrics import survival_score
+ from src.models import TransformerBackbone
+ from src.models.heads import get_head
+ from src.training.evaluation import (
+@@ -72,8 +75,8 @@
+     with open(config_path, "r") as f:
+         config = json.load(f)
+ 
+-    # Create models
+-    input_dim = config.get("input_dim", len(CONTINUOUS_FEATURES))
++    # Create models (adaptation: the trainer's default input is the 57-d dataset-v2 vector)
++    input_dim = config.get("input_dim", len(CONTINUOUS_FEATURES) + len(COMPUTED_FEATURES))
+     embed_dim = config["embed_dim"]
+     num_heads = config["num_heads"]
+     num_layers = config["num_layers"]
+@@ -159,7 +162,10 @@
+     folder_path = os.path.dirname(csv_path)
+     file_name = os.path.basename(csv_path)
+ 
+-    dataset = PGCDataset(
++    # adaptation: upstream always used the 55-d PGCDataset here although the trainer's default (and the
++    # checkpoint's input_dim) is the 57-d PGCDatasetV2 -> shape error (audit 2026-10-02)
++    dataset_cls = PGCDatasetV2 if config.get("use_dataset_v2", True) else PGCDataset
++    dataset = dataset_cls(
+         folder_path=folder_path,
+         file_list=[file_name],
+         continuous_features=CONTINUOUS_FEATURES,
+@@ -185,9 +191,10 @@
+             num_squads = sample["num_squads"]
+             squad_alive_mask = sample["squad_alive_mask"]
+ 
+-            # Forward pass: raw scores (log hazard)
+-            embeddings = backbone(x, positions, bluezone, whitezone, map_idx)
+-            raw_scores = head(embeddings).squeeze(0).cpu()
++            # Forward pass: raw scores (log hazard for the Cox losses); adaptation: padded / dead squads are
++            # masked as attention keys and the score is turned into the survival direction before the softmax
++            embeddings = backbone(x, positions, bluezone, whitezone, map_idx, valid_mask=squad_alive_mask.unsqueeze(0).to(device))
++            raw_scores = survival_score(head(embeddings), config.get("loss_type", "mse")).squeeze(0).cpu()
+ 
+             # Apply temperature scaling
+             scaled_scores = raw_scores / temperature
+@@ -258,8 +265,9 @@
+             "Please use a checkpoint saved with scaler_params."
+         )
+ 
+-    # Create dataset
+-    dataset = PGCDataset(
++    # Create dataset (adaptation: v2 as in training)
++    dataset_cls = PGCDatasetV2 if config.get("use_dataset_v2", True) else PGCDataset
++    dataset = dataset_cls(
+         folder_path=folder_path,
+         file_list=file_list,
+         continuous_features=CONTINUOUS_FEATURES,
+@@ -277,6 +285,7 @@
+         test_dataset=dataset,
+         device=device,
+         save_path=output_path if save_results else None,
++        loss_type=config.get("loss_type", "mse"),
+     )
+ 
+     print_results(results, title="Inference Results")
+diff -ruN -x adaptation -x __pycache__ -x NOTICE -x README_ADAPTATION.md -x ADAPTATION.patch -x PARITY_TABLE.csv upstream/src/training/inference_with_json.py adapted/src/training/inference_with_json.py
+--- upstream/src/training/inference_with_json.py	2026-08-26 15:34:26
++++ adapted/src/training/inference_with_json.py	2026-10-05 23:15:12
+@@ -1,3 +1,4 @@
++# Modified from krafton-ai/pubg-winprob (99ed9d1) - see README_ADAPTATION.md
+ """
+ Inference module with JSON output for PGC models.
+ 
+@@ -303,9 +304,11 @@
+                 
+                 squad_alive_mask[i] = (alive_count > 0) and (health > 0) and (not all_positions_nan)
+             
+-            # Forward pass
+-            embeddings = backbone(x, positions, bluezone, whitezone, map_idx)
+-            raw_scores = head(embeddings).squeeze(0).cpu()
++            # Forward pass (adaptation: dead squads masked as attention keys; survival-direction score)
++            from src.training.metrics import survival_score
++            valid_for_attn = squad_alive_mask.unsqueeze(0).to(device) if bool(squad_alive_mask.any()) else None
++            embeddings = backbone(x, positions, bluezone, whitezone, map_idx, valid_mask=valid_for_attn)
++            raw_scores = survival_score(head(embeddings), config.get("loss_type", "mse")).squeeze(0).cpu()
+             
+             # Apply temperature scaling
+             scaled_scores = raw_scores / temperature
+diff -ruN -x adaptation -x __pycache__ -x NOTICE -x README_ADAPTATION.md -x ADAPTATION.patch -x PARITY_TABLE.csv upstream/src/training/metrics.py adapted/src/training/metrics.py
+--- upstream/src/training/metrics.py	2026-08-26 15:34:26
++++ adapted/src/training/metrics.py	2026-10-05 23:14:36
+@@ -1,3 +1,4 @@
++# Modified from krafton-ai/pubg-winprob (99ed9d1) - see README_ADAPTATION.md
+ """
+ Evaluation metrics for PGC win-probability models.
+ 
+@@ -16,6 +17,19 @@
+ import torch
+ import torch.nn.functional as F
+ from typing import Dict
++
++
++# Adaptation (audit 2026-10-02, "Cox score direction"): the Cox-family losses train a HAZARD score (higher = the
++# squad is eliminated earlier), while every metric below, softmax winner probabilities and the temperature search
++# read their input as a SURVIVAL score (higher = survives longer / wins).  Upstream fed the raw score of a Cox
++# model into both.  ``survival_score`` is the single place where the direction is fixed; all evaluation /
++# inference / calibration paths of this copy call it with the loss type of the run.
++COX_LOSS_TYPES = ('cox', 'rank_cox', 'rankcox', 'listmle', 'weighted_cox', 'weightedcox')
++
++
++def survival_score(pred: torch.Tensor, loss_type: str) -> torch.Tensor:
++    """Model output -> survival score (higher = longer survival).  Cox-family losses output a hazard: negate."""
++    return -pred if str(loss_type).lower() in COX_LOSS_TYPES else pred
+ 
+ 
+ def compute_winner_accuracy(
+diff -ruN -x adaptation -x __pycache__ -x NOTICE -x README_ADAPTATION.md -x ADAPTATION.patch -x PARITY_TABLE.csv upstream/src/training/trainer.py adapted/src/training/trainer.py
+--- upstream/src/training/trainer.py	2026-08-26 15:34:26
++++ adapted/src/training/trainer.py	2026-10-05 23:14:36
+@@ -1,3 +1,4 @@
++# Modified from krafton-ai/pubg-winprob (99ed9d1) - see README_ADAPTATION.md
+ """
+ Training utilities for PGC models with DDP support.
+ """
+@@ -158,7 +159,9 @@
+         whitezone = batch["whitezone_info"].to(self.device)
+         map_idx = batch["map_idx"].to(self.device)
+ 
+-        embeddings = self.backbone(x, positions, bluezone, whitezone, map_idx)
++        # adaptation: padded and dead squads are not attention keys (upstream passed no mask)
++        valid_mask = (batch["squad_alive_mask"] & batch["padding_mask"]).to(self.device)
++        embeddings = self.backbone(x, positions, bluezone, whitezone, map_idx, valid_mask=valid_mask)
+         predictions = self.head(embeddings)
+ 
+         return predictions
+@@ -216,6 +219,7 @@
+                 desc=desc,
+                 leave=False,
+                 dynamic_ncols=True,
++                disable=not __import__("sys").stderr.isatty(),  # adaptation: no progress-bar noise in batch logs
+             )
+ 
+         for batch in loader:

@@ -2,15 +2,50 @@
 % Include it inside the table environment with \input{...} in place of the tabular of the skeleton.
 % delta [95% CI], paired match-level bootstrap on identical rows per cohort, DerSimonian-Laird pooled; exploratory, no Holm
 % (k cohorts) marks a contrast pooled over fewer cohorts than the analysis has
+% tags: (input) = a clean single-factor input effect (same HistGradientBoosting settings, rows and labels): HGB-cut - SAGONG-hgb
+% (our representation vs Sagong's 12 inputs) and HGB-cut - HGB-kraftonfeat (ours vs KRAFTON's reconstructed inputs);
+% (learner check) = SAGONG-hgb - SAGONG-xgb: HistGradientBoosting vs XGBoost on Sagong's inputs;
+% (bundled) = more than one factor differs between the two models, not a single-factor effect (the bundled contrasts stay out of tab_decomp.tex):
+% KRAFTON-tf-ourfeat - KRAFTON-tf, HGB-kraftonfeat - KRAFTON-tf, HGB-cut - SAGONG-xgb (input and learner at once) and
+% M01 - KRAFTON-tf-ourfeat (= objective + phase baseline + residual of the K ladder below);
+% K3 ladder (their transformer on our features): K2 = KRAFTON-tf-ourfeat (Cox loss), K3a = -bce (BCE), K3 = -hazard (BCE + phase baseline):
+% (objective) = K3a - K2, (phase baseline) = K3 - K3a, (total) = K3 - K2, (residual) = M01 - K3, i.e. our architecture against theirs
+% under the same formulation and features;
+% last block, union (post hoc, design doc 4.6): (+kf) = our representation plus KRAFTON's kf_* features vs ours alone with the same learner,
+% (+ours) = HGB-union - HGB-kraftonfeat: our representation added to KRAFTON's inputs with the same GBDT
 
 \begin{tabular}{@{}l c c c c@{}}
 \toprule
 Contrast & $\Delta$AUC & $\Delta$Spearman & $\Delta$Top-5 AUC & $\Delta$C-index \\
 \midrule
 M11R $-$ SAGONG-xgb & +0.103 [0.096, 0.109] & +0.229 [0.211, 0.246] & +0.098 [0.088, 0.107] & +0.095 [0.087, 0.103] \\
-HGB-cut $-$ SAGONG-xgb & +0.102 [0.095, 0.108] & +0.192 [0.179, 0.204] & +0.059 [0.052, 0.066] & +0.078 [0.073, 0.084] \\
-M11R $-$ KRAFTON-tf (9 cohorts) & +0.057 [0.050, 0.064] & +0.015 [$-$0.010, 0.040] & $-$0.067 [$-$0.096, $-$0.038] & +0.006 [$-$0.005, 0.017] \\
-HGB-cut $-$ KRAFTON-tf (9 cohorts) & +0.060 [0.053, 0.067] & $-$0.001 [$-$0.027, 0.026] & $-$0.110 [$-$0.143, $-$0.078] & $-$0.002 [$-$0.013, 0.010] \\
-KRAFTON-tf $-$ KRAFTON-mlp (8 cohorts) & +0.012 [$-$0.003, 0.026] & $-$0.003 [$-$0.016, 0.010] & $-$0.014 [$-$0.045, 0.017] & $-$0.001 [$-$0.007, 0.006] \\
+M11R $-$ SAGONG-rf & +0.140 [0.132, 0.148] & +0.284 [0.255, 0.314] & +0.103 [0.090, 0.116] & +0.117 [0.104, 0.130] \\
+M11R $-$ SAGONG-lr & +0.119 [0.107, 0.131] & +0.229 [0.202, 0.256] & +0.109 [0.095, 0.124] & +0.094 [0.081, 0.106] \\
+HGB-cut $-$ SAGONG-xgb (bundled) & +0.102 [0.095, 0.108] & +0.192 [0.179, 0.204] & +0.059 [0.052, 0.066] & +0.078 [0.073, 0.084] \\
+HGB-cut $-$ SAGONG-hgb (input) & +0.091 [0.085, 0.097] & +0.171 [0.159, 0.182] & +0.062 [0.055, 0.068] & +0.070 [0.064, 0.075] \\
+SAGONG-hgb $-$ SAGONG-xgb (learner check) & +0.011 [0.007, 0.014] & +0.023 [0.013, 0.034] & $-$0.003 [$-$0.005, $-$0.000] & +0.008 [0.005, 0.012] \\
+\midrule
+M11R $-$ KRAFTON-tf & +0.062 [0.052, 0.073] & +0.029 [0.008, 0.049] & $-$0.075 [$-$0.095, $-$0.056] & +0.012 [0.003, 0.022] \\
+M11R $-$ KRAFTON-mlp & +0.065 [0.057, 0.074] & +0.026 [0.006, 0.045] & $-$0.077 [$-$0.097, $-$0.056] & +0.011 [0.002, 0.020] \\
+M11R $-$ KRAFTON-tf-ourfeat & +0.054 [0.047, 0.062] & +0.010 [$-$0.004, 0.024] & $-$0.070 [$-$0.088, $-$0.052] & +0.005 [$-$0.001, 0.011] \\
+HGB-cut $-$ KRAFTON-tf & +0.063 [0.055, 0.071] & +0.004 [$-$0.011, 0.019] & $-$0.117 [$-$0.138, $-$0.095] & +0.000 [$-$0.006, 0.007] \\
+\midrule
+KRAFTON-tf $-$ KRAFTON-mlp & +0.004 [$-$0.006, 0.014] & $-$0.002 [$-$0.007, 0.004] & $-$0.001 [$-$0.015, 0.014] & $-$0.000 [$-$0.003, 0.002] \\
+KRAFTON-tf-ourfeat $-$ KRAFTON-tf (bundled) & +0.007 [$-$0.001, 0.015] & +0.025 [0.016, 0.034] & $-$0.006 [$-$0.015, 0.003] & +0.009 [0.004, 0.015] \\
+M01 $-$ KRAFTON-tf-ourfeat (bundled) & +0.053 [0.046, 0.059] & $-$0.006 [$-$0.012, $-$0.000] & $-$0.097 [$-$0.113, $-$0.081] & $-$0.003 [$-$0.006, $-$0.000] \\
+\midrule
+HGB-cut $-$ HGB-kraftonfeat (input) & +0.014 [0.012, 0.016] & +0.033 [0.021, 0.046] & $-$0.016 [$-$0.023, $-$0.009] & +0.014 [0.008, 0.020] \\
+HGB-kraftonfeat $-$ KRAFTON-tf (bundled) & +0.048 [0.039, 0.057] & $-$0.029 [$-$0.044, $-$0.014] & $-$0.100 [$-$0.118, $-$0.082] & $-$0.014 [$-$0.021, $-$0.007] \\
+\midrule
+K3a $-$ K2 (objective) & +0.051 [0.044, 0.058] & $-$0.026 [$-$0.036, $-$0.016] & $-$0.107 [$-$0.131, $-$0.083] & $-$0.012 [$-$0.017, $-$0.007] \\
+K3 $-$ K3a (phase baseline) & $-$0.001 [$-$0.001, 0.000] & +0.004 [0.000, 0.009] & +0.004 [0.002, 0.007] & +0.002 [0.001, 0.004] \\
+K3 $-$ K2 (total) & +0.050 [0.043, 0.057] & $-$0.020 [$-$0.031, $-$0.010] & $-$0.102 [$-$0.126, $-$0.079] & $-$0.009 [$-$0.014, $-$0.004] \\
+M01 $-$ K3 (residual) & +0.002 [0.000, 0.003] & +0.019 [0.012, 0.026] & +0.006 [$-$0.008, 0.020] & +0.009 [0.006, 0.012] \\
+\midrule
+HGB-union $-$ HGB-cut (+kf) & +0.008 [0.006, 0.009] & +0.016 [0.010, 0.022] & +0.006 [0.004, 0.008] & +0.007 [0.004, 0.010] \\
+M11R-union $-$ M11R (+kf) & +0.006 [0.003, 0.008] & +0.000 [$-$0.010, 0.010] & +0.017 [0.009, 0.025] & $-$0.000 [$-$0.005, 0.005] \\
+M11R-union $-$ KRAFTON-tf & +0.068 [0.057, 0.078] & +0.035 [0.020, 0.050] & $-$0.059 [$-$0.079, $-$0.038] & +0.014 [0.008, 0.021] \\
+M11R-union $-$ SAGONG-xgb & +0.108 [0.102, 0.114] & +0.233 [0.220, 0.246] & +0.114 [0.106, 0.123] & +0.096 [0.089, 0.103] \\
+HGB-union $-$ HGB-kraftonfeat (+ours) & +0.022 [0.020, 0.024] & +0.049 [0.040, 0.059] & $-$0.009 [$-$0.016, $-$0.002] & +0.021 [0.016, 0.026] \\
 \bottomrule
 \end{tabular}

@@ -16,7 +16,7 @@ from model_stgcn.ptr import hgb as H
 from model_stgcn.ptr import run_matrix as RM
 from model_stgcn.ptr import train as T
 from model_stgcn.ptr.arms import EXPLORATORY_ARMS, MAIN_ARMS
-from model_stgcn.ptr.synthetic import write_cohort_dumps
+from model_stgcn.ptr.synthetic import write_cohort_dumps, write_extra_tables
 
 LARGE = ("erangel_tpp_squad", "taego_tpp_squad")
 SMALL_COHORTS = ["karakin_tpp_squad", "paramo_tpp_squad", "erangel_fpp_squad", "taego_fpp_squad", "taego_tpp_duo",
@@ -483,3 +483,78 @@ def test_status_file_name_can_be_changed_so_added_runs_do_not_overwrite_the_matr
     first = (out / "run_matrix_status.csv").read_text()
     assert "M00" in first and "HGB-cut" not in first  # the first status file is untouched
     assert "HGB-cut" in (out / "run_matrix_status_extra.csv").read_text()
+
+
+# --------------------------------------------------------------------------- union (design doc 4.6, post hoc)
+def test_union_enumeration_is_the_28_runs_of_the_real_registry():
+    cohorts = list(RM.PROJECTED_REGISTRY)
+    runs = RM.enumerate_union_runs(cohorts)
+    assert RM.UNION_GROUP == "union" and RM.GROUPS == ("main", "exploratory", "seeds", "hgb")  # the main plan is not widened
+    assert len(runs) == 12 + 12 + 4 == 28 and Counter(r.group for r in runs) == {"union": 28}
+    assert len({r.run_id for r in runs}) == 28
+    assert {(r.cohort, r.seed, r.kind) for r in runs if r.arm == "HGB-union"} == {(c, 42, "hgb") for c in cohorts}
+    assert {(r.cohort, r.seed, r.kind) for r in runs if r.arm == "M11R-union" and r.seed == 42} == {(c, 42, "neural") for c in cohorts}
+    extra = {(r.cohort, r.seed) for r in runs if r.arm == "M11R-union" and r.seed != 42}
+    assert extra == {(c, s) for c in LARGE for s in (13, 2026)}  # no other arm / seed is planned
+    assert {r.arm for r in runs} == {"HGB-union", "M11R-union"}
+    few = RM.enumerate_union_runs(["karakin_tpp_squad"])
+    assert [(r.arm, r.seed) for r in few] == [("HGB-union", 42), ("M11R-union", 42)]  # large cohorts absent: no extra seeds
+
+
+def test_union_plan_argv_and_hash(tmp_path, capsys):
+    root = tmp_path / "dumps"
+    phase = root / "bigcomp2027_phase_v1"
+    for c in ("karakin_tpp_squad", "paramo_tpp_squad"):
+        write_cohort_dumps(phase, c, sizes={"train": 5, "val": 3, "test": 3}, seed=1)
+    kf = root / "bigcomp2027_kraftonfeat_v1"
+    write_extra_tables(phase, "karakin_tpp_squad", kf, seed=2)  # paramo has no table
+    st = RM.Settings(dump_dir=str(phase), out_dir=str(tmp_path / "o"), max_epochs=2, threads=1, extra_features_dir=str(kf))
+    runs = RM.enumerate_union_runs(["karakin_tpp_squad"])
+    for r in runs:
+        argv = RM.build_argv(r, st)
+        assert argv[argv.index("--extra-features") + 1] == str(kf)
+        expected = (T.config_hash(T.parse_args(argv[3:])) if r.kind == "neural" else H.config_hash(H.parse_args(argv[3:])))
+        assert RM.expected_hash(r, st) == expected  # what the subprocess will stamp (feature-set hash + table fingerprints inside)
+    plain = RM.RunSpec("neural", "karakin_tpp_squad", "M11R", 42, "main")
+    assert "--extra-features" not in RM.build_argv(plain, st)  # only the union runs get the flag
+    assert RM.expected_hash(plain, st) == T.config_hash(T.parse_args(RM.build_argv(plain, st)[3:]))
+    with pytest.raises(ValueError, match="extra"):
+        RM.build_argv(runs[0], RM.Settings(dump_dir=str(phase), out_dir="o"))
+    # the dry run plans the cohorts that have a complete kf table and says what it left out
+    base = ["--dump-dir", str(phase), "--out-dir", str(tmp_path / "o"), "--union", "--dry-run", "--workers", "2"]
+    assert RM.main(base) == 0  # default table directory: bigcomp2027_kraftonfeat_v1 next to the phase dump
+    text = capsys.readouterr().out
+    assert "runs: 2 = union (HGB-union, M11R-union; post hoc" in text and "x 1 cohorts" in text
+    assert "no complete kf table" in text and "paramo_tpp_squad" in text
+    with pytest.raises(ValueError, match="no complete kf table"):
+        RM.main([*base, "--strict"])
+    for other in ("--lc", "--stage2", "--projected"):
+        with pytest.raises(SystemExit):
+            RM.main([*base, other])
+    # a table directory that is given explicitly wins
+    assert RM.main([*base, "--extra-features", str(root / "elsewhere")]) == 0
+    assert "runs: 0 = union" in capsys.readouterr().out
+    # estimates: the union HGB has 55 more columns than HGB-cut, the union network costs what M11R costs
+    stats = RM.CohortStats(n_train=500, n_val=60, n_test=60, mean_teams=26.0, rows_per_match=57.0)
+    st3 = RM.Settings(dump_dir="x", out_dir="y", max_epochs=12, threads=2)
+    est = lambda kind, arm: RM.estimate_seconds(RM.RunSpec(kind, "c", arm, 42, "union"), stats, st3)  # noqa: E731
+    assert est("hgb", "HGB-union") > est("hgb", "HGB-cut") and est("neural", "M11R-union") == est("neural", "M11R")
+
+
+def test_union_real_subprocess_run_writes_both_arms_and_resumes(tmp_path):
+    root = tmp_path / "dumps"
+    phase = root / "bigcomp2027_phase_v1"
+    write_cohort_dumps(phase, "karakin_tpp_squad", sizes={"train": 6, "val": 3, "test": 3}, seed=1)
+    write_extra_tables(phase, "karakin_tpp_squad", root / "bigcomp2027_kraftonfeat_v1", seed=2)
+    out = tmp_path / "out"
+    argv = ["--dump-dir", str(phase), "--out-dir", str(out), "--union", "--max-epochs", "1", "--workers", "2", "--threads", "1",
+            "--poll-seconds", "0.1", "--status-name", "run_matrix_status_union.csv"]  # fmt: skip
+    assert RM.main(argv) == 0
+    rows = [r for r in csv.DictReader(open(out / "run_matrix_status_union.csv"))]
+    assert {(r["arm"], r["group"], r["status"]) for r in rows} == {("HGB-union", "union", "done"), ("M11R-union", "union", "done")}
+    for r in rows:
+        met = json.loads(Path(r["metrics"]).read_text())
+        assert met["config_hash"] == r["config_hash"] and met["extra_features"]["n_features"] == 4
+        assert met["extra_features"]["join"]["test"]["alignment"]["checked"]
+    assert RM.main(argv) == 0
+    assert {r["status"] for r in csv.DictReader(open(out / "run_matrix_status_union.csv"))} == {"skipped_done"}

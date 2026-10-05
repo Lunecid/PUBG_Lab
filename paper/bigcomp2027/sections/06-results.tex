@@ -1,21 +1,51 @@
 \section{Results}\label{sec:results}
 
-\todo{Fill after the runs. Lead with the five primary contrasts (Table~\ref{tab:primary}, Fig.~\ref{fig:forest}), all in the same format, whether each is a gain, an equivalence, or inconclusive; everything else (Tables~\ref{tab:exploratory} and~\ref{tab:arms-metrics}) is exploratory or descriptive and carries no Holm correction.}
+\emph{Versus adapted implementations of earlier approaches.} On identical rows, implementations of Sagong et al. adapted to our task reach a mean AUC of 0.690 (XGBoost), 0.676 (logistic regression), and 0.656 (random forest), against 0.794 for gradient boosting on our representation (HGB-cut) and for M11R (Table~\ref{tab:external}). M11R is +0.103 AUC [0.096, 0.109] and +0.229 Spearman [0.211, 0.246] above SAGONG-xgb in 12 of 12 cohorts, and HGB-cut is +0.102 [0.095, 0.108] above it. With the learner family held fixed (gradient boosting), the 0.10 AUC gap thus separates the two input representations, not model capacity. KRAFTON's official code adapted to our task reaches 0.723 (transformer, 9 cohorts) and 0.708 (MLP encoder, 8 cohorts) \todo{refresh both rows after the aggregator re-run covers all cohorts}; M11R is +0.057 AUC [0.050, 0.064] above KRAFTON-tf (9 of 9 cohorts), whereas the transformer and the MLP encoder differ by +0.012 [$-$0.003, 0.026] (8 cohorts; inconclusive). On rank metrics M11R $-$ KRAFTON-tf is +0.015 [$-$0.010, 0.040] in Spearman and +0.006 [$-$0.005, 0.017] in C-index (both inconclusive), while KRAFTON-tf is higher in top-5 AUC ($-$0.067 [$-$0.096, $-$0.038]), which may reflect its win-probability target. \todo{K2: report KRAFTON-tf-ourfeat and state whether the KRAFTON gap lies in the input representation or in the backbone.}
 
-\emph{RQ1 (phase axis).} \todo{P1, the phase-axis main effect on hazard AUC: pooled $\Delta$ with 95\% interval, cohorts with the same sign (of 13), $\tau^2$, Holm-adjusted $p$, verdict. Exploratory: the two simple effects, the 2$\times$2 interaction, and HGB-lag versus HGB-cut as the tabular check.}
+\begin{table}[t]
+\caption{Adapted implementations of earlier approaches against our models: mean metrics over the cohorts each model covers (exploratory, seed 42, identical rows) and the pooled AUC difference of M11R over the model (12 cohorts; 9 for KRAFTON-tf). \todo{KRAFTON rows and K2 pending the aggregator re-run.}}
+\label{tab:external}
+\centering\scriptsize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{\input{tables/tab_external_short}}
+\end{table}
 
-\emph{RQ2 (team axis).} \todo{P2 (hazard AUC) and P3 (Spearman), the team-axis main effect. State whether the difference lies in absolute risk, in relative standing, or in both; the simple effects and the remaining rank metrics are exploratory.}
+\emph{Pre-specified decomposition (RQ1--RQ4).} Table~\ref{tab:primary} and Fig.~\ref{fig:forest} give the five primary contrasts. Phase history adds nothing meaningful to hazard AUC (P1: +0.0007 [$-$0.0013, 0.0027], Holm $p=0.24$, 7 of 12 cohorts positive; equivalent), and explicit relations are equivalent to shuffled relations (P4: +0.0005 [$-$0.0001, 0.0010], Holm $p=0.08$). Cross-team attention gives a small but highly consistent gain, P2 +0.0033 AUC [0.0024, 0.0042] (Holm $p<0.001$, 10 of 12 cohorts) and P3 +0.0094 Spearman [0.0045, 0.0143] (Holm $p<0.001$, 9 of 12), reliable but below the SESOI. The safe-zone object adds +0.0032 AUC [0.0012, 0.0051] when the hand-crafted zone and habitat features are removed (P5: Holm $p=0.002$, reliable but small), which recovers $\kappa=0.29$ [0.19, 0.39] of the +0.0111 [0.0095, 0.0127] that these features carry. Exploratory contrasts agree: M11R $-$ M11 is +0.0007 [0.0002, 0.0013]; dropping one relation type changes AUC by +0.0004 (proximity), +0.0021 (combat), and $-$0.0003 (zone co-pressure) in the two largest cohorts; and adding the object to the full feature set changes AUC by $-$0.0010 [$-$0.0021, 0.0001]. In competitive matches (6 cohorts) P1 and P5 are larger (+0.006 and +0.009 AUC, exploratory), and official matches reproduce the pooled results.
 
-\emph{RQ3 (relation).} \todo{P4, M11R$-$M11R-shuf, is the only confirmatory test for RQ3 (alignment of relations with teams). Exploratory: M11R$-$M11 and the one-type-at-a-time removals in the two largest cohorts (seed 42), which suggest whether proximity, combat, or zone co-pressure carries information.}
-% STAGE2: delete if not run by 10/9
-\todo{Teammates: M11RZ-P$-$M11RZ-P$-$tm isolates the teammate bias; M11RZ-P$-$M11RZ tests the whole player layer.}
-% STAGE2 end
+\begin{table*}[t]
+\caption{Primary contrasts P1--P5, pooled over 12 cohorts (DerSimonian--Laird random effects; one-sided pooled $z$ tests with Holm correction over these five only; 95\% intervals unadjusted). $\Delta$ is the left term minus the right term. Phase-axis main effect $=\tfrac{1}{2}[(\mathrm{M10}-\mathrm{M00})+(\mathrm{M11}-\mathrm{M01})]$; team-axis main effect $=\tfrac{1}{2}[(\mathrm{M01}-\mathrm{M00})+(\mathrm{M11}-\mathrm{M10})]$. Equivalent: pooled 90\% interval within $\pm$SESOI (0.005 AUC, 0.01 Spearman).}
+\label{tab:primary}
+\centering\footnotesize
+\setlength{\tabcolsep}{4pt}
+\input{tables/tab_primary}
+\end{table*}
 
-\emph{RQ4 (safe-zone object).} \todo{P5, M11RZ-noHab$-$M11R-noHab, gives the verdict. Report $\kappa$ with its bootstrap interval only if the lower end of the pooled 95\% interval of its denominator is at least the SESOI; otherwise write ``not estimable''. M11RZ$-$M11R and HGB-cut$-$HGB-noHab are exploratory.}
-
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
-\fbox{\parbox[c][3.0cm][c]{0.9\columnwidth}{\centering\todo{Forest plot: per-cohort $\Delta$AUC with 95\% intervals and the pooled estimate, one panel per primary contrast}}}
-\caption{Per-cohort and pooled differences for the primary contrasts. \todo{Fill after the runs.}}
+\includegraphics[width=0.96\textwidth,trim=0 36bp 0 21bp,clip]{forest_primary.pdf}
+\caption{Primary contrasts: per-cohort estimates (grey, 95\% bootstrap intervals) and pooled estimates (blue diamonds, DerSimonian--Laird 95\% intervals); the shaded band is $\pm$SESOI. Panel titles give the verdict and the Holm-adjusted $p$.}
 \label{fig:forest}
-\end{figure}
+\end{figure*}
+
+\emph{Data scale (additional analysis, exploratory).} Fig.~\ref{fig:lc} shows learning curves on the two largest cohorts. At 300 training matches HGB-cut is ahead of M11R (Erangel $-$0.006 AUC, Taego $-$0.010), the two meet between 600 and 1,200 matches, and M11R leads on the full training sets (+0.010 in both cohorts). Phase history follows the same pattern: M10 is below M00 at 300 matches and above it at the full size. Across the 12 cohorts (189 to 3,329 training matches), the advantage of M11R over HGB-cut grows by +0.0067 AUC per $\ln N$ [0.0044, 0.0090] and crosses zero near 700 matches [424, 964] (Table~\ref{tab:metareg}); the phase-axis main effect grows by +0.0025 per $\ln N$ and crosses near 590 matches [206, 983], whereas the team-axis effect does not depend on cohort size (slope +0.0002, $p=0.77$).
+
+% NOTE: learning_curve.pdf is the fixed-epochs version (12 epochs at every size).  A steps-matched version
+% (learning_curve_steps.pdf) may replace it later: then update the caption and the sentence above.
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.96\textwidth,trim=0 42bp 0 33bp,clip]{learning_curve.pdf}
+\caption{Test AUC against the number of training matches in the two largest cohorts (mean $\pm$ SD over seeds 13, 42, 2026; 12 epochs at every size; exploratory). Markers: HGB-cut (dashed grey diamonds), M00 (orange squares), M10 (green up-triangles), M01 (yellow down-triangles), M11R (blue circles).}
+\label{fig:lc}
+\end{figure*}
+
+\begin{table}[t]
+\caption{Cohort-level meta-regression of pooled effects on $\ln N$ (training matches; 12 cohorts; random-effects weights; exploratory). Crossover: $N$ at which the fitted effect is zero.}
+\label{tab:metareg}
+\centering\scriptsize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{\input{tables/tab_metareg}}
+\end{table}
+
+% STAGE2: delete if not run by 10/9
+\emph{Player layer (exploratory).} Relative to M11RZ, the player-level variant M11RZ-P changes AUC by +0.0014 [$-$0.0009, 0.0037] (equivalent), Spearman by +0.0014 [$-$0.0080, 0.0108], and top-5 AUC by $-$0.020 [$-$0.029, $-$0.010]. Removing only the teammate bias (M11RZ-P $-$ M11RZ-P$-$tm) changes AUC by $-$0.0001 [$-$0.0004, 0.0001] (equivalent).
+% STAGE2 end

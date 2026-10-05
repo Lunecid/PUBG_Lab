@@ -1,4 +1,3 @@
 level,cohort,arm,contrast,message
 info,erangel_tpp_duo,,,erangel_tpp_duo: stratum 'competitive' skipped (5 test matches (fewer than 10))
-warning,rondo_tpp_squad,KRAFTON-mlp,,"rondo_tpp_squad KRAFTON-mlp seed 42: run not usable, missing pred_test.csv and metrics.json; ignored"
 info,taego_tpp_duo,,,taego_tpp_duo: stratum 'competitive' skipped (4 test matches (fewer than 10))

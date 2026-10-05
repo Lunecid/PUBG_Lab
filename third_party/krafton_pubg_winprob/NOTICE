@@ -1,0 +1,28 @@
+pubg-winprob (vendored copy)
+============================
+
+This directory contains a copy of the source code of
+
+    https://github.com/krafton-ai/pubg-winprob
+    commit 99ed9d1fa5f1df0cb242bb42ed8a511e6c972896 (2026-08-26 06:34:26 UTC)
+    "Clean up experiment scripts and paths; update README"
+
+obtained as the GitHub archive of that commit
+(SHA-256 7cdfc8fade1e38538f264ab0f096de65a76420dfeab43ecb2798916522df7b30,
+kept in reports/krafton_pubg_winprob_audit_2026-10-02/upstream_99ed9d1.zip).
+
+The upstream project is distributed under the Apache License, Version 2.0 (see LICENSE in this
+directory, copied unchanged from upstream).  The upstream archive does not contain a NOTICE file; this
+NOTICE was written for this repository to state the origin of the code and that it has been modified.
+
+Modifications
+-------------
+Files of the upstream archive were modified and files were added for use as an external baseline on a
+different data source (public PUBG match telemetry stored in PostgreSQL).  Every change is listed in
+README_ADAPTATION.md; the changes to upstream files are reproduced exactly as a unified diff against the
+unmodified upstream archive in ADAPTATION.patch, and the added files (adaptation/, PARITY_TABLE.csv,
+README_ADAPTATION.md, ADAPTATION.patch, this NOTICE) are listed in README_ADAPTATION.md.  Modified files carry
+the notice "Modified from krafton-ai/pubg-winprob (99ed9d1) - see README_ADAPTATION.md" at the top.
+
+The modified code is NOT the code that KRAFTON published and must not be described as such; results
+obtained with it are results of the adapted implementation described in README_ADAPTATION.md.

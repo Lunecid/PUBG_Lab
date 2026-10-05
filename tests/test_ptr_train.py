@@ -15,7 +15,7 @@ from model_stgcn.ptr import hgb as H
 from model_stgcn.ptr import metrics as M
 from model_stgcn.ptr import relations as R
 from model_stgcn.ptr import train as T
-from model_stgcn.ptr.arms import ARMS, EXPLORATORY_ARMS, MAIN_ARMS, STAGE2_ARMS, STUB_ARMS, get_arm
+from model_stgcn.ptr.arms import ARMS, EXPLORATORY_ARMS, MAIN_ARMS, STAGE2_ARMS, STUB_ARMS, UNION_ARMS, get_arm
 from model_stgcn.ptr.synthetic import write_cohort_dumps
 
 # design doc section 4 (phase axis, team axis, relation bias, zone object, shuffle, dropped groups)
@@ -84,7 +84,7 @@ def test_arm_registry_matches_design_table():
         ), name  # fmt: skip
         assert a.name == name and a.implemented and not a.exploratory and a.stage == 1
         assert a.relation_types == ("prox", "combat_out", "combat_in", "copress")
-    assert set(ARMS) == set(MAIN_ARMS) | set(EXPLORATORY_ARMS) | set(STAGE2_ARMS)
+    assert set(ARMS) == set(MAIN_ARMS) | set(EXPLORATORY_ARMS) | set(STAGE2_ARMS) | set(UNION_ARMS)
     with pytest.raises(KeyError):
         get_arm("M99")
 

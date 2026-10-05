@@ -34,6 +34,17 @@ probability, which is how the hazard head's own ranking is read):
   ``final_rank_norm`` (higher risk <-> worse placement, i.e. the better team has the higher ``rank_score``;
   risk ties count 1/2).
 
+Exploratory hazard metric ``auc_within_phase`` (:data:`EXPLORATORY_METRICS`, complementary to the pooled AUC, which stays the
+pre-specified one): the UNWEIGHTED MEAN OVER CUT PHASES of the per-phase hazard AUC (every eligible phase counts once, whatever its
+number of rows; this one definition is used everywhere: arms, contrasts, strata, tables).  A pooled AUC also ranks rows of different phases
+against each other, so a model that only knows "later phases die more" scores above chance without telling teams of one phase
+apart; the within-phase mean removes that phase baseline.  Which phases enter is decided once, on the data of the evaluated
+frame: a phase needs at least :data:`MIN_PHASE_ROWS` rows and both classes (:class:`WithinPhaseAUC`), so the set is the same for
+every resample and for every arm scored on the same rows (a paired contrast is a difference of means over the same phases).  Under
+bootstrap weights an eligible phase whose resample holds a single class has no AUC in that draw and is skipped in that
+draw's mean (NaN if none is left).  It is computed by the bootstrap helpers when asked for (``metrics=ALL_METRIC_NAMES``); the
+default metric set, :func:`all_metrics` and ``metrics.json`` do not change.
+
 The bootstrap resamples *matches* with replacement (multinomial counts) and evaluates every metric as a
 count-weighted statistic, which equals recomputing it on an explicitly duplicated frame (tested).
 """
@@ -59,6 +70,9 @@ RISK_SIGN = {"rank_score": -1.0, "p_hazard": 1.0}
 HAZARD_METRICS = ("auc", "ap", "nll", "brier")
 RANK_METRICS = ("spearman", "top5_auc", "cindex")
 METRIC_NAMES = HAZARD_METRICS + RANK_METRICS
+EXPLORATORY_METRICS = ("auc_within_phase",)  # computed on request by the bootstrap helpers; not part of all_metrics / metrics.json
+ALL_METRIC_NAMES = METRIC_NAMES + EXPLORATORY_METRICS
+MIN_PHASE_ROWS = 30  # a cut phase needs this many rows (and both classes) to enter the within-phase AUC
 
 
 # --------------------------------------------------------------------------- prediction frames
@@ -158,6 +172,39 @@ class SortedBinary:
         return float((gp * prec).sum() / p_tot)
 
 
+class WithinPhaseAUC:
+    """Per-phase hazard AUCs of one frame under row weights and their mean (the ``auc_within_phase`` metric).
+
+    The eligible phases are fixed at construction from the unweighted data: at least ``min_rows`` rows and both classes
+    (``excluded`` says why a phase is left out).  :meth:`per_phase` / :meth:`mean` take row weights (bootstrap multiplicities);
+    a phase whose weighted sample has a single class is NaN in :meth:`per_phase` and skipped by :meth:`mean`."""
+
+    def __init__(self, y: np.ndarray, p: np.ndarray, phase: np.ndarray, min_rows: int = MIN_PHASE_ROWS) -> None:
+        y, p, phase = np.asarray(y, dtype=np.float64), np.asarray(p, dtype=np.float64), np.asarray(phase)
+        self.min_rows = int(min_rows)
+        self.phases: list[int] = []
+        self.excluded: dict[int, str] = {}
+        self._parts: list[tuple[np.ndarray, SortedBinary]] = []
+        for k in np.unique(phase):
+            idx = np.flatnonzero(phase == k)
+            yk = y[idx]
+            if idx.size < self.min_rows:
+                self.excluded[int(k)] = f"{idx.size} rows (fewer than {self.min_rows})"
+            elif yk.min() == yk.max():
+                self.excluded[int(k)] = "a single class"
+            else:
+                self.phases.append(int(k))
+                self._parts.append((idx, SortedBinary(yk, p[idx])))
+
+    def per_phase(self, w: np.ndarray) -> dict[int, float]:
+        w = np.asarray(w, dtype=np.float64)
+        return {k: sb.auc(w[idx]) for k, (idx, sb) in zip(self.phases, self._parts)}
+
+    def mean(self, w: np.ndarray) -> float:
+        vals = [v for v in self.per_phase(w).values() if np.isfinite(v)]
+        return float(np.mean(vals)) if vals else float("nan")
+
+
 def _group_codes(df: pd.DataFrame) -> np.ndarray:
     return df.groupby(["match_id", "phase"], sort=True).ngroup().to_numpy()
 
@@ -205,6 +252,8 @@ class MetricSuite:
     def __init__(self, df: pd.DataFrame, rank_col: str = "rank_score") -> None:
         df = read_predictions(df)
         self.n_rows = len(df)
+        self._within: WithinPhaseAUC | None = None  # built on first use (only the exploratory metric needs it)
+        self._within_args = (df["y"].to_numpy(), df["p_hazard"].to_numpy(), df["phase"].to_numpy())
         self.match_ids, self.match_codes = np.unique(df["match_id"].to_numpy(), return_inverse=True)
         self.n_matches = len(self.match_ids)
         y = df["y"].to_numpy()
@@ -226,6 +275,13 @@ class MetricSuite:
         self.group_spearman = _group_spearman(score, rank, codes, n_groups)
         self.group_cindex = _group_cindex(score, rank, codes, n_groups)
 
+    @property
+    def within_phase(self) -> WithinPhaseAUC:
+        """The per-phase AUC engine of this frame (eligible phases fixed from its rows)."""
+        if self._within is None:
+            self._within = WithinPhaseAUC(*self._within_args)
+        return self._within
+
     @staticmethod
     def _group_mean(values: np.ndarray, weights: np.ndarray) -> float:
         ok = np.isfinite(values) & (weights > 0)
@@ -245,6 +301,7 @@ class MetricSuite:
             "spearman": lambda: self._group_mean(self.group_spearman, gw),
             "top5_auc": lambda: self.top5.auc(w),
             "cindex": lambda: self._group_mean(self.group_cindex, gw),
+            "auc_within_phase": lambda: self.within_phase.mean(w),
         }
         return {name: fns[name]() for name in names}
 
@@ -283,6 +340,18 @@ def rank_metrics(df: pd.DataFrame, score_col: str = "rank_score") -> dict[str, f
     }
 
 
+def within_phase_auc(df: pd.DataFrame, *, min_rows: int = MIN_PHASE_ROWS) -> dict:
+    """Mean over cut phases of the per-phase hazard AUC of a prediction frame (see the module docstring): ``{"auc_within_phase",
+    "phases": {k: AUC}, "n_phases", "excluded": {k: reason}}``.  Phases with fewer than ``min_rows`` rows or a single class are left
+    out; NaN when none is left."""
+    df = read_predictions(df)
+    wp = WithinPhaseAUC(df["y"].to_numpy(), df["p_hazard"].to_numpy(), df["phase"].to_numpy(), min_rows)
+    per = wp.per_phase(np.ones(len(df)))
+    return {
+        "auc_within_phase": wp.mean(np.ones(len(df))), "phases": per, "n_phases": len(per), "excluded": dict(wp.excluded),
+    }
+
+
 def _metrics_block(df: pd.DataFrame) -> dict:
     return {
         "n_rows": int(len(df)),
@@ -313,9 +382,9 @@ def resample_counts(n_matches: int, n_boot: int, seed: int) -> np.ndarray:
 
 def _check_metrics(metrics: tuple[str, ...]) -> tuple[str, ...]:
     metrics = tuple(metrics)
-    unknown = [m for m in metrics if m not in METRIC_NAMES]
+    unknown = [m for m in metrics if m not in ALL_METRIC_NAMES]
     if unknown:
-        raise ValueError(f"unknown metrics {unknown}; known: {METRIC_NAMES}")
+        raise ValueError(f"unknown metrics {unknown}; known: {ALL_METRIC_NAMES}")
     return metrics
 
 

@@ -17,7 +17,7 @@ PTR_DIR = Path(__file__).resolve().parent
 # modules whose source can change a result: any edit invalidates cached runs (config hash).  The runner, the
 # aggregator, the cohort lister and the synthetic generator do not feed results and are left out on purpose.
 RESULT_MODULES: tuple[str, ...] = (
-    "arms", "data", "hgb", "loss", "metrics", "model", "player", "relations", "train", "util",
+    "arms", "data", "extra", "hgb", "loss", "metrics", "model", "player", "relations", "train", "util",
 )  # fmt: skip
 
 

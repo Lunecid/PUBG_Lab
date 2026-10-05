@@ -24,20 +24,53 @@ Pipeline
    percentile interval of the ratio of the pooled numerator / denominator formed from the per-cohort resamples with the
    DL weights held fixed.  Per-cohort kappa is descriptive.
 6. Seed 42 feeds every contrast; seeds 13 / 2026 only give the seed-to-seed SD (``seed_stability.csv``), never pooled.
-7. External baselines (design doc 4.3, exploratory): ``SAGONG-xgb/rf/lr`` and ``KRAFTON-tf/mlp`` are inventoried as kind
-   ``external`` and enter only five paired, DL-pooled contrasts without Holm (M11R / HGB-cut vs SAGONG-xgb and KRAFTON-tf,
-   KRAFTON-tf vs KRAFTON-mlp); ``tables/tab_external.tex`` (arm means next to the references) and
-   ``tab_external_contrasts.tex`` exist only when such runs exist.  Adding arms never changes another contrast: the bootstrap
-   resamples depend on the cohort and stratum only.
+7. External baselines (design doc 4.3, exploratory): ``SAGONG-xgb/rf/lr`` and ``KRAFTON-tf/mlp/tf-ourfeat`` (their transformer on
+   our features) are inventoried as kind ``external`` and enter only eleven paired, DL-pooled contrasts without Holm
+   (``FORMULAS`` group ``external``): M11R against every SAGONG / KRAFTON model, HGB-cut against SAGONG-xgb and KRAFTON-tf,
+   KRAFTON-tf - KRAFTON-mlp, the input effect ``krafton_ourfeat_input`` (KRAFTON-tf-ourfeat - KRAFTON-tf: their backbone and
+   loss fixed, our features vs theirs) and ``m01_vs_krafton_tf_ourfeat`` (our model and loss vs theirs on the same features);
+   ``tables/tab_external.tex`` (arm means next to the references) and ``tab_external_contrasts.tex`` (three blocks) exist
+   only when such runs exist.  Adding arms never changes another contrast: the bootstrap resamples depend on the cohort and
+   stratum only.
+   ``SAGONG-hgb`` is HGB-cut's learner (same settings, rows and labels) on Sagong's 12 inputs: ``hgbcut_vs_sagong_hgb`` is the clean
+   input effect and ``sagong_hgb_vs_sagong_xgb`` the learner check.  Contrasts in which more than one factor differs are tagged
+   ``(bundled)`` in ``tab_external_contrasts.tex`` (KRAFTON-tf -> K2, HGB-kraftonfeat - KRAFTON-tf, HGB-cut - SAGONG-xgb, M01 - K2) and are not
+   decomposition steps.
 8. Meta-regression on the training size (design doc 4.4, exploratory): the per-cohort AUC contrasts of P1, P2, P5, M11 - M00 and
    M11R - HGB-cut regressed on ln(training matches), random effects with the method-of-moments (generalised DerSimonian-Laird)
    tau^2 and inverse-variance weights; slope, normal and Knapp-Hartung intervals / p, tau^2 with and without the moderator,
    and the crossover N where the fitted effect is zero (Fieller interval, bounded only for a significant slope):
    ``metareg.csv``, ``metareg_data.csv``, ``figures/metareg_bubble.{pdf,png}``.
 
+9. Union arms (design doc 4.6, post hoc and exploratory): ``HGB-union`` (HGB-cut plus KRAFTON's reconstructed ``kf_*`` features) and
+   ``M11R-union`` (M11R plus the same features) are our own models (kind ``hgb`` / ``neural``), not external ones.  Five paired,
+   DL-pooled contrasts without Holm (``FORMULAS`` group ``union``): ``hgb_union_vs_hgbcut`` and ``m11r_union_vs_m11r`` (what the
+   KRAFTON features add to ours), ``m11r_union_vs_krafton_tf``, ``m11r_union_vs_sagong_xgb`` and ``hgb_union_vs_hgb_kraftonfeat``
+   (what our representation adds to KRAFTON's inputs with the same GBDT); they form the fifth block of
+   ``tab_external_contrasts.tex`` and the ``union`` row of ``tab_grid.tex``, which exist when external or union arms were run.
+   Adding arms never changes another contrast (the resamples depend on the cohort and stratum only).
+
+10. Within-phase AUC (exploratory, complementary): ``auc_within_phase`` = the UNWEIGHTED mean over cut phases of the per-phase hazard AUC
+   (each eligible phase counts once, whatever its row count; phases with both classes and at least 30 rows, fixed from the data of
+   the evaluated frame; ``model_stgcn.ptr.metrics``).  This one definition is used for every arm, contrast, stratum and table.  It is computed
+   for every arm, every contrast and every stratum next to the seven metrics (paired match bootstrap: the per-phase AUCs are
+   recomputed on each resample), DL-pooled like them, never in the Holm family and without a verdict (no SESOI): the pre-specified
+   primary metric stays the pooled AUC.  The paper tables keep their seven metric columns.
+11. K3 ladder and decomposition (exploratory): the KRAFTON transformer on OUR features comes in three formulations, K2 =
+   ``KRAFTON-tf-ourfeat`` (their Cox loss), K3a = ``KRAFTON-tf-ourfeat-bce`` (BCE on the hazard rows) and K3 =
+   ``KRAFTON-tf-ourfeat-hazard`` (BCE with a phase baseline).  Contrasts ``k3a_vs_k2`` (objective), ``k3_vs_k3a`` (phase baseline),
+   ``k3_vs_k2`` (formulation total) and ``m01_vs_k3`` (the residual: our architecture against theirs under the same formulation and
+   features); ``tables/tab_decomp.tex`` lines up seven CLEAN single-factor steps (pooled and within-phase delta AUC with the cohort
+   counts, every row to - from): input vs Sagong (HGB-cut - SAGONG-hgb), input vs KRAFTON (HGB-cut - HGB-kraftonfeat), objective (K3a - K2),
+   phase baseline (K3 - K3a), architecture (M01 - K3), structure (M11R - M01) and the extended representation (HGB-union - HGB-cut).
+   Bundled contrasts (KRAFTON-tf -> K2, HGB-kraftonfeat - KRAFTON-tf, HGB-cut - SAGONG-xgb, M01 - K2) are not steps; a step whose arms were
+   not run is left out, never replaced by a bundled one.  The Sagong x GBDT cell of ``tab_grid.tex`` is SAGONG-hgb, so the GBDT column
+   is one learner (HistGradientBoosting, HGB-cut settings) with four inputs.
+
 Outputs (``--out-dir``, default ``reports/bigcomp2027_results``): tidy CSVs, ``summary.json``, LaTeX ``tabular`` files
-(``tables/``) with the structure of the paper skeletons, and the forest plot of P1-P5 (``figures/``, PDF + PNG and a
-CSV twin of the plotted numbers).
+(``tables/``) with the structure of the pre-registered paper skeletons, and the forest plot of P1-P5 (``figures/``, PDF + PNG
+and a CSV twin of the plotted numbers).  ``--redraw-figures`` regenerates the forest and bubble plots from the CSVs of an
+earlier run without any bootstrap.
 """
 
 from __future__ import annotations
@@ -75,12 +108,19 @@ MAIN_SEED = 42
 RANK_COL = "rank_score"
 STRATUM_ALL = "all"
 MIN_STRATUM_MATCHES = 10  # a stratum with fewer test matches in a cohort is skipped (a bootstrap of 3 matches means nothing)
-METRICS: tuple[str, ...] = M.METRIC_NAMES  # auc, ap, nll, brier, spearman, top5_auc, cindex
-SESOI = {"auc": 0.005, "spearman": 0.01, "top5_auc": 0.005, "cindex": 0.005}
-DIRECTION = {"auc": 1, "ap": 1, "nll": -1, "brier": -1, "spearman": 1, "top5_auc": 1, "cindex": 1}  # +1: higher is better
+# phase-group strata (exploratory): rows of the cut phases k in the group, next to the match-type strata.  A stratum name
+# "phase:early" etc.; the cut phase k is the CSV column ``phase`` (1-based).
+PHASE_GROUPS: dict[str, tuple[int, ...]] = {"early": (1, 2), "mid": (3, 4), "late": (5, 6, 7)}
+PHASE_PREFIX = "phase:"
+METRICS: tuple[str, ...] = M.ALL_METRIC_NAMES  # auc, ap, nll, brier, spearman, top5_auc, cindex + the exploratory auc_within_phase
+TABLE_METRICS: tuple[str, ...] = M.METRIC_NAMES  # the seven metrics of the paper tables (the exploratory metric has no column there)
+SESOI = {"auc": 0.005, "spearman": 0.01, "top5_auc": 0.005, "cindex": 0.005}  # auc_within_phase has none: no verdict, no Holm
+DIRECTION = {
+    "auc": 1, "ap": 1, "nll": -1, "brier": -1, "spearman": 1, "top5_auc": 1, "cindex": 1, "auc_within_phase": 1,
+}  # +1: higher is better
 METRIC_LABEL = {
     "auc": "AUC", "ap": "AP", "nll": "NLL", "brier": "Brier", "spearman": "Spearman", "top5_auc": "Top-5 AUC",
-    "cindex": "C-index",
+    "cindex": "C-index", "auc_within_phase": "AUC within phase",
 }  # fmt: skip
 
 MAIN_ARMS: tuple[str, ...] = (
@@ -91,9 +131,22 @@ STAGE2_ARMS: tuple[str, ...] = ("M11RZ-P", "M11RZ-P-tm")
 HGB_ARMS: tuple[str, ...] = ("HGB-cut", "HGB-lag", "HGB-noHab")
 # external baselines (design doc 4.3, exploratory): re-implementations of Sagong et al. (2025) and the KRAFTON win-probability
 # models, run on the same cohorts / splits / label v2 / rows; they only ever enter exploratory contrasts, never the primary family
-EXTERNAL_ARMS: tuple[str, ...] = ("SAGONG-xgb", "SAGONG-rf", "SAGONG-lr", "KRAFTON-tf", "KRAFTON-mlp")
+# KRAFTON-tf-ourfeat is their transformer on OUR token features (same backbone and loss as KRAFTON-tf, other input).
+# HGB-kraftonfeat is a GBDT on KRAFTON's reconstructed inputs (C1 grid: input x learner); it is external although its name
+# starts with HGB, and none of the HGB-* formulas (HGB_ARMS) involves it.
+# The K3 ladder (their transformer on OUR features, three formulations): K2 = KRAFTON-tf-ourfeat (their Cox loss), K3a =
+# KRAFTON-tf-ourfeat-bce (BCE on the hazard rows), K3 = KRAFTON-tf-ourfeat-hazard (BCE with a phase baseline).
+# SAGONG-hgb and HGB-kraftonfeat run OUR learner (the HGB-cut settings, rows and labels) on THEIR inputs (Sagong's 12 inputs, KRAFTON's
+# reconstructed inputs): the clean input effects are HGB-cut - SAGONG-hgb and HGB-cut - HGB-kraftonfeat.
+EXTERNAL_ARMS: tuple[str, ...] = (
+    "SAGONG-xgb", "SAGONG-rf", "SAGONG-lr", "KRAFTON-tf", "KRAFTON-mlp", "KRAFTON-tf-ourfeat", "KRAFTON-tf-ourfeat-bce",
+    "KRAFTON-tf-ourfeat-hazard", "SAGONG-hgb", "HGB-kraftonfeat",
+)  # fmt: skip
 EXTERNAL_PREFIXES: tuple[str, ...] = ("SAGONG-", "KRAFTON-")
-ARM_ORDER: tuple[str, ...] = MAIN_ARMS + EXPLORATORY_ARMS + STAGE2_ARMS + HGB_ARMS + EXTERNAL_ARMS
+# union arms (design doc 4.6, post hoc / exploratory): our representation united with KRAFTON's reconstructed kf_* features; they are
+# our own models (kind hgb / neural), separate from the HGB_ARMS of the main matrix and from the external baselines
+UNION_ARMS: tuple[str, ...] = ("HGB-union", "M11R-union")
+ARM_ORDER: tuple[str, ...] = MAIN_ARMS + EXPLORATORY_ARMS + STAGE2_ARMS + HGB_ARMS + UNION_ARMS + EXTERNAL_ARMS
 KAPPA_ARMS = {"num_a": "M11RZ-noHab", "num_b": "M11R-noHab", "den_a": "M11R", "den_b": "M11R-noHab"}
 
 
@@ -139,6 +192,36 @@ FORMULAS: dict[str, Formula] = {
         Formula("m11r_vs_krafton_tf", {"M11R": 1, "KRAFTON-tf": -1}, "M11R - KRAFTON-tf", "external", optional=True),
         Formula("hgbcut_vs_krafton_tf", {"HGB-cut": 1, "KRAFTON-tf": -1}, "HGB-cut - KRAFTON-tf", "external", optional=True),
         Formula("krafton_tf_mlp", {"KRAFTON-tf": 1, "KRAFTON-mlp": -1}, "KRAFTON-tf - KRAFTON-mlp", "external", optional=True),
+        Formula("m11r_vs_sagong_rf", {"M11R": 1, "SAGONG-rf": -1}, "M11R - SAGONG-rf", "external", optional=True),
+        Formula("m11r_vs_sagong_lr", {"M11R": 1, "SAGONG-lr": -1}, "M11R - SAGONG-lr", "external", optional=True),
+        Formula("m11r_vs_krafton_mlp", {"M11R": 1, "KRAFTON-mlp": -1}, "M11R - KRAFTON-mlp", "external", optional=True),
+        Formula("m11r_vs_krafton_tf_ourfeat", {"M11R": 1, "KRAFTON-tf-ourfeat": -1}, "M11R - KRAFTON-tf-ourfeat", "external", optional=True),
+        # the input effect: their backbone and loss fixed, our features vs theirs
+        Formula("krafton_ourfeat_input", {"KRAFTON-tf-ourfeat": 1, "KRAFTON-tf": -1}, "KRAFTON-tf-ourfeat - KRAFTON-tf", "external", optional=True),
+        # our model and loss vs theirs on the same (our) features
+        Formula("m01_vs_krafton_tf_ourfeat", {"M01": 1, "KRAFTON-tf-ourfeat": -1}, "M01 - KRAFTON-tf-ourfeat", "external", optional=True),
+        # C1 grid: the input effect with the GBDT fixed (our representation vs KRAFTON's inputs) ...
+        Formula("hgbcut_vs_hgb_kraftonfeat", {"HGB-cut": 1, "HGB-kraftonfeat": -1}, "HGB-cut - HGB-kraftonfeat", "external", optional=True),
+        # ... and the learner effect with KRAFTON's inputs fixed (GBDT vs their transformer)
+        Formula("hgb_kraftonfeat_vs_krafton_tf", {"HGB-kraftonfeat": 1, "KRAFTON-tf": -1}, "HGB-kraftonfeat - KRAFTON-tf", "external", optional=True),
+        # Sagong's inputs with OUR learner: the clean input effect (same HGB settings, rows and labels) and the learner check
+        Formula("hgbcut_vs_sagong_hgb", {"HGB-cut": 1, "SAGONG-hgb": -1}, "HGB-cut - SAGONG-hgb", "external", optional=True),
+        Formula("sagong_hgb_vs_sagong_xgb", {"SAGONG-hgb": 1, "SAGONG-xgb": -1}, "SAGONG-hgb - SAGONG-xgb", "external", optional=True),
+        # K3 ladder: their transformer on our features in three formulations (K2 Cox, K3a BCE, K3 BCE + phase baseline) and the residual
+        Formula("k3a_vs_k2", {"KRAFTON-tf-ourfeat-bce": 1, "KRAFTON-tf-ourfeat": -1}, "KRAFTON-tf-ourfeat-bce - KRAFTON-tf-ourfeat", "external", optional=True),
+        Formula("k3_vs_k3a", {"KRAFTON-tf-ourfeat-hazard": 1, "KRAFTON-tf-ourfeat-bce": -1}, "KRAFTON-tf-ourfeat-hazard - KRAFTON-tf-ourfeat-bce", "external", optional=True),
+        Formula("k3_vs_k2", {"KRAFTON-tf-ourfeat-hazard": 1, "KRAFTON-tf-ourfeat": -1}, "KRAFTON-tf-ourfeat-hazard - KRAFTON-tf-ourfeat", "external", optional=True),
+        Formula("m01_vs_k3", {"M01": 1, "KRAFTON-tf-ourfeat-hazard": -1}, "M01 - KRAFTON-tf-ourfeat-hazard", "external", optional=True),
+        # the structure step of the decomposition: what the phase axis and the relation bias add to the team axis alone
+        Formula("m11r_vs_m01", {"M11R": 1, "M01": -1}, "M11R - M01", "decomp"),
+        # union (design doc 4.6, post hoc): what KRAFTON's kf_* features add to our representation, with the learner fixed ...
+        Formula("hgb_union_vs_hgbcut", {"HGB-union": 1, "HGB-cut": -1}, "HGB-union - HGB-cut", "union", optional=True),
+        Formula("m11r_union_vs_m11r", {"M11R-union": 1, "M11R": -1}, "M11R-union - M11R", "union", optional=True),
+        # ... the union against the external baselines ...
+        Formula("m11r_union_vs_krafton_tf", {"M11R-union": 1, "KRAFTON-tf": -1}, "M11R-union - KRAFTON-tf", "union", optional=True),
+        Formula("m11r_union_vs_sagong_xgb", {"M11R-union": 1, "SAGONG-xgb": -1}, "M11R-union - SAGONG-xgb", "union", optional=True),
+        # ... and what our representation adds to KRAFTON's inputs with the same GBDT
+        Formula("hgb_union_vs_hgb_kraftonfeat", {"HGB-union": 1, "HGB-kraftonfeat": -1}, "HGB-union - HGB-kraftonfeat", "union", optional=True),
     )
 }  # fmt: skip
 PRIMARY: dict[str, tuple[str, str]] = {
@@ -179,13 +262,57 @@ EXPLORATORY_ROWS = [  # (RQ cell, contrast cell, formula | "kappa", stage-2 only
     ("RQ3 (teammates)", "M11RZ-P $-$ M11RZ-P$-$tm", "p_tm", True),
 ]  # fmt: skip
 EXTERNAL_TABLE_REFERENCES = (("HGB-cut", "HGB-cut (reference)"), ("M11R", "M11R (reference)"))
-EXTERNAL_CONTRAST_ROWS = [  # (label, formula): exploratory, pooled over the cohorts, no Holm
-    ("M11R $-$ SAGONG-xgb", "m11r_vs_sagong_xgb"),
-    ("HGB-cut $-$ SAGONG-xgb", "hgbcut_vs_sagong_xgb"),
-    ("M11R $-$ KRAFTON-tf", "m11r_vs_krafton_tf"),
-    ("HGB-cut $-$ KRAFTON-tf", "hgbcut_vs_krafton_tf"),
-    ("KRAFTON-tf $-$ KRAFTON-mlp", "krafton_tf_mlp"),
+EXTERNAL_CONTRAST_ROWS = [  # (label, formula, group, tag): exploratory, paired, pooled over the cohorts, no Holm
+    ("M11R $-$ SAGONG-xgb", "m11r_vs_sagong_xgb", "sagong", ""),
+    ("M11R $-$ SAGONG-rf", "m11r_vs_sagong_rf", "sagong", ""),
+    ("M11R $-$ SAGONG-lr", "m11r_vs_sagong_lr", "sagong", ""),
+    ("HGB-cut $-$ SAGONG-xgb", "hgbcut_vs_sagong_xgb", "sagong", "bundled"),
+    ("HGB-cut $-$ SAGONG-hgb", "hgbcut_vs_sagong_hgb", "sagong", "input"),
+    ("SAGONG-hgb $-$ SAGONG-xgb", "sagong_hgb_vs_sagong_xgb", "sagong", "learner check"),
+    ("M11R $-$ KRAFTON-tf", "m11r_vs_krafton_tf", "krafton", ""),
+    ("M11R $-$ KRAFTON-mlp", "m11r_vs_krafton_mlp", "krafton", ""),
+    ("M11R $-$ KRAFTON-tf-ourfeat", "m11r_vs_krafton_tf_ourfeat", "krafton", ""),
+    ("HGB-cut $-$ KRAFTON-tf", "hgbcut_vs_krafton_tf", "krafton", ""),
+    ("KRAFTON-tf $-$ KRAFTON-mlp", "krafton_tf_mlp", "ablation", ""),
+    ("KRAFTON-tf-ourfeat $-$ KRAFTON-tf", "krafton_ourfeat_input", "ablation", "bundled"),
+    ("M01 $-$ KRAFTON-tf-ourfeat", "m01_vs_krafton_tf_ourfeat", "ablation", "bundled"),
+    ("HGB-cut $-$ HGB-kraftonfeat", "hgbcut_vs_hgb_kraftonfeat", "grid", "input"),
+    ("HGB-kraftonfeat $-$ KRAFTON-tf", "hgb_kraftonfeat_vs_krafton_tf", "grid", "bundled"),
+    # the K3 ladder: their transformer on our features, K2 (Cox) -> K3a (BCE) -> K3 (BCE + phase baseline), and what is left for our architecture
+    ("K3a $-$ K2", "k3a_vs_k2", "formulation", "objective"),
+    ("K3 $-$ K3a", "k3_vs_k3a", "formulation", "phase baseline"),
+    ("K3 $-$ K2", "k3_vs_k2", "formulation", "total"),
+    ("M01 $-$ K3", "m01_vs_k3", "formulation", "residual"),
+    # union (design doc 4.6, post hoc, exploratory): (+kf) = our representation plus KRAFTON's features vs ours, (+ours) = vs KRAFTON's inputs
+    ("HGB-union $-$ HGB-cut", "hgb_union_vs_hgbcut", "union", "+kf"),
+    ("M11R-union $-$ M11R", "m11r_union_vs_m11r", "union", "+kf"),
+    ("M11R-union $-$ KRAFTON-tf", "m11r_union_vs_krafton_tf", "union", ""),
+    ("M11R-union $-$ SAGONG-xgb", "m11r_union_vs_sagong_xgb", "union", ""),
+    ("HGB-union $-$ HGB-kraftonfeat", "hgb_union_vs_hgb_kraftonfeat", "union", "+ours"),
 ]  # fmt: skip
+# the C1 grid (paper focus 2026-10-06): rows = inputs, columns = learner, cell = the model of that input and learner
+GRID_ROWS: tuple[tuple[str, str], ...] = (
+    ("sagong", "Sagong features"), ("krafton", "KRAFTON features"), ("ours", "Our representation"), ("union", "Union (ours + KRAFTON)"),
+)  # fmt: skip
+GRID_OPTIONAL_ROWS: tuple[str, ...] = ("union",)  # post hoc (design doc 4.6): the row is shown only when one of its models was run
+GRID_COLUMNS: tuple[tuple[str, str], ...] = (("gbdt", "GBDT"), ("krafton_tf", "KRAFTON transformer"), ("ptr", "PTR-Former"))
+GRID_CELLS: dict[tuple[str, str], str] = {
+    ("sagong", "gbdt"): "SAGONG-hgb",  # HGB-cut's learner on Sagong's inputs: every cell of the GBDT column is the same HistGradientBoosting
+    ("krafton", "gbdt"): "HGB-kraftonfeat", ("krafton", "krafton_tf"): "KRAFTON-tf",
+    ("ours", "gbdt"): "HGB-cut", ("ours", "krafton_tf"): "KRAFTON-tf-ourfeat", ("ours", "ptr"): "M11R",
+    ("union", "gbdt"): "HGB-union", ("union", "ptr"): "M11R-union",  # no KRAFTON transformer on the union inputs was run
+}  # fmt: skip
+# the decomposition table (tab_decomp.tex): seven CLEAN single-factor steps, every row "to - from" (paired, DL-pooled, exploratory, no Holm);
+# contrasts in which several factors differ (KRAFTON-tf -> K2, HGB-kraftonfeat - KRAFTON-tf, HGB-cut - SAGONG-xgb, M01 - K2) are not steps
+DECOMP_STEPS: tuple[tuple[str, str, str, str], ...] = (  # (group, step, contrast cell, formula); every step changes ONE factor
+    ("inputs", "Input vs Sagong (same HGB)", "HGB-cut $-$ SAGONG-hgb", "hgbcut_vs_sagong_hgb"),
+    ("inputs", "Input vs KRAFTON (same HGB)", "HGB-cut $-$ HGB-kraftonfeat", "hgbcut_vs_hgb_kraftonfeat"),
+    ("ladder", "Objective (Cox $\\to$ BCE)", "K3a $-$ K2", "k3a_vs_k2"),
+    ("ladder", "Phase baseline", "K3 $-$ K3a", "k3_vs_k3a"),
+    ("ladder", "Architecture (theirs $\\to$ ours)", "M01 $-$ K3", "m01_vs_k3"),
+    ("structure", "Structure (phase axis, relations)", "M11R $-$ M01", "m11r_vs_m01"),
+    ("extension", "Extended representation (+kf, HGB)", "HGB-union $-$ HGB-cut", "hgb_union_vs_hgbcut"),
+)  # fmt: skip
 ARMS_TABLE_ROWS = [  # (arm, row label); the stage-2 rows appear only when those arms were run
     *[(a, a) for a in MAIN_ARMS], ("M11RZ-P", "M11RZ-P"), ("M11RZ-P-tm", "M11RZ-P$-$tm"),
     *[(a, a) for a in HGB_ARMS],
@@ -324,9 +451,9 @@ class Run:
 
     @property
     def kind(self) -> str:
-        if self.arm.startswith("HGB"):
-            return "hgb"
-        return "external" if self.arm.startswith(EXTERNAL_PREFIXES) else "neural"
+        if self.arm in EXTERNAL_ARMS or self.arm.startswith(EXTERNAL_PREFIXES):
+            return "external"
+        return "hgb" if self.arm.startswith("HGB") else "neural"
 
     @property
     def role(self) -> str:
@@ -415,7 +542,9 @@ def _stratum_task(spec: dict) -> dict:
     frames: dict[tuple[str, int], pd.DataFrame] = {}
     for arm, seed, path in spec["runs"]:
         df = M.read_predictions(path)
-        if stratum != STRATUM_ALL:
+        if stratum.startswith(PHASE_PREFIX):  # a phase group: the rows of its cut phases (matches stay whole clusters)
+            df = df[df["phase"].isin(spec["phases"])].reset_index(drop=True)
+        elif stratum != STRATUM_ALL:
             df = df[df["match_type"] == stratum].reset_index(drop=True)
         frames[(arm, seed)] = df
     if not frames:
@@ -752,7 +881,7 @@ def render_arms_table(means: pd.DataFrame) -> str:
         "\\midrule",
     ]
     for arm, label in ARMS_TABLE_ROWS:
-        have = [lookup.get((arm, m), float("nan")) for m in METRICS]
+        have = [lookup.get((arm, m), float("nan")) for m in TABLE_METRICS]
         if arm in STAGE2_ARMS and not any(math.isfinite(v) for v in have):
             continue
         out.append(" & ".join([label, *[fmt_value(v) for v in have]]) + " \\\\")
@@ -781,7 +910,7 @@ def render_external_table(means: pd.DataFrame) -> str:
     ]
 
     def row(arm: str, label: str) -> str | None:
-        have = [lookup.get((arm, m), float("nan")) for m in METRICS]
+        have = [lookup.get((arm, m), float("nan")) for m in TABLE_METRICS]
         if not any(math.isfinite(v) for v in have):
             return None
         suffix = f" ({n_coh[arm]} cohorts)" if arm in n_coh and n_coh[arm] < top else ""
@@ -800,26 +929,137 @@ def render_external_table(means: pd.DataFrame) -> str:
     return "\n".join(out)
 
 
+def render_grid_table(means: pd.DataFrame) -> str:
+    """The C1 grid: rows = inputs (Sagong / KRAFTON / ours), columns = learner (GBDT / KRAFTON transformer / PTR-Former); each
+    cell is the unweighted mean test AUC (seed 42, all matches) over the cohorts that have that model, with the number of cohorts.
+    A cell with no model (the grid has none for it, or it was not run) is ``---``: a cell is one model and no other model stands in
+    for it (Sagong's own XGBoost, SAGONG-xgb, is in ``tab_external.tex``).  The GBDT column is HistGradientBoosting with the HGB-cut
+    settings in every row, so its differences are single-factor input effects.  Same column: input effect; same row: learner effect (the
+    paired, pooled differences are in ``tab_external_contrasts.tex``).  Means over different cohort sets are not comparable."""
+    sel = means[(means["stratum"] == STRATUM_ALL) & (means["metric"] == "auc")] if len(means) else means
+    info = {r.arm: (r.mean, int(r.n_cohorts)) for r in sel.itertuples(index=False)}
+    cells = ", ".join(f"{GRID_ROWS_DICT[r]} x {GRID_COLUMNS_DICT[c]}: {a}" for (r, c), a in GRID_CELLS.items())
+    out = [
+        _tex_comment("tab_grid", [
+            "C1 grid, mean test AUC over cohorts (seed 42, all matches), (k coh.) = number of cohorts averaged; --- = no model in the grid",
+            "same column: input effect, same row: learner effect; the paired, pooled differences are in tab_external_contrasts.tex",
+            "GBDT column = HistGradientBoosting with the HGB-cut settings in every row (a clean input effect down the column); Sagong's own XGBoost is in tab_external.tex",
+            "cells: " + cells,
+        ]),
+        "\\begin{tabular}{@{}l c c c@{}}",
+        "\\toprule",
+        "Inputs $\\backslash$ learner & " + " & ".join(label for _, label in GRID_COLUMNS) + " \\\\",
+        "\\midrule",
+    ]
+    for rkey, rlabel in GRID_ROWS:
+        if rkey in GRID_OPTIONAL_ROWS and not any(
+            (a := GRID_CELLS.get((rkey, c))) is not None and a in info and math.isfinite(info[a][0]) for c, _ in GRID_COLUMNS
+        ):
+            continue  # an experiment that was not run gets no row of dashes
+        row = []
+        for ckey, _ in GRID_COLUMNS:
+            arm = GRID_CELLS.get((rkey, ckey))
+            if arm is None or arm not in info or not math.isfinite(info[arm][0]):
+                row.append("---")
+            else:
+                mean, k = info[arm]
+                row.append(f"{fmt_value(mean)} ({k} coh.)")
+        out.append(" & ".join([rlabel, *row]) + " \\\\")
+    out += ["\\bottomrule", "\\end{tabular}", ""]
+    return "\n".join(out)
+
+
+GRID_ROWS_DICT = dict(GRID_ROWS)
+GRID_COLUMNS_DICT = dict(GRID_COLUMNS)
+
+
 def render_external_contrasts_table(pooled: pd.DataFrame) -> str:
-    """Paired, DL-pooled exploratory contrasts between our models and the external baselines (no Holm correction)."""
+    """Paired, DL-pooled exploratory contrasts between our models and the external baselines (no Holm correction).
+
+    Three blocks (a rule between them): our models against SAGONG, against KRAFTON, and the KRAFTON ablations on our data:
+    the input effect (their transformer on our features minus on theirs: backbone and loss fixed) and the model and loss
+    effect (our M01 minus their transformer, both on our features)."""
     idx = _index_rows(pooled)
     out = [
         _tex_comment("tab_external_contrasts", [
             "delta [95% CI], paired match-level bootstrap on identical rows per cohort, DerSimonian-Laird pooled; exploratory, no Holm",
             "(k cohorts) marks a contrast pooled over fewer cohorts than the analysis has",
+            "tags: (input) = a clean single-factor input effect (same HistGradientBoosting settings, rows and labels): HGB-cut - SAGONG-hgb",
+            "(our representation vs Sagong's 12 inputs) and HGB-cut - HGB-kraftonfeat (ours vs KRAFTON's reconstructed inputs);",
+            "(learner check) = SAGONG-hgb - SAGONG-xgb: HistGradientBoosting vs XGBoost on Sagong's inputs;",
+            "(bundled) = more than one factor differs between the two models, not a single-factor effect (the bundled contrasts stay out of tab_decomp.tex):",
+            "KRAFTON-tf-ourfeat - KRAFTON-tf, HGB-kraftonfeat - KRAFTON-tf, HGB-cut - SAGONG-xgb (input and learner at once) and",
+            "M01 - KRAFTON-tf-ourfeat (= objective + phase baseline + residual of the K ladder below);",
+            "K3 ladder (their transformer on our features): K2 = KRAFTON-tf-ourfeat (Cox loss), K3a = -bce (BCE), K3 = -hazard (BCE + phase baseline):",
+            "(objective) = K3a - K2, (phase baseline) = K3 - K3a, (total) = K3 - K2, (residual) = M01 - K3, i.e. our architecture against theirs",
+            "under the same formulation and features;",
+            "last block, union (post hoc, design doc 4.6): (+kf) = our representation plus KRAFTON's kf_* features vs ours alone with the same learner,",
+            "(+ours) = HGB-union - HGB-kraftonfeat: our representation added to KRAFTON's inputs with the same GBDT",
         ]),
         "\\begin{tabular}{@{}l c c c c@{}}",
         "\\toprule",
         "Contrast & $\\Delta$AUC & $\\Delta$Spearman & $\\Delta$Top-5 AUC & $\\Delta$C-index \\\\",
         "\\midrule",
     ]
-    present = [(label, name) for label, name in EXTERNAL_CONTRAST_ROWS if any(_lookup(idx, name, m) is not None for m in METRICS)]
-    for label, name in present:
+    present = [row for row in EXTERNAL_CONTRAST_ROWS if any(_lookup(idx, row[1], m) is not None for m in METRICS)]
+    previous = None
+    for label, name, group, tag in present:
+        if previous is not None and group != previous:
+            out.append("\\midrule")
+        previous = group
         auc = _lookup(idx, name, "auc")
-        suffix = f" ({int(auc.k)} cohorts)" if auc is not None and int(auc.k) < int(auc.k_total) else ""
+        notes = [tag] if tag else []
+        if auc is not None and int(auc.k) < int(auc.k_total):
+            notes.append(f"{int(auc.k)} cohorts")
+        suffix = f" ({', '.join(notes)})" if notes else ""
         cells = [_delta_cell(_lookup(idx, name, m)) for m in ("auc", "spearman", "top5_auc", "cindex")]
         out.append(" & ".join([label + suffix, *cells]) + " \\\\")
     out += ["\\bottomrule", "\\end{tabular}", ""]
+    return "\n".join(out)
+
+
+def render_decomposition_table(pooled: pd.DataFrame) -> str:
+    """The decomposition table: the CLEAN single-factor steps of :data:`DECOMP_STEPS` (every row ``to - from``, one factor changes), in
+    four groups separated by a rule (inputs | the K ladder | structure | extension); pooled ``Delta AUC`` and ``Delta AUC within phase``
+    (unweighted mean over cut phases of the per-phase AUC), each as ``delta [95% CI]`` with the number of cohorts that were pooled over
+    the cohorts of the analysis (``k/k_total``).  Paired match-level bootstrap per cohort, DerSimonian-Laird pooling, exploratory, no Holm.
+    A step whose models were not run is left out and named in the header comment; a bundled contrast (several factors at once) never
+    stands in for it."""
+    idx = _index_rows(pooled)
+    legend = [
+        "decomposition in single-factor steps, one row per step, every row is (to) - (from) and changes ONE factor; stratum all, exploratory, no Holm;",
+        "delta [95% CI]: paired match-level bootstrap on identical rows per cohort, DerSimonian-Laird pooled; Coh. = cohorts pooled / cohorts analysed;",
+        "within phase = unweighted mean over the cut phases (>= 30 rows and both classes) of the per-phase AUC, the pooled AUC stays the primary metric;",
+        "K2 = KRAFTON-tf-ourfeat (their transformer and Cox loss on our features), K3a = KRAFTON-tf-ourfeat-bce (BCE), K3 = KRAFTON-tf-ourfeat-hazard (BCE + phase baseline);",
+        "the bundled contrasts (several factors at once) are not steps, they are in tab_external_contrasts.tex: KRAFTON-tf-ourfeat - KRAFTON-tf, HGB-kraftonfeat - KRAFTON-tf, HGB-cut - SAGONG-xgb, M01 - KRAFTON-tf-ourfeat",
+    ]
+    rows, missing, previous = [], [], None
+    for group, step, cell, name in DECOMP_STEPS:
+        auc, within = _lookup(idx, name, "auc"), _lookup(idx, name, "auc_within_phase")
+        if auc is None and within is None:
+            missing.append(name)
+            continue
+        if previous is not None and group != previous:
+            rows.append("\\midrule")  # a rule only between groups that have rows
+        previous = group
+
+        def part(r):
+            return ("---", "---") if r is None else (_delta_cell(r), f"{int(r.k)}/{int(r.k_total)}")
+
+        rows.append(" & ".join([step, cell, *part(auc), *part(within)]) + " \\\\")
+    if missing:
+        legend.append("steps not run (left out): " + ", ".join(missing))
+    out = [
+        _tex_comment("tab_decomp", legend),
+        "\\begin{tabular}{@{}l l c c c c@{}}",
+        "\\toprule",
+        "Step & Contrast & $\\Delta$AUC [95\\% CI] & Coh. & $\\Delta$AUC within phase [95\\% CI] & Coh. \\\\",
+        "\\midrule",
+        *rows,
+        "\\bottomrule",
+        "\\end{tabular}",
+        "",
+    ]
     return "\n".join(out)
 
 
@@ -879,9 +1119,23 @@ def _plain_p(p: float) -> str:
     return "n/a" if not math.isfinite(p) else ("<0.001" if p < 0.001 else f"{p:.3f}")
 
 
-def draw_forest(data: pd.DataFrame, pooled: pd.DataFrame, stem: Path) -> None:
-    """Small multiples, one panel per primary contrast: cohort estimates in grey, the pooled estimate in the accent."""
-    from matplotlib import rc_context
+FOREST_FIGSIZE = (7.2, 3.65)
+# text above every panel, in points from the panel's top-left corner: title, verdict, Holm p (one short line each, so that
+# neighbouring panels (about 1.2 in wide) can never run into each other)
+FOREST_TEXT_OFFSETS = (22.0, 13.0, 4.5)
+
+
+def forest_panel_text(pooled_row) -> tuple[str, str]:
+    """``(verdict, Holm p)`` lines of a panel (``("not estimable", "")`` without a pooled estimate)."""
+    if pooled_row is None:
+        return "not estimable", ""
+    return str(pooled_row.verdict), f"Holm p {_plain_p(pooled_row.p_holm)}"
+
+
+def build_forest_figure(data: pd.DataFrame, pooled: pd.DataFrame):
+    """Small multiples, one panel per primary contrast: cohort estimates in grey, the pooled estimate in the accent.
+
+    Above each panel three short lines: ``P3  team axis`` (bold), the verdict and ``Holm p ...``."""
     from matplotlib.backends.backend_agg import FigureCanvasAgg
     from matplotlib.figure import Figure
     from matplotlib.lines import Line2D
@@ -893,10 +1147,10 @@ def draw_forest(data: pd.DataFrame, pooled: pd.DataFrame, stem: Path) -> None:
     size = coh.groupby("cohort")["n_matches"].max()
     order = sorted(size.index, key=lambda c: (-size[c], c)) if len(size) else []
     n = len(order)
-    fig = Figure(figsize=(7.2, 3.5), dpi=300, facecolor="white")
+    fig = Figure(figsize=FOREST_FIGSIZE, dpi=300, facecolor="white")
     FigureCanvasAgg(fig)
-    axes = fig.subplots(1, len(PRIMARY), sharey=True, gridspec_kw={"wspace": 0.10})
-    fig.subplots_adjust(left=0.19, right=0.995, top=0.79, bottom=0.215)
+    axes = fig.subplots(1, len(PRIMARY), sharey=True, gridspec_kw={"wspace": 0.15})
+    fig.subplots_adjust(left=0.19, right=0.995, top=0.80, bottom=0.21)
     ypos = {c: j for j, c in enumerate(order)}
     y_pool = n + 0.7
     for ax, (pid, (name, metric)) in zip(axes, PRIMARY.items()):
@@ -926,11 +1180,16 @@ def draw_forest(data: pd.DataFrame, pooled: pd.DataFrame, stem: Path) -> None:
         ax.xaxis.set_major_locator(MaxNLocator(3, prune=None))
         ax.tick_params(axis="x", labelsize=6, length=2, width=0.6, color=BASELINE, labelcolor=INK2, pad=1.5)
         ax.tick_params(axis="y", length=0, labelsize=6.2, labelcolor=INK2)
-        ax.set_xlabel(f"Δ {METRIC_LABEL[metric]}", fontsize=6.5, color=INK2, labelpad=2)
-        p = _lookup(idx, name, metric)
-        verdict_txt = "not estimable" if p is None else f"{p.verdict}, Holm p {_plain_p(p.p_holm)}"
-        ax.text(0.0, 1.145, f"{pid}  {FOREST_TITLES[pid]}", transform=ax.transAxes, fontsize=6.8, color=INK, fontweight="bold", ha="left", va="bottom")
-        ax.text(0.0, 1.04, verdict_txt, transform=ax.transAxes, fontsize=6.2, color=INK2, ha="left", va="bottom")
+        ax.set_xlabel(f"\u0394 {METRIC_LABEL[metric]}", fontsize=6.5, color=INK2, labelpad=2)
+        verdict_txt, p_txt = forest_panel_text(_lookup(idx, name, metric))
+        for text, off, size_pt, weight, color in (
+            (f"{pid}  {FOREST_TITLES[pid]}", FOREST_TEXT_OFFSETS[0], 6.8, "bold", INK),
+            (verdict_txt, FOREST_TEXT_OFFSETS[1], 6.2, "normal", INK2),
+            (p_txt, FOREST_TEXT_OFFSETS[2], 6.0, "normal", INK2),
+        ):
+            if text:
+                ax.annotate(text, xy=(0.0, 1.0), xycoords="axes fraction", xytext=(0.0, off), textcoords="offset points",
+                            fontsize=size_pt, color=color, fontweight=weight, ha="left", va="bottom")  # fmt: skip
     axes[0].set_yticks([ypos[c] for c in order] + [y_pool])
     axes[0].set_yticklabels([cohort_label(c) for c in order] + ["Pooled (RE)"])
     if order:
@@ -938,17 +1197,24 @@ def draw_forest(data: pd.DataFrame, pooled: pd.DataFrame, stem: Path) -> None:
         axes[0].get_yticklabels()[-1].set_color(INK)
     handles = [
         Line2D([], [], marker="o", color=MUTED, lw=1.0, ms=3.6, label="Cohort (95% bootstrap interval)"),
-        Line2D([], [], marker="D", color=ACCENT, lw=1.9, ms=5.0, label="Pooled (DerSimonian–Laird, 95% interval)"),
-        Patch(facecolor=BAND, label="±SESOI"),
+        Line2D([], [], marker="D", color=ACCENT, lw=1.9, ms=5.0, label="Pooled (DerSimonian\u2013Laird, 95% interval)"),
+        Patch(facecolor=BAND, label="\u00b1SESOI"),
     ]
     leg = fig.legend(handles=handles, loc="lower center", ncol=3, frameon=False, fontsize=6.3, bbox_to_anchor=(0.58, 0.0), handlelength=1.8)
     for t in leg.get_texts():
         t.set_color(INK2)
+    return fig
+
+
+def draw_forest(data: pd.DataFrame, pooled: pd.DataFrame, stem: Path) -> None:
+    """Write the forest plot of P1-P5 as ``<stem>.png`` (300 dpi) and ``<stem>.pdf`` (TrueType fonts)."""
+    from matplotlib import rc_context
+
+    fig = build_forest_figure(data, pooled)
     stem.parent.mkdir(parents=True, exist_ok=True)
     with rc_context({"pdf.fonttype": 42, "ps.fonttype": 42}):
         fig.savefig(stem.with_suffix(".png"), dpi=300, facecolor="white")
         fig.savefig(stem.with_suffix(".pdf"), facecolor="white")
-
 
 
 # --------------------------------------------------------------------------- meta-regression on the training size (4.4)
@@ -1182,6 +1448,59 @@ def draw_metareg(table: pd.DataFrame, data: pd.DataFrame, stem: Path) -> None:
         fig.savefig(stem.with_suffix(".pdf"), facecolor="white")
 
 
+# --------------------------------------------------------------------------- phase-group strata (exploratory)
+PHASE_COLUMNS = [
+    "level", "contrast", "metric", "phase_group", "phases", "cohort", "estimate", "se", "ci95_low", "ci95_high", "n_valid", "n_rows",
+    "n_matches", "k", "k_total", "same_sign", "tau2", "Q", "I2", "p_one_sided", "p_two_sided", "ci90_low", "ci90_high", "sesoi",
+    "direction", "verdict", "exploratory", "cohorts",
+]  # fmt: skip
+
+
+def phase_group_of(stratum: str) -> str:
+    return stratum[len(PHASE_PREFIX):]
+
+
+def phase_contrast_table(contrasts: pd.DataFrame, n_cohorts: int, groups: Mapping[str, Sequence[int]] = PHASE_GROUPS) -> pd.DataFrame:
+    """Per-cohort and DL-pooled contrasts of the phase-group strata, one tidy table (``level`` = ``cohort`` | ``pooled``).
+
+    ``contrasts``: the per-cohort rows of the ``phase:<group>`` strata (same columns as the main per-cohort table).  Every
+    stratum is analysed with its own paired match bootstrap (cohort rows) and pooled with DerSimonian-Laird (pooled rows,
+    ``contrasts_pooled.csv`` conventions: one-sided p for an improvement, unadjusted verdict).  All rows are exploratory."""
+    if contrasts.empty:
+        return _frame([], PHASE_COLUMNS)
+    pooled = pool_contrasts(contrasts, n_cohorts)
+    rows = []
+    for r in pooled.itertuples(index=False):
+        group = phase_group_of(r.stratum)
+        part = contrasts[(contrasts["contrast"] == r.contrast) & (contrasts["metric"] == r.metric) & (contrasts["stratum"] == r.stratum)]
+        rows.append({
+            "level": "pooled", "contrast": r.contrast, "metric": r.metric, "phase_group": group,
+            "phases": "-".join(f"{p}" for p in (groups[group][0], groups[group][-1])) if len(groups[group]) > 1 else str(groups[group][0]),
+            "cohort": "", "estimate": r.theta, "se": r.se, "ci95_low": r.ci95_low, "ci95_high": r.ci95_high,
+            "n_valid": np.nan, "n_rows": int(part["n_rows"].sum()), "n_matches": int(part["n_matches"].sum()), "k": int(r.k),
+            "k_total": int(r.k_total), "same_sign": int(r.same_sign), "tau2": r.tau2, "Q": r.Q, "I2": r.I2,
+            "p_one_sided": r.p_one_sided, "p_two_sided": r.p_two_sided, "ci90_low": r.ci90_low, "ci90_high": r.ci90_high,
+            "sesoi": r.sesoi, "direction": int(r.direction), "verdict": r.verdict, "exploratory": True, "cohorts": r.cohorts,
+        })  # fmt: skip
+    for r in contrasts.itertuples(index=False):
+        group = phase_group_of(r.stratum)
+        rows.append({
+            "level": "cohort", "contrast": r.contrast, "metric": r.metric, "phase_group": group,
+            "phases": "-".join(f"{p}" for p in (groups[group][0], groups[group][-1])) if len(groups[group]) > 1 else str(groups[group][0]),
+            "cohort": r.cohort, "estimate": r.estimate, "se": r.se, "ci95_low": r.ci_low, "ci95_high": r.ci_high,
+            "n_valid": r.n_valid, "n_rows": r.n_rows, "n_matches": r.n_matches, "k": 1, "k_total": np.nan, "same_sign": np.nan,
+            "tau2": np.nan, "Q": np.nan, "I2": np.nan, "p_one_sided": np.nan, "p_two_sided": np.nan, "ci90_low": np.nan,
+            "ci90_high": np.nan, "sesoi": SESOI.get(r.metric, np.nan), "direction": DIRECTION[r.metric], "verdict": "",
+            "exploratory": True, "cohorts": r.cohort,
+        })  # fmt: skip
+    df = _frame(rows, PHASE_COLUMNS)
+    fo, go = list(FORMULAS), list(groups)
+    key = [(fo.index(c), METRICS.index(m), go.index(g), 0 if lv == "pooled" else 1, co)
+           for c, m, g, lv, co in zip(df["contrast"], df["metric"], df["phase_group"], df["level"], df["cohort"])]
+    order = sorted(range(len(df)), key=key.__getitem__)
+    return df.iloc[order].reset_index(drop=True)
+
+
 # --------------------------------------------------------------------------- driver
 @dataclass
 class AggregateResult:
@@ -1200,6 +1519,7 @@ class AggregateResult:
     out_dir: Path | None = None
     metareg: pd.DataFrame | None = None  # exploratory meta-regression on the training size (design doc 4.4)
     metareg_data: pd.DataFrame | None = None
+    by_phase: pd.DataFrame | None = None  # exploratory phase-group strata (early / mid / late), see ``phase_strata``
 
 
 def _write_csv(df: pd.DataFrame, path: Path) -> None:
@@ -1232,13 +1552,21 @@ def aggregate(
     skip_misaligned: bool = False,
     min_stratum_matches: int = MIN_STRATUM_MATCHES,
     train_matches: Mapping[str, int] | None = None,
+    phase_strata: str = "off",
 ) -> AggregateResult:
     """Run the whole analysis on ``runs_dir``; writes the outputs when ``out_dir`` is given.
+
+    ``phase_strata``: ``"off"`` (default), ``"add"`` (also analyse the phase groups early / mid / late of
+    :data:`PHASE_GROUPS` as strata next to the match types; they fill ``result.by_phase`` and ``contrasts_by_phase.csv`` and
+    leave every main table untouched) or ``"only"`` (skip everything else: only the phase strata are computed and
+    written).  Each phase stratum has its own paired match bootstrap and is DL-pooled over the cohorts.
 
     ``train_matches``: ``{cohort: training matches}`` for the meta-regression on the training size (design doc 4.4);
     cohorts missing from it take the count recorded in their runs' ``metrics.json`` (``n_matches.train``)."""
     if n_boot < 1:
         raise ValueError("n_boot must be >= 1")
+    if phase_strata not in ("off", "add", "only"):
+        raise ValueError("phase_strata must be 'off', 'add' or 'only'")
     runs_dir = Path(runs_dir)
     issues: list[tuple] = []
     runs, scan_issues = scan_runs(runs_dir, cohorts)
@@ -1298,19 +1626,28 @@ def aggregate(
             if not usable.get(c):
                 continue
             types = sorted(t for t in cohort_types.get(c, {}) if wanted_types is None or t in wanted_types)
-            for stratum in [STRATUM_ALL, *types]:
+            specs = [] if phase_strata == "only" else [(stratum, ()) for stratum in [STRATUM_ALL, *types]]
+            if phase_strata in ("add", "only"):
+                specs += [(PHASE_PREFIX + g, tuple(ph)) for g, ph in PHASE_GROUPS.items()]
+            for stratum, phases in specs:
                 tasks.append({
-                    "cohort": c, "stratum": stratum, "n_boot": int(n_boot), "seed": int(seed), "min_matches": int(min_stratum_matches),
-                    "runs": [(r.arm, r.seed, str(r.pred)) for r in usable[c]],
+                    "cohort": c, "stratum": stratum, "phases": phases, "n_boot": int(n_boot), "seed": int(seed),
+                    "min_matches": int(min_stratum_matches), "runs": [(r.arm, r.seed, str(r.pred)) for r in usable[c]],
                 })  # fmt: skip
         results = par.map(_stratum_task, tasks, cost=lambda t: sum(run_info[(t["cohort"], a, s)]["n_rows"] for a, s, _ in t["runs"]))
 
     # ---- assemble
-    arm_rows, contrast_rows = [], []
+    arm_rows, contrast_rows, phase_rows = [], [], []
     kappa_in: dict[str, list[dict]] = {}
     analysed: set[str] = {STRATUM_ALL}
     for res in results:
         c, stratum = res["cohort"], res["stratum"]
+        if stratum.startswith(PHASE_PREFIX):  # phase groups are analysed separately: no main table sees them
+            if res["skipped"]:
+                issues.append(("info", c, "", "", f"{c}: stratum '{stratum}' skipped ({res['skipped']})"))
+            else:
+                phase_rows += res["contrast_rows"]
+            continue
         if res["skipped"]:
             level = "warning" if stratum == STRATUM_ALL else "info"
             issues.append((level, c, "", "", f"{c}: stratum '{stratum}' skipped ({res['skipped']})"))
@@ -1390,11 +1727,50 @@ def aggregate(
                   "crossover_n": r.crossover_n, "crossover_ci": [r.crossover_ci_low, r.crossover_ci_high]}  # fmt: skip
         for r in metareg_df.itertuples(index=False)
     }
+    by_phase = phase_contrast_table(_frame(phase_rows, CONTRAST_COLUMNS), n_cohorts) if phase_strata != "off" else None
     result = AggregateResult(inventory, arm_df, means_df, contrast_df, pooled_df, kappa_df, seeds_df, issue_df, summary, labels,
-                             cohort_list, strata_list, Path(out_dir) if out_dir is not None else None, metareg_df, metareg_data)  # fmt: skip
+                             cohort_list, strata_list, Path(out_dir) if out_dir is not None else None, metareg_df, metareg_data,
+                             by_phase)  # fmt: skip
     if out_dir is not None:
-        write_outputs(result, figures=figures)
+        if phase_strata != "only":
+            write_outputs(result, figures=figures)
+        if by_phase is not None:
+            write_phase_outputs(result, figures=figures)
     return result
+
+
+def write_phase_outputs(res: AggregateResult, *, figures: bool = True) -> None:
+    """``contrasts_by_phase.csv`` and ``figures/phase_strata.{pdf,png}``; nothing else in ``out_dir`` is touched."""
+    out = res.out_dir
+    assert out is not None and res.by_phase is not None
+    _write_csv(res.by_phase, out / "contrasts_by_phase.csv")
+    if figures and len(res.by_phase):
+        from model_stgcn.ptr import derived
+
+        derived.draw_phase_strata(res.by_phase, out / "figures" / "phase_strata")
+
+
+def redraw_figures(out_dir: str | Path) -> list[Path]:
+    """Regenerate the forest plot (+ its data twin) and the meta-regression bubble plot from the CSVs of an earlier run
+    (``contrasts_pooled.csv``, ``contrasts_per_cohort.csv``, ``metareg*.csv``); no bootstrap, nothing else is rewritten."""
+    out = Path(out_dir)
+    for name in ("contrasts_pooled.csv", "contrasts_per_cohort.csv"):
+        if not (out / name).is_file():
+            raise FileNotFoundError(f"{out / name} not found: run the aggregator once before redrawing its figures")
+    pooled = pd.read_csv(out / "contrasts_pooled.csv")
+    contrasts = pd.read_csv(out / "contrasts_per_cohort.csv")
+    written = []
+    data = forest_data(pooled, contrasts)
+    _write_csv(data, out / "figures" / "forest_primary_data.csv")
+    if len(data):
+        draw_forest(data, pooled, out / "figures" / "forest_primary")
+        written += [out / "figures" / "forest_primary.png", out / "figures" / "forest_primary.pdf"]
+    if (out / "metareg.csv").is_file() and (out / "metareg_data.csv").is_file():
+        table, mdata = pd.read_csv(out / "metareg.csv"), pd.read_csv(out / "metareg_data.csv")
+        if len(table):
+            draw_metareg(table, mdata, out / "figures" / "metareg_bubble")
+            written += [out / "figures" / "metareg_bubble.png", out / "figures" / "metareg_bubble.pdf"]
+    return written
 
 
 def write_outputs(res: AggregateResult, *, figures: bool = True) -> None:
@@ -1421,9 +1797,12 @@ def write_outputs(res: AggregateResult, *, figures: bool = True) -> None:
     (tables / "tab_primary_strata.tex").write_text(render_strata_table(res.pooled), encoding="utf-8")
     # external baselines (4.3): the tables exist only when at least one external model was run (a stale file is removed)
     have_external = len(res.arm_means) > 0 and bool(res.arm_means["arm"].isin(EXTERNAL_ARMS).any())
+    have_union = len(res.arm_means) > 0 and bool(res.arm_means["arm"].isin(UNION_ARMS).any())  # post hoc (4.6): same tables, one more block / row
     ext_means = res.arm_means[res.arm_means["arm"].isin((*EXTERNAL_ARMS, *(a for a, _ in EXTERNAL_TABLE_REFERENCES)))] if have_external else res.arm_means
     for name, text in (("tab_external.tex", render_external_table(ext_means) if have_external else None),
-                       ("tab_external_contrasts.tex", render_external_contrasts_table(res.pooled) if have_external else None)):  # fmt: skip
+                       ("tab_external_contrasts.tex", render_external_contrasts_table(res.pooled) if have_external or have_union else None),
+                       ("tab_grid.tex", render_grid_table(res.arm_means) if have_external or have_union else None),
+                       ("tab_decomp.tex", render_decomposition_table(res.pooled))):  # fmt: skip
         path = tables / name
         if text is not None and "\\midrule\n\\midrule" not in text and "\\midrule\n\\bottomrule" not in text:
             path.write_text(text, encoding="utf-8")
@@ -1491,7 +1870,9 @@ def _positive_int(text: str) -> int:
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     ap = argparse.ArgumentParser(description="Aggregate a PTR run matrix: bootstrap, pooling, Holm, verdicts, tables, forest plot.")
-    ap.add_argument("--runs-dir", required=True, help="run_matrix output: <runs>/<cohort>/<arm>/seed<s>/")
+    ap.add_argument("--runs-dir", default=None, help="run_matrix output: <runs>/<cohort>/<arm>/seed<s>/ (required unless --redraw-figures)")
+    ap.add_argument("--redraw-figures", action="store_true",
+                    help="only redraw the forest and bubble plots from the CSVs already in --out-dir (no bootstrap, nothing else changes)")  # fmt: skip
     ap.add_argument("--out-dir", default=str(REPO_ROOT / "reports" / "bigcomp2027_results"))
     ap.add_argument("--n-boot", type=_positive_int, default=N_BOOT, help="match-level bootstrap resamples (default 2000)")
     ap.add_argument("--seed", type=int, default=0, help="base seed of the bootstrap (a fixed offset per cohort / stratum is added)")
@@ -1506,10 +1887,17 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    args = parse_args(argv)
+    ap_args = parse_args(argv)
+    args = ap_args
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     for noisy in ("fontTools", "matplotlib"):
         logging.getLogger(noisy).setLevel(logging.WARNING)
+    if args.redraw_figures:
+        for path in redraw_figures(args.out_dir):
+            print(f"wrote {path}")
+        return 0
+    if not args.runs_dir:
+        raise SystemExit("--runs-dir is required (unless --redraw-figures)")
     workers = args.workers or max(1, (os.cpu_count() or 2) // 2)
     cohorts = [c for c in args.cohorts.split(",") if c] if args.cohorts else None
     sizes = None

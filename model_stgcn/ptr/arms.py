@@ -26,6 +26,10 @@ Stage-2 arms (``STAGE2_ARMS``; player hierarchy, design doc 3 / 4.1, they need t
 ``model_stgcn/dumps/bigcomp2027_player_v1``): ``M11RZ-P`` = M11RZ plus the player layer (relation-biased attention over
 all alive players with the teammate, enemy-proximity and combat biases, attention pooling to team tokens), and
 ``M11RZ-P-tm`` = the same without the teammate bias only.  ``STUB_ARMS`` is empty now: no arm is a stub any more.
+
+Union arm (``UNION_ARMS``; design doc 4.6, post hoc and exploratory): ``M11R-union`` = M11R plus the ``kf_*`` features that
+reconstruct KRAFTON's input representation (``model_stgcn.ptr.extra``), appended to the team token features after ``X``, the team
+centre and ``team_ai_frac``.  It needs ``--extra-features DIR`` (the kf tables); its HGB counterpart is ``hgb.HGB-union``.
 """
 
 from __future__ import annotations
@@ -58,6 +62,7 @@ class ArmSpec:
     implemented: bool = True
     player: bool = False  # stage 2: player tokens + relation-biased player attention + pooling to team tokens
     player_relation_types: tuple[str, ...] = ()  # bias channels of the player attention (subset of PLAYER_RELATION_TYPES)
+    extra: bool = False  # union arm: the kf_* features of --extra-features are appended to the team token features
 
 
 def _arm(name: str, phase: bool, team: bool, relation: bool, zone: bool, **kw) -> ArmSpec:
@@ -90,10 +95,16 @@ _STAGE2 = (
          player_relation_types=tuple(t for t in PLAYER_RELATION_TYPES if t != "teammate")),
 )  # fmt: skip
 
-ARMS: dict[str, ArmSpec] = {a.name: a for a in (*_MAIN, *_EXPLORATORY, *_STAGE2)}
+_UNION = (
+    # design doc 4.6: our representation united with KRAFTON's reconstructed features; the architecture is M11R's
+    _arm("M11R-union", True, True, True, False, exploratory=True, extra=True),
+)  # fmt: skip
+
+ARMS: dict[str, ArmSpec] = {a.name: a for a in (*_MAIN, *_EXPLORATORY, *_STAGE2, *_UNION)}
 MAIN_ARMS: tuple[str, ...] = tuple(a.name for a in _MAIN)
 EXPLORATORY_ARMS: tuple[str, ...] = tuple(a.name for a in _EXPLORATORY)
 STAGE2_ARMS: tuple[str, ...] = tuple(a.name for a in _STAGE2)
+UNION_ARMS: tuple[str, ...] = tuple(a.name for a in _UNION)
 STUB_ARMS: tuple[str, ...] = ()  # no arm is registered-but-unimplemented any more
 
 

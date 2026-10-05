@@ -16,6 +16,14 @@ Rows: every ``(match, team, phase)`` of the risk set of the chosen label set (``
                variables inside them (``arms.NOHAB_KEEP``, design doc v2.2); the removed column names are
                written to ``metrics.json`` (``feature_removal``)
 
+``HGB-union``  ``HGB-cut`` plus the ``kf_*`` columns of the extra table (design doc 4.6, post hoc / exploratory; KRAFTON's
+               reconstructed inputs, ``model_stgcn.ptr.extra``): ``[X[p] | team_ai_frac | kf_*]``.  Needs
+               ``--extra-features DIR`` (tables ``DIR/<cohort>/{train,val,test}.csv.gz``), joined on (match_id, team_id, cut phase);
+               every target row and every alive token of a cut slot must have a table row, a gap fails before the fit with the
+               list.  NaN stays NaN (the trees read it natively).  The feature set, its hash and the join counts go to
+               ``metrics.json`` (``extra_features``) and into the config hash; ``--extra-features`` is refused for every other
+               variant, and nothing but ``kf_*`` columns can enter the rows (``data.check_extra_names``).
+
 Classifier: ``HistGradientBoostingClassifier(max_iter=200, learning_rate=0.06, l2_regularization=0.01,
 random_state=seed, early_stopping=False)`` - the iteration / learning-rate / L2 settings of
 ``model_stgcn/feature_ablation.py:_classifier`` with early stopping off.
@@ -39,6 +47,7 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier
 
+from model_stgcn.ptr import extra as EX
 from model_stgcn.ptr import metrics as M
 from model_stgcn.ptr.arms import NOHAB_GROUPS, NOHAB_KEEP
 from model_stgcn.ptr.data import (
@@ -48,6 +57,7 @@ from model_stgcn.ptr.data import (
     LABEL_CHOICES,
     LABEL_FIELDS,
     alive_source,
+    check_extra_names,
     effective_alive,
     event_alive_summary,
     feature_removal_report,
@@ -71,7 +81,9 @@ from model_stgcn.ptr.util import (
 
 logger = logging.getLogger("model_stgcn.ptr.hgb")
 
-HGB_VARIANTS: tuple[str, ...] = ("HGB-cut", "HGB-lag", "HGB-noHab")
+HGB_VARIANTS: tuple[str, ...] = ("HGB-cut", "HGB-lag", "HGB-noHab")  # the main matrix
+UNION_VARIANTS: tuple[str, ...] = ("HGB-union",)  # design doc 4.6: HGB-cut + the extra kf_* features, not part of HGB_VARIANTS
+ALL_VARIANTS: tuple[str, ...] = HGB_VARIANTS + UNION_VARIANTS
 
 
 @dataclass
@@ -96,9 +108,16 @@ def make_classifier(seed: int) -> HistGradientBoostingClassifier:
     )
 
 
-def build_rows(dump: dict, variant: str, labels: str = DEFAULT_LABELS) -> Rows:
-    if variant not in HGB_VARIANTS:
-        raise ValueError(f"unknown HGB variant '{variant}'; known: {HGB_VARIANTS}")
+def build_rows(dump: dict, variant: str, labels: str = DEFAULT_LABELS, extra: "EX.ExtraSplit | None" = None) -> Rows:
+    """The rows of one split.  ``extra`` (the :func:`model_stgcn.ptr.extra.join_split` of this dump) is required by, and only
+    allowed for, the union variants: their rows are the ``HGB-cut`` rows followed by the ``kf_*`` columns."""
+    if variant not in ALL_VARIANTS:
+        raise ValueError(f"unknown HGB variant '{variant}'; known: {ALL_VARIANTS}")
+    union = variant in UNION_VARIANTS
+    if union and extra is None:
+        raise ValueError(f"{variant} needs the extra kf_ features (extra=ExtraSplit from model_stgcn.ptr.extra); none given")
+    if extra is not None and not union:
+        raise ValueError(f"extra features are only defined for {UNION_VARIANTS}, not for {variant}")
     validate_dump(dump, labels)
     meta = dump["meta"]
     event = uses_event_alive(dump, labels)  # ghost fix: event-based alive mask for v2 on an event-based dump
@@ -112,6 +131,8 @@ def build_rows(dump: dict, variant: str, labels: str = DEFAULT_LABELS) -> Rows:
     names = features + [AI_FEATURE_NAME]
     if variant == "HGB-lag":
         names = names + [f"lag1:{n}" for n in features] + [f"diff1:{n}" for n in features]
+    if union:
+        names = names + check_extra_names(extra.names)  # nothing but kf_* columns follows the HGB-cut columns
 
     blocks, keys, ys, frn, top5, match_types = [], [], [], [], [], []
     for m in sorted(dump["matches"], key=lambda mm: str(mm["match_id"])):
@@ -135,6 +156,8 @@ def build_rows(dump: dict, variant: str, labels: str = DEFAULT_LABELS) -> Rows:
             cur = np.concatenate([cur, share, lag, cur - lag], axis=1)  # diff is NaN wherever lag is
         else:
             cur = np.concatenate([cur, share], axis=1)
+        if union:  # the kf values of cut phase k = p + 1, joined on (match, team, phase); NaN stays NaN
+            cur = np.concatenate([cur, extra.tokens[str(m["match_id"])][p_idx, i_idx]], axis=1)
         blocks.append(cur)
         keys.append(
             pd.DataFrame(
@@ -149,9 +172,12 @@ def build_rows(dump: dict, variant: str, labels: str = DEFAULT_LABELS) -> Rows:
         frn.append(np.asarray(m["final_rank_norm"], dtype=np.float32)[i_idx])
         top5.append(np.asarray(m["top5"], dtype=np.float32)[i_idx])
         match_types.append(np.full(len(p_idx), str(m["match_type"]), dtype=object))
+    X_all = np.concatenate(blocks, axis=0)
+    if X_all.shape[1] != len(names):
+        raise AssertionError(f"{variant}: {X_all.shape[1]} feature columns for {len(names)} names")
     return Rows(
         keys=pd.concat(keys, ignore_index=True),
-        X=np.concatenate(blocks, axis=0),
+        X=X_all,
         y=np.concatenate(ys),
         final_rank_norm=np.concatenate(frn),
         top5=np.concatenate(top5),
@@ -172,7 +198,9 @@ def _prediction_frame(rows: Rows, p: np.ndarray) -> pd.DataFrame:
     return df
 
 
-def run_config_hash(dump_dir, cohort, variant, seed, labels, match_types, subsample=None, subsample_seed=None) -> str:
+def run_config_hash(
+    dump_dir, cohort, variant, seed, labels, match_types, subsample=None, subsample_seed=None, extra_features=None
+) -> str:
     """Hash of everything that can change an HGB run's result (the classifier settings live in the code fingerprint)."""
     spec = {
         "kind": "hgb", "variant": variant, "cohort": cohort, "seed": seed, "labels": labels,
@@ -181,13 +209,15 @@ def run_config_hash(dump_dir, cohort, variant, seed, labels, match_types, subsam
     }  # fmt: skip
     if subsample is not None:  # only subsampled runs carry the fields: full-size hashes do not depend on the feature
         spec.update(train_subsample=subsample, subsample_seed=seed if subsample_seed is None else subsample_seed)
+    if variant in UNION_VARIANTS:  # only union runs carry the extra fields: every other hash is what it was
+        spec["extra_features"] = EX.extra_spec(extra_features, cohort)
     return _hash(spec)
 
 
 def config_hash(args: argparse.Namespace) -> str:
     """Hash stamped into ``metrics.json``; the runner skips a run whose stamp equals this value."""
     return run_config_hash(args.dump_dir, args.cohort, args.variant, args.seed, args.labels, args.match_types,
-                           args.train_subsample, args.subsample_seed)  # fmt: skip
+                           args.train_subsample, args.subsample_seed, getattr(args, "extra_features", None))  # fmt: skip
 
 
 def run(
@@ -201,25 +231,44 @@ def run(
     threads: int | None = None,
     subsample: int | None = None,
     subsample_seed: int | None = None,
+    extra_features=None,
 ) -> dict:
     """``subsample`` / ``subsample_seed``: train on a random subsample of that many train matches (see
-    :func:`model_stgcn.ptr.data.subsample_dump`); val and test are unchanged."""
+    :func:`model_stgcn.ptr.data.subsample_dump`); val and test are unchanged.  ``extra_features``: directory of the kf tables
+    (required by ``HGB-union``, refused for the other variants)."""
+    if extra_features is not None:
+        extra_features = str(extra_features)
     if threads:
         from threadpoolctl import threadpool_limits
 
         with threadpool_limits(limits=threads):
-            return _run(dump_dir, cohort, variant, seed, out_dir, labels, match_types, subsample, subsample_seed)
-    return _run(dump_dir, cohort, variant, seed, out_dir, labels, match_types, subsample, subsample_seed)
+            return _run(dump_dir, cohort, variant, seed, out_dir, labels, match_types, subsample, subsample_seed, extra_features)
+    return _run(dump_dir, cohort, variant, seed, out_dir, labels, match_types, subsample, subsample_seed, extra_features)
 
 
-def _run(dump_dir, cohort, variant, seed, out_dir, labels, match_types, subsample=None, subsample_seed=None) -> dict:
+def _run(
+    dump_dir, cohort, variant, seed, out_dir, labels, match_types, subsample=None, subsample_seed=None, extra_features=None
+) -> dict:
     t0 = time.perf_counter()
+    if variant in UNION_VARIANTS and not extra_features:
+        raise ValueError(f"{variant} needs --extra-features DIR (the kf tables <DIR>/<cohort>/{{train,val,test}}.csv.gz)")
+    if extra_features and variant not in UNION_VARIANTS:
+        raise ValueError(f"--extra-features is only defined for the union variants {UNION_VARIANTS}, not for {variant}")
     splits = load_cohort(dump_dir, cohort, labels=labels, match_types=match_types)
     sub_seed = seed if subsample_seed is None else subsample_seed
     splits["train"], sub_info = subsample_dump(splits["train"], subsample, sub_seed)
     if sub_info is not None:
         logger.info("train subsample: %s", sub_info)
-    rows = {s: build_rows(splits[s], variant, labels) for s in splits}
+    joined: dict[str, EX.ExtraSplit] = {}
+    extra_info = None
+    if variant in UNION_VARIANTS:
+        joined = EX.load_extra(extra_features, cohort, splits, labels)  # a gap / disagreement fails here, before any fit
+        extra_info = EX.describe(extra_features, cohort, joined, EX.ExtraStandardizer.fit(joined["train"], splits["train"], labels))
+        logger.info(
+            "extra features: %d kf_ columns (sha1 %s) from %s; constant in train: %s",
+            extra_info["n_features"], extra_info["names_sha1"][:12], extra_features, extra_info["standardizer"]["constant_train_columns"],
+        )  # fmt: skip
+    rows = {s: build_rows(splits[s], variant, labels, joined.get(s)) for s in splits}
     train = rows["train"]
     if len(np.unique(train.y)) < 2:
         raise ValueError(f"{cohort}: the train rows hold a single hazard class; cannot fit {variant}")
@@ -237,7 +286,7 @@ def _run(dump_dir, cohort, variant, seed, out_dir, labels, match_types, subsampl
         "seed": seed,
         "labels": labels,
         "label_fields": dict(zip(("y", "target"), LABEL_FIELDS[labels])),
-        "config_hash": run_config_hash(dump_dir, cohort, variant, seed, labels, match_types, subsample, subsample_seed),
+        "config_hash": run_config_hash(dump_dir, cohort, variant, seed, labels, match_types, subsample, subsample_seed, extra_features),
         "train_subsample": sub_info,
         "n_matches": {s: len(splits[s]["matches"]) for s in splits},
         "alive_mask": {s: event_alive_summary(splits[s], labels) for s in splits},
@@ -247,6 +296,7 @@ def _run(dump_dir, cohort, variant, seed, out_dir, labels, match_types, subsampl
         "n_train_rows": int(len(train.y)),
         "n_iter": int(clf.n_iter_),
         "feature_removal": train.removal,
+        **({} if extra_info is None else {"extra_features": extra_info}),
         "classifier": clf.get_params(),
         "fit_sec": fit_sec,
         "git": git_info(),
@@ -286,7 +336,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     ap = argparse.ArgumentParser(prog="python -m model_stgcn.ptr.hgb", description=__doc__.split("\n")[0])
     ap.add_argument("--dump-dir", required=True)
     ap.add_argument("--cohort", required=True)
-    ap.add_argument("--variant", required=True, choices=HGB_VARIANTS)
+    ap.add_argument("--variant", required=True, choices=ALL_VARIANTS)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--out-dir", required=True)
     ap.add_argument(
@@ -321,14 +371,26 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=None,
         help="seed of the subsample (default: --seed); subsamples of one seed are nested across N",
     )
-    return ap.parse_args(argv)
+    ap.add_argument(
+        "--extra-features",
+        default=None,
+        metavar="DIR",
+        help=f"union variants {UNION_VARIANTS} (design doc 4.6): directory of the kf tables <cohort>/{{train,val,test}}.csv.gz "
+        "whose kf_* columns are appended to the HGB-cut features; required by them and refused for every other variant",
+    )
+    args = ap.parse_args(argv)
+    if args.variant in UNION_VARIANTS and not args.extra_features:
+        ap.error(f"variant {args.variant} needs --extra-features DIR (the kf tables <DIR>/<cohort>/{{train,val,test}}.csv.gz)")
+    if args.extra_features and args.variant not in UNION_VARIANTS:
+        ap.error(f"--extra-features is only defined for the union variants {UNION_VARIANTS}, not for {args.variant}")
+    return args
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     run(args.dump_dir, args.cohort, args.variant, args.seed, args.out_dir, args.labels, args.match_types, args.threads,
-        args.train_subsample, args.subsample_seed)  # fmt: skip
+        args.train_subsample, args.subsample_seed, args.extra_features)  # fmt: skip
     return 0
 
 

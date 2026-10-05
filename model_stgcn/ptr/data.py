@@ -88,6 +88,11 @@ ALIVE_COUNT_FEATURES: tuple[str, ...] = (
 # max |combat weight| above which the dump cannot hold ln(1 + intensity): intensities of a team pair in one
 # phase reach >= 100 as soon as a kill is involved (ln(101) = 4.6), while ln(1 + intensity) stays below ~12
 COMBAT_LOG_MAX = 30.0
+# Extra (union) features, design doc 4.6 (model_stgcn.ptr.extra): ONLY the ``kf_*`` columns of the extra table may enter the token /
+# row features.  The table also carries the keys and the producer's flag / label columns (``y_hazard_v2`` IS the label);
+# they are never features, and ``check_extra_names`` is the assertion that keeps it so wherever features are assembled.
+EXTRA_PREFIX = "kf_"
+EXTRA_FORBIDDEN: tuple[str, ...] = ("cut_t", "in_risk_set", "alive_at_cut", "y_hazard_v2", "match_id", "team_id", "phase")
 
 # ``top10`` is part of the dump but unused (design doc v2.1): neither required nor carried.  The label fields
 # depend on the label choice (LABEL_FIELDS); everything else is required for every choice.
@@ -105,6 +110,23 @@ def _t(x, dtype=None) -> torch.Tensor:
 
 def _bool(x) -> torch.Tensor:
     return _t(x).bool()
+
+
+def check_extra_names(names: Iterable[str]) -> list[str]:
+    """Guard of the union arms: every extra feature must be a ``kf_*`` column, none may be a key / flag / label column of the
+    extra table (``cut_t``, ``in_risk_set``, ``alive_at_cut``, ``y_hazard_v2``: the label), with or without the prefix, and
+    the names are unique and not empty.  Raises ``ValueError``; returns the names as a list."""
+    names = [str(n) for n in names]
+    bad = [n for n in names if not n.startswith(EXTRA_PREFIX) or n[len(EXTRA_PREFIX):] in EXTRA_FORBIDDEN]
+    if bad:
+        raise ValueError(
+            f"non-kf column(s) would enter the features: {bad}; only {EXTRA_PREFIX}* columns may, never {EXTRA_FORBIDDEN}"
+        )
+    if not names:
+        raise ValueError("no extra features")
+    if len(set(names)) != len(names):
+        raise ValueError(f"duplicate extra feature names: {sorted({n for n in names if names.count(n) > 1})}")
+    return names
 
 
 def check_labels(labels: str) -> str:
@@ -687,7 +709,9 @@ class PTRDataset:
     else ``node_mask`` raised over that risk set).  ``relation_types=None`` skips edge
     handling altogether (no ``rel`` tensor).  With ``shuffle_seed`` the relation matrices are relabelled by a
     fixed per-(match, phase, seed) permutation of the alive teams (the M11R-shuf control), identically on
-    every access.  Token features = kept ``X`` columns, [team centre x/y], ``team_ai_frac`` (always last).
+    every access.  Token features = kept ``X`` columns, [team centre x/y], ``team_ai_frac``, then (union arms only) the extra
+    ``kf_*`` columns of ``extra`` (a :class:`model_stgcn.ptr.extra.ExtraSplit`, standardised by ``extra_standardizer``: z-scored
+    on train, NaN -> 0), joined by cut phase: slot ``p`` carries the values of cut ``p + 1``.
     """
 
     def __init__(
@@ -707,6 +731,8 @@ class PTRDataset:
         player_standardizer: PlayerStandardizer | None = None,
         player_relation_types: Sequence[str] | None = None,
         player_combat_weights: str = "raw",
+        extra=None,
+        extra_standardizer=None,
     ) -> None:
         self.labels = check_labels(labels)
         if validate:
@@ -728,7 +754,19 @@ class PTRDataset:
         self.shuffle_seed = shuffle_seed
         self.zone_order = _zone_order(self.meta)
         names = [self.meta["feature_names"][int(c)] for c in self.keep]
-        self.feature_names = names + (list(POS_FEATURE_NAMES) if self.pos_in_token else []) + [AI_FEATURE_NAME]
+        self.extra = extra
+        self.extra_standardizer = extra_standardizer
+        self.extra_names: list[str] = []
+        if extra is not None:
+            self.extra_names = check_extra_names(extra.names)  # nothing but kf_* columns enters X
+            if extra_standardizer is None:
+                raise ValueError("extra tokens given without an extra_standardizer")
+            lacking = [str(m["match_id"]) for m in self.matches if str(m["match_id"]) not in extra.tokens]
+            if lacking:
+                raise ValueError(f"{len(lacking)} match(es) have no extra tokens (first: {lacking[0]})")
+        self.feature_names = (
+            names + (list(POS_FEATURE_NAMES) if self.pos_in_token else []) + [AI_FEATURE_NAME] + self.extra_names
+        )
         self.n_features = len(self.feature_names)
         self.n_phases = int(_t(self.matches[0]["X"]).shape[0])
         self.zone_dim = len(ZONE_COLUMNS)
@@ -760,6 +798,10 @@ class PTRDataset:
             x = torch.cat([x, sz.transform_pos(pos_raw)], dim=-1)
         ai = sz.transform_ai(m["team_ai_frac"])  # [N]: the team's AI share, repeated in every phase slot
         x = torch.cat([x, ai[None, :, None].expand(x.shape[0], -1, 1)], dim=-1)
+        if self.extra is not None:  # slot p carries the kf values of cut p + 1; the last slot has no cut (NaN -> 0)
+            x = torch.cat([x, self.extra_standardizer.transform(self.extra.tokens[str(m["match_id"])])], dim=-1)
+        if x.shape[-1] != self.n_features:
+            raise AssertionError(f"token features have {x.shape[-1]} columns, expected {self.n_features} ({self.feature_names})")
         zone_raw = _t(m["zone"], torch.float32)[:, torch.from_numpy(self.zone_order)]
         zone_ok = _bool(m["zone_valid"]) & torch.isfinite(zone_raw).all(-1)
         zero = torch.zeros(())

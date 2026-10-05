@@ -42,7 +42,7 @@ def main(argv=None) -> int:
         if name == "fit":
             p.add_argument("--seed", type=int, default=42)
             p.add_argument("--n-jobs", type=int, default=2)
-            p.add_argument("--models", default="xgb,rf,lr")
+            p.add_argument("--models", default="xgb,rf,lr,hgb", help="subset of xgb,rf,lr,hgb (hgb = HGB-cut classifier control)")
             p.add_argument("--scope", default="pooled", choices=("pooled", "per_phase"))
             p.add_argument("--sr-mode", default="paper", choices=("paper", "label"))
             p.add_argument("--out-dir", default=None, help="default: --runs-dir (pooled scope)")

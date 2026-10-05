@@ -523,6 +523,113 @@ def write_player_dumps(
     return out
 
 
+# =========================================================================== synthetic extra (kf_*) feature tables (union arms)
+def make_extra_table(
+    phase_dump: dict,
+    *,
+    seed: int = 0,
+    n_features: int = 4,
+    signal: float = 0.0,
+    nan_frac: float = 0.0,
+    junk_rows: bool = True,
+    drop=None,
+    labels: str = "v2",
+    shuffle_columns: bool = False,
+    label_columns: bool = True,
+):
+    """The table the KRAFTON-feature dump holds, for the matches of a synthetic phase dump: one row per (match_id,
+    team_id, phase) for every alive token of a cut slot (the alive rule of ``labels``; cut phase ``k = p + 1`` for the
+    slots ``p = 0 .. P - 2``), columns ``kf_signal, kf_1, ...``, the flag / label columns of the real table
+    (``label_columns``: ``cut_t``, ``in_risk_set``, ``y_hazard_v2`` = the label, ``alive_at_cut``; none of them is a feature) and a
+    column ``note`` that says why the row exists.
+
+    ``signal``: ``kf_signal = signal * y_hazard + noise`` (a cue that only these features carry);  ``nan_frac`` makes that
+    share of the feature cells NaN;  ``junk_rows`` adds rows nobody needs (dead teams, a cut after the last slot, an
+    unknown team, an unknown match);  ``drop(match_id, team_id, phase) -> bool`` removes rows (to make gaps)."""
+    import pandas as pd
+
+    from model_stgcn.ptr import data as D
+
+    rng = np.random.default_rng(seed)
+    names = ["kf_signal", *[f"kf_{k}" for k in range(1, n_features)]]
+    event = D.uses_event_alive(phase_dump, labels)
+    keys, feats, risk, haz, notes, cuts = [], [], [], [], [], []
+
+    def add(match_id, team_id, phase, values, in_risk, hazard, note, cut_t):
+        keys.append((match_id, int(team_id), int(phase)))
+        feats.append(values)
+        risk.append(int(in_risk))
+        haz.append(hazard)
+        notes.append(note)
+        cuts.append(float(cut_t))
+
+    for m in phase_dump["matches"]:
+        alive = D.effective_alive(m, labels, event).numpy()
+        y, target = (a.numpy() for a in D.select_labels(m, labels))
+        n_phases = alive.shape[0]
+        team_ids = [int(t) for t in m["team_ids"]]
+        mid = str(m["match_id"])
+        ends = np.asarray(m["phase_end_s"], dtype=np.float64) if "phase_end_s" in m else np.full(n_phases, np.nan)
+
+        def cut_t(p):  # the producer's cut time: ten seconds before the end of phase slot p (arbitrary when the dump has none)
+            return ends[p] - 10.0 if np.isfinite(ends[p]) else 100.0 * (p + 1)
+
+        for p in range(n_phases - 1):
+            for i, t in enumerate(team_ids):
+                if not alive[p, i]:
+                    continue
+                values = rng.normal(size=n_features)
+                if signal:
+                    values[0] = signal * float(y[p, i]) + 0.3 * rng.normal()  # y is 0 outside the risk set
+                add(mid, t, p + 1, values, target[p, i], float(y[p, i]) if target[p, i] else np.nan, "ok", cut_t(p))
+        if junk_rows:
+            for p, i in np.argwhere(~alive[: n_phases - 1])[:3]:
+                add(mid, team_ids[i], int(p) + 1, rng.normal(size=n_features), 0, np.nan, "dead team", cut_t(int(p)))
+            add(mid, team_ids[0], n_phases, rng.normal(size=n_features), 0, np.nan, "after the last slot", cut_t(n_phases - 1))
+            add(mid, 10_000_001, 1, rng.normal(size=n_features), 0, np.nan, "unknown team", cut_t(0))
+    if junk_rows:
+        add("no-such-match", 1, 1, rng.normal(size=n_features), 0, np.nan, "unknown match", 100.0)
+    df = pd.DataFrame(keys, columns=["match_id", "team_id", "phase"])
+    if label_columns:
+        df["cut_t"] = cuts
+        df["in_risk_set"] = risk
+        df["y_hazard_v2"] = haz
+        df["alive_at_cut"] = risk  # a token at risk is alive at the cut (the real table also has alive tokens that died before it)
+    values = np.array(feats, dtype=np.float64).reshape(len(keys), n_features)
+    if nan_frac:
+        values[rng.random(values.shape) < nan_frac] = np.nan
+    for j, name in enumerate(names):
+        df[name] = values[:, j]
+    df["note"] = notes
+    if drop is not None:
+        keep = [not drop(r.match_id, int(r.team_id), int(r.phase)) for r in df.itertuples(index=False)]
+        df = df[keep].reset_index(drop=True)
+    if shuffle_columns:
+        df = df[["note", *reversed(names), *[c for c in df.columns if c not in names and c != "note"][::-1]]]
+    return df
+
+
+def write_extra_tables(
+    phase_root, cohort: str, extra_root, *, fmt: str = "csv.gz", seed: int = 0, splits=("train", "val", "test"), transform=None, **kwargs
+):
+    """Write ``extra_root/<cohort>/<split>.<fmt>`` (``csv.gz`` | ``csv`` | ``parquet``) for the phase dumps of ``phase_root``
+    (``**kwargs`` go to :func:`make_extra_table`, ``transform(df) -> df`` may rewrite a table before it is written); returns the
+    cohort directory."""
+    out = Path(extra_root) / cohort
+    out.mkdir(parents=True, exist_ok=True)
+    for k, split in enumerate(splits):
+        phase = torch.load(Path(phase_root) / cohort / f"{split}.pt", map_location="cpu", weights_only=False)
+        df = make_extra_table(phase, seed=seed * 1000 + k, **kwargs)
+        if transform is not None:
+            df = transform(df)
+        path = out / f"{split}.{fmt}"
+        if fmt == "parquet":
+            df.to_parquet(path, index=False)
+        else:
+            df.to_csv(path, index=False)
+    return out
+
+
 # =========================================================================== synthetic *prediction* runs (aggregator)
 def write_prediction_runs(
     runs_dir: str | Path,
@@ -540,6 +647,8 @@ def write_prediction_runs(
     labels: str = "v2",
     match_types: tuple[str, ...] = ("official", "official", "competitive"),
     n_train: dict[str, int] | None = None,
+    phase_rate: tuple[float, float] | None = None,
+    phase_slope: dict[str, float] | None = None,
 ) -> Path:
     """Write ``<runs_dir>/<cohort>/<arm>/seed<s>/{pred_test.csv, metrics.json}`` with *known* effects.
 
@@ -556,6 +665,10 @@ def write_prediction_runs(
     with a tiny bootstrap standard error; the rank head still follows ``rank_quality``).  ``skip`` removes ``(cohort, arm)`` pairs.  Every ``metrics.json`` carries ``labels``
     and a placeholder config hash; ``n_train[cohort]`` adds ``n_matches.train`` to the ``metrics.json`` of the neural arms
     (the training size the meta-regression of the aggregator regresses on).
+
+    ``phase_rate = (r1, r6)``: the hazard rate rises linearly with the cut phase from ``r1`` (phase 1) to ``r6`` (phase 6) instead of
+    being 0.3 everywhere; ``phase_slope[arm] = g`` adds ``g * (phase - 3.5)`` to the arm's hazard score, i.e. the arm knows the phase
+    baseline: it gains pooled AUC (it ranks late-phase rows above early-phase ones, which is right on average) but nothing within a phase.
     """
     import pandas as pd  # local: pandas is only needed by the tests / aggregator
 
@@ -566,6 +679,7 @@ def write_prediction_runs(
     seeds = seeds or {}
     near_copy = near_copy or {}
     skip = skip or set()
+    phase_slope = phase_slope or {}
     seed_arms = {"M00", "M11", "M11R", "M11R-shuf", "M11RZ"}
     root = Path(runs_dir)
     for ci, cohort in enumerate(cohorts):
@@ -577,8 +691,9 @@ def write_prediction_runs(
             mt = match_types[m % len(match_types)]
             for p in range(1, 7):
                 teams = rng.choice(n, size=int(rng.integers(4, n + 1)), replace=False)
+                rate = 0.3 if phase_rate is None else phase_rate[0] + (phase_rate[1] - phase_rate[0]) * (p - 1) / 5
                 for t in teams:
-                    rows.append((f"{cohort}-m{m:03d}", 100 + int(t), p, float(rng.random() < 0.3), float(frn[t]),
+                    rows.append((f"{cohort}-m{m:03d}", 100 + int(t), p, float(rng.random() < rate), float(frn[t]),
                                  float(frn[t] <= 5 / n), mt))  # fmt: skip
         base = pd.DataFrame(rows, columns=["match_id", "team_id", "phase", "y", "final_rank_norm", "top5", "match_type"])
         scale = cohort_scale.get(cohort, 1.0)
@@ -590,7 +705,10 @@ def write_prediction_runs(
                 return src + 1e-3 * g.standard_normal(len(_base))
             g = np.random.default_rng([seed, _ci, run_seed, sum(map(ord, arm))])
             d = base_quality + _scale * (quality[arm] - base_quality)
-            return d * (_base["y"].to_numpy() - 0.5) + g.standard_normal(len(_base))
+            score = d * (_base["y"].to_numpy() - 0.5) + g.standard_normal(len(_base))
+            if arm in phase_slope:  # the arm knows the phase baseline
+                score = score + phase_slope[arm] * (_base["phase"].to_numpy() - 3.5)
+            return score
 
         def rank_scores(arm: str, run_seed: int, _scale=scale, _base=base, _ci=ci):
             g = np.random.default_rng([seed, _ci, run_seed, 31, sum(map(ord, arm))])

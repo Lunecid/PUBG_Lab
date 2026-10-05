@@ -1,38 +1,32 @@
 % =====================================================================
-%  BigComp 2027 full paper skeleton -- IEEE two-column, double-blind.
-%  Limit: 8 pages including references.  Drafted 2026-10-05.
+%  BigComp 2027 full paper -- IEEE two-column, double-blind.
+%  Limit: 8 pages including references.  Final storyline of 2026-10-06
+%  (representation + decomposition + data scale); see the results narrative
+%  brief in docs/paper_writing/.  Numbers come from reports/bigcomp2027_results/
+%  (tables/make_paper_tables.py rebuilds the derived tables and copies figures).
 %  Build: pdfLaTeX + BibTeX (Overleaf default).  Standard packages only.
 %  Double-blind rules: no author names, affiliations, acknowledgments,
 %  funding statements, or links that identify the authors.
-%  Before submission: delete every \todo{...} and \tbd (search "todo").
-%  Page budget (design v2.2 content; estimate from a TeX Gyre Termes build with
-%  the real IEEEtran.cls; 34 references; TODO stubs and empty tables included;
-%  1 page = 2 columns x 9.35 in; floats are counted where they land):
-%    title block + abstract ............. 0.26
-%    I   Introduction (+ Table I) ....... 0.89
-%    II  Related work ................... 0.65
-%    III Problem and data (+ Table II) .. 0.93
-%    IV  PTR-Former (+ Table III) ....... 1.38
-%    V   Protocol ....................... 0.63
-%    VI  Results stubs + Fig. 1 ......... 0.48, plus the three result tables
-%        (Tables IV--VI, about 0.50) that land beside it
-%    VII Discussion and conclusion ...... 0.38  (expect ~0.45 once written)
-%    References ......................... 0.70
-%    Now 6.9 pages (6.5 with all STAGE2 blocks deleted); expected final ~7.3
-%    pages (~6.9 without stage 2); limit 8.0.  (Per-section figures date from the
-%    design v2.1 build; the v2.2 build adds about 0.1 page in total.)  The cohort table (Sec. III) and the
-%    architecture figure (Sec. IV) are commented out (about 0.17 and 0.15 page);
-%    restore them only if the final count allows.
+%  Before submission: delete every \todo{...} (search "todo").
+%  PAGE BUDGET (Tectonic build, Times-compatible font, STAGE2 blocks kept):
+%    8 PDF pages, the last one about 24% full, i.e. about 7.24 pages of content
+%    (0 overfull boxes).  Per section, in pages: title+abstract 0.28, I 0.87,
+%    II 0.51, III 1.04, IV 0.89, V 0.80, VI 1.37 (with its three floats),
+%    VII 0.60, references 0.87.  Without the STAGE2 blocks: about 6.98 pages.
 %  STAGE2: every block between a line "% STAGE2: delete if not run by 10/9"
 %  and the next line "% STAGE2 end" belongs to the player layer (M11RZ-P and
-%  M11RZ-P-tm).
-%  Delete all such blocks together if stage 2 is not run by 10/9
-%  (search for STAGE2), and drop ", and teammates" from RQ3 in Sec. I.
-%  Design source of truth: the BigComp 2027 PTR study design document
-%  (RQs, arms, metrics, decision rules); change this paper only together
-%  with a dated entry in that document.
+%  M11RZ-P-tm).  Stage 2 ran and is kept; delete the blocks together only if the
+%  player layer is dropped (search for STAGE2), and drop ", and teammates" from RQ3.
 % =====================================================================
 \documentclass[conference]{IEEEtran}
+
+% Compile with pdfLaTeX + BibTeX (Overleaf default).  Under XeTeX/Tectonic the
+% next line selects a Times-compatible font so that page counts match pdfLaTeX;
+% pdfLaTeX skips it.
+\ifx\XeTeXrevision\undefined\else
+  \usepackage{fontspec}
+  \setmainfont{texgyretermes}[Extension=.otf,UprightFont=*-regular,BoldFont=*-bold,ItalicFont=*-italic,BoldItalicFont=*-bolditalic]
+\fi
 
 \usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
@@ -44,6 +38,7 @@
 \usepackage{url}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,fit}
+\graphicspath{{figures/}}
 
 % ---- editing macros: deliberately conspicuous ----
 \newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
@@ -59,7 +54,7 @@
 \bstctlcite{IEEEexample:BSTcontrol} % et al. after 6 authors (IEEEtran control entry)
 
 % Working title; change freely.
-\title{Phase, Team, and Relation Axes of Next-Phase\\Elimination Prediction in Battle Royale Games}
+\title{What a Model Sees Matters More Than How It Relates Teams:\\Next-Phase Elimination in Battle Royale Games}
 
 \author{\IEEEauthorblockN{Anonymous Authors}}
 
@@ -70,7 +65,7 @@
 \end{abstract}
 
 \begin{IEEEkeywords}
-battle royale, discrete-time survival analysis, attention, relation bias, ablation, esports analytics
+battle royale, discrete-time survival analysis, label audit, attention, esports analytics
 \end{IEEEkeywords}
 
 \input{sections/01-introduction}

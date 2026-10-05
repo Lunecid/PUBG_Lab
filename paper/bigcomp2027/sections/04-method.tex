@@ -1,107 +1,49 @@
-\section{PTR-Former and the Arm Ladder}\label{sec:method}
+\section{PTR-Former and the Arms}\label{sec:method}
 
-PTR-Former reads, for every phase of a match, a small graph of team nodes, one safe-zone object node, and typed relations. It applies relation-biased attention along the team axis and causal attention along the phase axis, and two heads read a next-phase hazard and a within-match standing score from the result. Each component is a switch, and all arms share the backbone, the loss, and the training setup. We drop the match index $m$ in this section.
+PTR-Former reads, for every phase of a match, a graph of team nodes, one safe-zone object node, and typed relations. It applies relation-biased attention along the team axis and causal attention along the phase axis, and two heads read a next-phase hazard and a within-match standing score. Each component is a switch, and all arms share the backbone, the loss, and the training setup; we drop the match index $m$ below.
 % OPTIONAL architecture figure (about 0.15 page), cut for space.  To restore it,
-% uncomment the block below and add "(Fig.~\ref{fig:model})" to the paragraph above.
+% uncomment the block below, add "(Fig.~\ref{fig:model})" to the paragraph above,
+% and renumber nothing else (figure numbers are automatic).
 % \begin{figure}[t]
 % \centering
-% \begin{tikzpicture}[
-%   font=\footnotesize,
-%   box/.style={draw, rounded corners=1.5pt, align=center, inner sep=2.5pt, text width=5.3cm, minimum height=5.5mm},
-%   grey/.style={fill=black!7},
-%   sw/.style={font=\scriptsize, text=black!75, anchor=west},
-%   arr/.style={-{Stealth[length=1.8mm]}, thick}]
+% \begin{tikzpicture}[font=\footnotesize, box/.style={draw, rounded corners=1.5pt, align=center, inner sep=2.5pt, text width=5.3cm, minimum height=5.5mm}, grey/.style={fill=black!7}, arr/.style={-{Stealth[length=1.8mm]}, thick}]
 % \node[box] (in) {Team nodes $(\mathbf{x}_{i,k},\mathbf{c}_{i,k})$, zone node $\mathbf{u}_k$, relations $W_{r,k}$};
 % \node[box, below=3mm of in] (enc) {Token encoders $+$ phase embedding};
 % \node[box, grey, below=6mm of enc] (ph) {Phase-axis causal attention (per team)};
 % \node[box, grey, below=2.5mm of ph] (tm) {Team-axis masked attention (per phase)\\ biases $\sum_r b_{r,h}W_{r,k}$ and $\beta_h(\mathbf{g}_{i,k})$};
 % \node[box, grey, below=2.5mm of tm] (ff) {Feed-forward, residual, layer norm};
 % \node[draw, dashed, rounded corners=2pt, inner sep=3.5pt, fit=(ph)(tm)(ff)] (blk) {};
-% \node[sw] at ([xshift=5mm]ph.east) {switch $s_P$};
-% \node[sw] at ([xshift=5mm]tm.east) {$s_T$, $s_R$, $s_Z$};
-% \node[sw, anchor=south east] at (blk.north east) {$\times L$};
 % \node[box, text width=2.4cm, below=6mm of blk.south west, anchor=north west] (hz) {Hazard head\\ $\hat\lambda_{i,k}$};
 % \node[box, text width=2.4cm, below=6mm of blk.south east, anchor=north east] (rk) {Rank head\\ $s_{i,k}$};
-% \draw[arr] (in) -- (enc);
-% \draw[arr] (enc.south) -- (blk.north);
-% \draw[arr] (hz.north |- blk.south) -- (hz.north);
-% \draw[arr] (rk.north |- blk.south) -- (rk.north);
+% \draw[arr] (in) -- (enc); \draw[arr] (enc.south) -- (blk.north);
+% \draw[arr] (hz.north |- blk.south) -- (hz.north); \draw[arr] (rk.north |- blk.south) -- (rk.north);
 % \end{tikzpicture}
-% \caption{PTR-Former. Switches $s_P$, $s_T$, $s_R$, and $s_Z$ turn the phase axis, the team axis, the relation bias, and the safe-zone object on or off by changing attention masks and inputs only.}
+% \caption{PTR-Former. Switches turn the phase axis, the team axis, the relation bias, and the safe-zone object on or off.}
 % \label{fig:model}
 % \end{figure}
 
-\emph{Stage-1 graph.} For each phase $k$ the graph has four parts; all node features and edges use samples taken no later than 10 s before the phase cut. \emph{Team nodes} are the teams alive at the start of the phase, each with its 150-d vector $\mathbf{x}_{i,k}$ and normalised 2-D centroid $\mathbf{c}_{i,k}$ at the phase boundary. The \emph{safe-zone object node} $z_k$ carries raw zone geometry only, $\mathbf{u}_k$: centre $\mathbf{o}_k$ and radius $\rho_k$ of the current zone, centre $\mathbf{o}'_k$ and radius $\rho'_k$ of the next zone, the elapsed fraction of the phase, and the phase number. Processed quantities such as boundary distance or required speed are left out on purpose: RQ4 asks whether the model recovers them. The \emph{team--team relations} are \texttt{prox} (symmetric), \texttt{combat\_out} (attacker to victim), \texttt{combat\_in} (its transpose), and \texttt{copress} (symmetric), with the raw weights of Section~\ref{sec:data} and no row normalisation. Combat replaces proximity for a pair that exchanged damage in the phase (escalation), and combat biases are learned separately from the proximity bias: with $E_{ij}=1$ if the pair exchanged damage in either direction, $W_{\mathrm{prox}}=(1-E)\odot w^{\mathrm{prox}}$, $W_{\mathrm{out}}=w^{\mathrm{comb}}$, $W_{\mathrm{in}}=(w^{\mathrm{comb}})^{\top}$, and $W_{\mathrm{cop}}=w^{\mathrm{copress}}$. The \emph{team--object edges} are continuous biases from the position of the team centroid relative to the zone:
-\begin{equation}
-\begin{split}
-\mathbf{g}_{i,k}=\Bigl[&\tfrac{\mathbf{c}_{i,k}-\mathbf{o}_k}{\rho_k},\ \tfrac{\|\mathbf{c}_{i,k}-\mathbf{o}_k\|}{\rho_k},\\
-&\tfrac{\mathbf{c}_{i,k}-\mathbf{o}'_k}{\rho'_k},\ \tfrac{\|\mathbf{c}_{i,k}-\mathbf{o}'_k\|}{\rho'_k}\Bigr]\in\R^{6},
-\end{split}
-\label{eq:geom}
-\end{equation}
-the offset and distance to the current and the next zone, scaled by the zone radius. A two-layer MLP, $6\to16\to H$, one per block, maps $\mathbf{g}_{i,k}$ to one bias $\beta_h(\mathbf{g}_{i,k})$ per head.
+\emph{Graph.} Team nodes are the teams alive at the start of phase $k$, each with its feature vector $\mathbf{x}_{i,k}$ (150 features, the normalised 2-D centroid $\mathbf{c}_{i,k}$ at the phase boundary, and the team's AI share). The safe-zone object node $z_k$ carries raw zone geometry only, $\mathbf{u}_k$; processed quantities such as boundary distance are left out on purpose: RQ4 asks whether the model recovers them. The team--team relations are \texttt{prox} and \texttt{copress} (symmetric), \texttt{combat\_out} (attacker to victim), and \texttt{combat\_in} (its transpose), with the raw weights of Section~\ref{sec:repr} and no row normalisation. Combat replaces proximity for a pair that exchanged damage in the phase (escalation): $W_{\mathrm{prox}}=(1-E)\odot w^{\mathrm{prox}}$ with $E_{ij}=1$ if the pair exchanged damage, and combat biases are learned separately from the proximity bias. The team--object edge is a continuous bias of the centroid's position relative to the zone: $\mathbf{g}_{i,k}\in\R^6$ holds the offset and the distance to the current and the next zone, each divided by the zone radius, and a two-layer MLP ($6\to16\to H$, one per block) maps it to one bias $\beta_h(\mathbf{g}_{i,k})$ per head.
 
-\emph{Tokens and axes.} Team tokens are $\mathbf{t}_{i,k}=\mathrm{LN}(W_e[\mathbf{x}_{i,k};\mathbf{c}_{i,k}]+\mathbf{b}_e)+\mathbf{p}_k$ and the zone token is $\mathbf{t}_{z,k}=\mathrm{LN}(W_z\mathbf{u}_k+\mathbf{b}_z)+\mathbf{p}_k$, with a learned phase embedding $\mathbf{p}_k\in\R^{d}$; absent teams and phases are masked. Each block applies multi-head attention~\cite{vaswani2017attention} along the phase axis of each team token (the zone token takes no part in this step), then along the team axis within each phase over team tokens and the zone token, then a feed-forward layer, with residual connections and layer normalisation; $L$ blocks are stacked. With the phase switch $s_P\in\{0,1\}$, team token $(i,k)$ attends to phases $l\le k$ if $s_P=1$ and only to $l=k$ if $s_P=0$. Let $a_{j,k}=1$ if team $j$ was alive at the start of phase $k$, and let $s_T$, $s_R$, and $s_Z\in\{0,1\}$ switch the team axis, the relation bias, and the zone object. For head $h$, the logit from query team $i$ to a key team $j$ is
+\emph{Attention.} Each block applies multi-head attention~\cite{vaswani2017attention} along the phase axis of each team (the zone token takes no part), then along the team axis within each phase over the team tokens and the zone token, then a feed-forward layer, with residual connections and layer normalisation; $L$ blocks are stacked. With the phase switch $s_P$, team token $(i,k)$ attends to phases $l\le k$ ($s_P=1$) or only to $l=k$ ($s_P=0$). With the team switch $s_T=0$ a team attends only to itself; otherwise it attends to the teams $j$ alive at the start of the phase and, if $s_Z=1$, to the zone token. The logit from team $i$ to team $j$ in head $h$ is
 \begin{equation}
 e^{(h)}_{ij,k}=\frac{\mathbf{q}^{(h)\top}_{i,k}\mathbf{k}^{(h)}_{j,k}}{\sqrt{d_h}}+s_R\sum_{r\in\mathcal{R}}b_{r,h}\,W_{r,k}[i,j],
 \label{eq:team-logit}
 \end{equation}
-with $\mathcal{R}=\{\mathrm{prox},\mathrm{out},\mathrm{in},\mathrm{cop}\}$, and the logit to the zone token is
-\begin{equation}
-e^{(h)}_{iz,k}=\frac{\mathbf{q}^{(h)\top}_{i,k}\mathbf{k}^{(h)}_{z,k}}{\sqrt{d_h}}+\beta_h(\mathbf{g}_{i,k}).
-\label{eq:zone-logit}
-\end{equation}
-The scalars $b_{r,h}$ are learned per head and block, the diagonal of every $W_r$ is zero, and a team may attend to itself. The zone token is both a query and a key in team-axis attention and is updated in every block: as a query it attends to the alive teams and to itself, with the same bias applied symmetrically, $\beta_h(\mathbf{g}_{j,k})$ on its logit to team $j$.
-The weights are a softmax over the allowed keys: with $s_T=1$, the teams with $a_{j,k}=1$ and, if $s_Z=1$, the zone token; with $s_T=0$, the query attends only to itself. The relation bias and the zone token act only inside team-axis attention, so $s_R=1$ and $s_Z=1$ require $s_T=1$. With causal phase attention and team attention within one phase, $\mathbf{z}_{i,k}$, the representation of team $i$ after the last block, depends only on tokens with phase index $\le k$ and therefore respects $\mathcal{F}^m(k)$.
+with $\mathcal{R}=\{\mathrm{prox},\mathrm{out},\mathrm{in},\mathrm{cop}\}$ and $b_{r,h}$ learned per head and block (zero diagonal; a team may attend to itself). The logit to the zone token adds $\beta_h(\mathbf{g}_{i,k})$ instead; the zone token is both a query and a key, updated in every block, with the same symmetric bias. The representation $\mathbf{z}_{i,k}$ therefore depends only on tokens of phases $\le k$ and respects $\mathcal{F}^m(k)$.
 
-\emph{Heads and loss.} Both heads read $\mathbf{z}_{i,k}$. The hazard head gives $\hat\lambda_{i,k}=\sigma(\mathbf{w}_h^\top\mathbf{z}_{i,k}+c_h)$, and the rank head gives a scalar standing score $s_{i,k}=\mathbf{w}_s^\top\mathbf{z}_{i,k}$ in which larger means a better expected final placement. Let $\Omega$ be the training cases $(m,i,k)$ and $\pi_i$ the final placement of team $i$ (1 is the winner). The loss is
-\begin{align}
-\mathcal{L}&=\mathcal{L}_{\mathrm{haz}}+\eta\,\mathcal{L}_{\mathrm{rank}},\label{eq:loss}\\
-\mathcal{L}_{\mathrm{rank}}&=\operatorname*{mean}_{(m,k)}\ \operatorname*{mean}_{\substack{i,j\in\mathcal{R}_m(k)\\ \pi_i<\pi_j}}\log\bigl(1+e^{-(s_{i,k}-s_{j,k})}\bigr),
-\end{align}
-where $\mathcal{L}_{\mathrm{haz}}$ is the binary cross-entropy of $\hat\lambda_{i,k}$ against $Y_i(k{+}1)$ over $\Omega$, the discrete-time survival likelihood over at-risk rows. The pairwise rank loss and its weight $\eta=0.1$ are identical in every arm, so attention changes are never confounded with ranking changes.
+\emph{Heads and loss.} Both heads read $\mathbf{z}_{i,k}$: a hazard head $\hat\lambda_{i,k}=\sigma(\mathbf{w}_h^\top\mathbf{z}_{i,k}+c_h)$ and a rank head with a standing score $s_{i,k}$ (larger is a better expected placement). The loss is $\mathcal{L}_{\mathrm{haz}}+0.1\,\mathcal{L}_{\mathrm{rank}}$ in every arm, where $\mathcal{L}_{\mathrm{haz}}$ is the binary cross-entropy over at-risk rows (the discrete-time survival likelihood) and $\mathcal{L}_{\mathrm{rank}}$ averages $\log(1+e^{-(s_{i,k}-s_{j,k})})$ over team pairs in the risk set in which $i$ finished ahead of $j$.
 
 % STAGE2: delete if not run by 10/9
-\emph{Player layer (variant M11RZ-P).} \todo{stage 2: delete this paragraph, the M11RZ-P and M11RZ-P$-$tm table rows, and every block marked STAGE2 if the player layer is not run by 10/9} Player nodes are the players alive at the start of the phase, each with its boundary-time position (relative to the team centroid and in map coordinates), health, damage dealt and taken in the phase, knocks and kills, cumulative kills and healing-item uses, and the team's 150-d vector. As in the team layer, every player attends over all alive players and edges act only as logit biases: \emph{teammate} (same team, with distance features), \emph{enemy proximity} (other teams, within 300 m, by distance bin), \emph{combat} (attacker to victim, replacing proximity), and \emph{object} (player to zone). Player tokens are pooled to their teams by attention pooling and then enter the phase axis and the hazard head as before; with the team axis off, player attention is restricted to teammates. M11RZ-P $-$ M11RZ tests the player layer as a whole, whereas M11RZ-P$-$tm removes only the teammate bias, so M11RZ-P $-$ M11RZ-P$-$tm isolates the teammate relation.
+\emph{Player layer (variant M11RZ-P).} Player nodes are the players alive at the start of the phase, each with its boundary-time position (relative to the team centroid and in map coordinates), health, damage dealt and taken, knocks and kills, cumulative kills and healing-item uses, and the team's features. Every player attends over all alive players, with relations as logit biases: teammate (same team, with distance features), enemy proximity (other teams, within 300 m, by distance bin), combat (replacing proximity), and object (player to zone). Player tokens are pooled to teams by attention pooling and then enter the phase axis and the hazard head. M11RZ-P$-$tm removes only the teammate bias.
 % STAGE2 end
 
 \begin{table}[t]
-\caption{Arms. M11RZ is PTR-Former. Relation is the relation bias, Zone the safe-zone object node, ``shuffled'' permuted relations, and Hab the Zone and Habitat features except the two alive counts. M11R$-r$ drops one relation type $r\in\{$prox, combat, copress$\}$ (combat removes both directions; exploratory; two largest cohorts, seed 42).}
+\caption{Arms and their 12-cohort mean metrics (seed 42, descriptive). Ph., Tm.: phase and team axes; Rel.: relation bias (shuf.: team-permuted relations); Zn.: safe-zone object; Hab: Zone and Habitat features without the alive counts; pl.: player layer; tm: teammate bias.}
 \label{tab:arms}
-\centering\footnotesize
-\setlength{\tabcolsep}{2.5pt}
-\renewcommand{\arraystretch}{1.05}
-\begin{tabular}{@{}l c c c c l@{}}
-\toprule
-Arm & Phase & Team & Relation & Zone & Features \\
-\midrule
-M00 & off & off & off & off & all \\
-M10 & on & off & off & off & all \\
-M01 & off & on & off & off & all \\
-M11 & on & on & off & off & all \\
-M11R & on & on & on & off & all \\
-M11R-shuf & on & on & shuffled & off & all \\
-M11RZ & on & on & on & on & all \\
-M11R-noHab & on & on & on & off & no Hab \\
-M11RZ-noHab & on & on & on & on & no Hab \\
-M11R$-r$ & on & on & minus $r$ & off & all \\
-% STAGE2: delete if not run by 10/9
-M11RZ-P & \multicolumn{5}{p{2.0in}}{M11RZ plus the player layer (teammate, enemy-proximity, combat, object biases)} \\
-M11RZ-P$-$tm & \multicolumn{5}{p{2.0in}}{M11RZ-P with the teammate bias removed} \\
-% STAGE2 end
-\midrule
-HGB-cut & \multicolumn{5}{l}{150-d row of phase $k$} \\
-HGB-lag & \multicolumn{5}{l}{HGB-cut plus previous-phase values and differences} \\
-HGB-noHab & \multicolumn{5}{l}{HGB-cut without the Hab block} \\
-\bottomrule
-\end{tabular}
+\centering\scriptsize
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.02}
+\resizebox{\columnwidth}{!}{\input{tables/tab_arms}}
 \end{table}
 
-\emph{Arms.} Switching the phase axis off restricts attention to the current phase, and switching the team axis off restricts each team to itself (Table~\ref{tab:arms}). M00, M10, M01, and M11 form a 2$\times$2 factorial design over the two axes. All neural arms have the same parameters apart from the $4HL$ relation-bias scalars and the zone-token and bias networks, which are unused when their switches are off. M11R-shuf is retrained with shuffled relations, so its contrast with M11R tests whether the alignment of relations with teams carries information. The noHab arms and HGB-noHab remove the Hab block, the Zone and Habitat families except the two alive-count variables, which stay (45 of the 150 features). HGB-lag adds the previous phase's values and the phase-to-phase differences to HGB-cut (missing at $k=1$), the tabular counterpart of the phase axis.
-
-The RQ4 verdict comes from M11RZ-noHab $-$ M11R-noHab (P5 in Section~\ref{sec:experiments}). The recovery ratio
-\begin{equation}
-\kappa=\frac{\mathrm{AUC}(\text{M11RZ-noHab})-\mathrm{AUC}(\text{M11R-noHab})}{\mathrm{AUC}(\text{M11R})-\mathrm{AUC}(\text{M11R-noHab})}
-\label{eq:kappa}
-\end{equation}
-is descriptive: its denominator is the information carried by Hab when no object node is present, and its numerator is what the object node adds once Hab is removed.
+\emph{Arms.} Switching the phase axis off restricts attention to the current phase, and switching the team axis off restricts each team to itself; M00, M10, M01, and M11 form a 2$\times$2 factorial design (Table~\ref{tab:arms}). M11R-shuf permutes the team indices of the relation matrices within match and phase and is retrained. The noHab arms and HGB-noHab remove the Hab block (45 of the 150 features; the two alive counts stay), and HGB-lag adds the previous phase's values and differences (missing at $k=1$). The recovery ratio is $\kappa=[\mathrm{AUC}(\text{M11RZ-noHab})-\mathrm{AUC}(\text{M11R-noHab})]/[\mathrm{AUC}(\text{M11R})-\mathrm{AUC}(\text{M11R-noHab})]$; its numerator is the confirmatory contrast P5.

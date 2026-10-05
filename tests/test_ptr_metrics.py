@@ -532,3 +532,161 @@ def test_paired_bootstrap_rejects_files_with_different_match_types():
     b.loc[flip, "match_type"] = np.where(b.loc[flip, "match_type"] == "official", "competitive", "official")
     with pytest.raises(ValueError, match="match_type"):
         M.paired_bootstrap(a, b, n_boot=5)
+
+
+# --------------------------------------------------------------------------- within-phase AUC (exploratory, complementary)
+def phase_frame(spec, seed=0, signal=1.5):
+    """One block of rows per cut phase: ``spec = {phase: (n_rows, n_positive)}``; rows are spread over 12 matches."""
+    rng = np.random.default_rng(seed)
+    rows = []
+    for phase, (n, n_pos) in spec.items():
+        y = np.zeros(n)
+        y[rng.permutation(n)[:n_pos]] = 1.0
+        p = 1 / (1 + np.exp(-(signal * (y - 0.5) + rng.standard_normal(n))))
+        for i in range(n):
+            rows.append({"match_id": f"m{i % 12:02d}", "team_id": 1000 * phase + i, "phase": phase, "y": y[i], "p_hazard": p[i],
+                         "rank_score": -p[i], "final_rank_norm": 0.5, "top5": 0.0, "match_type": "official"})  # fmt: skip
+    return pd.DataFrame(rows)
+
+
+def per_phase_reference(df, phases=None):
+    return {k: roc_auc_score(g["y"], g["p_hazard"]) for k, g in df.groupby("phase") if phases is None or k in phases}
+
+
+def test_the_exploratory_metric_is_outside_the_default_set_and_metrics_json():
+    assert M.EXPLORATORY_METRICS == ("auc_within_phase",) and M.MIN_PHASE_ROWS == 30
+    assert M.ALL_METRIC_NAMES == M.METRIC_NAMES + ("auc_within_phase",)
+    assert M.METRIC_NAMES == ("auc", "ap", "nll", "brier", "spearman", "top5_auc", "cindex")  # unchanged
+    df = make_preds(seed=1)
+    out = M.all_metrics(df)
+    assert "auc_within_phase" not in out["hazard"] and "auc_within_phase" not in out["rank"]  # metrics.json keeps its structure
+    suite = M.MetricSuite(df)
+    assert list(suite.evaluate(np.ones(suite.n_matches))) == list(M.METRIC_NAMES)  # asked for only when needed
+    assert set(suite.evaluate(np.ones(suite.n_matches), M.ALL_METRIC_NAMES)) == set(M.ALL_METRIC_NAMES)
+    with pytest.raises(ValueError, match="unknown metrics"):
+        M.paired_bootstrap(df, df.copy(), n_boot=5, metrics=("auc", "nonsense"))
+
+
+def test_within_phase_auc_is_the_mean_of_the_per_phase_aucs():
+    df = make_preds(seed=1)
+    ref = per_phase_reference(df)
+    res = M.within_phase_auc(df)
+    assert res["n_phases"] == 6 and res["excluded"] == {} and set(res["phases"]) == set(ref)
+    for k, v in ref.items():
+        assert res["phases"][k] == pytest.approx(v, abs=1e-12)
+    assert res["auc_within_phase"] == pytest.approx(np.mean(list(ref.values())), abs=1e-12)
+    pooled = M.hazard_metrics(df["y"].to_numpy(), df["p_hazard"].to_numpy())["auc"]
+    assert res["auc_within_phase"] != pytest.approx(pooled, abs=1e-6)  # a different quantity
+    suite = M.MetricSuite(df)
+    assert suite.evaluate(np.ones(suite.n_matches), ("auc_within_phase",))["auc_within_phase"] == pytest.approx(res["auc_within_phase"], abs=1e-12)
+
+
+def test_within_phase_auc_is_the_unweighted_mean_over_phases_each_phase_counts_once():
+    """The definition used everywhere: every eligible phase counts once, whatever its number of rows (not a row-weighted mean)."""
+    big = phase_frame({1: (900, 225)}, seed=11, signal=3.5)  # one large phase with a very good score
+    small = phase_frame({2: (40, 10), 3: (40, 10), 4: (40, 10)}, seed=12, signal=0.1)  # three small phases with a near-chance score
+    df = pd.concat([big, small], ignore_index=True)
+    res = M.within_phase_auc(df)
+    per = per_phase_reference(df)
+    assert sorted(res["phases"]) == [1, 2, 3, 4] and per[1] > 0.9 and max(per[2], per[3], per[4]) < 0.75
+    unweighted = float(np.mean(list(per.values())))
+    row_weighted = float(sum(len(g) * per[k] for k, g in df.groupby("phase")) / len(df))
+    assert abs(unweighted - row_weighted) > 0.1  # the two definitions are far apart on this frame
+    assert res["auc_within_phase"] == pytest.approx(unweighted, abs=1e-12)
+    suite = M.MetricSuite(df)
+    assert suite.evaluate(np.ones(suite.n_matches), ("auc_within_phase",))["auc_within_phase"] == pytest.approx(unweighted, abs=1e-12)
+    # a 40-row phase is one term of the mean, like the 900-row phase: dropping the small phase 2 leaves the mean of the other three
+    without_small = M.within_phase_auc(df[df["phase"] != 2])["auc_within_phase"]
+    assert without_small == pytest.approx(np.mean([per[1], per[3], per[4]]), abs=1e-12)
+
+
+def test_within_phase_auc_uses_only_phases_with_both_classes_and_at_least_30_rows():
+    df = phase_frame({1: (100, 30), 2: (29, 10), 3: (30, 10), 4: (200, 0), 5: (200, 200), 6: (50, 5)}, seed=3)
+    res = M.within_phase_auc(df)
+    ref = per_phase_reference(df, phases={1, 3, 6})
+    assert sorted(res["phases"]) == [1, 3, 6] and res["n_phases"] == 3  # 30 rows is enough, 29 is not
+    assert set(res["excluded"]) == {2, 4, 5}
+    assert "29 rows" in res["excluded"][2] and "single class" in res["excluded"][4] and "single class" in res["excluded"][5]
+    assert res["auc_within_phase"] == pytest.approx(np.mean(list(ref.values())), abs=1e-12)
+    assert M.within_phase_auc(df, min_rows=29)["n_phases"] == 4  # the threshold is a parameter, 30 is the default
+    suite = M.MetricSuite(df)
+    assert suite.within_phase.phases == [1, 3, 6]
+
+
+def test_within_phase_auc_is_nan_when_no_phase_qualifies():
+    df = phase_frame({1: (20, 5), 2: (25, 5), 3: (60, 0)}, seed=4)
+    res = M.within_phase_auc(df)
+    assert np.isnan(res["auc_within_phase"]) and res["n_phases"] == 0 and set(res["excluded"]) == {1, 2, 3}
+    suite = M.MetricSuite(df)
+    assert np.isnan(suite.evaluate(np.ones(suite.n_matches), ("auc_within_phase",))["auc_within_phase"])
+
+
+def test_within_phase_auc_removes_the_phase_baseline_that_the_pooled_auc_rewards():
+    rng = np.random.default_rng(5)
+    rows = []
+    for phase in range(1, 7):
+        n = 600
+        y = (rng.random(n) < 0.05 + 0.07 * phase).astype(float)  # the hazard rises with the phase
+        p = 0.05 * phase + 0.01 * rng.standard_normal(n)  # a score that only knows the phase, nothing within it
+        rows += [{"match_id": f"m{i % 30:02d}", "team_id": 1000 * phase + i, "phase": phase, "y": y[i], "p_hazard": p[i],
+                  "rank_score": -p[i], "final_rank_norm": 0.5, "top5": 0.0, "match_type": "official"} for i in range(n)]  # fmt: skip
+    df = pd.DataFrame(rows)
+    pooled = M.hazard_metrics(df["y"].to_numpy(), df["p_hazard"].to_numpy())["auc"]
+    within = M.within_phase_auc(df)["auc_within_phase"]
+    assert pooled > 0.60 and abs(within - 0.5) < 0.03  # the baseline model looks good pooled and uninformative within phases
+
+
+def test_weighted_within_phase_auc_equals_the_duplicated_frame_on_the_phases_fixed_by_the_data():
+    df = M.read_predictions(phase_frame({1: (150, 30), 2: (150, 20), 3: (45, 6), 4: (150, 40)}, seed=6))
+    suite = M.MetricSuite(df)
+    codes = np.unique(df["match_id"], return_inverse=True)[1]
+    n_matches = int(codes.max()) + 1
+    rng = np.random.default_rng(1)
+    counts = rng.multinomial(n_matches, np.full(n_matches, 1 / n_matches))
+    assert (counts == 0).any() and (counts > 1).any()
+    parts = []
+    for new_id, m in enumerate(np.repeat(np.arange(n_matches), counts)):  # each copy becomes its own match
+        part = df[codes == m].copy()
+        part["match_id"] = f"copy{new_id:04d}"
+        parts.append(part)
+    dup = M.read_predictions(pd.concat(parts, ignore_index=True))
+    ref = np.mean(list(per_phase_reference(dup, phases=set(suite.within_phase.phases)).values()))  # the eligible set of the ORIGINAL data
+    got = suite.evaluate(counts.astype(float), ("auc_within_phase",))["auc_within_phase"]
+    assert got == pytest.approx(ref, abs=1e-12)
+    ident = suite.evaluate(np.ones(n_matches), ("auc_within_phase",))["auc_within_phase"]
+    assert ident == pytest.approx(M.within_phase_auc(df)["auc_within_phase"], abs=1e-12)
+
+
+def test_a_phase_that_loses_a_class_in_a_draw_is_skipped_in_that_draw_only():
+    df = M.read_predictions(phase_frame({1: (120, 30), 2: (60, 1), 3: (120, 30)}, seed=7))  # phase 2 has ONE positive row
+    suite = M.MetricSuite(df)
+    assert suite.within_phase.phases == [1, 2, 3]  # eligible on the data (both classes, >= 30 rows)
+    codes = suite.match_codes
+    pos_match = int(codes[(df["phase"] == 2).to_numpy() & (df["y"] == 1).to_numpy()][0])
+    w = np.ones(suite.n_matches)
+    w[pos_match] = 0.0  # the draw misses the match of that positive: phase 2 has no AUC in this draw
+    per = suite.within_phase.per_phase(w[codes])
+    assert np.isnan(per[2]) and np.isfinite(per[1]) and np.isfinite(per[3])
+    assert suite.evaluate(w, ("auc_within_phase",))["auc_within_phase"] == pytest.approx(np.mean([per[1], per[3]]), abs=1e-12)
+    assert np.isfinite(suite.evaluate(np.ones(suite.n_matches), ("auc_within_phase",))["auc_within_phase"])
+
+
+def test_within_phase_auc_in_the_paired_bootstrap_and_in_a_match_type_stratum():
+    good = make_preds(seed=8, signal=3.0, noise=0.5)
+    bad = good.copy()
+    bad["p_hazard"] = np.random.default_rng(0).random(len(bad))
+    res = M.paired_bootstrap(good, bad, n_boot=80, seed=2, metrics=("auc", "auc_within_phase"))
+    want = M.within_phase_auc(good)["auc_within_phase"] - M.within_phase_auc(bad)["auc_within_phase"]
+    m = res["metrics"]["auc_within_phase"]
+    assert m["diff"] == pytest.approx(want, abs=1e-12) and m["a"] == pytest.approx(M.within_phase_auc(good)["auc_within_phase"], abs=1e-12)
+    assert m["ci_low"] > 0 and m["se"] > 0 and m["n_valid"] == 80 and m["ci_low"] <= m["diff"] <= m["ci_high"]
+    same = M.paired_bootstrap(good, good.copy(), n_boot=30, seed=1, metrics=("auc_within_phase",))["metrics"]["auc_within_phase"]
+    assert same["diff"] == 0 and same["se"] == pytest.approx(0, abs=1e-15)
+    # a stratum fixes its own eligible phases from its own rows
+    strat = M.paired_bootstrap(good, bad, n_boot=40, seed=2, metrics=("auc_within_phase",), match_type="competitive")["metrics"]["auc_within_phase"]
+    comp = lambda d: M.within_phase_auc(d[d["match_type"] == "competitive"])["auc_within_phase"]  # noqa: E731
+    assert strat["diff"] == pytest.approx(comp(good) - comp(bad), abs=1e-12)
+    # the other metrics are untouched by asking for it too (same resamples, same draws)
+    both = M.paired_bootstrap(good, bad, n_boot=80, seed=2, metrics=("auc", "auc_within_phase"))["metrics"]["auc"]
+    alone = M.paired_bootstrap(good, bad, n_boot=80, seed=2, metrics=("auc",))["metrics"]["auc"]
+    assert both == alone

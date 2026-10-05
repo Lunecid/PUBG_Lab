@@ -1,0 +1,22 @@
+{
+  "checkpoint": "model_stgcn/checkpoints/full_required_core13_v1/taego_tpp_duo/main/mr_tcn/model.pt",
+  "finished_at_unix": 1783551947.0094411,
+  "epochs": 12,
+  "seed": 42,
+  "cohort": "Taego TPP duo",
+  "map": "Tiger_Main",
+  "mode": "duo",
+  "experiment": {
+    "group": "main",
+    "name": "mr_tcn",
+    "model": "mr",
+    "global_fusion": "concat",
+    "graph_encoder": "none",
+    "edge_mode": "none",
+    "edge_control": "observed",
+    "team_decoder": "mlp",
+    "pairwise_rank_weight": "0.0",
+    "feature_preset": "full",
+    "note": "MR without graph"
+  }
+}

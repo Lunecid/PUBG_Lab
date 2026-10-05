@@ -18,6 +18,8 @@ docs/research_framing/BATTLE_ROYALE_ONTOLOGY_LOCK_2026-07-03.md
 docs/feature_engineering/BATTLE_ROYALE_FEATURE_ONTOLOGY_2026-07-02.md
 docs/feature_engineering/PUBG_FEATURE_OPERATIONAL_MANIFEST_2026-07-02.md
 docs/experiment_design/BATTLE_ROYALE_FRAMEWORK_VALIDATION_PLAN_2026-07-02.md
+docs/experiment_design/BATTLE_ROYALE_RQ4_DYNAMIC_PROBABILITY_FLUCTUATION_RESULT_2026-07-06.md
+docs/model_design/BATTLE_ROYALE_REALTIME_RISK_ADVANTAGE_FRAMEWORK_2026-07-06.md
 ```
 
 ## Unit Of Prediction
@@ -55,6 +57,7 @@ Secondary prediction path:
 ```text
 phase-wise hazard
 -> cumulative survival probability
+-> match-local dynamic survival share
 -> final-rank score / final-rank evaluation
 ```
 
@@ -200,6 +203,16 @@ Cumulative elimination risk:
 RISK_i(K) = 1 - S_i(K)
 ```
 
+Match-local dynamic survival share:
+
+```text
+pi_i(k) = S_i(k) / sum_j S_j(k)
+```
+
+`pi_i(k)` compares teams within the same match and phase cut.  It is a dynamic
+survival-share or win-probability proxy, not a fully calibrated betting-style
+win probability.
+
 Rank score:
 
 ```text
@@ -225,7 +238,8 @@ This gives the manuscript a clear order:
 ```text
 phase-wise survival probability first,
 cumulative survival probability second,
-final-rank prediction/evaluation third.
+dynamic match-local probability trajectory third,
+final-rank prediction/evaluation fourth.
 ```
 
 ## State Feedback

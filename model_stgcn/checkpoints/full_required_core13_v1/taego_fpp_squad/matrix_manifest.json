@@ -1,0 +1,84 @@
+{
+  "out_dir": "model_stgcn/checkpoints/full_required_core13_v1/taego_fpp_squad",
+  "groups": [
+    "main"
+  ],
+  "epochs": 12,
+  "limit": null,
+  "cohort": "Taego FPP squad",
+  "cohort_slug": "taego_fpp_squad",
+  "map": "Tiger_Main",
+  "mode": "squad-fpp",
+  "seed": 42,
+  "split_json": "model_stgcn/checkpoints/br_om_ladder_required_v1/taego_fpp_squad/split.json",
+  "eval_only": false,
+  "force": false,
+  "force_eval": false,
+  "experiments": [
+    {
+      "group": "main",
+      "name": "mr_tcn",
+      "model": "mr",
+      "global_fusion": "concat",
+      "graph_encoder": "none",
+      "edge_mode": "none",
+      "edge_control": "observed",
+      "team_decoder": "mlp",
+      "pairwise_rank_weight": "0.0",
+      "feature_preset": "full",
+      "note": "MR without graph"
+    },
+    {
+      "group": "main",
+      "name": "mr_sage",
+      "model": "mr",
+      "global_fusion": "concat",
+      "graph_encoder": "sage",
+      "edge_mode": "full",
+      "edge_control": "observed",
+      "team_decoder": "mlp",
+      "pairwise_rank_weight": "0.0",
+      "feature_preset": "full",
+      "note": "MR with GraphSAGE-style aggregation"
+    },
+    {
+      "group": "main",
+      "name": "mr_rgcn",
+      "model": "mr",
+      "global_fusion": "concat",
+      "graph_encoder": "rgcn",
+      "edge_mode": "full",
+      "edge_control": "observed",
+      "team_decoder": "mlp",
+      "pairwise_rank_weight": "0.0",
+      "feature_preset": "full",
+      "note": "MR with relation-aware graph convolution"
+    },
+    {
+      "group": "main",
+      "name": "mr_farnet",
+      "model": "mr",
+      "global_fusion": "film",
+      "graph_encoder": "rgcn",
+      "edge_mode": "full",
+      "edge_control": "observed",
+      "team_decoder": "attention",
+      "pairwise_rank_weight": "0.1",
+      "feature_preset": "full",
+      "note": "final MR-FARNet candidate"
+    },
+    {
+      "group": "main",
+      "name": "mr_st_gnn_mamba",
+      "model": "mr",
+      "global_fusion": "film",
+      "graph_encoder": "mamba",
+      "edge_mode": "full",
+      "edge_control": "observed",
+      "team_decoder": "attention",
+      "pairwise_rank_weight": "0.1",
+      "feature_preset": "full",
+      "note": "ST-GNN-Mamba: relation-aware graph messages with causal selective state-space temporal mixing"
+    }
+  ]
+}

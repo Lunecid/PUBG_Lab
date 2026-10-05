@@ -1,0 +1,8 @@
+{
+  "gate": "knn",
+  "control": "observed",
+  "best_val_auc": 0.7472041901757366,
+  "n_test_cells": 948,
+  "pred_csv": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/paramo_tpp_squad/B_knn_observed/pred_test.csv",
+  "elapsed_s": 2.3
+}

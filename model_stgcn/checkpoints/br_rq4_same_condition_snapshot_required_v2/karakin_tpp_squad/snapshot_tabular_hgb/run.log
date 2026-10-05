@@ -1,0 +1,6 @@
++ python3 -m model_stgcn.snapshot_tabular_baseline --map Summerland_Main --mode squad --seed 42 --split-json model_stgcn/checkpoints/br_om_ladder_required_v1/karakin_tpp_squad/split.json --out-dir model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/karakin_tpp_squad/snapshot_tabular_hgb --configs snapshot_last_hgb\,snapshot_summary_hgb
+2026-07-05 23:43:27,656 INFO split total=333 train=267 val=33 test=33
+2026-07-05 23:43:29,985 INFO rows train=9831 test=1159
+2026-07-05 23:43:29,986 INFO fit snapshot_last_hgb        rows=9831 test=1159 features=17
+2026-07-05 23:43:31,743 INFO fit snapshot_summary_hgb     rows=9831 test=1159 features=99
+2026-07-05 23:43:34,051 INFO wrote model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/karakin_tpp_squad/snapshot_tabular_hgb/snapshot_tabular_summary.json

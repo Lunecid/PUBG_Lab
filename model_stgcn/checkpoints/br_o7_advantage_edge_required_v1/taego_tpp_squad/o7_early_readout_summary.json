@@ -1,0 +1,88 @@
+{
+  "root": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/taego_tpp_squad",
+  "conditions": {
+    "A": "A_none_observed",
+    "B": "B_knn_observed",
+    "C": "C_knn_edge_shuffle"
+  },
+  "n_aligned_rows": 21054,
+  "n_boot": 1000,
+  "seed": 42,
+  "rows": [
+    {
+      "phase_group": "all",
+      "phases": "all",
+      "n": 21054,
+      "n_matches": 415,
+      "auc_A_none_observed": 0.7681604037619204,
+      "auc_B_knn_observed": 0.7710093235955179,
+      "auc_C_knn_edge_shuffle": 0.7686894384694546,
+      "delta_B_minus_C": 0.0023198851260632924,
+      "delta_B_minus_C_ci_low": 0.00025561983750043153,
+      "delta_B_minus_C_ci_high": 0.004265471949997546,
+      "delta_B_minus_A": 0.002848919833597474,
+      "delta_B_minus_A_ci_low": 0.0007137142871229407,
+      "delta_B_minus_A_ci_high": 0.004903257585198576
+    },
+    {
+      "phase_group": "early_1_2",
+      "phases": "1,2",
+      "n": 11055,
+      "n_matches": 415,
+      "auc_A_none_observed": 0.7805801224869079,
+      "auc_B_knn_observed": 0.7838418315808228,
+      "auc_C_knn_edge_shuffle": 0.7801371287510664,
+      "delta_B_minus_C": 0.0037047028297563234,
+      "delta_B_minus_C_ci_low": 0.0006448853190684778,
+      "delta_B_minus_C_ci_high": 0.0068436760272169795,
+      "delta_B_minus_A": 0.0032617090939148774,
+      "delta_B_minus_A_ci_low": 0.00021255071015205686,
+      "delta_B_minus_A_ci_high": 0.006288570893129702
+    },
+    {
+      "phase_group": "mid_3_4",
+      "phases": "3,4",
+      "n": 6814,
+      "n_matches": 409,
+      "auc_A_none_observed": 0.7225239517943844,
+      "auc_B_knn_observed": 0.7242166149751788,
+      "auc_C_knn_edge_shuffle": 0.7234800295120541,
+      "delta_B_minus_C": 0.000736585463124606,
+      "delta_B_minus_C_ci_low": -0.0023564586004756138,
+      "delta_B_minus_C_ci_high": 0.003773553344809413,
+      "delta_B_minus_A": 0.0016926631807943071,
+      "delta_B_minus_A_ci_low": -0.001732180978389189,
+      "delta_B_minus_A_ci_high": 0.0052709428546822736
+    },
+    {
+      "phase_group": "late_5_6",
+      "phases": "5,6",
+      "n": 2813,
+      "n_matches": 388,
+      "auc_A_none_observed": 0.6862668867667402,
+      "auc_B_knn_observed": 0.7018155684804352,
+      "auc_C_knn_edge_shuffle": 0.6886409334711531,
+      "delta_B_minus_C": 0.013174635009282176,
+      "delta_B_minus_C_ci_low": 0.005553534827382661,
+      "delta_B_minus_C_ci_high": 0.02065739728959699,
+      "delta_B_minus_A": 0.015548681713695056,
+      "delta_B_minus_A_ci_low": 0.006618482555972605,
+      "delta_B_minus_A_ci_high": 0.024318925397574114
+    },
+    {
+      "phase_group": "final_7",
+      "phases": "7",
+      "n": 372,
+      "n_matches": 162,
+      "auc_A_none_observed": 0.6069570387988702,
+      "auc_B_knn_observed": 0.5730935037906942,
+      "auc_C_knn_edge_shuffle": 0.5868589267132451,
+      "delta_B_minus_C": -0.013765422922550896,
+      "delta_B_minus_C_ci_low": -0.05659878362140876,
+      "delta_B_minus_C_ci_high": 0.03484745183154588,
+      "delta_B_minus_A": -0.03386353500817596,
+      "delta_B_minus_A_ci_low": -0.08583139767026025,
+      "delta_B_minus_A_ci_high": 0.018927775212465126
+    }
+  ]
+}

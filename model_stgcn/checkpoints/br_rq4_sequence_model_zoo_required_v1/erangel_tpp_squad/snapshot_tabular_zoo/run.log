@@ -1,0 +1,2 @@
++ python3 -m model_stgcn.snapshot_tabular_baseline --map Baltic_Main --mode squad --seed 42 --split-json model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/split.json --out-dir model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/erangel_tpp_squad/snapshot_tabular_zoo --configs snapshot_last_hgb\,snapshot_summary_hgb --learners all --max-iter 200 --n-estimators 100 --n-jobs 4
+SKIP tabular: model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/erangel_tpp_squad/snapshot_tabular_zoo/snapshot_tabular_summary.json

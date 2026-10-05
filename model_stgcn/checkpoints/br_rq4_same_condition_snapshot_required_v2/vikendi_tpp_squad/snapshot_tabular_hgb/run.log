@@ -1,0 +1,6 @@
++ python3 -m model_stgcn.snapshot_tabular_baseline --map DihorOtok_Main --mode squad --seed 42 --split-json model_stgcn/checkpoints/br_om_ladder_required_v1/vikendi_tpp_squad/split.json --out-dir model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/vikendi_tpp_squad/snapshot_tabular_hgb --configs snapshot_last_hgb\,snapshot_summary_hgb
+2026-07-05 23:26:39,019 INFO split total=498 train=400 val=49 test=49
+2026-07-05 23:26:46,644 INFO rows train=22596 test=2778
+2026-07-05 23:26:46,644 INFO fit snapshot_last_hgb        rows=22596 test=2778 features=17
+2026-07-05 23:26:47,498 INFO fit snapshot_summary_hgb     rows=22596 test=2778 features=99
+2026-07-05 23:26:48,859 INFO wrote model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/vikendi_tpp_squad/snapshot_tabular_hgb/snapshot_tabular_summary.json

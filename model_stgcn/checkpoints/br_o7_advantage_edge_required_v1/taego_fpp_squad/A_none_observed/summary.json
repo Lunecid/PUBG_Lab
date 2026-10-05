@@ -1,0 +1,8 @@
+{
+  "gate": "none",
+  "control": "observed",
+  "best_val_auc": 0.7395204546422034,
+  "n_test_cells": 1891,
+  "pred_csv": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/taego_fpp_squad/A_none_observed/pred_test.csv",
+  "elapsed_s": 0.8
+}

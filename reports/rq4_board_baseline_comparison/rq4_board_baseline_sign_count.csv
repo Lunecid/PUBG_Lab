@@ -1,0 +1,73 @@
+baseline_variant,baseline_label,metric,cohorts_compared,lstm_wins,ties,lstm_losses,median_lstm_minus_baseline,mean_lstm_minus_baseline
+health_alive_count_board,Health/alive-count,risk_top1_hit,13,13,0,0,0.2205128205128205,0.20545064778688524
+health_alive_count_board,Health/alive-count,risk_top3_hit,13,13,0,0,0.0858895705521473,0.08140686413837542
+health_alive_count_board,Health/alive-count,risk_top5_hit,13,13,0,0,0.03802281368821292,0.03224828894039861
+health_alive_count_board,Health/alive-count,risk_mrr,13,13,0,0,0.1396995812639984,0.13559261846186593
+health_alive_count_board,Health/alive-count,adv_top_final_top5,13,12,0,1,0.05515587529976018,0.06457505923945449
+health_alive_count_board,Health/alive-count,adv_top_final_top10,13,12,0,1,0.02429149797570851,0.02887061332267177
+health_alive_count_board,Health/alive-count,adv_top5_contains_top10,13,6,5,2,0.0,0.00499579523572081
+health_alive_count_board,Health/alive-count,adv_ndcg_top5_top10,13,13,0,0,0.024340062901723636,0.03167293990240097
+health_alive_count_board,Health/alive-count,risk_delta_top1_hit,13,13,0,0,0.18481012658227847,0.1679962990519274
+health_alive_count_board,Health/alive-count,risk_delta_mrr,13,13,0,0,0.11824794052642151,0.10881675710898865
+health_alive_count_board,Health/alive-count,adv_delta_top_final_top10,13,13,0,0,0.013698630136986356,0.026047040807166407
+health_alive_count_board,Health/alive-count,adv_delta_ndcg_top5_top10,13,13,0,0,0.024508833322901213,0.02761348784242479
+official_raw_hgb_board,Official-raw HGB,risk_top1_hit,13,10,1,2,0.01823843416370108,0.024131836474467934
+official_raw_hgb_board,Official-raw HGB,risk_top3_hit,13,9,0,4,0.004711425206124886,0.003884846557938919
+official_raw_hgb_board,Official-raw HGB,risk_top5_hit,13,7,0,6,0.005576208178438735,0.0011324598330461322
+official_raw_hgb_board,Official-raw HGB,risk_mrr,13,9,0,4,0.009494112476266525,0.01322628372424072
+official_raw_hgb_board,Official-raw HGB,adv_top_final_top5,13,5,0,8,-0.007194244604316502,-0.010847556024029707
+official_raw_hgb_board,Official-raw HGB,adv_top_final_top10,13,5,1,7,-0.004792332268370614,-0.005783353081955032
+official_raw_hgb_board,Official-raw HGB,adv_top5_contains_top10,13,3,8,2,0.0,-0.0015453915524623436
+official_raw_hgb_board,Official-raw HGB,adv_ndcg_top5_top10,13,4,0,9,-0.006236032195094832,-0.009028525416380405
+official_raw_hgb_board,Official-raw HGB,risk_delta_top1_hit,13,11,0,2,0.04298150163220893,0.034155087698249445
+official_raw_hgb_board,Official-raw HGB,risk_delta_mrr,13,11,0,2,0.02780392742307869,0.022611562105840442
+official_raw_hgb_board,Official-raw HGB,adv_delta_top_final_top10,13,2,3,8,-0.0031948881789136685,-0.00348532105946307
+official_raw_hgb_board,Official-raw HGB,adv_delta_ndcg_top5_top10,13,4,1,8,-0.0025561069938430103,-0.00515898672805274
+pressure_habitat_hgb_board,Pressure-habitat HGB,risk_top1_hit,13,5,0,8,-0.008421052631578996,-0.005635264084743719
+pressure_habitat_hgb_board,Pressure-habitat HGB,risk_top3_hit,13,2,1,10,-0.01379310344827589,-0.011204298332458165
+pressure_habitat_hgb_board,Pressure-habitat HGB,risk_top5_hit,13,2,0,11,-0.009786476868327343,-0.010439585575820271
+pressure_habitat_hgb_board,Pressure-habitat HGB,risk_mrr,13,4,0,9,-0.00782210771684455,-0.0073809487147510604
+pressure_habitat_hgb_board,Pressure-habitat HGB,adv_top_final_top5,13,3,0,10,-0.016759776536312887,-0.020551950314831043
+pressure_habitat_hgb_board,Pressure-habitat HGB,adv_top_final_top10,13,3,1,9,-0.005714285714285672,-0.009242259786857101
+pressure_habitat_hgb_board,Pressure-habitat HGB,adv_top5_contains_top10,13,5,6,2,0.0,-0.0008746545213616294
+pressure_habitat_hgb_board,Pressure-habitat HGB,adv_ndcg_top5_top10,13,2,0,11,-0.006368922976924374,-0.008610403045600287
+pressure_habitat_hgb_board,Pressure-habitat HGB,risk_delta_top1_hit,13,10,1,2,0.013601741022850944,0.011116943705800972
+pressure_habitat_hgb_board,Pressure-habitat HGB,risk_delta_mrr,13,8,0,5,0.005796573328218924,0.0027020643755307685
+pressure_habitat_hgb_board,Pressure-habitat HGB,adv_delta_top_final_top10,13,2,2,9,-0.008146639511201648,-0.005964457818052429
+pressure_habitat_hgb_board,Pressure-habitat HGB,adv_delta_ndcg_top5_top10,13,1,1,11,-0.004678964127630025,-0.006363942001888219
+random_alive_board,Random alive,risk_top1_hit,13,13,0,0,0.33406386975579205,0.3353114904593513
+random_alive_board,Random alive,risk_top3_hit,13,13,0,0,0.16859430604982206,0.15350774923535015
+random_alive_board,Random alive,risk_top5_hit,13,13,0,0,0.06691449814126404,0.06639106102335673
+random_alive_board,Random alive,risk_mrr,13,13,0,0,0.23148553900087632,0.22823751120913446
+random_alive_board,Random alive,adv_top_final_top5,13,13,0,0,0.135042735042735,0.13605156384137584
+random_alive_board,Random alive,adv_top_final_top10,13,13,0,0,0.05982905982905984,0.06784973017896519
+random_alive_board,Random alive,adv_top5_contains_top10,13,8,4,1,0.002292263610315204,0.009852411997167302
+random_alive_board,Random alive,adv_ndcg_top5_top10,13,13,0,0,0.05418732063589904,0.05930997077925356
+random_alive_board,Random alive,risk_delta_top1_hit,13,13,0,0,0.2389791183294664,0.23034342192464455
+random_alive_board,Random alive,risk_delta_mrr,13,13,0,0,0.16379612451041015,0.15423160496482533
+random_alive_board,Random alive,adv_delta_top_final_top10,13,11,2,0,0.038895859473023875,0.044038360096962895
+random_alive_board,Random alive,adv_delta_ndcg_top5_top10,13,13,0,0,0.03445077867731383,0.03971247770699912
+sagong_prior_score_hgb_board,Sagong-style adapted HGB,risk_top1_hit,13,13,0,0,0.22699386503067487,0.22749180398260982
+sagong_prior_score_hgb_board,Sagong-style adapted HGB,risk_top3_hit,13,13,0,0,0.08022922636103158,0.08165139448852884
+sagong_prior_score_hgb_board,Sagong-style adapted HGB,risk_top5_hit,13,12,0,1,0.024714828897338337,0.027996341639815254
+sagong_prior_score_hgb_board,Sagong-style adapted HGB,risk_mrr,13,13,0,0,0.14418915406459887,0.14590455420923346
+sagong_prior_score_hgb_board,Sagong-style adapted HGB,adv_top_final_top5,13,13,0,0,0.057823129251700744,0.05798998912374785
+sagong_prior_score_hgb_board,Sagong-style adapted HGB,adv_top_final_top10,13,12,0,1,0.027932960893854775,0.024920579211410672
+sagong_prior_score_hgb_board,Sagong-style adapted HGB,adv_top5_contains_top10,13,5,6,2,0.0,0.000446369839744306
+sagong_prior_score_hgb_board,Sagong-style adapted HGB,adv_ndcg_top5_top10,13,13,0,0,0.020756862999347314,0.01954443360877467
+sagong_prior_score_hgb_board,Sagong-style adapted HGB,risk_delta_top1_hit,13,13,0,0,0.21545157780195867,0.220385293261141
+sagong_prior_score_hgb_board,Sagong-style adapted HGB,risk_delta_mrr,13,13,0,0,0.14651419188960002,0.14767208239965665
+sagong_prior_score_hgb_board,Sagong-style adapted HGB,adv_delta_top_final_top10,13,10,1,2,0.009433962264150941,0.019195178314722523
+sagong_prior_score_hgb_board,Sagong-style adapted HGB,adv_delta_ndcg_top5_top10,13,12,1,0,0.01971369488564323,0.01876465110331345
+zone_distance_board,Zone-distance,risk_top1_hit,13,13,0,0,0.27695167286245354,0.27691779817092993
+zone_distance_board,Zone-distance,risk_top3_hit,13,13,0,0,0.15429917550058891,0.1483439785669322
+zone_distance_board,Zone-distance,risk_top5_hit,13,13,0,0,0.07789473684210524,0.07369555761696457
+zone_distance_board,Zone-distance,risk_mrr,13,13,0,0,0.19626731424352994,0.19450832272020768
+zone_distance_board,Zone-distance,adv_top_final_top5,13,13,0,0,0.1005586592178771,0.10177815310888488
+zone_distance_board,Zone-distance,adv_top_final_top10,13,12,0,1,0.05165615141955826,0.05766896453269778
+zone_distance_board,Zone-distance,adv_top5_contains_top10,13,7,5,1,0.0020057306590257618,0.008912258934404282
+zone_distance_board,Zone-distance,adv_ndcg_top5_top10,13,13,0,0,0.04847339185406174,0.05103908138202563
+zone_distance_board,Zone-distance,risk_delta_top1_hit,13,13,0,0,0.18097447795823668,0.17982369011362595
+zone_distance_board,Zone-distance,risk_delta_mrr,13,13,0,0,0.11977160465796821,0.11910731132630023
+zone_distance_board,Zone-distance,adv_delta_top_final_top10,13,11,1,1,0.02450980392156865,0.03283976404852348
+zone_distance_board,Zone-distance,adv_delta_ndcg_top5_top10,13,12,1,0,0.028467340753698833,0.03185547159080138

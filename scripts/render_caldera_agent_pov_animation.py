@@ -214,6 +214,37 @@ def frame_indices(n: int, count: int) -> list[int]:
     return sorted(set(int(round(v)) for v in np.linspace(0, n - 1, count)))
 
 
+def frame_indices_for_times(rows: list[dict[str, Any]], frame_times: list[float]) -> list[int]:
+    row_times = np.asarray([float(row["sample_t"]) for row in rows], dtype=np.float64)
+    return [int(np.argmin(np.abs(row_times - target))) for target in frame_times]
+
+
+def parse_csv_floats(value: str | None) -> list[float] | None:
+    if value is None:
+        return None
+    values = [part.strip() for part in value.split(",") if part.strip()]
+    if not values:
+        raise argparse.ArgumentTypeError("expected at least one comma-separated number")
+    return [float(part) for part in values]
+
+
+def parse_csv_strings(value: str | None) -> list[str] | None:
+    if value is None:
+        return None
+    values = [part.strip() for part in value.split(",") if part.strip()]
+    return values or None
+
+
+def slugify(value: str) -> str:
+    out = []
+    for ch in value.lower():
+        if ch.isalnum():
+            out.append(ch)
+        elif out and out[-1] != "_":
+            out.append("_")
+    return "".join(out).strip("_") or "frame"
+
+
 def heading_at(rows: list[dict[str, Any]], idx: int, fallback: np.ndarray | None = None) -> np.ndarray:
     n = len(rows)
     lo = max(0, idx - 4)
@@ -459,45 +490,50 @@ def render_frame(
                 edge = (15, 18, 17, 135) if category == "building" else (226, 230, 216, 85)
             draw.line(poly + [poly[0]], fill=edge, width=1)
 
-    # Draw the recent/future breadcrumb as a subtle path on the terrain.
-    lo = max(0, frame_row_idx - 10)
-    hi = min(len(rows), frame_row_idx + 18)
-    path = np.asarray(
-        [
-            (float(item["pos_x_m"]), float(item["pos_y_m"]), max(float(item["pos_z_m"]), float(item["terrain_z"])) + 0.35)
-            for item in rows[lo:hi]
-        ],
-        dtype=np.float32,
-    )
-    if len(path) > 1:
-        projected, valid = project(path, camera, forward, right, up, focal, width, height, args.near_clip)
-        pts = [tuple(int(round(v)) for v in point) for point, ok in zip(projected, valid) if ok]
-        if len(pts) > 1:
-            draw.line(pts, fill=(7, 14, 15, 180), width=7)
-            draw.line(pts, fill=CYAN + (220,), width=4)
+    if not args.no_breadcrumb:
+        # Draw the recent/future breadcrumb as a subtle path on the terrain.
+        lo = max(0, frame_row_idx - 10)
+        hi = min(len(rows), frame_row_idx + 18)
+        path = np.asarray(
+            [
+                (float(item["pos_x_m"]), float(item["pos_y_m"]), max(float(item["pos_z_m"]), float(item["terrain_z"])) + 0.35)
+                for item in rows[lo:hi]
+            ],
+            dtype=np.float32,
+        )
+        if len(path) > 1:
+            projected, valid = project(path, camera, forward, right, up, focal, width, height, args.near_clip)
+            pts = [tuple(int(round(v)) for v in point) for point, ok in zip(projected, valid) if ok]
+            if len(pts) > 1:
+                draw.line(pts, fill=(7, 14, 15, 180), width=7)
+                draw.line(pts, fill=CYAN + (220,), width=4)
 
     pressure = max(0.0, min(1.0, 1.0 - float(row["nearest_building_xy_m"]) / 25.0))
-    draw_pressure_vignette(image, pressure)
+    if not args.no_pressure_vignette:
+        draw_pressure_vignette(image, pressure)
     if not args.no_player_silhouette:
         draw_player_silhouette(draw, width, height)
-    draw_hud(draw, row, width, height, mini_path, mini_idx_lookup[frame_row_idx], font, small)
+    if not args.no_hud:
+        draw_hud(draw, row, width, height, mini_path, mini_idx_lookup[frame_row_idx], font, small)
     return image.convert("RGB"), heading
 
 
-def make_contact_sheet(frames: list[Image.Image], output: Path, labels: list[str], columns: int = 3) -> None:
+def make_contact_sheet(frames: list[Image.Image], output: Path, labels: list[str], columns: int = 3, show_labels: bool = True) -> None:
     if not frames:
         return
     thumb_w = 520
     thumb_h = int(frames[0].height * thumb_w / frames[0].width)
     rows = math.ceil(len(frames) / columns)
-    sheet = Image.new("RGB", (columns * thumb_w, rows * (thumb_h + 34)), (8, 13, 14))
+    label_h = 34 if show_labels else 0
+    sheet = Image.new("RGB", (columns * thumb_w, rows * (thumb_h + label_h)), (8, 13, 14))
     draw = ImageDraw.Draw(sheet)
     font = load_font(15)
     for idx, frame in enumerate(frames):
         x = (idx % columns) * thumb_w
-        y = (idx // columns) * (thumb_h + 34)
-        sheet.paste(frame.resize((thumb_w, thumb_h), Image.Resampling.LANCZOS), (x, y + 28))
-        draw.text((x + 10, y + 7), labels[idx], fill=TEXT, font=font)
+        y = (idx // columns) * (thumb_h + label_h)
+        sheet.paste(frame.resize((thumb_w, thumb_h), Image.Resampling.LANCZOS), (x, y + label_h))
+        if show_labels:
+            draw.text((x + 10, y + 7), labels[idx], fill=TEXT, font=font)
     output.parent.mkdir(parents=True, exist_ok=True)
     sheet.save(output)
 
@@ -516,7 +552,10 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
         float(np.nanpercentile(terrain_z, 99)) + 15.0,
     )
 
-    indices = frame_indices(len(rows), args.frame_count)
+    if args.frame_times:
+        indices = frame_indices_for_times(rows, args.frame_times)
+    else:
+        indices = frame_indices(len(rows), args.frame_count)
     mini_path = [(float(row["pos_x_m"]), float(row["pos_y_m"])) for row in rows]
     mini_lookup = {idx: min(range(len(rows)), key=lambda ridx: abs(ridx - idx)) for idx in indices}
     # Convert lookup value to path index in the full minimap path.
@@ -542,6 +581,18 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
         loop=0,
         optimize=True,
     )
+    still_paths: list[str] = []
+    if args.still_dir:
+        args.still_dir.mkdir(parents=True, exist_ok=True)
+        for frame_idx, (idx, frame) in enumerate(zip(indices, frames), start=1):
+            row = rows[idx]
+            if args.frame_names and frame_idx <= len(args.frame_names):
+                name = slugify(args.frame_names[frame_idx - 1])
+            else:
+                name = f"frame_{frame_idx:02d}"
+            path = args.still_dir / f"{frame_idx:02d}_{name}_t{float(row['sample_t']):.1f}.png"
+            frame.save(path)
+            still_paths.append(str(path.relative_to(ROOT)))
 
     if args.contact_sheet:
         sheet_indices = frame_indices(len(frames), min(args.contact_sheet_frames, len(frames)))
@@ -550,6 +601,7 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
             args.contact_sheet,
             [labels[i] for i in sheet_indices],
             columns=args.contact_sheet_columns,
+            show_labels=args.contact_sheet_labels,
         )
 
     finite_height = diagnostics["height_above_terrain"][np.isfinite(diagnostics["height_above_terrain"])]
@@ -562,6 +614,9 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
         "agent_id": args.agent_id,
         "rows": len(rows),
         "frames": len(frames),
+        "frame_times_requested_s": args.frame_times,
+        "frame_names": args.frame_names,
+        "still_frames": still_paths,
         "time_range_s": [float(rows[0]["sample_t"]), float(rows[-1]["sample_t"])],
         "display_triangles": {category: int(len(local[category])) for category in CATEGORIES},
         "diagnostics": {
@@ -573,7 +628,7 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
         "notes": [
             "This is a first-person proxy, not a Warzone/game-engine render.",
             "Camera heading is estimated from the trajectory direction.",
-            "The lower-right first-person silhouette is a generic visual frame, not reconstructed asset data.",
+            "HUD, breadcrumbs, pressure vignette, and generic first-person silhouette can be disabled for manuscript figures.",
         ],
     }
     args.output.with_suffix(".manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
@@ -591,6 +646,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sample-t-min", type=float, default=1150.0)
     parser.add_argument("--sample-t-max", type=float)
     parser.add_argument("--frame-count", type=int, default=24)
+    parser.add_argument("--frame-times", type=parse_csv_floats)
+    parser.add_argument("--frame-names", type=parse_csv_strings)
     parser.add_argument("--fps", type=int, default=6)
     parser.add_argument("--width", type=int, default=960)
     parser.add_argument("--height", type=int, default=540)
@@ -603,15 +660,24 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--clay-mode", action="store_true")
     parser.add_argument("--wireframe", action="store_true")
     parser.add_argument("--no-player-silhouette", action="store_true")
+    parser.add_argument("--no-hud", action="store_true")
+    parser.add_argument("--no-breadcrumb", action="store_true")
+    parser.add_argument("--no-pressure-vignette", action="store_true")
+    parser.add_argument("--still-dir", type=Path)
     for category, default in BUDGETS.items():
         parser.add_argument(f"--{category.replace('_', '-')}-triangles", type=int, default=default)
     parser.add_argument("--contact-sheet-frames", type=int, default=6)
     parser.add_argument("--contact-sheet-columns", type=int, default=3)
+    parser.add_argument("--contact-sheet-labels", action=argparse.BooleanOptionalAction, default=True)
     args = parser.parse_args()
     args.cache = args.cache.resolve()
     args.output = args.output.resolve()
     if args.contact_sheet:
         args.contact_sheet = args.contact_sheet.resolve()
+    if args.still_dir:
+        args.still_dir = args.still_dir.resolve()
+    if args.frame_times and args.frame_names and len(args.frame_times) != len(args.frame_names):
+        raise SystemExit("--frame-times and --frame-names must have the same number of entries")
     return args
 
 

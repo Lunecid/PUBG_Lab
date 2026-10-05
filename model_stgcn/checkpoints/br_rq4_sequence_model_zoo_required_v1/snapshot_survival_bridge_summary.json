@@ -1,0 +1,22 @@
+{
+  "root": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1",
+  "cohorts": 13,
+  "model_variants": [
+    "snapshot_last_hgb",
+    "snapshot_last_lr",
+    "snapshot_last_mlp",
+    "snapshot_last_rf",
+    "snapshot_last_xgb",
+    "snapshot_lstm_no_graph",
+    "snapshot_summary_hgb",
+    "snapshot_summary_lr",
+    "snapshot_summary_mlp",
+    "snapshot_summary_rf",
+    "snapshot_summary_xgb",
+    "snapshot_transformer_no_graph"
+  ],
+  "outputs": {
+    "metrics_all_cohorts": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/snapshot_survival_bridge_metrics_all_cohorts.csv",
+    "metrics_summary": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/snapshot_survival_bridge_metrics_summary.csv"
+  }
+}

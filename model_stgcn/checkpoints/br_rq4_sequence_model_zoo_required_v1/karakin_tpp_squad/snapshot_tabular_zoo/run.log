@@ -1,0 +1,14 @@
++ python3 -m model_stgcn.snapshot_tabular_baseline --map Summerland_Main --mode squad --seed 42 --split-json model_stgcn/checkpoints/br_om_ladder_required_v1/karakin_tpp_squad/split.json --out-dir model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/karakin_tpp_squad/snapshot_tabular_zoo --configs snapshot_last_hgb\,snapshot_summary_hgb --learners all --max-iter 200 --n-estimators 100 --n-jobs 4
+2026-07-06 03:29:04,139 INFO split total=333 train=267 val=33 test=33
+2026-07-06 03:29:06,002 INFO rows train=9831 test=1159
+2026-07-06 03:29:06,002 INFO fit snapshot_last_hgb        learner=lr   rows=9831 test=1159 features=17
+2026-07-06 03:29:06,024 INFO fit snapshot_last_hgb        learner=rf   rows=9831 test=1159 features=17
+2026-07-06 03:29:06,500 INFO fit snapshot_last_hgb        learner=hgb  rows=9831 test=1159 features=17
+2026-07-06 03:29:08,261 INFO fit snapshot_last_hgb        learner=xgb  rows=9831 test=1159 features=17
+2026-07-06 03:29:08,396 INFO fit snapshot_last_hgb        learner=mlp  rows=9831 test=1159 features=17
+2026-07-06 03:29:08,696 INFO fit snapshot_summary_hgb     learner=lr   rows=9831 test=1159 features=99
+2026-07-06 03:29:08,949 INFO fit snapshot_summary_hgb     learner=rf   rows=9831 test=1159 features=99
+2026-07-06 03:29:09,958 INFO fit snapshot_summary_hgb     learner=hgb  rows=9831 test=1159 features=99
+2026-07-06 03:29:12,113 INFO fit snapshot_summary_hgb     learner=xgb  rows=9831 test=1159 features=99
+2026-07-06 03:29:12,346 INFO fit snapshot_summary_hgb     learner=mlp  rows=9831 test=1159 features=99
+2026-07-06 03:29:12,795 INFO wrote model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/karakin_tpp_squad/snapshot_tabular_zoo/snapshot_tabular_summary.json

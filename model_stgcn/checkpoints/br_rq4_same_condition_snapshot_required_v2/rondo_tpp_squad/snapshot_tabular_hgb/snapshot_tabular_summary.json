@@ -1,0 +1,45 @@
+{
+  "split": {
+    "total": 1039,
+    "train": 833,
+    "val": 103,
+    "test": 103,
+    "train_rows": 40900,
+    "test_rows": 5200
+  },
+  "configs": [
+    "snapshot_last_hgb",
+    "snapshot_summary_hgb"
+  ],
+  "feature_surface": "official_10s_snapshot_team_state_only",
+  "outputs": {
+    "predictions": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/rondo_tpp_squad/snapshot_tabular_hgb/snapshot_tabular_predictions.csv",
+    "metrics": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/rondo_tpp_squad/snapshot_tabular_hgb/snapshot_tabular_metrics.csv",
+    "phase_metrics": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/rondo_tpp_squad/snapshot_tabular_hgb/snapshot_tabular_phase_metrics.csv",
+    "feature_manifest": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/rondo_tpp_squad/snapshot_tabular_hgb/snapshot_tabular_features.json"
+  },
+  "metrics": [
+    {
+      "model_variant": "snapshot_last_hgb",
+      "n_features": 17,
+      "n": 5200,
+      "pos_rate": 0.28865384615384615,
+      "acc_at_0_5": 0.7671153846153846,
+      "bce": 0.4962451188923543,
+      "brier": 0.1622449918361418,
+      "auc": 0.759721238377803,
+      "ap": 0.6247382935030288
+    },
+    {
+      "model_variant": "snapshot_summary_hgb",
+      "n_features": 99,
+      "n": 5200,
+      "pos_rate": 0.28865384615384615,
+      "acc_at_0_5": 0.7765384615384615,
+      "bce": 0.48821304398017745,
+      "brier": 0.15907929724707826,
+      "auc": 0.7646888196910809,
+      "ap": 0.6418352654631334
+    }
+  ]
+}

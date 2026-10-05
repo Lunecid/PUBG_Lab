@@ -1,0 +1,41 @@
+{
+  "root": "model_stgcn/checkpoints/br_rq4_prior_baseline_required_v1",
+  "cohorts": 13,
+  "models": [
+    "a0_official_raw",
+    "a10_raw_network_habitat",
+    "a11_full_representation",
+    "a12_raw_network_habitat_z_affordance",
+    "a1_prior_raw",
+    "a2_prior_scores",
+    "a3_current_conventional",
+    "a4_stdb_spatial",
+    "a5_raw_plus_stdb",
+    "a6_raw_plus_network",
+    "a7_raw_plus_habitat",
+    "a8_raw_stdb_network",
+    "a9_raw_stdb_habitat",
+    "conventional",
+    "conventional_plus_exposure",
+    "conventional_plus_network",
+    "conventional_plus_stdb_spatial",
+    "conventional_plus_trajectory",
+    "conventional_stdb_network_habitat",
+    "conventional_stdb_plus_habitat",
+    "conventional_stdb_plus_network",
+    "full_node_features",
+    "full_plus_network",
+    "global_state",
+    "habitat_tier1",
+    "network_tier1",
+    "prior_raw",
+    "prior_scores",
+    "stdb_spatial"
+  ],
+  "outputs": {
+    "metrics_all_cohorts": "model_stgcn/checkpoints/br_rq4_prior_baseline_required_v1/rq4_prior_baseline_metrics_all_cohorts.csv",
+    "metrics_summary": "model_stgcn/checkpoints/br_rq4_prior_baseline_required_v1/rq4_prior_baseline_metrics_summary.csv",
+    "phase_metrics_all_cohorts": "model_stgcn/checkpoints/br_rq4_prior_baseline_required_v1/rq4_prior_baseline_phase_metrics_all_cohorts.csv",
+    "paired_tests_all_cohorts": "model_stgcn/checkpoints/br_rq4_prior_baseline_required_v1/rq4_prior_baseline_paired_tests_all_cohorts.csv"
+  }
+}

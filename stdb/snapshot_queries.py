@@ -91,18 +91,30 @@ def _phase_of_snaps_from_bounds(cur, match_id: str, snaps: list[int]) -> np.ndar
 
     `team_snapshot_features.phase_idx` can contain NULL/0 rows for some matches.
     The model cut contract needs a single match-level phase id per snapshot, so
-    derive it from `v_match_phase_bounds` instead of per-team feature rows.
+    derive it from the phase-bound table instead of per-team feature rows.
     """
     cur.execute(
         """
         SELECT phase_idx, phase_start_s, phase_end_s
-          FROM stdb.v_match_phase_bounds
+          FROM stdb.match_phase_global
          WHERE match_id = %s AND phase_idx > 0
          ORDER BY phase_idx
         """,
         (match_id,),
     )
-    bounds = [(int(p), float(s), float(e)) for p, s, e in cur.fetchall()]
+    rows = cur.fetchall()
+    if not rows:
+        cur.execute(
+            """
+            SELECT phase_idx, phase_start_s, phase_end_s
+              FROM stdb.v_match_phase_bounds
+             WHERE match_id = %s AND phase_idx > 0
+             ORDER BY phase_idx
+            """,
+            (match_id,),
+        )
+        rows = cur.fetchall()
+    bounds = [(int(p), float(s), float(e)) for p, s, e in rows]
     phase_of_snap = np.zeros(len(snaps), dtype=np.int64)
     for i, st in enumerate(snaps):
         last_phase = 0

@@ -27,6 +27,7 @@ from sklearn.metrics import (
 from torch.utils.data import DataLoader
 
 from model_stgcn.edge_modes import edge_active_mask
+from model_stgcn.provenance import git_provenance
 from model_stgcn.splits import load_or_create_split
 from model_stgcn.v3.cohorts import resolve_map_mode
 from model_stgcn.v3.edge_controls import EDGE_CONTROL_CHOICES, apply_phase_edge_control
@@ -318,6 +319,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             seed=args.seed,
             val_frac=args.val_frac,
             test_frac=args.test_frac,
+            require_existing=args.require_existing_split,
             metadata={"source": "model_stgcn.v3.eval"},
         )
     else:
@@ -330,6 +332,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                 seed=args.seed,
                 val_frac=args.val_frac,
                 test_frac=args.test_frac,
+                require_existing=args.require_existing_split,
             )
     split_map = {"train": train_ids, "val": val_ids, "test": test_ids}
     eval_ids = split_map[args.split]
@@ -501,6 +504,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "rank_pairwise_acc": float(pair_correct / pair_total) if pair_total else float("nan"),
         "rank_pairwise_n": int(pair_total),
         "phase_metrics": _phase_metrics(phase_bins),
+        "provenance": git_provenance(),
     }
     logger.info("result=%s", out)
     if args.out:
@@ -529,6 +533,11 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--val-frac", type=float, default=0.1)
     ap.add_argument("--test-frac", type=float, default=0.1)
     ap.add_argument("--split-json", default=None)
+    ap.add_argument(
+        "--require-existing-split",
+        action="store_true",
+        help="fail if --split-json is absent instead of creating a new split manifest",
+    )
     ap.add_argument("--out", default=None)
     ap.add_argument("--feature-preset", choices=FEATURE_PRESETS, default=None, help=argparse.SUPPRESS)
     ap.add_argument(

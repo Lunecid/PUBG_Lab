@@ -1,0 +1,8 @@
+{
+  "gate": "none",
+  "control": "observed",
+  "best_val_auc": 0.6718223814243567,
+  "n_test_cells": 1159,
+  "pred_csv": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/karakin_tpp_squad/A_none_observed/pred_test.csv",
+  "elapsed_s": 0.8
+}

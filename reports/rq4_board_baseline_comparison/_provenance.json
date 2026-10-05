@@ -1,0 +1,113 @@
+{
+  "artifact_root": "reports/rq4_board_baseline_comparison",
+  "captured_at": "2026-07-09T16:22:14.862664+00:00",
+  "provenance": {
+    "captured_at": "2026-07-09T16:22:14.914362+00:00",
+    "repo_root": "/Users/lunecid/project/PUBG",
+    "git_commit": "f12c6eb2ebf0a26998675fa9e0f83da022a8356b",
+    "git_branch": "paper/dsacg-st-short-background",
+    "git_dirty": true,
+    "git_dirty_count": 118,
+    "git_dirty_files_sample": [
+      "M .gitignore",
+      " M docs/DOC_OBJECT_MANIFEST_2026-07-02.md",
+      " M docs/data_layer/BR_DATA_LAYER_CONTRACT.md",
+      " M docs/data_layer/README.md",
+      " M docs/experiment_design/BATTLE_ROYALE_EXPERIMENT_EVIDENCE_LEDGER_2026-07-05.md",
+      " M docs/experiment_design/BATTLE_ROYALE_O1_SURVIVAL_CAPITAL_INTEGRITY_AUDIT_2026-07-04.md",
+      " M docs/experiment_design/BATTLE_ROYALE_O6_Z_LADDER_RESULT_2026-07-05.md",
+      " M docs/experiment_design/BATTLE_ROYALE_O7_EDGE_STREAM_NULL_GUARD_PROTOCOL_2026-07-05.md",
+      " M docs/experiment_design/BATTLE_ROYALE_RESEARCH_EXECUTION_CHECKLIST_2026-07-03.md",
+      " M docs/experiment_design/README.md",
+      " M docs/experiment_design/V3_LEAKAGE_AUDIT_2026-06-15.md",
+      " M docs/handoffs/NEXT_CHAT_HANDOFF_2026-07-05_BATTLE_ROYALE_FRAMEWORK.md",
+      " M docs/model_design/BATTLE_ROYALE_SURVIVAL_FORMALIZATION_2026-07-03.md",
+      " M docs/model_design/FUTURE_DESIGN_3D_RELATIONAL_2026-06-21.md",
+      " M docs/model_design/README.md",
+      " M docs/paper_writing/README.md",
+      " M docs/research_framing/BATTLE_ROYALE_ANALYTIC_FRAMEWORK_STATUS_2026-07-04.md",
+      " M docs/research_framing/BATTLE_ROYALE_PAPER_ARGUMENT_CHAIN_2026-07-03.md",
+      " M docs/research_framing/README.md",
+      " M docs/spatial_world_modeling/README.md",
+      " M model_stgcn/feature_ablation.py",
+      " M model_stgcn/snapshot_baselines.py",
+      " M model_stgcn/snapshot_phase_dataset.py",
+      " M model_stgcn/splits.py",
+      " M model_stgcn/train_snapshot_phase.py",
+      " M model_stgcn/v3/eval.py",
+      " M model_stgcn/v3/experiment_matrix.py",
+      " M model_stgcn/v3/models.py",
+      " M model_stgcn/v3/run_matrix.py",
+      " M model_stgcn/v3/train.py",
+      " M scripts/adv_precompute.py",
+      " M scripts/overnight_runs.sh",
+      " M scripts/render_caldera_agent_pov_animation.py",
+      " M scripts/render_caldera_blender_clay.py",
+      " M scripts/run_adv_base.sh",
+      " M scripts/run_adv_experiment.sh",
+      " M scripts/run_adv_kablation.sh",
+      " M scripts/run_adv_nodeabs.sh",
+      " M scripts/run_v3_full_feature_matrix.sh",
+      " M scripts/run_v3_full_graph_relation_matrix.sh",
+      " M scripts/run_v3_graph_relation_seed_repeats.sh",
+      " M scripts/v3_gen_predictions.sh",
+      " M scripts/v3_gen_resolution_preds.sh",
+      " M stdb/etl.py",
+      " M stdb/queries.py",
+      " M stdb/snapshot_queries.py",
+      " M tests/test_snapshot_baselines.py",
+      " M tests/test_v3_edge_controls.py",
+      "?? docs/data_layer/PUBG_OFFICIAL_TELEMETRY_OBSERVABILITY_TABLE_2026-07-05.md",
+      "?? docs/experiment_design/BATTLE_ROYALE_CLAIM_EXPERIMENT_MAPPING_2026-07-06.md"
+    ],
+    "python": {
+      "executable": "/Users/lunecid/.pyenv/versions/3.11.5/bin/python3",
+      "version": "3.11.5",
+      "implementation": "CPython",
+      "platform": "macOS-26.5.1-arm64-arm-64bit"
+    }
+  },
+  "evidence_file_count": 8,
+  "evidence_files": [
+    {
+      "path": "RQ4_BOARD_BASELINE_COMPARISON_RESULT_2026-07-06.md",
+      "bytes": 20953,
+      "sha256": "8392e81306cc62c7eab0270b5c90820d556f25184b12dd97cd7c2e4ac567f633"
+    },
+    {
+      "path": "board_baseline_feature_rows.csv",
+      "bytes": 14759685,
+      "sha256": "ceefb4369bf0380889b9c69c7711a29d7c6efbed315feabd35e792c9fca6b346"
+    },
+    {
+      "path": "rq4_board_baseline_aggregate.csv",
+      "bytes": 2241,
+      "sha256": "f87b21ea1fbb173080b7077d641a2d914a84426db161abaeb225feb929eaed6c"
+    },
+    {
+      "path": "rq4_board_baseline_board_rows.csv",
+      "bytes": 18577593,
+      "sha256": "d6d0e958045b068946638f9431ab0db6c2007164d367b0de3e047e5eef129cc3"
+    },
+    {
+      "path": "rq4_board_baseline_by_cohort.csv",
+      "bytes": 43030,
+      "sha256": "5f752875ed25ab0fbbe8348deb9e7e2352926db56027987de86ff88a2ce5d407"
+    },
+    {
+      "path": "rq4_board_baseline_manifest.json",
+      "bytes": 2673,
+      "sha256": "9cb90eb463e39652118a6c6f59eecee9ce2443f7e42ce841e9de63d2c61a5950"
+    },
+    {
+      "path": "rq4_board_baseline_score_rows.csv",
+      "bytes": 105327211,
+      "sha256": "777e3c3034c7cdb405beaa1ba208301f5cab0337387da5878010bb2b22b96add"
+    },
+    {
+      "path": "rq4_board_baseline_sign_count.csv",
+      "bytes": 8086,
+      "sha256": "5bcd474065e40d411ba6176b2d9a46f073312978c28d8b539aeb249645f8f317"
+    }
+  ]
+}

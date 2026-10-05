@@ -1,0 +1,91 @@
+{
+  "root": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/miramar_desert_tpp_squad",
+  "conditions": {
+    "A": "A_none_observed",
+    "B": "B_knn_observed",
+    "C": "C_knn_edge_shuffle"
+  },
+  "feature_preset": "om5_relation_structure",
+  "metric": "hazard_implied_rank_spearman",
+  "metric_note": "Spearman(final_rank_norm, hazard_prob); O7 model has no rank head.",
+  "n_aligned_rows": 9039,
+  "n_boot": 200,
+  "seed": 42,
+  "rows": [
+    {
+      "phase_group": "all",
+      "phases": "all",
+      "n": 9039,
+      "n_matches": 154,
+      "rank_spearman_A_none_observed": -0.01928889733978441,
+      "rank_spearman_B_knn_observed": 0.032981507276498796,
+      "rank_spearman_C_knn_edge_shuffle": 0.006202888123183911,
+      "delta_B_minus_C": 0.026778619153314885,
+      "delta_B_minus_C_ci_low": 0.02250333288084807,
+      "delta_B_minus_C_ci_high": 0.030941331664228907,
+      "delta_B_minus_A": 0.05227040461628321,
+      "delta_B_minus_A_ci_low": 0.045795963793309066,
+      "delta_B_minus_A_ci_high": 0.05786042636250497
+    },
+    {
+      "phase_group": "early_1_2",
+      "phases": "1,2",
+      "n": 4659,
+      "n_matches": 154,
+      "rank_spearman_A_none_observed": 0.2992222667740324,
+      "rank_spearman_B_knn_observed": 0.3124347484402615,
+      "rank_spearman_C_knn_edge_shuffle": 0.30824827436178576,
+      "delta_B_minus_C": 0.0041864740784757215,
+      "delta_B_minus_C_ci_low": -0.00364903899502321,
+      "delta_B_minus_C_ci_high": 0.009919983023268563,
+      "delta_B_minus_A": 0.01321248166622907,
+      "delta_B_minus_A_ci_low": 0.004420480802434281,
+      "delta_B_minus_A_ci_high": 0.021502979005993815
+    },
+    {
+      "phase_group": "mid_3_4",
+      "phases": "3,4",
+      "n": 3058,
+      "n_matches": 154,
+      "rank_spearman_A_none_observed": 0.28954414947167406,
+      "rank_spearman_B_knn_observed": 0.30752790416590187,
+      "rank_spearman_C_knn_edge_shuffle": 0.3053325760683568,
+      "delta_B_minus_C": 0.0021953280975450795,
+      "delta_B_minus_C_ci_low": -0.004682894069785219,
+      "delta_B_minus_C_ci_high": 0.009533292402662676,
+      "delta_B_minus_A": 0.017983754694227805,
+      "delta_B_minus_A_ci_low": 0.008076665209117172,
+      "delta_B_minus_A_ci_high": 0.02670701143127815
+    },
+    {
+      "phase_group": "late_5_6",
+      "phases": "5,6",
+      "n": 1162,
+      "n_matches": 149,
+      "rank_spearman_A_none_observed": 0.35473467122216495,
+      "rank_spearman_B_knn_observed": 0.3875894688294413,
+      "rank_spearman_C_knn_edge_shuffle": 0.3576249226709701,
+      "delta_B_minus_C": 0.02996454615847116,
+      "delta_B_minus_C_ci_low": 0.009727894154425494,
+      "delta_B_minus_C_ci_high": 0.047133408746227345,
+      "delta_B_minus_A": 0.03285479760727633,
+      "delta_B_minus_A_ci_low": 0.012362378509808066,
+      "delta_B_minus_A_ci_high": 0.054883509571113744
+    },
+    {
+      "phase_group": "final_7",
+      "phases": "7",
+      "n": 160,
+      "n_matches": 64,
+      "rank_spearman_A_none_observed": 0.18653739007020148,
+      "rank_spearman_B_knn_observed": 0.08299267789020127,
+      "rank_spearman_C_knn_edge_shuffle": 0.04990118978577011,
+      "delta_B_minus_C": 0.03309148810443117,
+      "delta_B_minus_C_ci_low": -0.0930053166121757,
+      "delta_B_minus_C_ci_high": 0.1347866975741259,
+      "delta_B_minus_A": -0.1035447121800002,
+      "delta_B_minus_A_ci_low": -0.22351764681663414,
+      "delta_B_minus_A_ci_high": 0.0018102517107951195
+    }
+  ]
+}

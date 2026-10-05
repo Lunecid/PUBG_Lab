@@ -1,0 +1,104 @@
+{
+  "model_variant": "snapshot_transformer_no_graph",
+  "checkpoint": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/erangel_tpp_duo/snapshot_transformer_no_graph/model.pt",
+  "history": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/erangel_tpp_duo/snapshot_transformer_no_graph/model.history.json",
+  "map": "Baltic_Main",
+  "mode": "duo",
+  "limit": null,
+  "seed": 42,
+  "snapshot_feature_preset": "full",
+  "snapshot_edge_preset": "full",
+  "snapshot_cache_dir": null,
+  "best_val": 0.5402730483275193,
+  "best_epoch": 12,
+  "split_counts": {
+    "train": 526,
+    "val": 65,
+    "test": 65,
+    "train_loaded": 526,
+    "val_loaded": 65,
+    "test_loaded": 65
+  },
+  "channel_contract": {
+    "model_variant": "snapshot_transformer_no_graph",
+    "model_family": "M3_transformer_snapshot_survival_model",
+    "temporal_resolution": "10s_snapshot",
+    "output_resolution": "phase_cut",
+    "graph_resolution": "none",
+    "relation_handling": "none",
+    "edge_control": "none",
+    "edge_control_seed": null,
+    "snapshot_feature_preset": "full",
+    "snapshot_edge_preset": "none",
+    "relative_edge_gate": null,
+    "relative_edge_k": null,
+    "relative_edge_null": null,
+    "feature_clocks_consumed": [
+      "snapshot_10s"
+    ],
+    "input_channels_consumed": [
+      "C1_snapshot_team_state"
+    ],
+    "supervision_channels": [
+      "C8_label_mask"
+    ],
+    "tensor_owners_consumed": [
+      "X_s"
+    ],
+    "snapshot_feature_names": [
+      "pos_x",
+      "pos_y",
+      "pos_z",
+      "rel_zone_x",
+      "rel_zone_y",
+      "speed_mps",
+      "dist_blue_boundary_m",
+      "inside_blue",
+      "dist_target_center_m",
+      "mean_health",
+      "min_health",
+      "alive_n",
+      "vehicle_ratio"
+    ],
+    "snapshot_feature_names_available": [
+      "pos_x",
+      "pos_y",
+      "pos_z",
+      "rel_zone_x",
+      "rel_zone_y",
+      "speed_mps",
+      "dist_blue_boundary_m",
+      "inside_blue",
+      "dist_target_center_m",
+      "mean_health",
+      "min_health",
+      "alive_n",
+      "vehicle_ratio"
+    ],
+    "snapshot_edge_types": [],
+    "snapshot_edge_feature_names": [],
+    "domain_mechanisms_consumed": [
+      "resource",
+      "roster",
+      "rotation",
+      "space",
+      "zone"
+    ],
+    "heads_enabled": [
+      "next_phase_hazard"
+    ],
+    "label_and_mask_inputs_forbidden": true
+  },
+  "best_val_metrics": {
+    "loss": 0.5402730483275193,
+    "hazard_acc": 0.7425811116512006,
+    "hazard_pos": 234.43076923076924,
+    "hazard_n": 716.3538461538461
+  },
+  "test_metrics": {
+    "loss": 0.5514594389842107,
+    "hazard_acc": 0.7325353769155649,
+    "hazard_pos": 230.83076923076922,
+    "hazard_n": 700.2461538461539
+  }
+}

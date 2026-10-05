@@ -122,7 +122,7 @@ At cut phase p, among teams still at risk, predict eventual final rank/top-k.
 권장 재시작:
 
 ```bash
-PG_PASSWORD=104204 V3_FORCE=1 ./scripts/run_v3_full_main_matrix.sh
+PG_PASSWORD=... V3_FORCE=1 ./scripts/run_v3_full_main_matrix.sh
 ```
 
 ## 8. Remaining Audit Items
@@ -136,4 +136,3 @@ PG_PASSWORD=104204 V3_FORCE=1 ./scripts/run_v3_full_main_matrix.sh
 | time-shuffled snapshot controls | MR temporal order의 의미 검증 |
 | tabular baseline shared split | feature-family ablation과 같은 split/risk set 보장 |
 | feature group importance | survival signal이 어떤 representation family에서 오는지 해석 |
-

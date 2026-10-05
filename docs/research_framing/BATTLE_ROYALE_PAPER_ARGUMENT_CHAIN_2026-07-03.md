@@ -22,6 +22,22 @@ docs/research_framing/BATTLE_ROYALE_ANALYTIC_FRAMEWORK_NARRATIVE_FOR_MANUSCRIPT_
 Use that document when drafting Introduction, Theory, and Validation prose for
 the analytic-framework/formulation claim.
 
+The final section order is now owned by:
+
+```text
+docs/research_framing/BATTLE_ROYALE_MANUSCRIPT_CANONICAL_FLOW_2026-07-05.md
+```
+
+That flow is:
+
+```text
+Battle Royale genre formalization
+-> PUBG official-telemetry representation and mapping to the formalization
+-> prior tabular/phase-aware prediction plus 10-second realtime
+   elimination-risk model
+-> phase-transition risk/advantage board
+```
+
 ## Core Premise
 
 The paper should be framed as an extension of two prior lines:
@@ -42,10 +58,19 @@ result-level PUBG prediction exists
 -> contraction / elimination pressure is a genre-level mechanism
 -> Battle Royale needs a general formulation beyond PUBG
 -> the formulation becomes an ontology of genre mechanisms
--> the ontology is instantiated as team-level, relation-aware phase survival prediction
--> phase hazards accumulate into survival curves
--> cumulative survival scores support final-rank prediction/evaluation
+-> the ontology is instantiated in PUBG official telemetry
+-> prior tabular/phase-aware prediction is extended with 10-second telemetry
+-> phase hazards accumulate into survival trajectories
+-> trajectories produce phase-transition risk/advantage boards
 ```
+
+The manuscript should therefore make the PUBG section do two jobs before any
+prediction result is discussed:
+
+1. show how official PUBG telemetry is represented exactly as formal
+   team-phase and 10-second snapshot variables;
+2. show how prior tabular and phase-aware prediction baselines motivate a
+   realtime survival-monitoring model rather than only a final-rank classifier.
 
 Sagong citation metadata and the solo/phase/FightScore/ActiveScore reading were
 checked against the local PDF and BibTeX on 2026-07-03.  Other rank-prediction
@@ -62,11 +87,12 @@ verification before manuscript submission.
 | 4 | The bridge to a general formulation is that contraction / elimination pressure is genre-defining, while PUBG Blue Zone is one projection | O2 rename, official-source mini corpus plan, non-PUBG boundary cases | `BATTLE_ROYALE_ONTOLOGY_CORPUS_DESIGN_2026-07-02.md`, `BATTLE_ROYALE_FEATURE_ONTOLOGY_2026-07-02.md` |
 | 5 | We define Battle Royale as a general survival system, not a PUBG-only task | Lightweight ontology vocabulary, claim-boundary lock, and post-OM analytic-framework status | `BATTLE_ROYALE_ONTOLOGY_LOCK_2026-07-03.md`, `BATTLE_ROYALE_ANALYTIC_FRAMEWORK_STATUS_2026-07-04.md` |
 | 6 | We define the genre by its reusable mechanism families | O0-O8 ontology, source/corpus confirmatory plan, and OM ladder mechanism evidence | `BATTLE_ROYALE_ONTOLOGY_CORPUS_DESIGN_2026-07-02.md`, `BATTLE_ROYALE_FEATURE_ONTOLOGY_2026-07-02.md`, `BATTLE_ROYALE_OM_LADDER_RESULT_FEATURE_AUDIT_2026-07-04.md` |
-| 7 | We instantiate that formulation in PUBG because PUBG is label-rich | PUBG operational manifest, feature availability, phase labels | `PUBG_FEATURE_OPERATIONAL_MANIFEST_2026-07-02.md` |
-| 8 | We predict team-level, relation-aware phase survival hazard | Phase-cut hazard formula, leakage-safe cut rule, O7 relation features | `BATTLE_ROYALE_SURVIVAL_FORMALIZATION_2026-07-03.md`, `PUBG_NETWORK_STRUCTURE_FEATURE_SPEC_2026-07-02.md` |
-| 9 | We derive cumulative survival probability from phase hazards | Survival curve accumulation | `BATTLE_ROYALE_SURVIVAL_FORMALIZATION_2026-07-03.md` |
-| 10 | We use cumulative survival scores and/or an auxiliary head to evaluate final rank | Match-local rank evaluation under PUBG labels | `BATTLE_ROYALE_FRAMEWORK_VALIDATION_PLAN_2026-07-02.md` |
-| 11 | We use Warzone/Caldera as ontology and construct evidence, not supervised prediction | Geometry-rich but label-poor observability boundary | `CALDERA_DATASET_STATUS_REDECISION_2026-07-02.md`, `TERRAIN_AFFORDANCE_CAPABILITY_BOUNDARY_2026-07-02.md` |
+| 7 | We instantiate that formulation in PUBG official telemetry because PUBG is label-rich | PUBG operational manifest, formal-to-feature mapping, feature availability, phase labels | `PUBG_FEATURE_OPERATIONAL_MANIFEST_2026-07-02.md`, `BATTLE_ROYALE_MANUSCRIPT_CANONICAL_FLOW_2026-07-05.md` |
+| 8 | We position prior tabular and phase-wise PUBG prediction under the same team-phase risk set | Sagong-style adapted scores, official raw baseline, representation-rich tabular baselines | `BATTLE_ROYALE_RQ4_PRIOR_BASELINE_RESULT_2026-07-05.md` |
+| 9 | We derive cumulative survival probability and match-local survival share from phase hazards | Survival curve accumulation and dynamic probability trajectory | `BATTLE_ROYALE_SURVIVAL_FORMALIZATION_2026-07-03.md`, `BATTLE_ROYALE_RQ4_DYNAMIC_PROBABILITY_FLUCTUATION_RESULT_2026-07-06.md` |
+| 10 | We convert the trajectory into phase-transition risk/advantage boards | Most-at-risk and most-advantaged team ranking at each phase cut | `BATTLE_ROYALE_REALTIME_RISK_ADVANTAGE_FRAMEWORK_2026-07-06.md`, `BATTLE_ROYALE_RQ4_PHASE_TRANSITION_RISK_ADVANTAGE_BOARD_RESULT_2026-07-06.md` |
+| 11 | We use cumulative survival scores and/or an auxiliary head to evaluate final rank | Match-local rank evaluation under PUBG labels | `BATTLE_ROYALE_FRAMEWORK_VALIDATION_PLAN_2026-07-02.md` |
+| S1 | We keep Warzone/Caldera as supplementary observability boundary evidence | Geometry-rich but label-poor future O6 terrain/topology extension | `PUBG_WARZONE_OBSERVABILITY_GAP_BRIDGE_2026-07-05.md`, `CALDERA_DATASET_STATUS_REDECISION_2026-07-02.md`, `TERRAIN_AFFORDANCE_CAPABILITY_BOUNDARY_2026-07-02.md` |
 
 ## Direct Prior-Work Gap
 
@@ -78,14 +104,16 @@ supports three constraints on our positioning:
 | --- | --- |
 | solo-player setting | our unit shift is player to team |
 | FightScore / ActiveScore strategy summaries | our representation shift is derived strategy scores to ontology-grounded telemetry blocks |
-| next-phase survival and final win prediction | our task shift is not merely "hazard instead of survival", but team-level survival under relation structure |
+| next-phase survival and final win prediction | our task shift is not merely "hazard instead of survival", but dynamic team-level survival probability trajectories under relation and phase pressure |
 
 Therefore, the core differentiator should be stated as:
 
 ```text
 We extend phase-aware PUBG survival prediction from solo score-based strategy
-analysis to team-level, relation-aware survival modeling under a general
-Battle Royale ontology.
+analysis to team-level survival monitoring under a general Battle Royale
+ontology, where phase hazards accumulate into changing match-local probability
+trajectories and phase-transition risk/advantage boards rather than only static
+phase scores.
 ```
 
 ## Formal Narrative
@@ -105,6 +133,15 @@ The cumulative elimination risk by phase `K` is:
 ```text
 RISK_i(K) = 1 - S_i(K)
 ```
+
+The match-local dynamic survival-share readout is:
+
+```text
+pi_i(k) = S_i(k) / sum_j S_j(k)
+```
+
+This readout is a probability trajectory for comparing teams within the same
+match and cut.  It is not a bookmaker-calibrated win probability.
 
 A final-rank predictor can then use:
 
@@ -153,8 +190,10 @@ Current boundary:
 | --- | --- |
 | framework claim | We propose an ontology-guided analytic framework that formulates Battle Royale as a phase-conditioned survival system with O0-O8 mechanism families |
 | PUBG prediction claim | We test whether ontology-derived feature blocks improve team-level, relation-aware phase survival prediction in PUBG |
+| dynamic probability claim | We show that phase-wise hazards can be rendered as changing match-local survival probability trajectories |
+| risk/advantage board claim | We evaluate whether those trajectories identify the most at-risk and most advantaged teams at phase transitions |
 | final-rank claim | We evaluate whether calibrated phase-wise hazards and cumulative survival scores support match-local final-rank prediction |
-| Caldera claim | We use Warzone/Caldera as geometry-rich construct evidence for spatial affordance measurement |
+| Caldera claim | Supplementary only: Warzone/Caldera shows geometry-rich terrain / route / building representations that official PUBG telemetry cannot directly observe |
 
 Current status after the required-cohort OM ladder:
 
@@ -189,6 +228,8 @@ O0-O8 ontology
 -> OM0-OM6 feature blocks
 -> team-level, relation-aware next-phase hazard
 -> cumulative survival curve
+-> dynamic match-local survival-share trajectory
+-> phase-transition risk/advantage board
 -> match-local final-rank evaluation
 ```
 

@@ -1,0 +1,510 @@
+{
+  "checkpoint": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/erangel_tpp_duo/snapshot_transformer_no_graph/model.pt",
+  "split": "test",
+  "model_variant": "snapshot_transformer_no_graph",
+  "metric_unit": "at_risk_team_phase",
+  "final_bridge_eval_unit": "latest_at_risk_team",
+  "bridge_definition": "cumulative_survival_score=prod_{j<=cut_phase}(1-hazard_prob_j)",
+  "topk_bridge_note": "top5_prob/top10_prob are cumulative survival scores, not separately calibrated top-k heads.",
+  "rank_bridge_note": "rank_pred_norm=1-cumulative_survival_score, so lower predicted rank means higher survival.",
+  "bridge_metric_is_headline_safe": false,
+  "split_counts": {
+    "ids_requested": 65,
+    "matches_loaded": 65,
+    "prediction_rows": 5763
+  },
+  "channel_contract": {
+    "model_variant": "snapshot_transformer_no_graph",
+    "model_family": "M3_transformer_snapshot_survival_model",
+    "temporal_resolution": "10s_snapshot",
+    "output_resolution": "phase_cut",
+    "graph_resolution": "none",
+    "relation_handling": "none",
+    "edge_control": "none",
+    "edge_control_seed": null,
+    "snapshot_feature_preset": "full",
+    "snapshot_edge_preset": "none",
+    "relative_edge_gate": null,
+    "relative_edge_k": null,
+    "relative_edge_null": null,
+    "feature_clocks_consumed": [
+      "snapshot_10s"
+    ],
+    "input_channels_consumed": [
+      "C1_snapshot_team_state"
+    ],
+    "supervision_channels": [
+      "C8_label_mask"
+    ],
+    "tensor_owners_consumed": [
+      "X_s"
+    ],
+    "snapshot_feature_names": [
+      "pos_x",
+      "pos_y",
+      "pos_z",
+      "rel_zone_x",
+      "rel_zone_y",
+      "speed_mps",
+      "dist_blue_boundary_m",
+      "inside_blue",
+      "dist_target_center_m",
+      "mean_health",
+      "min_health",
+      "alive_n",
+      "vehicle_ratio"
+    ],
+    "snapshot_feature_names_available": [
+      "pos_x",
+      "pos_y",
+      "pos_z",
+      "rel_zone_x",
+      "rel_zone_y",
+      "speed_mps",
+      "dist_blue_boundary_m",
+      "inside_blue",
+      "dist_target_center_m",
+      "mean_health",
+      "min_health",
+      "alive_n",
+      "vehicle_ratio"
+    ],
+    "snapshot_edge_types": [],
+    "snapshot_edge_feature_names": [],
+    "domain_mechanisms_consumed": [
+      "resource",
+      "roster",
+      "rotation",
+      "space",
+      "zone"
+    ],
+    "heads_enabled": [
+      "next_phase_hazard"
+    ],
+    "label_and_mask_inputs_forbidden": true
+  },
+  "hazard": {
+    "n": 5763,
+    "pos_rate": 0.329689397883047,
+    "acc_at_0_5": 0.7326045462432761,
+    "bce": 0.5513675303174299,
+    "brier": 0.18430165637444068,
+    "ece": 0.02738394497346076,
+    "auc": 0.7135831164761502,
+    "ap": 0.6248536494912176
+  },
+  "top5_from_survival": {
+    "n": 5763,
+    "pos_rate": 0.3230956099253861,
+    "acc_at_0_5": 0.36907860489328476,
+    "bce": 1.0482823351769768,
+    "brier": 0.38782527746385576,
+    "ece": 0.38204235272400977,
+    "auc": 0.34589013090091475,
+    "ap": 0.253105874915599
+  },
+  "top10_from_survival": {
+    "n": 5763,
+    "pos_rate": 0.5533576262363352,
+    "acc_at_0_5": 0.3956272774596564,
+    "bce": 1.0303695631273757,
+    "brier": 0.3769641931215137,
+    "ece": 0.33329658697218334,
+    "auc": 0.35628263238799457,
+    "ap": 0.4723306188025679
+  },
+  "rank_from_survival": {
+    "n": 5763,
+    "mae_norm": 0.3285088059832571,
+    "spearman": -0.2660566127497404,
+    "pairwise_acc": 0.6234305152362464,
+    "pairwise_n": 56149
+  },
+  "latest_cut_bridge": {
+    "n": 1931,
+    "n_matches": 65,
+    "top5_from_survival": {
+      "n": 1931,
+      "pos_rate": 0.16830657690315898,
+      "acc_at_0_5": 0.47591921284308647,
+      "bce": 0.978219240087569,
+      "brier": 0.34528381245850454,
+      "ece": 0.413629664390857,
+      "auc": 0.12499089951144744,
+      "ap": 0.0960409281570423
+    },
+    "top10_from_survival": {
+      "n": 1931,
+      "pos_rate": 0.3360952874158467,
+      "acc_at_0_5": 0.3298808907301916,
+      "bce": 1.1939425300307676,
+      "brier": 0.42834961885418693,
+      "ece": 0.4678270006428478,
+      "auc": 0.15955424041306798,
+      "ap": 0.20898458469175488
+    },
+    "rank_from_survival": {
+      "n": 1931,
+      "mae_norm": 0.39562179708737594,
+      "spearman": -0.520186994312655,
+      "pairwise_acc": 0.27670609968382537,
+      "pairwise_n": 28149
+    }
+  },
+  "phase_metrics": {
+    "1": {
+      "cut_phase": 1,
+      "n_matches": 65,
+      "hazard": {
+        "n": 1917,
+        "pos_rate": 0.28012519561815336,
+        "acc_at_0_5": 0.7965571205007824,
+        "bce": 0.4813183667668767,
+        "brier": 0.1533480702769679,
+        "ece": 0.03417276655191176,
+        "auc": 0.7391709173346287,
+        "ap": 0.6462616067670048
+      },
+      "top5_from_survival": {
+        "n": 1917,
+        "pos_rate": 0.16953573291601462,
+        "acc_at_0_5": 0.2775169535732916,
+        "bce": 1.2673234233936557,
+        "brier": 0.482488943890211,
+        "ece": 0.5743455464602387,
+        "auc": 0.6319810591418632,
+        "ap": 0.2233852666228131
+      },
+      "top10_from_survival": {
+        "n": 1917,
+        "pos_rate": 0.3359415753781951,
+        "acc_at_0_5": 0.43557642149191445,
+        "bce": 1.0190730542863435,
+        "brier": 0.3793213157116369,
+        "ece": 0.40793970399805823,
+        "auc": 0.6617480593111592,
+        "ap": 0.4416610403606567
+      },
+      "rank_from_survival": {
+        "n": 1917,
+        "mae_norm": 0.1542003596911812,
+        "spearman": 0.4026245237916094,
+        "pairwise_acc": 0.6416822969268504,
+        "pairwise_n": 27724
+      }
+    },
+    "2": {
+      "cut_phase": 2,
+      "n_matches": 65,
+      "hazard": {
+        "n": 1394,
+        "pos_rate": 0.27187948350071733,
+        "acc_at_0_5": 0.7546628407460545,
+        "bce": 0.5422193320352469,
+        "brier": 0.17926351789362263,
+        "ece": 0.039252049162705964,
+        "auc": 0.6562382208820203,
+        "ap": 0.49727089775012917
+      },
+      "top5_from_survival": {
+        "n": 1394,
+        "pos_rate": 0.2266857962697274,
+        "acc_at_0_5": 0.3249641319942611,
+        "bce": 0.8603565675035043,
+        "brier": 0.32959796500281,
+        "ece": 0.3933720088780861,
+        "auc": 0.5966393461872667,
+        "ap": 0.27403992088282825
+      },
+      "top10_from_survival": {
+        "n": 1394,
+        "pos_rate": 0.45552367288378764,
+        "acc_at_0_5": 0.5150645624103299,
+        "bce": 0.7207276158141457,
+        "brier": 0.2632253329583328,
+        "ece": 0.1648010696440801,
+        "auc": 0.621779589804239,
+        "ap": 0.5401410257817071
+      },
+      "rank_from_survival": {
+        "n": 1394,
+        "mae_norm": 0.16947177061829438,
+        "spearman": 0.24390192094448748,
+        "pairwise_acc": 0.5943555465532374,
+        "pairwise_n": 14811
+      }
+    },
+    "3": {
+      "cut_phase": 3,
+      "n_matches": 65,
+      "hazard": {
+        "n": 1040,
+        "pos_rate": 0.3423076923076923,
+        "acc_at_0_5": 0.6961538461538461,
+        "bce": 0.5953001913361902,
+        "brier": 0.20327634122526453,
+        "ece": 0.049611203444118665,
+        "auc": 0.6482727183126356,
+        "ap": 0.5635619225562755
+      },
+      "top5_from_survival": {
+        "n": 1040,
+        "pos_rate": 0.30673076923076925,
+        "acc_at_0_5": 0.6076923076923076,
+        "bce": 0.6355017172304255,
+        "brier": 0.22352704381151742,
+        "ece": 0.13562629142128274,
+        "auc": 0.6109548302383924,
+        "ap": 0.37315202993997154
+      },
+      "top10_from_survival": {
+        "n": 1040,
+        "pos_rate": 0.6076923076923076,
+        "acc_at_0_5": 0.5701923076923077,
+        "bce": 0.6913909417520786,
+        "brier": 0.2487858103004906,
+        "ece": 0.16691970512468582,
+        "auc": 0.6493585567138248,
+        "ap": 0.702579087140462
+      },
+      "rank_from_survival": {
+        "n": 1040,
+        "mae_norm": 0.37312984061111465,
+        "spearman": 0.24501632057023556,
+        "pairwise_acc": 0.6039244186046512,
+        "pairwise_n": 8256
+      }
+    },
+    "4": {
+      "cut_phase": 4,
+      "n_matches": 65,
+      "hazard": {
+        "n": 700,
+        "pos_rate": 0.44,
+        "acc_at_0_5": 0.6471428571428571,
+        "bce": 0.6274831921882988,
+        "brier": 0.21923785537698717,
+        "ece": 0.027241986691951724,
+        "auc": 0.6635717598727803,
+        "ap": 0.6630348805218367
+      },
+      "top5_from_survival": {
+        "n": 700,
+        "pos_rate": 0.45,
+        "acc_at_0_5": 0.55,
+        "bce": 0.7231501356699027,
+        "brier": 0.26263164233385305,
+        "ece": 0.1747773525996911,
+        "auc": 0.6346237889095032,
+        "ap": 0.5518053706692322
+      },
+      "top10_from_survival": {
+        "n": 700,
+        "pos_rate": 0.8242857142857143,
+        "acc_at_0_5": 0.1757142857142857,
+        "bce": 1.1162414676178616,
+        "brier": 0.4315762908079108,
+        "ece": 0.5490630668854054,
+        "auc": 0.7169829930535008,
+        "ap": 0.9034263141787883
+      },
+      "rank_from_survival": {
+        "n": 700,
+        "mae_norm": 0.5917423999815095,
+        "spearman": 0.26773213713558236,
+        "pairwise_acc": 0.6386418755052546,
+        "pairwise_n": 3711
+      }
+    },
+    "5": {
+      "cut_phase": 5,
+      "n_matches": 65,
+      "hazard": {
+        "n": 404,
+        "pos_rate": 0.4430693069306931,
+        "acc_at_0_5": 0.6658415841584159,
+        "bce": 0.6085516522119644,
+        "brier": 0.21076456561642243,
+        "ece": 0.038272200760864974,
+        "auc": 0.7095965238981998,
+        "ap": 0.7042946783348911
+      },
+      "top5_from_survival": {
+        "n": 404,
+        "pos_rate": 0.7178217821782178,
+        "acc_at_0_5": 0.28217821782178215,
+        "bce": 1.2896673395451006,
+        "brier": 0.4812462031401918,
+        "ece": 0.5439897464297105,
+        "auc": 0.714670296430732,
+        "ap": 0.8424380330298563
+      },
+      "top10_from_survival": {
+        "n": 404,
+        "pos_rate": 0.9727722772277227,
+        "acc_at_0_5": 0.027227722772277228,
+        "bce": 1.7884800495936746,
+        "brier": 0.6633669525561349,
+        "ece": 0.7989402414792155,
+        "auc": 0.9525792273883877,
+        "ap": 0.9986376955145688
+      },
+      "rank_from_survival": {
+        "n": 404,
+        "mae_norm": 0.739227280854683,
+        "spearman": 0.28231843478670204,
+        "pairwise_acc": 0.6641914191419142,
+        "pairwise_n": 1212
+      }
+    },
+    "6": {
+      "cut_phase": 6,
+      "n_matches": 58,
+      "hazard": {
+        "n": 220,
+        "pos_rate": 0.4818181818181818,
+        "acc_at_0_5": 0.6363636363636364,
+        "bce": 0.6388172845255595,
+        "brier": 0.22489817206918722,
+        "ece": 0.0531919543038715,
+        "auc": 0.6390268123138033,
+        "ap": 0.6935052277209318
+      },
+      "top5_from_survival": {
+        "n": 220,
+        "pos_rate": 0.95,
+        "acc_at_0_5": 0.05,
+        "bce": 2.1896581655140968,
+        "brier": 0.7475842370797874,
+        "ece": 0.8379360646579879,
+        "auc": 0.7829491083079599,
+        "ap": 0.9775487602223195
+      },
+      "top10_from_survival": {
+        "n": 220,
+        "pos_rate": 1.0,
+        "acc_at_0_5": 0.0,
+        "bce": 2.33737793908736,
+        "brier": 0.7912033706206832,
+        "ece": 0.8879360646579879,
+        "auc": NaN,
+        "ap": NaN
+      },
+      "rank_from_survival": {
+        "n": 220,
+        "mae_norm": 0.8305936201453334,
+        "spearman": 0.14982780478148536,
+        "pairwise_acc": 0.5868945868945868,
+        "pairwise_n": 351
+      }
+    },
+    "7": {
+      "cut_phase": 7,
+      "n_matches": 34,
+      "hazard": {
+        "n": 88,
+        "pos_rate": 0.3977272727272727,
+        "acc_at_0_5": 0.6477272727272727,
+        "bce": 0.6164194961296395,
+        "brier": 0.21327812521388967,
+        "ece": 0.11967004869471896,
+        "auc": 0.6911051212938006,
+        "ap": 0.6598134454338374
+      },
+      "top5_from_survival": {
+        "n": 88,
+        "pos_rate": 1.0,
+        "acc_at_0_5": 0.0,
+        "bce": 2.756565425017031,
+        "brier": 0.8573174085100335,
+        "ece": 0.925193150449487,
+        "auc": NaN,
+        "ap": NaN
+      },
+      "top10_from_survival": {
+        "n": 88,
+        "pos_rate": 1.0,
+        "acc_at_0_5": 0.0,
+        "bce": 2.756565425017031,
+        "brier": 0.8573174085100335,
+        "ece": 0.925193150449487,
+        "auc": NaN,
+        "ap": NaN
+      },
+      "rank_from_survival": {
+        "n": 88,
+        "mae_norm": 0.8829247612696924,
+        "spearman": 0.02947451066060728,
+        "pairwise_acc": 0.5357142857142857,
+        "pairwise_n": 84
+      }
+    }
+  },
+  "provenance": {
+    "captured_at": "2026-07-10T07:16:11.045166+00:00",
+    "repo_root": "/Users/lunecid/project/PUBG",
+    "git_commit": "f12c6eb2ebf0a26998675fa9e0f83da022a8356b",
+    "git_branch": "paper/dsacg-st-short-background",
+    "git_dirty": true,
+    "git_dirty_count": 119,
+    "git_dirty_files_sample": [
+      "M .gitignore",
+      " M docs/DOC_OBJECT_MANIFEST_2026-07-02.md",
+      " M docs/data_layer/BR_DATA_LAYER_CONTRACT.md",
+      " M docs/data_layer/README.md",
+      " M docs/experiment_design/BATTLE_ROYALE_EXPERIMENT_EVIDENCE_LEDGER_2026-07-05.md",
+      " M docs/experiment_design/BATTLE_ROYALE_O1_SURVIVAL_CAPITAL_INTEGRITY_AUDIT_2026-07-04.md",
+      " M docs/experiment_design/BATTLE_ROYALE_O6_Z_LADDER_RESULT_2026-07-05.md",
+      " M docs/experiment_design/BATTLE_ROYALE_O7_EDGE_STREAM_NULL_GUARD_PROTOCOL_2026-07-05.md",
+      " M docs/experiment_design/BATTLE_ROYALE_RESEARCH_EXECUTION_CHECKLIST_2026-07-03.md",
+      " M docs/experiment_design/README.md",
+      " M docs/experiment_design/V3_LEAKAGE_AUDIT_2026-06-15.md",
+      " M docs/handoffs/NEXT_CHAT_HANDOFF_2026-07-05_BATTLE_ROYALE_FRAMEWORK.md",
+      " M docs/model_design/BATTLE_ROYALE_SURVIVAL_FORMALIZATION_2026-07-03.md",
+      " M docs/model_design/FUTURE_DESIGN_3D_RELATIONAL_2026-06-21.md",
+      " M docs/model_design/README.md",
+      " M docs/paper_writing/README.md",
+      " M docs/research_framing/BATTLE_ROYALE_ANALYTIC_FRAMEWORK_STATUS_2026-07-04.md",
+      " M docs/research_framing/BATTLE_ROYALE_PAPER_ARGUMENT_CHAIN_2026-07-03.md",
+      " M docs/research_framing/README.md",
+      " M docs/spatial_world_modeling/README.md",
+      " M model_stgcn/feature_ablation.py",
+      " M model_stgcn/snapshot_baselines.py",
+      " M model_stgcn/snapshot_phase_dataset.py",
+      " M model_stgcn/splits.py",
+      " M model_stgcn/train_snapshot_phase.py",
+      " M model_stgcn/v3/eval.py",
+      " M model_stgcn/v3/experiment_matrix.py",
+      " M model_stgcn/v3/models.py",
+      " M model_stgcn/v3/run_matrix.py",
+      " M model_stgcn/v3/train.py",
+      " M scripts/adv_precompute.py",
+      " M scripts/overnight_runs.sh",
+      " M scripts/render_caldera_agent_pov_animation.py",
+      " M scripts/render_caldera_blender_clay.py",
+      " M scripts/run_adv_base.sh",
+      " M scripts/run_adv_experiment.sh",
+      " M scripts/run_adv_kablation.sh",
+      " M scripts/run_adv_nodeabs.sh",
+      " M scripts/run_v3_full_feature_matrix.sh",
+      " M scripts/run_v3_full_graph_relation_matrix.sh",
+      " M scripts/run_v3_graph_relation_seed_repeats.sh",
+      " M scripts/v3_gen_predictions.sh",
+      " M scripts/v3_gen_resolution_preds.sh",
+      " M stdb/etl.py",
+      " M stdb/queries.py",
+      " M stdb/snapshot_queries.py",
+      " M tests/test_snapshot_baselines.py",
+      " M tests/test_v3_edge_controls.py",
+      "?? docs/data_layer/PUBG_OFFICIAL_TELEMETRY_OBSERVABILITY_TABLE_2026-07-05.md",
+      "?? docs/experiment_design/BATTLE_ROYALE_CLAIM_EXPERIMENT_MAPPING_2026-07-06.md"
+    ],
+    "python": {
+      "executable": "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3",
+      "version": "3.12.6",
+      "implementation": "CPython",
+      "platform": "macOS-26.5.1-arm64-arm-64bit"
+    }
+  },
+  "prediction_csv": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/erangel_tpp_duo/snapshot_transformer_no_graph/survival_bridge_test.pred.csv"
+}

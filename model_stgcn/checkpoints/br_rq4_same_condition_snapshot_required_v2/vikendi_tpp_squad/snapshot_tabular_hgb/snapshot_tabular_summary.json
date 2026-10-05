@@ -1,0 +1,45 @@
+{
+  "split": {
+    "total": 498,
+    "train": 400,
+    "val": 49,
+    "test": 49,
+    "train_rows": 22596,
+    "test_rows": 2778
+  },
+  "configs": [
+    "snapshot_last_hgb",
+    "snapshot_summary_hgb"
+  ],
+  "feature_surface": "official_10s_snapshot_team_state_only",
+  "outputs": {
+    "predictions": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/vikendi_tpp_squad/snapshot_tabular_hgb/snapshot_tabular_predictions.csv",
+    "metrics": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/vikendi_tpp_squad/snapshot_tabular_hgb/snapshot_tabular_metrics.csv",
+    "phase_metrics": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/vikendi_tpp_squad/snapshot_tabular_hgb/snapshot_tabular_phase_metrics.csv",
+    "feature_manifest": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/vikendi_tpp_squad/snapshot_tabular_hgb/snapshot_tabular_features.json"
+  },
+  "metrics": [
+    {
+      "model_variant": "snapshot_last_hgb",
+      "n_features": 17,
+      "n": 2778,
+      "pos_rate": 0.30165586753059753,
+      "acc_at_0_5": 0.7469402447804175,
+      "bce": 0.5192802046273262,
+      "brier": 0.172344007758607,
+      "auc": 0.7411014811898728,
+      "ap": 0.6070224610492518
+    },
+    {
+      "model_variant": "snapshot_summary_hgb",
+      "n_features": 99,
+      "n": 2778,
+      "pos_rate": 0.30165586753059753,
+      "acc_at_0_5": 0.7455003599712023,
+      "bce": 0.5141808348576145,
+      "brier": 0.1708234871633279,
+      "auc": 0.7506840046256428,
+      "ap": 0.61230055715761
+    }
+  ]
+}

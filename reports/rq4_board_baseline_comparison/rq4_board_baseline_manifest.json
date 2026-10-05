@@ -1,0 +1,58 @@
+{
+  "lstm_trajectories": "/Users/lunecid/project/PUBG/reports/rq4_dynamic_probability_fluctuation/dynamic_probability_trajectories.csv",
+  "prior_root": "/Users/lunecid/project/PUBG/model_stgcn/checkpoints/br_rq4_prior_model_zoo_required_v1",
+  "feature_csv": "/Users/lunecid/project/PUBG/reports/rq4_board_baseline_comparison/board_baseline_feature_rows.csv",
+  "top_k": 5,
+  "random_seed": 20260706,
+  "variants": {
+    "random_alive_board": "Random alive",
+    "health_alive_count_board": "Health/alive-count",
+    "zone_distance_board": "Zone-distance",
+    "sagong_prior_score_hgb_board": "Sagong-style adapted HGB",
+    "official_raw_hgb_board": "Official-raw HGB",
+    "pressure_habitat_hgb_board": "Pressure-habitat HGB",
+    "lstm_realtime_board": "LSTM realtime board"
+  },
+  "outputs": {
+    "score_rows": "/Users/lunecid/project/PUBG/reports/rq4_board_baseline_comparison/rq4_board_baseline_score_rows.csv",
+    "board_rows": "/Users/lunecid/project/PUBG/reports/rq4_board_baseline_comparison/rq4_board_baseline_board_rows.csv",
+    "by_cohort": "/Users/lunecid/project/PUBG/reports/rq4_board_baseline_comparison/rq4_board_baseline_by_cohort.csv",
+    "aggregate": "/Users/lunecid/project/PUBG/reports/rq4_board_baseline_comparison/rq4_board_baseline_aggregate.csv",
+    "sign_count": "/Users/lunecid/project/PUBG/reports/rq4_board_baseline_comparison/rq4_board_baseline_sign_count.csv",
+    "example_figure": "/Users/lunecid/project/PUBG/reports/rq4_board_baseline_comparison/rq4_board_baseline_example_board.png",
+    "report": "/Users/lunecid/project/PUBG/reports/rq4_board_baseline_comparison/RQ4_BOARD_BASELINE_COMPARISON_RESULT_2026-07-06.md"
+  },
+  "coverage": {
+    "score_rows_raw": 735176,
+    "score_rows": 727020,
+    "board_rows": 74312,
+    "cohorts": 13,
+    "matches": 1789,
+    "common_universe": {
+      "input_rows": 735176,
+      "output_rows": 727020,
+      "variants": [
+        "lstm_realtime_board",
+        "health_alive_count_board",
+        "official_raw_hgb_board",
+        "pressure_habitat_hgb_board",
+        "random_alive_board",
+        "sagong_prior_score_hgb_board",
+        "zone_distance_board"
+      ],
+      "common_row_keys": 103860,
+      "input_board_keys": 10738,
+      "output_board_keys": 10616,
+      "dropped_rows_by_variant": {
+        "lstm_realtime_board": 1631,
+        "health_alive_count_board": 260,
+        "official_raw_hgb_board": 1915,
+        "pressure_habitat_hgb_board": 1915,
+        "random_alive_board": 260,
+        "sagong_prior_score_hgb_board": 1915,
+        "zone_distance_board": 260
+      },
+      "contract": "all variants evaluated on intersected cohort/match/phase/team rows"
+    }
+  }
+}

@@ -25,8 +25,12 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader
 
 from model_stgcn.snapshot_baselines import (
+    SnapshotGRUNoGraphHazard,
+    SnapshotHierGRUNoGraphHazard,
     SnapshotLastOnlyHazard,
+    SnapshotLSTMNoGraphHazard,
     SnapshotTCNNoGraphHazard,
+    SnapshotTransformerNoGraphHazard,
 )
 from model_stgcn.snapshot_edge_controls import apply_snapshot_edge_control
 from model_stgcn.snapshot_phase_dataset import (
@@ -45,7 +49,14 @@ from stdb.snapshot_queries import SNAP_EDGE_TYPES, SNAP_FEATURE_DIM, SNAP_FEATUR
 
 logger = logging.getLogger("model_stgcn.train_snapshot_phase")
 
-NO_GRAPH_VARIANTS = {"snapshot_last_only", "snapshot_tcn_no_graph"}
+NO_GRAPH_VARIANTS = {
+    "snapshot_last_only",
+    "snapshot_tcn_no_graph",
+    "snapshot_gru_no_graph",
+    "snapshot_lstm_no_graph",
+    "snapshot_transformer_no_graph",
+    "snapshot_hier_gru_no_graph",
+}
 RGCN_VARIANTS = {"snapshot_rgcn", "snapshot_rgcn_edge_shuffle", "snapshot_gate_only"}
 RELATIVE_EDGE_VARIANTS = {
     "snapshot_relative_edge",
@@ -123,8 +134,22 @@ def _move(batch: dict, device: torch.device) -> dict:
     return {k: (v.to(device) if torch.is_tensor(v) else v) for k, v in batch.items()}
 
 
-def _make_dataset(ids: list[str], *, cached: bool, include_edges: bool):
+def _make_dataset(
+    ids: list[str],
+    *,
+    cached: bool,
+    include_edges: bool,
+    cache_dir: str | None = None,
+    cache_label: str | None = None,
+):
     cls = CachedSnapshotPhaseDataset if cached else LazySnapshotPhaseDataset
+    if cached:
+        return cls(
+            ids,
+            include_edges=include_edges,
+            cache_dir=cache_dir,
+            cache_label=cache_label,
+        )
     return cls(ids, include_edges=include_edges)
 
 
@@ -178,6 +203,39 @@ def _make_model(args: argparse.Namespace) -> nn.Module:
             hidden=args.hidden,
             num_layers=args.num_blocks,
             kernel_size=args.kernel_size,
+            t_phase=PHASE_T_MAX,
+            dropout=args.dropout,
+        )
+    if args.model_variant == "snapshot_gru_no_graph":
+        return SnapshotGRUNoGraphHazard(
+            SNAP_FEATURE_DIM,
+            hidden=args.hidden,
+            num_layers=args.num_blocks,
+            t_phase=PHASE_T_MAX,
+            dropout=args.dropout,
+        )
+    if args.model_variant == "snapshot_lstm_no_graph":
+        return SnapshotLSTMNoGraphHazard(
+            SNAP_FEATURE_DIM,
+            hidden=args.hidden,
+            num_layers=args.num_blocks,
+            t_phase=PHASE_T_MAX,
+            dropout=args.dropout,
+        )
+    if args.model_variant == "snapshot_transformer_no_graph":
+        return SnapshotTransformerNoGraphHazard(
+            SNAP_FEATURE_DIM,
+            hidden=args.hidden,
+            num_layers=args.num_blocks,
+            num_heads=args.num_heads,
+            t_phase=PHASE_T_MAX,
+            dropout=args.dropout,
+        )
+    if args.model_variant == "snapshot_hier_gru_no_graph":
+        return SnapshotHierGRUNoGraphHazard(
+            SNAP_FEATURE_DIM,
+            hidden=args.hidden,
+            num_layers=args.num_blocks,
             t_phase=PHASE_T_MAX,
             dropout=args.dropout,
         )
@@ -249,11 +307,28 @@ def _forward_model(
     args: argparse.Namespace,
 ) -> tuple[torch.Tensor, torch.Tensor]:
     X_s = _mask_snapshot_features(batch["X_s"], args)
+    node_mask_s = batch["node_mask_s"].bool()
     if args.model_variant in NO_GRAPH_VARIANTS:
+        active_nodes = batch.get("team_mask")
+        if active_nodes is not None:
+            active_nodes = active_nodes.bool().any(dim=0)
+        else:
+            active_nodes = node_mask_s.any(dim=(0, 1))
+        if bool(active_nodes.any()) and not bool(active_nodes.all()):
+            hazard_active, cut_mask = model(
+                X_s[:, :, active_nodes],
+                batch["phase_of_snap"],
+                node_mask_s[:, :, active_nodes],
+            )
+            hazard = X_s.new_zeros(
+                (X_s.shape[0], hazard_active.shape[1], X_s.shape[2])
+            )
+            hazard[:, :, active_nodes] = hazard_active
+            return hazard, cut_mask
         return model(
             X_s,
             batch["phase_of_snap"],
-            batch["node_mask_s"].bool(),
+            node_mask_s,
         )
     A_s = _mask_snapshot_edges(batch["A_s"], args)
     edge_control = _edge_control_for_variant(args.model_variant)
@@ -334,7 +409,19 @@ def _channel_contract(args: argparse.Namespace) -> dict:
     return {
         "model_variant": args.model_variant,
         "model_family": (
-            "M2_snapshot_temporal_model"
+            (
+                "M3_hierarchical_recurrent_survival_model"
+                if args.model_variant == "snapshot_hier_gru_no_graph"
+                else (
+                    "M3_transformer_snapshot_survival_model"
+                    if args.model_variant == "snapshot_transformer_no_graph"
+                    else (
+                        "M3_recurrent_snapshot_survival_model"
+                        if args.model_variant in {"snapshot_gru_no_graph", "snapshot_lstm_no_graph"}
+                        else "M2_snapshot_temporal_model"
+                    )
+                )
+            )
             if no_graph
             else (
                 "M6_edge_conditioned_relative_advantage_model"
@@ -494,9 +581,48 @@ def train_loop(args: argparse.Namespace) -> None:
     logger.info("ids total=%d train=%d val=%d test=%d", len(ids), len(train_ids), len(val_ids), len(test_ids))
 
     include_edges = args.model_variant not in NO_GRAPH_VARIANTS
-    train_ds = _make_dataset(train_ids, cached=args.cached, include_edges=include_edges)
-    val_ds = _make_dataset(val_ids, cached=args.cached, include_edges=include_edges)
-    test_ds = _make_dataset(test_ids, cached=args.cached, include_edges=include_edges)
+    logger.info(
+        "build train dataset include_edges=%s cached=%s ids=%d cache_dir=%s",
+        include_edges,
+        args.cached,
+        len(train_ids),
+        args.snapshot_cache_dir,
+    )
+    train_ds = _make_dataset(
+        train_ids,
+        cached=args.cached,
+        include_edges=include_edges,
+        cache_dir=args.snapshot_cache_dir,
+        cache_label="train",
+    )
+    logger.info(
+        "build val dataset include_edges=%s cached=%s ids=%d cache_dir=%s",
+        include_edges,
+        args.cached,
+        len(val_ids),
+        args.snapshot_cache_dir,
+    )
+    val_ds = _make_dataset(
+        val_ids,
+        cached=args.cached,
+        include_edges=include_edges,
+        cache_dir=args.snapshot_cache_dir,
+        cache_label="val",
+    )
+    logger.info(
+        "build test dataset include_edges=%s cached=%s ids=%d cache_dir=%s",
+        include_edges,
+        args.cached,
+        len(test_ids),
+        args.snapshot_cache_dir,
+    )
+    test_ds = _make_dataset(
+        test_ids,
+        cached=args.cached,
+        include_edges=include_edges,
+        cache_dir=args.snapshot_cache_dir,
+        cache_label="test",
+    )
     if len(train_ds) == 0 or len(val_ds) == 0:
         raise SystemExit("empty train/val dataset")
 
@@ -601,6 +727,7 @@ def train_loop(args: argparse.Namespace) -> None:
         "seed": args.seed,
         "snapshot_feature_preset": args.snapshot_feature_preset,
         "snapshot_edge_preset": args.snapshot_edge_preset,
+        "snapshot_cache_dir": args.snapshot_cache_dir,
         "best_val": best_val,
         "best_epoch": min(history, key=lambda r: r["val"]["loss"])["epoch"] if history else None,
         "split_counts": {
@@ -643,6 +770,7 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--hidden", type=int, default=48)
     ap.add_argument("--mid", type=int, default=96)
     ap.add_argument("--num-blocks", type=int, default=2)
+    ap.add_argument("--num-heads", type=int, default=4)
     ap.add_argument("--kernel-size", type=int, default=3)
     ap.add_argument("--edge-hidden", type=int, default=16)
     ap.add_argument("--dropout", type=float, default=0.1)
@@ -665,6 +793,10 @@ def parse_args() -> argparse.Namespace:
             "snapshot_relative_edge_sparse_topology_null",
             "snapshot_last_only",
             "snapshot_tcn_no_graph",
+            "snapshot_gru_no_graph",
+            "snapshot_lstm_no_graph",
+            "snapshot_transformer_no_graph",
+            "snapshot_hier_gru_no_graph",
         ],
     )
     ap.add_argument("--edge-control-seed", type=int, default=20260622)
@@ -694,6 +826,7 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--split-json", default=None)
     ap.add_argument("--cached", action="store_true")
+    ap.add_argument("--snapshot-cache-dir", default=None)
     ap.add_argument("--workers", type=int, default=0)
     ap.add_argument("--eval-workers", type=int, default=0)
     ap.add_argument("--prefetch-factor", type=int, default=2)

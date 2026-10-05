@@ -4,7 +4,7 @@
 # i.e. does relation TYPE (advantage) carry signal where proximity did not.
 set -e
 cd /Users/lunecid/project/PUBG
-export PG_PASSWORD=104204
+: "${PG_PASSWORD:?PG_PASSWORD must be set}"
 ROOT=model_stgcn/checkpoints/adv_runs
 DEV=${ADV_DEV:-mps}
 EP=${ADV_EPOCHS:-12}

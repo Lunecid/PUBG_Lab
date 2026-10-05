@@ -1,0 +1,8 @@
+{
+  "gate": "none",
+  "control": "observed",
+  "best_val_auc": 0.7126164997719784,
+  "n_test_cells": 4192,
+  "pred_csv": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/erangel_tpp_duo/A_none_observed/pred_test.csv",
+  "elapsed_s": 1.1
+}

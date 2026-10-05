@@ -1,0 +1,14 @@
+{
+  "trajectories": "/Users/lunecid/project/PUBG/reports/rq4_dynamic_probability_fluctuation/dynamic_probability_trajectories.csv",
+  "phase_boards": 10616,
+  "cohorts": 13,
+  "matches": 1789,
+  "top_k": 5,
+  "outputs": {
+    "board": "/Users/lunecid/project/PUBG/reports/rq4_dynamic_probability_fluctuation/phase_transition_risk_advantage_board.csv",
+    "by_cohort": "/Users/lunecid/project/PUBG/reports/rq4_dynamic_probability_fluctuation/phase_transition_risk_advantage_by_cohort.csv",
+    "aggregate": "/Users/lunecid/project/PUBG/reports/rq4_dynamic_probability_fluctuation/phase_transition_risk_advantage_aggregate.csv",
+    "doc": "/Users/lunecid/project/PUBG/reports/rq4_dynamic_probability_fluctuation/RQ4_PHASE_TRANSITION_RISK_ADVANTAGE_BOARD_RESULT_2026-07-06.md",
+    "manifest": "/Users/lunecid/project/PUBG/reports/rq4_dynamic_probability_fluctuation/phase_transition_risk_advantage_manifest.json"
+  }
+}

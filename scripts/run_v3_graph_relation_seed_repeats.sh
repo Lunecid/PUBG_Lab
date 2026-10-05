@@ -17,6 +17,7 @@ for seed in ${SEEDS}; do
     --only "${ONLY}"
     --out-dir "${OUT_ROOT}/seed${seed}"
     --split-json "${SPLIT_JSON}"
+    --require-existing-split
     --mode "${V3_MODE:-squad}"
     --epochs "${V3_EPOCHS:-12}"
     --batch "${V3_BATCH:-8}"

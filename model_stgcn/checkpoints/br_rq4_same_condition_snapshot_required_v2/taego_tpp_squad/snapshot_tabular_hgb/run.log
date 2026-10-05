@@ -1,0 +1,6 @@
++ python3 -m model_stgcn.snapshot_tabular_baseline --map Tiger_Main --mode squad --seed 42 --split-json model_stgcn/checkpoints/br_om_ladder_required_v1/taego_tpp_squad/split.json --out-dir model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/taego_tpp_squad/snapshot_tabular_hgb --configs snapshot_last_hgb\,snapshot_summary_hgb
+2026-07-05 21:32:41,052 INFO split total=4159 train=3329 val=415 test=415
+2026-07-05 21:33:49,036 INFO rows train=169661 test=21805
+2026-07-05 21:33:49,039 INFO fit snapshot_last_hgb        rows=169661 test=21805 features=17
+2026-07-05 21:33:51,821 INFO fit snapshot_summary_hgb     rows=169661 test=21805 features=99
+2026-07-05 21:33:56,403 INFO wrote model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/taego_tpp_squad/snapshot_tabular_hgb/snapshot_tabular_summary.json

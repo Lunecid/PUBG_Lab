@@ -13,6 +13,8 @@ from model_stgcn.v3.advantage_edges import (
     fetch_raw, build_adv_tensor, EDGE_FEATURE_DIM,
     Z_SCALE, ALIVE_SCALE, HEALTH_SCALE, ZONE_SCALE,
 )
+from model_stgcn.v3.cohorts import resolve_map_mode
+from model_stgcn.v3.spec import FEATURE_PRESETS
 from stdb.queries import list_phase_eligible_match_ids
 from stdb.conn import connect
 
@@ -55,11 +57,11 @@ def node_abs_features(m, raw, N):
     return nb
 
 
-def build_split(ids, radius_all, n_max, k, beta, gates=GATES, node_abs=False):
+def build_split(ids, radius_all, n_max, k, beta, gates=GATES, node_abs=False, feature_preset="om5_relation_structure"):
     items = []
     t0 = time.time()
     for n, mid in enumerate(ids):
-        m = fetch_factorized_phase_match(mid)
+        m = fetch_factorized_phase_match(mid, feature_preset=feature_preset)
         if m is None:
             continue
         T = m.X_node.shape[0]
@@ -97,7 +99,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--split-json", default="model_stgcn/checkpoints/v3_full_main_causal/split.json")
     ap.add_argument("--out-dir", default="model_stgcn/checkpoints/adv_cache")
-    ap.add_argument("--mode", default="squad")
+    ap.add_argument("--cohort", default=None, help="named required cohort, e.g. 'Erangel TPP squad'")
+    ap.add_argument("--map", default=None)
+    ap.add_argument("--mode", default=None)
+    ap.add_argument("--feature-preset", choices=FEATURE_PRESETS, default="om5_relation_structure")
     ap.add_argument("--n-max", type=int, default=32)
     ap.add_argument("--k", type=int, default=5)
     ap.add_argument("--beta", type=float, default=1.0)
@@ -111,12 +116,44 @@ def main():
                     help="(diagnostic only) deficient nodes without elevation/state")
     args = ap.parse_args()
     gates = tuple(g for g in args.gates.split(",") if g)
+    if args.cohort is None and args.map is None and args.mode is None:
+        args.mode = "squad"
+    try:
+        map_filter, mode_filter, cohort_spec = resolve_map_mode(
+            cohort=args.cohort,
+            map_name=args.map,
+            mode=args.mode,
+        )
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
+    args.map = map_filter
+    args.mode = mode_filter
+    args.cohort = cohort_spec.label if cohort_spec else args.cohort
+    args.cohort_slug = cohort_spec.slug if cohort_spec else None
 
     import os
     os.makedirs(args.out_dir, exist_ok=True)
-    ids = list_phase_eligible_match_ids(None, args.mode, None)
-    tr, va, te = load_or_create_split(ids, split_json=args.split_json, seed=42, val_frac=0.1, test_frac=0.1)
+    ids = list_phase_eligible_match_ids(args.map, args.mode, None)
+    tr, va, te = load_or_create_split(
+        ids,
+        split_json=args.split_json,
+        seed=42,
+        val_frac=0.1,
+        test_frac=0.1,
+        metadata={
+            "source": "scripts.adv_precompute",
+            "cohort": args.cohort,
+            "cohort_slug": args.cohort_slug,
+            "map": args.map,
+            "mode": args.mode,
+            "feature_preset": args.feature_preset,
+            "node_abs": args.node_abs,
+            "gates": gates,
+        },
+    )
     tr, va, te = tr[:args.max_train], va[:args.max_val], te[:args.max_test]
+    log.info("cohort=%s map=%s mode=%s feature_preset=%s node_abs=%s",
+             args.cohort, args.map, args.mode, args.feature_preset, args.node_abs)
     log.info("split sizes: train=%d val=%d test=%d | n_max=%d k=%d beta=%.1f F=%d",
              len(tr), len(va), len(te), args.n_max, args.k, args.beta, EDGE_FEATURE_DIM)
 
@@ -125,10 +162,23 @@ def main():
 
     for name, split in (("test", te), ("val", va), ("train", tr)):
         log.info("building %s ...", name)
-        items = build_split(split, radius_all, args.n_max, args.k, args.beta, gates=gates, node_abs=args.node_abs)
+        items = build_split(
+            split,
+            radius_all,
+            args.n_max,
+            args.k,
+            args.beta,
+            gates=gates,
+            node_abs=args.node_abs,
+            feature_preset=args.feature_preset,
+        )
         path = os.path.join(args.out_dir, f"{name}.pt")
         torch.save({"items": items, "n_max": args.n_max, "k": args.k, "beta": args.beta,
-                    "edge_dim": EDGE_FEATURE_DIM, "gates": gates}, path)
+                    "edge_dim": EDGE_FEATURE_DIM, "gates": gates,
+                    "cohort": args.cohort, "cohort_slug": args.cohort_slug,
+                    "map": args.map, "mode": args.mode,
+                    "feature_preset": args.feature_preset,
+                    "node_abs": args.node_abs}, path)
         log.info("saved %s: %d matches -> %s", name, len(items), path)
     log.info("PRECOMPUTE DONE")
 

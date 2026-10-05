@@ -21,6 +21,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader
 
 from model_stgcn.edge_modes import EDGE_MODE_CHOICES, edge_active_mask
+from model_stgcn.provenance import git_provenance
 from model_stgcn.splits import load_or_create_split
 from model_stgcn.v3.cohorts import resolve_map_mode
 from model_stgcn.v3.edge_controls import EDGE_CONTROL_CHOICES, apply_phase_edge_control
@@ -246,6 +247,7 @@ def run(args: argparse.Namespace) -> dict:
         seed=args.seed,
         val_frac=args.val_frac,
         test_frac=args.test_frac,
+        require_existing=args.require_existing_split,
         metadata={
             "source": "model_stgcn.v3.train",
             "model": args.model,
@@ -339,6 +341,7 @@ def run(args: argparse.Namespace) -> dict:
                     "train_ids": train_ids,
                     "val_ids": val_ids,
                     "test_ids": test_ids,
+                    "provenance": git_provenance(),
                 },
                 ckpt_path,
             )
@@ -352,6 +355,7 @@ def run(args: argparse.Namespace) -> dict:
         "best_val": best_val,
         "elapsed_s": round(time.time() - started, 3),
         "split": {"total": len(ids), "train": len(train_ids), "val": len(val_ids), "test": len(test_ids)},
+        "provenance": git_provenance(),
     }
     logger.info("summary=%s", summary)
     return summary
@@ -399,6 +403,11 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--test-frac", type=float, default=0.1)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--split-json", default=None)
+    ap.add_argument(
+        "--require-existing-split",
+        action="store_true",
+        help="fail if --split-json is absent instead of creating a new split manifest",
+    )
     ap.add_argument("--device", default="auto", choices=["auto", "cpu", "mps", "cuda"])
     ap.add_argument("--checkpoint", default="model_stgcn/checkpoints/v3/factorized_phase.pt")
     ap.add_argument("--cached", action="store_true")

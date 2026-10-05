@@ -29,6 +29,9 @@ Current PUBG state:
 - It must be preserved as the local ground/soil layer.
 - `stdb.*` is derived and can be rebuilt from `pubg.*` plus ETL code, although
   some objects are expensive.
+- The manuscript-facing direct / derived / proxy / label / missing boundary is
+  fixed in
+  `docs/data_layer/PUBG_OFFICIAL_TELEMETRY_OBSERVABILITY_TABLE_2026-07-05.md`.
 
 Caldera state:
 

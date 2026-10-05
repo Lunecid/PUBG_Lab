@@ -21,7 +21,7 @@ from model_stgcn.dyn_stgnn import CausalTemporalGatedConv, dynamic_stgnn_loss
 from model_stgcn.mr_stgnn import mr_survival_targets
 from model_stgcn.snapshot_encoder import SnapshotEncoder, pool_snapshots_to_phase
 
-GRAPH_ENCODERS = ("none", "gcn", "sage", "gat", "rgcn")
+GRAPH_ENCODERS = ("none", "gcn", "sage", "gat", "rgcn", "mamba")
 GLOBAL_FUSIONS = ("none", "concat", "add", "film")
 TEAM_DECODERS = ("mlp", "attention")
 
@@ -108,7 +108,7 @@ class DenseGraphLayer(nn.Module):
             nn.init.xavier_uniform_(self.attn_src.view(1, -1))
             nn.init.xavier_uniform_(self.attn_dst.view(1, -1))
             self.leaky_relu = nn.LeakyReLU(0.2)
-        elif encoder == "rgcn":
+        elif encoder in {"rgcn", "mamba"}:
             self.edge_linears = nn.ModuleList(
                 nn.Linear(hidden, hidden, bias=False) for _ in range(num_edge_types)
             )
@@ -124,7 +124,7 @@ class DenseGraphLayer(nn.Module):
         if self.encoder == "none":
             return self.skip(x)
 
-        if self.encoder == "rgcn":
+        if self.encoder in {"rgcn", "mamba"}:
             return self._rgcn(x, A, edge_active_mask)
 
         A2 = _combine_adjacency(A, edge_active_mask)
@@ -169,6 +169,62 @@ class DenseGraphLayer(nn.Module):
         return torch.matmul(attn, Wh) + self.skip(x)
 
 
+class CausalMambaTemporalMixer(nn.Module):
+    """Small causal selective state-space mixer over match phases.
+
+    This keeps the V3 model self-contained while giving the Mamba comparison a
+    genuinely recurrent, input-gated temporal state instead of another TCN.
+    """
+
+    def __init__(
+        self,
+        in_features: int,
+        out_features: int,
+        *,
+        state_dim: int = 16,
+        expansion: int = 2,
+        dropout: float = 0.1,
+    ) -> None:
+        super().__init__()
+        inner = max(out_features * expansion, in_features)
+        self.inner = inner
+        self.state_dim = state_dim
+        self.in_proj = nn.Linear(in_features, 2 * inner)
+        self.dt_proj = nn.Linear(inner, inner)
+        self.b_proj = nn.Linear(inner, state_dim)
+        self.c_proj = nn.Linear(inner, state_dim)
+        self.a_log = nn.Parameter(torch.log(torch.arange(1, state_dim + 1, dtype=torch.float32)).repeat(inner, 1))
+        self.d = nn.Parameter(torch.ones(inner))
+        self.out_proj = nn.Linear(inner, out_features)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # x: (B,T,N,C).  Each team sequence is scanned causally over T.
+        b, t, n, _ = x.shape
+        flat = x.permute(0, 2, 1, 3).reshape(b * n, t, -1)
+        u, gate = self.in_proj(flat).chunk(2, dim=-1)
+        u = F.silu(u)
+        gate = F.silu(gate)
+
+        a = -torch.exp(self.a_log).to(device=x.device, dtype=x.dtype)
+        state = flat.new_zeros((b * n, self.inner, self.state_dim))
+        outs: list[torch.Tensor] = []
+        for step in range(t):
+            u_t = u[:, step]
+            dt = F.softplus(self.dt_proj(u_t)).clamp(max=20.0)
+            b_t = self.b_proj(u_t)
+            c_t = self.c_proj(u_t)
+            decay = torch.exp(dt.unsqueeze(-1) * a.unsqueeze(0))
+            update = dt.unsqueeze(-1) * u_t.unsqueeze(-1) * b_t.unsqueeze(1)
+            state = decay * state + update
+            y_t = (state * c_t.unsqueeze(1)).sum(dim=-1) + self.d.to(x.device, x.dtype) * u_t
+            outs.append(y_t * gate[:, step])
+
+        y = torch.stack(outs, dim=1)
+        y = self.dropout(self.out_proj(y))
+        return y.reshape(b, n, t, -1).permute(0, 2, 1, 3)
+
+
 class GraphTemporalBlock(nn.Module):
     def __init__(
         self,
@@ -181,9 +237,14 @@ class GraphTemporalBlock(nn.Module):
         dropout: float = 0.1,
     ) -> None:
         super().__init__()
-        self.t1 = CausalTemporalGatedConv(hidden, mid, kernel_size)
+        self.use_mamba = graph_encoder == "mamba"
+        if self.use_mamba:
+            self.input_proj = nn.Linear(hidden, mid)
+            self.mamba = CausalMambaTemporalMixer(mid, hidden, dropout=dropout)
+        else:
+            self.t1 = CausalTemporalGatedConv(hidden, mid, kernel_size)
+            self.t2 = CausalTemporalGatedConv(mid, hidden, kernel_size)
         self.graph = DenseGraphLayer(mid, num_edge_types, graph_encoder)
-        self.t2 = CausalTemporalGatedConv(mid, hidden, kernel_size)
         self.norm = nn.LayerNorm(hidden)
         self.dropout = nn.Dropout(dropout)
 
@@ -194,6 +255,13 @@ class GraphTemporalBlock(nn.Module):
         edge_active_mask: torch.Tensor | None = None,
     ) -> torch.Tensor:
         # x: (B,T,N,H)
+        if self.use_mamba:
+            h = F.silu(self.input_proj(x))
+            h = F.relu(self.graph(h, A, edge_active_mask=edge_active_mask))
+            h = self.mamba(h)
+            h = self.dropout(self.norm(h))
+            return F.relu(h + x)
+
         h = self.t1(x.permute(0, 3, 1, 2)).permute(0, 2, 3, 1)
         h = F.relu(self.graph(h, A, edge_active_mask=edge_active_mask))
         h = self.t2(h.permute(0, 3, 1, 2)).permute(0, 2, 3, 1)

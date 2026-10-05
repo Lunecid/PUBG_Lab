@@ -1,0 +1,22 @@
+{
+  "checkpoint": "model_stgcn/checkpoints/full_required_core13_v1/taego_tpp_squad/main/mr_st_gnn_mamba/model.pt",
+  "finished_at_unix": 1783535756.004221,
+  "epochs": 12,
+  "seed": 42,
+  "cohort": "Taego TPP squad",
+  "map": "Tiger_Main",
+  "mode": "squad",
+  "experiment": {
+    "group": "main",
+    "name": "mr_st_gnn_mamba",
+    "model": "mr",
+    "global_fusion": "film",
+    "graph_encoder": "mamba",
+    "edge_mode": "full",
+    "edge_control": "observed",
+    "team_decoder": "attention",
+    "pairwise_rank_weight": "0.1",
+    "feature_preset": "full",
+    "note": "ST-GNN-Mamba: relation-aware graph messages with causal selective state-space temporal mixing"
+  }
+}

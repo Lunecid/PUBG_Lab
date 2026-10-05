@@ -1,0 +1,76 @@
+started_at=2026-07-04T18:57:16Z
+cohort=Vikendi TPP squad
+split_json=model_stgcn/checkpoints/br_om_ladder_required_v1/vikendi_tpp_squad/split.json
+feature_preset=om5_relation_structure
+max_train=8000 max_val=1521 max_test=1521
+{
+  "status": "passed",
+  "cohort": "Vikendi TPP squad",
+  "cohort_slug": "vikendi_tpp_squad",
+  "map": "DihorOtok_Main",
+  "mode": "squad",
+  "split_json": "model_stgcn/checkpoints/br_om_ladder_required_v1/vikendi_tpp_squad/split.json",
+  "split": "test",
+  "gate": "knn",
+  "k": 5,
+  "beta": 1.0,
+  "seed": 42,
+  "matches_requested": 8,
+  "matches_audited": 8,
+  "phase_blocks": 55,
+  "edge_blocks": 55,
+  "rewired_blocks": 53,
+  "total_edges": 3067
+}
+2026-07-05 03:57:18,812 INFO cohort=Vikendi TPP squad map=DihorOtok_Main mode=squad feature_preset=om5_relation_structure node_abs=True
+2026-07-05 03:57:18,812 INFO split sizes: train=400 val=49 test=49 | n_max=32 k=5 beta=1.0 F=10
+2026-07-05 03:57:20,127 INFO fetched radius for 498 matches
+2026-07-05 03:57:20,127 INFO building test ...
+2026-07-05 03:57:22,957 INFO saved test: 49 matches -> model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/vikendi_tpp_squad/adv_cache/test.pt
+2026-07-05 03:57:22,957 INFO building val ...
+2026-07-05 03:57:26,292 INFO saved val: 49 matches -> model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/vikendi_tpp_squad/adv_cache/val.pt
+2026-07-05 03:57:26,292 INFO building train ...
+2026-07-05 03:57:50,336 INFO saved train: 400 matches -> model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/vikendi_tpp_squad/adv_cache/train.pt
+2026-07-05 03:57:50,336 INFO PRECOMPUTE DONE
+2026-07-05 03:57:51,720 INFO gate=none control=observed dev=mps node_dim=101 gdim=25 edge_dim=10 train=400
+2026-07-05 03:57:52,562 INFO ep00 train_loss=0.6775 train_auc=0.5080 | val_loss=0.6217 val_auc=0.5201 (0s)
+2026-07-05 03:57:52,612 INFO ep01 train_loss=0.6141 train_auc=0.5864 | val_loss=0.5866 val_auc=0.6409 (0s)
+2026-07-05 03:57:52,659 INFO ep02 train_loss=0.6006 train_auc=0.6267 | val_loss=0.5750 val_auc=0.6676 (0s)
+2026-07-05 03:57:52,706 INFO ep03 train_loss=0.5857 train_auc=0.6550 | val_loss=0.5632 val_auc=0.6924 (1s)
+2026-07-05 03:57:52,752 INFO ep04 train_loss=0.5772 train_auc=0.6741 | val_loss=0.5570 val_auc=0.7013 (1s)
+2026-07-05 03:57:52,799 INFO ep05 train_loss=0.5704 train_auc=0.6860 | val_loss=0.5509 val_auc=0.7089 (1s)
+2026-07-05 03:57:52,845 INFO ep06 train_loss=0.5657 train_auc=0.6934 | val_loss=0.5464 val_auc=0.7172 (1s)
+2026-07-05 03:57:52,891 INFO ep07 train_loss=0.5616 train_auc=0.7013 | val_loss=0.5430 val_auc=0.7235 (1s)
+2026-07-05 03:57:52,937 INFO ep08 train_loss=0.5576 train_auc=0.7084 | val_loss=0.5385 val_auc=0.7286 (1s)
+2026-07-05 03:57:52,984 INFO ep09 train_loss=0.5544 train_auc=0.7117 | val_loss=0.5373 val_auc=0.7316 (1s)
+2026-07-05 03:57:53,031 INFO ep10 train_loss=0.5510 train_auc=0.7172 | val_loss=0.5341 val_auc=0.7355 (1s)
+2026-07-05 03:57:53,083 INFO ep11 train_loss=0.5471 train_auc=0.7217 | val_loss=0.5349 val_auc=0.7334 (1s)
+2026-07-05 03:57:53,091 INFO DONE gate=none control=observed best_val_auc=0.7355 test_cells=2778 -> model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/vikendi_tpp_squad/A_none_observed/pred_test.csv
+2026-07-05 03:57:54,685 INFO gate=knn control=observed dev=mps node_dim=101 gdim=25 edge_dim=10 train=400
+2026-07-05 03:57:55,759 INFO ep00 train_loss=0.6430 train_auc=0.5212 | val_loss=0.5892 val_auc=0.6314 (1s)
+2026-07-05 03:57:55,994 INFO ep01 train_loss=0.5996 train_auc=0.6159 | val_loss=0.5814 val_auc=0.6492 (1s)
+2026-07-05 03:57:56,207 INFO ep02 train_loss=0.5922 train_auc=0.6290 | val_loss=0.5725 val_auc=0.6711 (1s)
+2026-07-05 03:57:56,419 INFO ep03 train_loss=0.5862 train_auc=0.6496 | val_loss=0.5669 val_auc=0.6788 (1s)
+2026-07-05 03:57:56,638 INFO ep04 train_loss=0.5800 train_auc=0.6639 | val_loss=0.5607 val_auc=0.6926 (2s)
+2026-07-05 03:57:56,855 INFO ep05 train_loss=0.5744 train_auc=0.6757 | val_loss=0.5515 val_auc=0.7090 (2s)
+2026-07-05 03:57:57,082 INFO ep06 train_loss=0.5660 train_auc=0.6955 | val_loss=0.5449 val_auc=0.7218 (2s)
+2026-07-05 03:57:57,314 INFO ep07 train_loss=0.5604 train_auc=0.7060 | val_loss=0.5404 val_auc=0.7274 (2s)
+2026-07-05 03:57:57,545 INFO ep08 train_loss=0.5564 train_auc=0.7088 | val_loss=0.5370 val_auc=0.7314 (2s)
+2026-07-05 03:57:57,778 INFO ep09 train_loss=0.5506 train_auc=0.7170 | val_loss=0.5355 val_auc=0.7317 (3s)
+2026-07-05 03:57:58,009 INFO ep10 train_loss=0.5466 train_auc=0.7211 | val_loss=0.5325 val_auc=0.7359 (3s)
+2026-07-05 03:57:58,225 INFO ep11 train_loss=0.5432 train_auc=0.7242 | val_loss=0.5284 val_auc=0.7414 (3s)
+2026-07-05 03:57:58,247 INFO DONE gate=knn control=observed best_val_auc=0.7414 test_cells=2778 -> model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/vikendi_tpp_squad/B_knn_observed/pred_test.csv
+2026-07-05 03:57:59,809 INFO gate=knn control=edge_shuffle dev=mps node_dim=101 gdim=25 edge_dim=10 train=400
+2026-07-05 03:58:00,989 INFO ep00 train_loss=0.6441 train_auc=0.5142 | val_loss=0.5906 val_auc=0.6314 (1s)
+2026-07-05 03:58:01,395 INFO ep01 train_loss=0.5992 train_auc=0.6168 | val_loss=0.5839 val_auc=0.6396 (1s)
+2026-07-05 03:58:01,797 INFO ep02 train_loss=0.5922 train_auc=0.6302 | val_loss=0.5729 val_auc=0.6648 (2s)
+2026-07-05 03:58:02,212 INFO ep03 train_loss=0.5868 train_auc=0.6473 | val_loss=0.5690 val_auc=0.6749 (2s)
+2026-07-05 03:58:02,581 INFO ep04 train_loss=0.5809 train_auc=0.6628 | val_loss=0.5622 val_auc=0.6892 (2s)
+2026-07-05 03:58:02,951 INFO ep05 train_loss=0.5750 train_auc=0.6750 | val_loss=0.5544 val_auc=0.7040 (3s)
+2026-07-05 03:58:03,344 INFO ep06 train_loss=0.5671 train_auc=0.6921 | val_loss=0.5478 val_auc=0.7178 (3s)
+2026-07-05 03:58:03,749 INFO ep07 train_loss=0.5630 train_auc=0.7004 | val_loss=0.5462 val_auc=0.7222 (3s)
+2026-07-05 03:58:04,154 INFO ep08 train_loss=0.5598 train_auc=0.7038 | val_loss=0.5413 val_auc=0.7282 (4s)
+2026-07-05 03:58:04,536 INFO ep09 train_loss=0.5545 train_auc=0.7112 | val_loss=0.5356 val_auc=0.7317 (4s)
+2026-07-05 03:58:04,904 INFO ep10 train_loss=0.5500 train_auc=0.7159 | val_loss=0.5317 val_auc=0.7340 (5s)
+2026-07-05 03:58:05,277 INFO ep11 train_loss=0.5453 train_auc=0.7212 | val_loss=0.5320 val_auc=0.7381 (5s)
+2026-07-05 03:58:05,323 INFO DONE gate=knn control=edge_shuffle best_val_auc=0.7381 test_cells=2778 -> model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/vikendi_tpp_squad/C_knn_edge_shuffle/pred_test.csv

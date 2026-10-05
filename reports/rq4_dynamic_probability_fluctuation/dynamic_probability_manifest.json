@@ -1,0 +1,23 @@
+{
+  "root": "/Users/lunecid/project/PUBG/model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1",
+  "model_variant": "snapshot_lstm_no_graph",
+  "prediction_files": 13,
+  "trajectory_rows": 105491,
+  "observed_prediction_rows": 103860,
+  "cohorts": 13,
+  "matches": 1789,
+  "teams": 33584,
+  "outputs": {
+    "trajectories": "/Users/lunecid/project/PUBG/reports/rq4_dynamic_probability_fluctuation/dynamic_probability_trajectories.csv",
+    "team_summary": "/Users/lunecid/project/PUBG/reports/rq4_dynamic_probability_fluctuation/dynamic_probability_team_summary.csv",
+    "match_summary": "/Users/lunecid/project/PUBG/reports/rq4_dynamic_probability_fluctuation/dynamic_probability_match_summary.csv",
+    "metrics_by_cohort": "/Users/lunecid/project/PUBG/reports/rq4_dynamic_probability_fluctuation/dynamic_probability_metrics_by_cohort.csv",
+    "example_figure": "/Users/lunecid/project/PUBG/reports/rq4_dynamic_probability_fluctuation/dynamic_probability_example_match.png",
+    "result_doc": "/Users/lunecid/project/PUBG/reports/rq4_dynamic_probability_fluctuation/BATTLE_ROYALE_RQ4_DYNAMIC_PROBABILITY_FLUCTUATION_RESULT_2026-07-06.md"
+  },
+  "example": {
+    "cohort_slug": "erangel_tpp_squad",
+    "model_variant": "snapshot_lstm_no_graph",
+    "match_id": "10691322-1ab3-42be-b896-c9c76f3e10f7"
+  }
+}

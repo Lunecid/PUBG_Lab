@@ -1,0 +1,6 @@
++ python3 -m model_stgcn.snapshot_tabular_baseline --map Neon_Main --mode squad --seed 42 --split-json model_stgcn/checkpoints/br_om_ladder_required_v1/rondo_tpp_squad/split.json --out-dir model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/rondo_tpp_squad/snapshot_tabular_hgb --configs snapshot_last_hgb\,snapshot_summary_hgb
+2026-07-05 22:27:14,095 INFO split total=1039 train=833 val=103 test=103
+2026-07-05 22:27:29,645 INFO rows train=40900 test=5200
+2026-07-05 22:27:29,645 INFO fit snapshot_last_hgb        rows=40900 test=5200 features=17
+2026-07-05 22:27:31,107 INFO fit snapshot_summary_hgb     rows=40900 test=5200 features=99
+2026-07-05 22:27:32,783 INFO wrote model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/rondo_tpp_squad/snapshot_tabular_hgb/snapshot_tabular_summary.json

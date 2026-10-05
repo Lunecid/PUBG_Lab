@@ -1,0 +1,93 @@
+{
+  "status": "passed",
+  "cohort": "Taego TPP duo",
+  "cohort_slug": "taego_tpp_duo",
+  "map": "Tiger_Main",
+  "mode": "duo",
+  "split_json": "model_stgcn/checkpoints/br_om_ladder_required_v1/taego_tpp_duo/split.json",
+  "split": "test",
+  "gate": "knn",
+  "k": 5,
+  "beta": 1.0,
+  "seed": 42,
+  "matches_requested": 8,
+  "matches_audited": 8,
+  "phase_blocks": 59,
+  "edge_blocks": 59,
+  "rewired_blocks": 58,
+  "total_edges": 4704,
+  "rows": [
+    {
+      "match_id": "74fa25b3-c827-42e2-ba0e-4a01ab0cde28",
+      "status": "passed",
+      "phase_blocks": 5,
+      "edge_blocks": 5,
+      "rewired_blocks": 5,
+      "total_edges": 441,
+      "failures": []
+    },
+    {
+      "match_id": "d227df01-e8c4-47ed-bb3c-1d96f26bbd4a",
+      "status": "passed",
+      "phase_blocks": 8,
+      "edge_blocks": 8,
+      "rewired_blocks": 8,
+      "total_edges": 616,
+      "failures": []
+    },
+    {
+      "match_id": "70326bff-d167-481e-bb62-6e1de84d3267",
+      "status": "passed",
+      "phase_blocks": 8,
+      "edge_blocks": 8,
+      "rewired_blocks": 8,
+      "total_edges": 505,
+      "failures": []
+    },
+    {
+      "match_id": "2bfbe7c1-4a16-4bd1-b5d4-f50e5ccaaf4d",
+      "status": "passed",
+      "phase_blocks": 8,
+      "edge_blocks": 8,
+      "rewired_blocks": 8,
+      "total_edges": 617,
+      "failures": []
+    },
+    {
+      "match_id": "b5c435c3-21df-4388-b2e3-3c6693385b02",
+      "status": "passed",
+      "phase_blocks": 8,
+      "edge_blocks": 8,
+      "rewired_blocks": 8,
+      "total_edges": 545,
+      "failures": []
+    },
+    {
+      "match_id": "6249d340-9cde-4ecf-9f50-22fab5b83cd9",
+      "status": "passed",
+      "phase_blocks": 6,
+      "edge_blocks": 6,
+      "rewired_blocks": 6,
+      "total_edges": 669,
+      "failures": []
+    },
+    {
+      "match_id": "3c2c9514-954d-4ddf-a8b2-85bfc7603cff",
+      "status": "passed",
+      "phase_blocks": 8,
+      "edge_blocks": 8,
+      "rewired_blocks": 8,
+      "total_edges": 647,
+      "failures": []
+    },
+    {
+      "match_id": "208de1e6-0f6b-4841-af1b-2894e58aa51f",
+      "status": "passed",
+      "phase_blocks": 8,
+      "edge_blocks": 8,
+      "rewired_blocks": 7,
+      "total_edges": 664,
+      "failures": []
+    }
+  ]
+}

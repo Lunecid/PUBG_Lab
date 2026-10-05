@@ -3,7 +3,7 @@
 # across k in {3,5,8} (k=5 already in adv_runs). knn gate only -> fast/small.
 set -e
 cd /Users/lunecid/project/PUBG
-export PG_PASSWORD=104204
+: "${PG_PASSWORD:?PG_PASSWORD must be set}"
 EP=${ADV_EPOCHS:-12}
 
 echo "=== $(date +%H:%M:%S) precompute k=3 and k=8 (knn only, parallel) ==="

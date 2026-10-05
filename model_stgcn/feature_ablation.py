@@ -23,6 +23,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import warnings
 from pathlib import Path
 from typing import Any
 
@@ -30,14 +31,18 @@ import numpy as np
 import pandas as pd
 from scipy.stats import rankdata, wilcoxon
 from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import HistGradientBoostingClassifier
+from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier
 from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, average_precision_score, roc_auc_score
+from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import FunctionTransformer, StandardScaler
 from sklearn.preprocessing import OneHotEncoder
 
 from model_stgcn.baselines import CATEGORICAL_COLUMNS, EXCLUDE_COLUMNS
 from model_stgcn.splits import load_or_create_split
+from model_stgcn.v3.cohorts import resolve_map_mode
 from stdb.conn import connect
 from stdb.queries import list_phase_feature_match_ids
 
@@ -51,6 +56,18 @@ NETWORK_TABLE = "stdb.team_phase_network_features"
 HABITAT_FAMILY = "f7_habitat_pressure_tier1"
 HABITAT_TABLE = "stdb.team_phase_habitat_features"
 DEFAULT_FEATURE_VIEW = "stdb.v_team_phase_feature_long"
+LEARNER_ALIASES = {
+    "logistic": "lr",
+    "logreg": "lr",
+    "random_forest": "rf",
+    "randomforest": "rf",
+    "hist_gradient_boosting": "hgb",
+    "histgradientboosting": "hgb",
+    "xgboost": "xgb",
+    "lgbm": "lightgbm",
+}
+DEFAULT_LEARNERS = ("hgb",)
+ALL_LEARNERS = ("lr", "rf", "hgb", "xgb", "mlp")
 
 
 AGGRESSIVENESS_COLS = [
@@ -345,13 +362,39 @@ def _available(cols: list[str], df: pd.DataFrame) -> list[str]:
     return [c for c in _dedupe(cols) if c in df.columns]
 
 
-def _preprocessor(feature_cols: list[str], categorical_cols: list[str] | None = None) -> ColumnTransformer:
+def _finite_numeric_array(values: Any) -> np.ndarray:
+    arr = np.asarray(values, dtype=np.float64)
+    return np.where(np.isfinite(arr), arr, np.nan)
+
+
+def _preprocessor(
+    feature_cols: list[str],
+    categorical_cols: list[str] | None = None,
+    *,
+    scale_numeric: bool = False,
+) -> ColumnTransformer:
     categorical_cols = categorical_cols or CATEGORICAL_COLUMNS + ["strategy_type"]
     cat_cols = [c for c in categorical_cols if c in feature_cols]
     num_cols = [c for c in feature_cols if c not in cat_cols]
+    finite_step = ("finite", FunctionTransformer(_finite_numeric_array, validate=False))
+    if scale_numeric:
+        num_transformer = Pipeline(
+            [
+                finite_step,
+                ("impute", SimpleImputer(strategy="median")),
+                ("scale", StandardScaler(with_mean=True)),
+            ]
+        )
+    else:
+        num_transformer = Pipeline(
+            [
+                finite_step,
+                ("impute", SimpleImputer(strategy="median")),
+            ]
+        )
     return ColumnTransformer(
         transformers=[
-            ("num", SimpleImputer(strategy="median"), num_cols),
+            ("num", num_transformer, num_cols),
             (
                 "cat",
                 Pipeline(
@@ -367,19 +410,106 @@ def _preprocessor(feature_cols: list[str], categorical_cols: list[str] | None = 
     )
 
 
-def _classifier(feature_cols: list[str], categorical_cols: list[str] | None = None) -> Pipeline:
+def _normalise_learner(name: str) -> str:
+    key = name.strip().lower().replace("-", "_")
+    return LEARNER_ALIASES.get(key, key)
+
+
+def _resolve_learners(spec: str) -> tuple[list[str], list[str]]:
+    requested = [_normalise_learner(s) for s in spec.split(",") if s.strip()]
+    if not requested or requested == ["default"]:
+        requested = list(DEFAULT_LEARNERS)
+    if "all" in requested:
+        requested = list(ALL_LEARNERS)
+    out: list[str] = []
+    unavailable: list[str] = []
+    for learner in requested:
+        if learner == "lightgbm":
+            unavailable.append(learner)
+            continue
+        if learner not in ALL_LEARNERS:
+            raise ValueError(f"unknown learner={learner}")
+        if learner == "xgb":
+            try:
+                import xgboost  # noqa: F401
+            except Exception:
+                unavailable.append(learner)
+                continue
+        if learner not in out:
+            out.append(learner)
+    if not out:
+        raise ValueError(f"no available learners from spec={spec!r}; unavailable={unavailable}")
+    return out, unavailable
+
+
+def _model_name(config: str, learner: str, *, suffix: bool) -> str:
+    return f"{config}__{learner}" if suffix else config
+
+
+def _classifier(
+    feature_cols: list[str],
+    categorical_cols: list[str] | None = None,
+    *,
+    learner: str = "hgb",
+    seed: int = 42,
+    max_iter: int = 200,
+    n_estimators: int = 300,
+    n_jobs: int = 0,
+) -> Pipeline:
+    learner = _normalise_learner(learner)
+    scale_numeric = learner in {"lr", "mlp"}
+    if learner == "hgb":
+        model = HistGradientBoostingClassifier(
+            max_iter=max_iter,
+            learning_rate=0.06,
+            l2_regularization=0.01,
+            random_state=seed,
+        )
+    elif learner == "lr":
+        model = LogisticRegression(
+            max_iter=max_iter,
+            solver="liblinear",
+            random_state=seed,
+        )
+    elif learner == "rf":
+        workers = None if n_jobs == 0 else n_jobs
+        model = RandomForestClassifier(
+            n_estimators=n_estimators,
+            min_samples_leaf=2,
+            random_state=seed,
+            n_jobs=workers,
+        )
+    elif learner == "xgb":
+        from xgboost import XGBClassifier
+
+        workers = None if n_jobs == 0 else n_jobs
+        model = XGBClassifier(
+            n_estimators=n_estimators,
+            max_depth=4,
+            learning_rate=0.06,
+            subsample=0.9,
+            colsample_bytree=0.9,
+            objective="binary:logistic",
+            eval_metric="logloss",
+            tree_method="hist",
+            random_state=seed,
+            n_jobs=workers,
+        )
+    elif learner == "mlp":
+        model = MLPClassifier(
+            hidden_layer_sizes=(64, 32),
+            alpha=1e-4,
+            batch_size=256,
+            early_stopping=True,
+            max_iter=max_iter,
+            random_state=seed,
+        )
+    else:
+        raise ValueError(f"unknown learner={learner}")
     return Pipeline(
         [
-            ("prep", _preprocessor(feature_cols, categorical_cols)),
-            (
-                "model",
-                HistGradientBoostingClassifier(
-                    max_iter=200,
-                    learning_rate=0.06,
-                    l2_regularization=0.01,
-                    random_state=42,
-                ),
-            ),
+            ("prep", _preprocessor(feature_cols, categorical_cols, scale_numeric=scale_numeric)),
+            ("model", model),
         ]
     )
 
@@ -637,27 +767,51 @@ def train_predict_config(
     *,
     name: str,
     feature_cols: list[str],
+    learner: str,
+    output_name: str,
     train_df: pd.DataFrame,
     test_df: pd.DataFrame,
+    args: argparse.Namespace,
     categorical_cols: list[str] | None = None,
 ) -> tuple[pd.DataFrame, dict[str, Any]]:
     if not feature_cols:
         raise ValueError(f"no features for {name}")
-    model = _classifier(feature_cols, categorical_cols)
+    model = _classifier(
+        feature_cols,
+        categorical_cols,
+        learner=learner,
+        seed=args.seed,
+        max_iter=args.max_iter,
+        n_estimators=args.n_estimators,
+        n_jobs=args.n_jobs,
+    )
     X_train = train_df[feature_cols]
     y_train = train_df["hazard_next"].astype(int).to_numpy()
     X_test = test_df[feature_cols]
     y_test = test_df["hazard_next"].astype(int).to_numpy()
 
-    logger.info("fit %-34s rows=%d features=%d", name, len(train_df), len(feature_cols))
-    model.fit(X_train, y_train)
-    prob = model.predict_proba(X_test)[:, 1]
+    logger.info(
+        "fit %-34s learner=%-4s rows=%d features=%d",
+        name,
+        learner,
+        len(train_df),
+        len(feature_cols),
+    )
+    with warnings.catch_warnings():
+        if learner in {"lr", "mlp"}:
+            warnings.filterwarnings("ignore", category=RuntimeWarning, module=r"sklearn\..*")
+        model.fit(X_train, y_train)
+        prob = model.predict_proba(X_test)[:, 1]
+    if not np.isfinite(prob).all():
+        raise RuntimeError(f"{output_name} produced non-finite probabilities")
     preds = test_df[["match_id", "team_id", "phase_idx"]].copy()
-    preds["model"] = name
+    preds["model"] = output_name
     preds["y"] = y_test
     preds["prob"] = prob
     metrics = {
-        "model": name,
+        "model": output_name,
+        "feature_config": name,
+        "learner": learner,
         "n_features": len(feature_cols),
         "feature_cols": feature_cols,
         **_binary_metrics(y_test, prob),
@@ -668,8 +822,17 @@ def train_predict_config(
 def run(args: argparse.Namespace) -> dict[str, Any]:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     manifest = _load_manifest(args.manifest)
+    learners, unavailable_learners = _resolve_learners(args.learners)
+    if unavailable_learners:
+        logger.warning("skipping unavailable learners: %s", unavailable_learners)
+    suffix_models = len(learners) > 1 or args.suffix_model_names
     categorical_cols = _dedupe(list(manifest.get("categorical_columns", [])) + CATEGORICAL_COLUMNS + ["strategy_type"])
-    ids = list_phase_feature_match_ids(args.map, args.mode, args.limit)
+    map_name, mode, cohort_spec = resolve_map_mode(
+        cohort=args.cohort,
+        map_name=args.map,
+        mode=args.mode,
+    )
+    ids = list_phase_feature_match_ids(map_name, mode, args.limit)
     train_ids, val_ids, test_ids = load_or_create_split(
         ids,
         split_json=args.split_json,
@@ -731,16 +894,21 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     overall_rows: list[dict[str, Any]] = []
     feature_manifest: dict[str, list[str]] = {}
     for name, feature_cols in feature_configs.items():
-        preds, metrics = train_predict_config(
-            name=name,
-            feature_cols=feature_cols,
-            train_df=train_df,
-            test_df=test_df,
-            categorical_cols=categorical_cols,
-        )
-        pred_frames.append(preds)
-        overall_rows.append(metrics)
-        feature_manifest[name] = feature_cols
+        for learner in learners:
+            output_name = _model_name(name, learner, suffix=suffix_models)
+            preds, metrics = train_predict_config(
+                name=name,
+                feature_cols=feature_cols,
+                learner=learner,
+                output_name=output_name,
+                train_df=train_df,
+                test_df=test_df,
+                args=args,
+                categorical_cols=categorical_cols,
+            )
+            pred_frames.append(preds)
+            overall_rows.append(metrics)
+            feature_manifest[output_name] = feature_cols
 
     predictions = pd.concat(pred_frames, ignore_index=True)
     overall = pd.DataFrame(overall_rows).drop(columns=["feature_cols"])
@@ -780,12 +948,15 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         ("a11_full_representation", "a9_raw_stdb_habitat"),
     ]
     available = set(per_match["model"])
-    for left, right in comparisons:
-        if left not in available or right not in available:
-            continue
-        tests.append(_paired_test(per_match, left_model=left, right_model=right, metric="bce", larger_is_better=False))
-        tests.append(_paired_test(per_match, left_model=left, right_model=right, metric="auc", larger_is_better=True))
-        tests.append(_paired_test(per_match, left_model=left, right_model=right, metric="ap", larger_is_better=True))
+    for learner in learners:
+        for left, right in comparisons:
+            left_model = _model_name(left, learner, suffix=suffix_models)
+            right_model = _model_name(right, learner, suffix=suffix_models)
+            if left_model not in available or right_model not in available:
+                continue
+            tests.append(_paired_test(per_match, left_model=left_model, right_model=right_model, metric="bce", larger_is_better=False))
+            tests.append(_paired_test(per_match, left_model=left_model, right_model=right_model, metric="auc", larger_is_better=True))
+            tests.append(_paired_test(per_match, left_model=left_model, right_model=right_model, metric="ap", larger_is_better=True))
     tests_df = pd.DataFrame(tests)
 
     predictions_path = out_dir / "feature_ablation_predictions.csv"
@@ -810,9 +981,17 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "val": len(val_ids),
             "test": len(test_ids),
         },
+        "cohort": {
+            "label": cohort_spec.label if cohort_spec else None,
+            "slug": cohort_spec.slug if cohort_spec else None,
+            "map_name": map_name,
+            "mode": mode,
+        },
         "alignment": alignment,
         "feature_view": args.feature_view,
         "config_style": args.config_style,
+        "learners": learners,
+        "unavailable_learners": unavailable_learners,
         "outputs": {
             "predictions": str(predictions_path),
             "overall_metrics": str(overall_path),
@@ -833,12 +1012,22 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
 
 def parse_args() -> argparse.Namespace:
     ap = argparse.ArgumentParser()
+    ap.add_argument("--cohort", default=None, help="Named required cohort, e.g. 'Erangel TPP squad'")
     ap.add_argument("--map", default=None)
     ap.add_argument("--mode", default=None)
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--val-frac", type=float, default=0.1)
     ap.add_argument("--test-frac", type=float, default=0.1)
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--learners", default="hgb", help="Comma-separated learners or 'all': lr,rf,hgb,xgb,mlp")
+    ap.add_argument("--max-iter", type=int, default=200)
+    ap.add_argument("--n-estimators", type=int, default=300)
+    ap.add_argument("--n-jobs", type=int, default=0)
+    ap.add_argument(
+        "--suffix-model-names",
+        action="store_true",
+        help="Append learner suffix even when only one learner is run.",
+    )
     ap.add_argument("--split-json", default="model_stgcn/checkpoints/split_phase_all_seed42.json")
     ap.add_argument("--align-to", default="model_stgcn/checkpoints/phase_result_analysis/hazard_predictions_test_aligned.csv")
     ap.add_argument("--out-dir", default="model_stgcn/checkpoints/feature_ablation")

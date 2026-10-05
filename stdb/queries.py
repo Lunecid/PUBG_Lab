@@ -311,7 +311,11 @@ def _pick_snapshot_grid(duration_s: int) -> list[int]:
 
 
 def _team_order(cur, match_id: str) -> list[int]:
-    """Return team_ids ordered by final_rank ASC (best first).  Clipped to N_MAX."""
+    """Deprecated outcome-sorted order for legacy gen-1 tensors only.
+
+    New phase/factorized paths must use _phase_team_order or an explicit
+    team_id order. This function leaks outcome order into tensor positions.
+    """
     cur.execute(
         """
         SELECT team_id, final_rank
@@ -508,14 +512,27 @@ def _fetch_phase_indices(cur, match_id: str) -> list[int]:
     cur.execute(
         """
         SELECT phase_idx
-          FROM stdb.v_match_phase_bounds
+          FROM stdb.match_phase_global
          WHERE match_id = %s
            AND phase_idx BETWEEN 1 AND %s
          ORDER BY phase_idx
         """,
         (match_id, PHASE_T_MAX),
     )
-    return [int(r[0]) for r in cur.fetchall()]
+    rows = cur.fetchall()
+    if not rows:
+        cur.execute(
+            """
+            SELECT phase_idx
+              FROM stdb.v_match_phase_bounds
+             WHERE match_id = %s
+               AND phase_idx BETWEEN 1 AND %s
+             ORDER BY phase_idx
+            """,
+            (match_id, PHASE_T_MAX),
+        )
+        rows = cur.fetchall()
+    return [int(r[0]) for r in rows]
 
 
 def _phase_team_order(cur, match_id: str) -> list[int]:

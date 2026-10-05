@@ -4,7 +4,7 @@
 # (pairwise Delta beyond node absolutes). If ns -> it was just z-injection.
 set -e
 cd /Users/lunecid/project/PUBG
-export PG_PASSWORD=104204
+: "${PG_PASSWORD:?PG_PASSWORD must be set}"
 EP=${ADV_EPOCHS:-12}
 CACHE=model_stgcn/checkpoints/adv_cache_nodeabs
 OUT=model_stgcn/checkpoints/adv_runs_nodeabs

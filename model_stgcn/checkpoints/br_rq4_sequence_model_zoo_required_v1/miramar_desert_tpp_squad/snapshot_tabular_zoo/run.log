@@ -1,0 +1,14 @@
++ python3 -m model_stgcn.snapshot_tabular_baseline --map Desert_Main --mode squad --seed 42 --split-json model_stgcn/checkpoints/br_om_ladder_required_v1/miramar_desert_tpp_squad/split.json --out-dir model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/miramar_desert_tpp_squad/snapshot_tabular_zoo --configs snapshot_last_hgb\,snapshot_summary_hgb --learners all --max-iter 200 --n-estimators 100 --n-jobs 4
+2026-07-06 02:57:14,087 INFO split total=1543 train=1235 val=154 test=154
+2026-07-06 02:57:37,831 INFO rows train=69527 test=9068
+2026-07-06 02:57:37,831 INFO fit snapshot_last_hgb        learner=lr   rows=69527 test=9068 features=17
+2026-07-06 02:57:37,975 INFO fit snapshot_last_hgb        learner=rf   rows=69527 test=9068 features=17
+2026-07-06 02:57:41,870 INFO fit snapshot_last_hgb        learner=hgb  rows=69527 test=9068 features=17
+2026-07-06 02:57:43,664 INFO fit snapshot_last_hgb        learner=xgb  rows=69527 test=9068 features=17
+2026-07-06 02:57:43,897 INFO fit snapshot_last_hgb        learner=mlp  rows=69527 test=9068 features=17
+2026-07-06 02:57:45,837 INFO fit snapshot_summary_hgb     learner=lr   rows=69527 test=9068 features=99
+2026-07-06 02:57:48,440 INFO fit snapshot_summary_hgb     learner=rf   rows=69527 test=9068 features=99
+2026-07-06 02:57:58,674 INFO fit snapshot_summary_hgb     learner=hgb  rows=69527 test=9068 features=99
+2026-07-06 02:58:00,644 INFO fit snapshot_summary_hgb     learner=xgb  rows=69527 test=9068 features=99
+2026-07-06 02:58:01,473 INFO fit snapshot_summary_hgb     learner=mlp  rows=69527 test=9068 features=99
+2026-07-06 02:58:03,955 INFO wrote model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/miramar_desert_tpp_squad/snapshot_tabular_zoo/snapshot_tabular_summary.json

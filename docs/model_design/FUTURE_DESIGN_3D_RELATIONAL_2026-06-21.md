@@ -40,7 +40,7 @@
 - `model_stgcn/v3/adv_model.py` — edge-conditioned GNN(메시지가중=MLP(edge_feat) 학습) + train/eval.
 - `scripts/adv_precompute.py` — phase-tier 디스크 캐시(node-abs 기본 ON, N32).
 - `scripts/{run_adv_experiment,run_adv_kablation,run_adv_nodeabs,run_adv_base}.sh`, `adv_analysis.py`.
-- 결과: `model_stgcn/checkpoints/adv_runs*`, 캐시 `adv_cache*`. DB: `PG_PASSWORD=104204`.
+- 결과: `model_stgcn/checkpoints/adv_runs*`, 캐시 `adv_cache*`. DB: `PG_PASSWORD=...`.
 - 교전거리/고지 검정: `scripts/highground_signal_test.py`, 타당성 `advantage_edge_feasibility.py`, 위치감사 `audit_spatial_features.py`.
 
 ## 6. 발표에서의 위치 (월요일)

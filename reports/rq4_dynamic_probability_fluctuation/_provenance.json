@@ -1,0 +1,143 @@
+{
+  "artifact_root": "reports/rq4_dynamic_probability_fluctuation",
+  "captured_at": "2026-07-09T16:22:14.728429+00:00",
+  "provenance": {
+    "captured_at": "2026-07-09T16:22:14.801861+00:00",
+    "repo_root": "/Users/lunecid/project/PUBG",
+    "git_commit": "f12c6eb2ebf0a26998675fa9e0f83da022a8356b",
+    "git_branch": "paper/dsacg-st-short-background",
+    "git_dirty": true,
+    "git_dirty_count": 118,
+    "git_dirty_files_sample": [
+      "M .gitignore",
+      " M docs/DOC_OBJECT_MANIFEST_2026-07-02.md",
+      " M docs/data_layer/BR_DATA_LAYER_CONTRACT.md",
+      " M docs/data_layer/README.md",
+      " M docs/experiment_design/BATTLE_ROYALE_EXPERIMENT_EVIDENCE_LEDGER_2026-07-05.md",
+      " M docs/experiment_design/BATTLE_ROYALE_O1_SURVIVAL_CAPITAL_INTEGRITY_AUDIT_2026-07-04.md",
+      " M docs/experiment_design/BATTLE_ROYALE_O6_Z_LADDER_RESULT_2026-07-05.md",
+      " M docs/experiment_design/BATTLE_ROYALE_O7_EDGE_STREAM_NULL_GUARD_PROTOCOL_2026-07-05.md",
+      " M docs/experiment_design/BATTLE_ROYALE_RESEARCH_EXECUTION_CHECKLIST_2026-07-03.md",
+      " M docs/experiment_design/README.md",
+      " M docs/experiment_design/V3_LEAKAGE_AUDIT_2026-06-15.md",
+      " M docs/handoffs/NEXT_CHAT_HANDOFF_2026-07-05_BATTLE_ROYALE_FRAMEWORK.md",
+      " M docs/model_design/BATTLE_ROYALE_SURVIVAL_FORMALIZATION_2026-07-03.md",
+      " M docs/model_design/FUTURE_DESIGN_3D_RELATIONAL_2026-06-21.md",
+      " M docs/model_design/README.md",
+      " M docs/paper_writing/README.md",
+      " M docs/research_framing/BATTLE_ROYALE_ANALYTIC_FRAMEWORK_STATUS_2026-07-04.md",
+      " M docs/research_framing/BATTLE_ROYALE_PAPER_ARGUMENT_CHAIN_2026-07-03.md",
+      " M docs/research_framing/README.md",
+      " M docs/spatial_world_modeling/README.md",
+      " M model_stgcn/feature_ablation.py",
+      " M model_stgcn/snapshot_baselines.py",
+      " M model_stgcn/snapshot_phase_dataset.py",
+      " M model_stgcn/splits.py",
+      " M model_stgcn/train_snapshot_phase.py",
+      " M model_stgcn/v3/eval.py",
+      " M model_stgcn/v3/experiment_matrix.py",
+      " M model_stgcn/v3/models.py",
+      " M model_stgcn/v3/run_matrix.py",
+      " M model_stgcn/v3/train.py",
+      " M scripts/adv_precompute.py",
+      " M scripts/overnight_runs.sh",
+      " M scripts/render_caldera_agent_pov_animation.py",
+      " M scripts/render_caldera_blender_clay.py",
+      " M scripts/run_adv_base.sh",
+      " M scripts/run_adv_experiment.sh",
+      " M scripts/run_adv_kablation.sh",
+      " M scripts/run_adv_nodeabs.sh",
+      " M scripts/run_v3_full_feature_matrix.sh",
+      " M scripts/run_v3_full_graph_relation_matrix.sh",
+      " M scripts/run_v3_graph_relation_seed_repeats.sh",
+      " M scripts/v3_gen_predictions.sh",
+      " M scripts/v3_gen_resolution_preds.sh",
+      " M stdb/etl.py",
+      " M stdb/queries.py",
+      " M stdb/snapshot_queries.py",
+      " M tests/test_snapshot_baselines.py",
+      " M tests/test_v3_edge_controls.py",
+      "?? docs/data_layer/PUBG_OFFICIAL_TELEMETRY_OBSERVABILITY_TABLE_2026-07-05.md",
+      "?? docs/experiment_design/BATTLE_ROYALE_CLAIM_EXPERIMENT_MAPPING_2026-07-06.md"
+    ],
+    "python": {
+      "executable": "/Users/lunecid/.pyenv/versions/3.11.5/bin/python3",
+      "version": "3.11.5",
+      "implementation": "CPython",
+      "platform": "macOS-26.5.1-arm64-arm-64bit"
+    }
+  },
+  "evidence_file_count": 14,
+  "evidence_files": [
+    {
+      "path": "BATTLE_ROYALE_RQ4_DYNAMIC_PROBABILITY_FLUCTUATION_RESULT_2026-07-06.md",
+      "bytes": 2315,
+      "sha256": "8e1d77974320af0677669e717b9ddbfbcb28936dedb8230e28f8e8054dccd878"
+    },
+    {
+      "path": "RQ4_PHASE_TRANSITION_RISK_ADVANTAGE_BOARD_RESULT_2026-07-06.md",
+      "bytes": 5002,
+      "sha256": "405f1d3af55905e331a2843f576cc58dd363a90bfc48ea432549ab8cfd7e7d9e"
+    },
+    {
+      "path": "RQ4_REALTIME_PREFIX_PROBABILITY_DEMO_2026-07-06.md",
+      "bytes": 1975,
+      "sha256": "dbe5218c453e444b27c13170dd34240783726a24655b60f8ab05c8616702f4bf"
+    },
+    {
+      "path": "dynamic_probability_manifest.json",
+      "bytes": 1317,
+      "sha256": "3e800b7b283c4b6172e77e5134db8bf0309f6856f8da7724d02c804ca4640cf6"
+    },
+    {
+      "path": "dynamic_probability_match_summary.csv",
+      "bytes": 260100,
+      "sha256": "e0d829d42e2f5f7380a213c8e04584cbbaf141adaf6db5193fac24dff7de725d"
+    },
+    {
+      "path": "dynamic_probability_metrics_by_cohort.csv",
+      "bytes": 3910,
+      "sha256": "5778cf5c07f6a7f12d863a236dc272716f29e1115f393cd31ef76a22c98053df"
+    },
+    {
+      "path": "dynamic_probability_team_summary.csv",
+      "bytes": 10194308,
+      "sha256": "c3388956a49e24fc05d76a294fbca0eac2e2898c60ac285fe7f3df479295a59b"
+    },
+    {
+      "path": "dynamic_probability_trajectories.csv",
+      "bytes": 53579104,
+      "sha256": "bacc1dfe6c32cd238e26f01c2845d07a1d4eda8a494a386c21098279b61885b2"
+    },
+    {
+      "path": "phase_transition_risk_advantage_aggregate.csv",
+      "bytes": 396,
+      "sha256": "a4f3df3f9e64a950cfc9ef30296f5531d1bf26793de4970b0d0129e3a5225f76"
+    },
+    {
+      "path": "phase_transition_risk_advantage_board.csv",
+      "bytes": 2181364,
+      "sha256": "7d92bab7f3ccf495a934df306624483def95b3821342f3b19a313fc7652ee043"
+    },
+    {
+      "path": "phase_transition_risk_advantage_by_cohort.csv",
+      "bytes": 4482,
+      "sha256": "942d7c4cf4f1b480f963f75b0185f2b95e824f62c5b3c3f2800a8ead2cb3609c"
+    },
+    {
+      "path": "phase_transition_risk_advantage_manifest.json",
+      "bytes": 918,
+      "sha256": "136df13fdcbacb1163f81421da894420e2cca112ec6bf5dee95a632c57b61bdc"
+    },
+    {
+      "path": "realtime_prefix_probability_manifest.json",
+      "bytes": 1023,
+      "sha256": "166a4a20e0fd4f247bbcbb495e24adc5602f2f0d75d961293618bd3178accbe7"
+    },
+    {
+      "path": "realtime_prefix_probability_trajectory.csv",
+      "bytes": 687904,
+      "sha256": "23d83e2c36b9e14da437fe2232ff827e4e68253c03eb252be33e7c554a35c8e1"
+    }
+  ]
+}

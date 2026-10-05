@@ -1,0 +1,27 @@
++ python3 -m model_stgcn.train_snapshot_phase --map Baltic_Main --mode squad --epochs 12 --batch 16 --hidden 48 --mid 96 --num-blocks 2 --kernel-size 3 --edge-hidden 16 --device cpu --seed 42 --split-json model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/split.json --workers 0 --eval-workers 0 --prefetch-factor 2 --model-variant snapshot_hier_gru_no_graph --checkpoint model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/erangel_tpp_squad/snapshot_hier_gru_no_graph/model.pt --cached
++ python3 -m tools.eval_snapshot_survival_bridge --checkpoint model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/erangel_tpp_squad/snapshot_hier_gru_no_graph/model.pt --split test --device cpu --batch 16 --out model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/erangel_tpp_squad/snapshot_hier_gru_no_graph/survival_bridge_test.json --pred-out model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/erangel_tpp_squad/snapshot_hier_gru_no_graph/survival_bridge_test.pred.csv --cached
+2026-07-05 19:15:10,358 INFO ids total=6204 train=4964 val=620 test=620
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/lunecid/project/PUBG/model_stgcn/train_snapshot_phase.py", line 735, in <module>
+    train_loop(parse_args())
+  File "/Users/lunecid/project/PUBG/model_stgcn/train_snapshot_phase.py", line 527, in train_loop
+    train_ds = _make_dataset(train_ids, cached=args.cached, include_edges=include_edges)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lunecid/project/PUBG/model_stgcn/train_snapshot_phase.py", line 129, in _make_dataset
+    return cls(ids, include_edges=include_edges)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lunecid/project/PUBG/model_stgcn/snapshot_phase_dataset.py", line 68, in __init__
+    item = fetch_snapshot_phase(mid, include_edges=include_edges)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lunecid/project/PUBG/model_stgcn/snapshot_phase_dataset.py", line 25, in fetch_snapshot_phase
+    snap = fetch_snapshot_match_tensors(match_id, include_edges=include_edges)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lunecid/project/PUBG/stdb/snapshot_queries.py", line 190, in fetch_snapshot_match_tensors
+    X_s[t, i, f] = _as_float(rd.get(col), scale=scale)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lunecid/project/PUBG/stdb/snapshot_queries.py", line 78, in _as_float
+    if not np.isfinite(x):
+           ^^^^^^^^^^^^^^
+KeyboardInterrupt

@@ -1,0 +1,14 @@
++ python3 -m model_stgcn.snapshot_tabular_baseline --map DihorOtok_Main --mode squad --seed 42 --split-json model_stgcn/checkpoints/br_om_ladder_required_v1/vikendi_tpp_squad/split.json --out-dir model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/vikendi_tpp_squad/snapshot_tabular_zoo --configs snapshot_last_hgb\,snapshot_summary_hgb --learners all --max-iter 200 --n-estimators 100 --n-jobs 4
+2026-07-06 03:23:07,523 INFO split total=498 train=400 val=49 test=49
+2026-07-06 03:23:13,391 INFO rows train=22596 test=2778
+2026-07-06 03:23:13,391 INFO fit snapshot_last_hgb        learner=lr   rows=22596 test=2778 features=17
+2026-07-06 03:23:13,441 INFO fit snapshot_last_hgb        learner=rf   rows=22596 test=2778 features=17
+2026-07-06 03:23:14,531 INFO fit snapshot_last_hgb        learner=hgb  rows=22596 test=2778 features=17
+2026-07-06 03:23:15,812 INFO fit snapshot_last_hgb        learner=xgb  rows=22596 test=2778 features=17
+2026-07-06 03:23:15,962 INFO fit snapshot_last_hgb        learner=mlp  rows=22596 test=2778 features=17
+2026-07-06 03:23:16,502 INFO fit snapshot_summary_hgb     learner=lr   rows=22596 test=2778 features=99
+2026-07-06 03:23:17,091 INFO fit snapshot_summary_hgb     learner=rf   rows=22596 test=2778 features=99
+2026-07-06 03:23:19,870 INFO fit snapshot_summary_hgb     learner=hgb  rows=22596 test=2778 features=99
+2026-07-06 03:23:20,773 INFO fit snapshot_summary_hgb     learner=xgb  rows=22596 test=2778 features=99
+2026-07-06 03:23:21,091 INFO fit snapshot_summary_hgb     learner=mlp  rows=22596 test=2778 features=99
+2026-07-06 03:23:21,723 INFO wrote model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/vikendi_tpp_squad/snapshot_tabular_zoo/snapshot_tabular_summary.json

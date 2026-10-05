@@ -12,6 +12,7 @@ input channels, and model-facing ablation design.
 | Object | Role |
 | --- | --- |
 | `BATTLE_ROYALE_SURVIVAL_FORMALIZATION_2026-07-03.md` | model-facing survival formula for the locked ontology |
+| `BATTLE_ROYALE_REALTIME_RISK_ADVANTAGE_FRAMEWORK_2026-07-06.md` | realtime elimination-risk and phase-transition risk/advantage board framework |
 | `INPUT_MODEL_CHANNEL_CONTRACT_2026-06-22.md` | model input channel contract |
 | `MODEL_SPEC_CODE_GROUNDED_2026-06-21.md` | code-grounded model spec |
 | `BATTLE_ROYALE_GRAPH_FORMALISM_2026-06-22.md` | graph formalism |

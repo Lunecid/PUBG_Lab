@@ -1,0 +1,87 @@
+started_at=2026-07-04T18:31:17Z
+cohort=Erangel TPP squad
+split_json=model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/split.json
+feature_preset=om5_relation_structure
+max_train=8000 max_val=1521 max_test=1521
+{
+  "status": "passed",
+  "cohort": "Erangel TPP squad",
+  "cohort_slug": "erangel_tpp_squad",
+  "map": "Baltic_Main",
+  "mode": "squad",
+  "split_json": "model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/split.json",
+  "split": "test",
+  "gate": "knn",
+  "k": 5,
+  "beta": 1.0,
+  "seed": 42,
+  "matches_requested": 8,
+  "matches_audited": 8,
+  "phase_blocks": 53,
+  "edge_blocks": 53,
+  "rewired_blocks": 52,
+  "total_edges": 3009
+}
+2026-07-05 03:31:20,332 INFO cohort=Erangel TPP squad map=Baltic_Main mode=squad feature_preset=om5_relation_structure node_abs=True
+2026-07-05 03:31:20,333 INFO split sizes: train=4964 val=620 test=620 | n_max=32 k=5 beta=1.0 F=10
+2026-07-05 03:31:22,830 INFO fetched radius for 6204 matches
+2026-07-05 03:31:22,830 INFO building test ...
+2026-07-05 03:31:52,177 INFO   500/620 (29s)
+2026-07-05 03:31:59,964 INFO saved test: 620 matches -> model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/erangel_tpp_squad/adv_cache/test.pt
+2026-07-05 03:31:59,964 INFO building val ...
+2026-07-05 03:32:29,457 INFO   500/620 (29s)
+2026-07-05 03:32:36,768 INFO saved val: 620 matches -> model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/erangel_tpp_squad/adv_cache/val.pt
+2026-07-05 03:32:36,768 INFO building train ...
+2026-07-05 03:33:06,114 INFO   500/4964 (29s)
+2026-07-05 03:33:35,232 INFO   1000/4964 (58s)
+2026-07-05 03:34:04,738 INFO   1500/4964 (88s)
+2026-07-05 03:34:34,000 INFO   2000/4964 (117s)
+2026-07-05 03:35:03,714 INFO   2500/4964 (147s)
+2026-07-05 03:35:33,587 INFO   3000/4964 (177s)
+2026-07-05 03:36:03,361 INFO   3500/4964 (207s)
+2026-07-05 03:36:33,211 INFO   4000/4964 (236s)
+2026-07-05 03:37:03,009 INFO   4500/4964 (266s)
+2026-07-05 03:37:35,060 INFO saved train: 4964 matches -> model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/erangel_tpp_squad/adv_cache/train.pt
+2026-07-05 03:37:35,060 INFO PRECOMPUTE DONE
+2026-07-05 03:37:38,433 INFO gate=none control=observed dev=mps node_dim=101 gdim=25 edge_dim=10 train=4964
+2026-07-05 03:37:40,193 INFO ep00 train_loss=0.5881 train_auc=0.6645 | val_loss=0.5579 val_auc=0.7224 (1s)
+2026-07-05 03:37:40,674 INFO ep01 train_loss=0.5475 train_auc=0.7321 | val_loss=0.5428 val_auc=0.7398 (2s)
+2026-07-05 03:37:41,246 INFO ep02 train_loss=0.5372 train_auc=0.7436 | val_loss=0.5359 val_auc=0.7478 (2s)
+2026-07-05 03:37:41,777 INFO ep03 train_loss=0.5330 train_auc=0.7481 | val_loss=0.5315 val_auc=0.7522 (3s)
+2026-07-05 03:37:42,340 INFO ep04 train_loss=0.5292 train_auc=0.7524 | val_loss=0.5308 val_auc=0.7534 (3s)
+2026-07-05 03:37:42,899 INFO ep05 train_loss=0.5262 train_auc=0.7560 | val_loss=0.5264 val_auc=0.7577 (4s)
+2026-07-05 03:37:43,510 INFO ep06 train_loss=0.5244 train_auc=0.7579 | val_loss=0.5260 val_auc=0.7587 (4s)
+2026-07-05 03:37:44,044 INFO ep07 train_loss=0.5224 train_auc=0.7601 | val_loss=0.5231 val_auc=0.7617 (5s)
+2026-07-05 03:37:44,529 INFO ep08 train_loss=0.5197 train_auc=0.7633 | val_loss=0.5243 val_auc=0.7630 (5s)
+2026-07-05 03:37:45,011 INFO ep09 train_loss=0.5182 train_auc=0.7648 | val_loss=0.5212 val_auc=0.7643 (6s)
+2026-07-05 03:37:45,555 INFO ep10 train_loss=0.5161 train_auc=0.7670 | val_loss=0.5182 val_auc=0.7668 (7s)
+2026-07-05 03:37:46,094 INFO ep11 train_loss=0.5150 train_auc=0.7681 | val_loss=0.5194 val_auc=0.7668 (7s)
+2026-07-05 03:37:46,170 INFO DONE gate=none control=observed best_val_auc=0.7668 test_cells=31404 -> model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/erangel_tpp_squad/A_none_observed/pred_test.csv
+2026-07-05 03:37:49,197 INFO gate=knn control=observed dev=mps node_dim=101 gdim=25 edge_dim=10 train=4964
+2026-07-05 03:37:53,118 INFO ep00 train_loss=0.5835 train_auc=0.6704 | val_loss=0.5502 val_auc=0.7302 (3s)
+2026-07-05 03:37:55,795 INFO ep01 train_loss=0.5381 train_auc=0.7412 | val_loss=0.5426 val_auc=0.7473 (6s)
+2026-07-05 03:37:58,496 INFO ep02 train_loss=0.5308 train_auc=0.7499 | val_loss=0.5313 val_auc=0.7526 (9s)
+2026-07-05 03:38:01,150 INFO ep03 train_loss=0.5247 train_auc=0.7570 | val_loss=0.5271 val_auc=0.7564 (11s)
+2026-07-05 03:38:03,839 INFO ep04 train_loss=0.5219 train_auc=0.7603 | val_loss=0.5236 val_auc=0.7617 (14s)
+2026-07-05 03:38:06,536 INFO ep05 train_loss=0.5176 train_auc=0.7656 | val_loss=0.5186 val_auc=0.7656 (17s)
+2026-07-05 03:38:09,230 INFO ep06 train_loss=0.5151 train_auc=0.7681 | val_loss=0.5161 val_auc=0.7683 (20s)
+2026-07-05 03:38:11,893 INFO ep07 train_loss=0.5120 train_auc=0.7714 | val_loss=0.5147 val_auc=0.7705 (22s)
+2026-07-05 03:38:14,599 INFO ep08 train_loss=0.5110 train_auc=0.7726 | val_loss=0.5140 val_auc=0.7706 (25s)
+2026-07-05 03:38:17,358 INFO ep09 train_loss=0.5098 train_auc=0.7739 | val_loss=0.5124 val_auc=0.7727 (28s)
+2026-07-05 03:38:20,143 INFO ep10 train_loss=0.5083 train_auc=0.7753 | val_loss=0.5163 val_auc=0.7714 (30s)
+2026-07-05 03:38:22,841 INFO ep11 train_loss=0.5073 train_auc=0.7765 | val_loss=0.5142 val_auc=0.7710 (33s)
+2026-07-05 03:38:23,080 INFO DONE gate=knn control=observed best_val_auc=0.7727 test_cells=31404 -> model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/erangel_tpp_squad/B_knn_observed/pred_test.csv
+2026-07-05 03:38:26,144 INFO gate=knn control=edge_shuffle dev=mps node_dim=101 gdim=25 edge_dim=10 train=4964
+2026-07-05 03:38:31,572 INFO ep00 train_loss=0.5850 train_auc=0.6687 | val_loss=0.5510 val_auc=0.7292 (5s)
+2026-07-05 03:38:36,164 INFO ep01 train_loss=0.5396 train_auc=0.7396 | val_loss=0.5406 val_auc=0.7457 (10s)
+2026-07-05 03:38:40,700 INFO ep02 train_loss=0.5331 train_auc=0.7471 | val_loss=0.5300 val_auc=0.7530 (14s)
+2026-07-05 03:38:45,251 INFO ep03 train_loss=0.5264 train_auc=0.7553 | val_loss=0.5259 val_auc=0.7571 (19s)
+2026-07-05 03:38:49,803 INFO ep04 train_loss=0.5243 train_auc=0.7574 | val_loss=0.5250 val_auc=0.7591 (23s)
+2026-07-05 03:38:54,459 INFO ep05 train_loss=0.5201 train_auc=0.7625 | val_loss=0.5227 val_auc=0.7625 (28s)
+2026-07-05 03:38:59,175 INFO ep06 train_loss=0.5184 train_auc=0.7642 | val_loss=0.5195 val_auc=0.7643 (33s)
+2026-07-05 03:39:03,738 INFO ep07 train_loss=0.5155 train_auc=0.7673 | val_loss=0.5171 val_auc=0.7670 (37s)
+2026-07-05 03:39:08,296 INFO ep08 train_loss=0.5142 train_auc=0.7687 | val_loss=0.5159 val_auc=0.7681 (42s)
+2026-07-05 03:39:12,883 INFO ep09 train_loss=0.5129 train_auc=0.7702 | val_loss=0.5169 val_auc=0.7687 (46s)
+2026-07-05 03:39:17,453 INFO ep10 train_loss=0.5115 train_auc=0.7714 | val_loss=0.5179 val_auc=0.7708 (51s)
+2026-07-05 03:39:22,012 INFO ep11 train_loss=0.5108 train_auc=0.7724 | val_loss=0.5137 val_auc=0.7707 (55s)
+2026-07-05 03:39:22,470 INFO DONE gate=knn control=edge_shuffle best_val_auc=0.7708 test_cells=31404 -> model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/erangel_tpp_squad/C_knn_edge_shuffle/pred_test.csv

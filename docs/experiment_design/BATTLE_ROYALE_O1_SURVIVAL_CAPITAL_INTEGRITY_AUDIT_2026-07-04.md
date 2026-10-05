@@ -26,7 +26,7 @@ model_stgcn/checkpoints/br_om_ladder_required_v1
 Audit command:
 
 ```bash
-PG_PASSWORD=104204 python3 tools/audit_o1_survival_capital.py \
+PG_PASSWORD=... python3 tools/audit_o1_survival_capital.py \
   --root model_stgcn/checkpoints/br_om_ladder_required_v1 \
   --split test
 ```

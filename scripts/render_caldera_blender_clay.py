@@ -38,6 +38,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--trajectory-radius", type=float, default=1.4)
     parser.add_argument("--trajectory-marker-radius", type=float, default=4.0)
     parser.add_argument("--trajectory-color", type=parse_vec, default=(0.02, 0.88, 1.0))
+    parser.add_argument("--feature-marker-json", type=Path)
+    parser.add_argument("--feature-marker-z-offset", type=float, default=5.0)
+    parser.add_argument("--feature-marker-radius", type=float, default=5.5)
     argv = sys.argv
     if "--" in argv:
         argv = argv[argv.index("--") + 1 :]
@@ -129,6 +132,44 @@ def add_trajectory(
         bpy.ops.object.shade_smooth()
 
 
+def load_feature_markers(path: Path | None, z_offset: float) -> list[dict]:
+    if path is None:
+        return []
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    markers = payload.get("markers", payload if isinstance(payload, list) else [])
+    out = []
+    for marker in markers:
+        color = marker.get("color", [1.0, 0.2, 0.05])
+        out.append(
+            {
+                "label": str(marker.get("label", "marker")),
+                "x": float(marker["x"]),
+                "y": float(marker["y"]),
+                "z": float(marker["z"]) + z_offset,
+                "radius": float(marker.get("radius", 0.0)),
+                "color": (float(color[0]), float(color[1]), float(color[2])),
+            }
+        )
+    return out
+
+
+def add_feature_markers(markers: list[dict], default_radius: float) -> None:
+    if not markers:
+        return
+    import bpy
+
+    for idx, marker in enumerate(markers, start=1):
+        color = marker["color"]
+        mat = make_mat(f"feature_marker_{idx}_{marker['label']}", (color[0], color[1], color[2], 1.0), 0.32)
+        radius = marker["radius"] or default_radius
+        location = (marker["x"], marker["y"], marker["z"])
+        bpy.ops.mesh.primitive_uv_sphere_add(segments=32, ring_count=16, radius=radius, location=location)
+        obj = bpy.context.object
+        obj.name = f"feature_marker_{idx}_{marker['label']}"
+        obj.data.materials.append(mat)
+        bpy.ops.object.shade_smooth()
+
+
 def main() -> None:
     import bpy
     import mathutils
@@ -138,6 +179,8 @@ def main() -> None:
     args.output = args.output.resolve()
     if args.trajectory_json is not None:
         args.trajectory_json = args.trajectory_json.resolve()
+    if args.feature_marker_json is not None:
+        args.feature_marker_json = args.feature_marker_json.resolve()
 
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete()
@@ -179,6 +222,8 @@ def main() -> None:
 
     trajectory_points = load_trajectory_points(args.trajectory_json, args.trajectory_elevation_offset)
     add_trajectory(trajectory_points, args.trajectory_radius, args.trajectory_marker_radius, args.trajectory_color)
+    feature_markers = load_feature_markers(args.feature_marker_json, args.feature_marker_z_offset)
+    add_feature_markers(feature_markers, args.feature_marker_radius)
 
     mins, maxs = bounds_from_objects(mesh_objects)
     center = (mins + maxs) * 0.5
@@ -245,6 +290,8 @@ def main() -> None:
         "mesh_objects": [obj.name for obj in mesh_objects],
         "trajectory_json": str(args.trajectory_json) if args.trajectory_json else None,
         "trajectory_points": len(trajectory_points),
+        "feature_marker_json": str(args.feature_marker_json) if args.feature_marker_json else None,
+        "feature_markers": len(feature_markers),
     }
     manifest_path = args.manifest or args.output.with_suffix(".manifest.json")
     Path(manifest_path).write_text(json.dumps(manifest, indent=2), encoding="utf-8")

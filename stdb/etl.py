@@ -546,14 +546,15 @@ def _build_team_proximity(cur, match_id: str) -> int:
         (match_id, match_id),
     )
 
-    # Mark encounter_recently from spatial_events (kill+damage+groggy within ±ENCOUNTER_WINDOW)
+    # Mark only already-observable encounters.  Earlier floor-bucketing could
+    # assign a t+epsilon event to the prior grid cut.
     cur.execute(
         """
         UPDATE stdb.team_proximity tp
            SET encounter_recently = TRUE
           FROM (
             SELECT DISTINCT
-                   floor(event_t / %s) * %s AS snap_t,
+                   ceil(event_t / %s) * %s AS snap_t,
                    LEAST(attacker_team, victim_team) AS team_a,
                    GREATEST(attacker_team, victim_team) AS team_b
               FROM stdb.spatial_events

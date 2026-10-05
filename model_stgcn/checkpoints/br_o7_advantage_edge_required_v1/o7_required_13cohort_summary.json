@@ -1,0 +1,177 @@
+{
+  "root": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1",
+  "input_name": "o7_early_readout_phase_group_deltas.csv",
+  "cohorts": [
+    "erangel_tpp_squad",
+    "taego_tpp_squad",
+    "erangel_tpp_solo",
+    "miramar_desert_tpp_squad",
+    "rondo_tpp_squad",
+    "sanhok_tpp_squad",
+    "vikendi_tpp_squad",
+    "paramo_tpp_squad",
+    "karakin_tpp_squad",
+    "erangel_tpp_duo",
+    "taego_tpp_duo",
+    "taego_fpp_squad",
+    "erangel_fpp_squad"
+  ],
+  "n_cohorts": 13,
+  "summary": [
+    {
+      "phase_group": "all",
+      "phases": "all",
+      "n_cohorts": 13,
+      "total_n": 90973,
+      "total_n_matches": 1789,
+      "B_minus_C": {
+        "positive": 13,
+        "negative": 0,
+        "zero": 0,
+        "ci_positive": 6,
+        "ci_negative": 0,
+        "median": 0.0022944456460649576,
+        "mean": 0.003961398359671233,
+        "weighted_mean_by_n": 0.002841241914987459,
+        "min": 0.00011503866437589938,
+        "max": 0.019154235113582052
+      },
+      "B_minus_A": {
+        "positive": 11,
+        "negative": 2,
+        "zero": 0,
+        "ci_positive": 7,
+        "ci_negative": 0,
+        "median": 0.0069583155140752195,
+        "mean": 0.006329472939275702,
+        "weighted_mean_by_n": 0.005706128494886695,
+        "min": -0.0018500176463223106,
+        "max": 0.018084549896166036
+      }
+    },
+    {
+      "phase_group": "early_1_2",
+      "phases": "1,2",
+      "n_cohorts": 13,
+      "total_n": 50087,
+      "total_n_matches": 1789,
+      "B_minus_C": {
+        "positive": 12,
+        "negative": 1,
+        "zero": 0,
+        "ci_positive": 4,
+        "ci_negative": 0,
+        "median": 0.0026994969425668813,
+        "mean": 0.004097973356077858,
+        "weighted_mean_by_n": 0.003348616424397852,
+        "min": -0.0006753514574771025,
+        "max": 0.011010078878176843
+      },
+      "B_minus_A": {
+        "positive": 11,
+        "negative": 2,
+        "zero": 0,
+        "ci_positive": 7,
+        "ci_negative": 0,
+        "median": 0.007897720196625602,
+        "mean": 0.008220215062580057,
+        "weighted_mean_by_n": 0.007136583318201023,
+        "min": -0.0013576110837376643,
+        "max": 0.020650290322845488
+      }
+    },
+    {
+      "phase_group": "mid_3_4",
+      "phases": "3,4",
+      "n_cohorts": 13,
+      "total_n": 29165,
+      "total_n_matches": 1780,
+      "B_minus_C": {
+        "positive": 8,
+        "negative": 5,
+        "zero": 0,
+        "ci_positive": 3,
+        "ci_negative": 1,
+        "median": 0.000736585463124606,
+        "mean": 0.003781524232603276,
+        "weighted_mean_by_n": 0.0018105953927931473,
+        "min": -0.008056294601785252,
+        "max": 0.030515463917525798
+      },
+      "B_minus_A": {
+        "positive": 9,
+        "negative": 4,
+        "zero": 0,
+        "ci_positive": 4,
+        "ci_negative": 0,
+        "median": 0.002801848983886246,
+        "mean": 0.004136860552704518,
+        "weighted_mean_by_n": 0.0040599162004862155,
+        "min": -0.007807934170231845,
+        "max": 0.01758805913390682
+      }
+    },
+    {
+      "phase_group": "late_5_6",
+      "phases": "5,6",
+      "n_cohorts": 13,
+      "total_n": 10476,
+      "total_n_matches": 1581,
+      "B_minus_C": {
+        "positive": 9,
+        "negative": 4,
+        "zero": 0,
+        "ci_positive": 3,
+        "ci_negative": 0,
+        "median": 0.003849638812847389,
+        "mean": 0.0026765721221914717,
+        "weighted_mean_by_n": 0.006890239874940865,
+        "min": -0.03039513677811534,
+        "max": 0.027903958468527
+      },
+      "B_minus_A": {
+        "positive": 9,
+        "negative": 4,
+        "zero": 0,
+        "ci_positive": 3,
+        "ci_negative": 1,
+        "median": 0.006966213862765747,
+        "mean": 0.003652424050249168,
+        "weighted_mean_by_n": 0.0072541672598143096,
+        "min": -0.029179331306990797,
+        "max": 0.039845261121856934
+      }
+    },
+    {
+      "phase_group": "final_7",
+      "phases": "7",
+      "n_cohorts": 13,
+      "total_n": 1245,
+      "total_n_matches": 562,
+      "B_minus_C": {
+        "positive": 8,
+        "negative": 5,
+        "zero": 0,
+        "ci_positive": 0,
+        "ci_negative": 0,
+        "median": 0.0071428571428571175,
+        "mean": 0.011542491381757818,
+        "weighted_mean_by_n": 0.005440589125655884,
+        "min": -0.41666666666666674,
+        "max": 0.3214285714285714
+      },
+      "B_minus_A": {
+        "positive": 4,
+        "negative": 8,
+        "zero": 1,
+        "ci_positive": 0,
+        "ci_negative": 0,
+        "median": -0.00955465587044535,
+        "mean": -0.04452388876724029,
+        "weighted_mean_by_n": -0.019059839833876765,
+        "min": -0.41666666666666674,
+        "max": 0.1428571428571428
+      }
+    }
+  ]
+}

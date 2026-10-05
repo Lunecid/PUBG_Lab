@@ -213,12 +213,11 @@ high-ground affordance after OM5.
 
 ## Next Methodological Step
 
-The critical path should return to the already supported framework claims:
+The critical path should return to the RQ1-RQ4 manuscript spine:
 
-1. preserve Q1 around pressure-habitat as the central supervised result;
+1. preserve the pressure-habitat result as the central PUBG supervised
+   prediction evidence;
 2. report O6Z as a bounded negative sensitivity;
 3. use Caldera/Warzone for geometry-rich construct validation rather than
    supervised outcome prediction;
-4. move next to the O7 edge-stream experiment only after the U-layer null guard
-   and edge-control protocol are locked.
-
+4. keep O7 edge-stream work, if cited, as supplementary null-control evidence.

@@ -1,0 +1,103 @@
+{
+  "model_variant": "snapshot_tcn_no_graph",
+  "checkpoint": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/vikendi_tpp_squad/snapshot_tcn_no_graph/model.pt",
+  "history": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/vikendi_tpp_squad/snapshot_tcn_no_graph/model.history.json",
+  "map": "DihorOtok_Main",
+  "mode": "squad",
+  "limit": null,
+  "seed": 42,
+  "snapshot_feature_preset": "full",
+  "snapshot_edge_preset": "full",
+  "best_val": 0.5082394322570489,
+  "best_epoch": 12,
+  "split_counts": {
+    "train": 400,
+    "val": 49,
+    "test": 49,
+    "train_loaded": 400,
+    "val_loaded": 49,
+    "test_loaded": 49
+  },
+  "channel_contract": {
+    "model_variant": "snapshot_tcn_no_graph",
+    "model_family": "M2_snapshot_temporal_model",
+    "temporal_resolution": "10s_snapshot",
+    "output_resolution": "phase_cut",
+    "graph_resolution": "none",
+    "relation_handling": "none",
+    "edge_control": "none",
+    "edge_control_seed": null,
+    "snapshot_feature_preset": "full",
+    "snapshot_edge_preset": "none",
+    "relative_edge_gate": null,
+    "relative_edge_k": null,
+    "relative_edge_null": null,
+    "feature_clocks_consumed": [
+      "snapshot_10s"
+    ],
+    "input_channels_consumed": [
+      "C1_snapshot_team_state"
+    ],
+    "supervision_channels": [
+      "C8_label_mask"
+    ],
+    "tensor_owners_consumed": [
+      "X_s"
+    ],
+    "snapshot_feature_names": [
+      "pos_x",
+      "pos_y",
+      "pos_z",
+      "rel_zone_x",
+      "rel_zone_y",
+      "speed_mps",
+      "dist_blue_boundary_m",
+      "inside_blue",
+      "dist_target_center_m",
+      "mean_health",
+      "min_health",
+      "alive_n",
+      "vehicle_ratio"
+    ],
+    "snapshot_feature_names_available": [
+      "pos_x",
+      "pos_y",
+      "pos_z",
+      "rel_zone_x",
+      "rel_zone_y",
+      "speed_mps",
+      "dist_blue_boundary_m",
+      "inside_blue",
+      "dist_target_center_m",
+      "mean_health",
+      "min_health",
+      "alive_n",
+      "vehicle_ratio"
+    ],
+    "snapshot_edge_types": [],
+    "snapshot_edge_feature_names": [],
+    "domain_mechanisms_consumed": [
+      "resource",
+      "roster",
+      "rotation",
+      "space",
+      "zone"
+    ],
+    "heads_enabled": [
+      "next_phase_hazard"
+    ],
+    "label_and_mask_inputs_forbidden": true
+  },
+  "best_val_metrics": {
+    "loss": 0.5082394322570489,
+    "hazard_acc": 0.7662245886666434,
+    "hazard_pos": 270.6326530612245,
+    "hazard_n": 916.0204081632653
+  },
+  "test_metrics": {
+    "loss": 0.5166169830730983,
+    "hazard_acc": 0.7517934721343371,
+    "hazard_pos": 268.734693877551,
+    "hazard_n": 888.734693877551
+  }
+}

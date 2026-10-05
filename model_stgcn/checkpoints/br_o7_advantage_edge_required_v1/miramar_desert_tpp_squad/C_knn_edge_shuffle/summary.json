@@ -1,0 +1,8 @@
+{
+  "gate": "knn",
+  "control": "edge_shuffle",
+  "best_val_auc": 0.7607106622126378,
+  "n_test_cells": 9039,
+  "pred_csv": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/miramar_desert_tpp_squad/C_knn_edge_shuffle/pred_test.csv",
+  "elapsed_s": 14.7
+}

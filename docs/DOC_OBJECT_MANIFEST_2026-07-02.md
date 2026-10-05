@@ -45,6 +45,7 @@ This manifest treats each Markdown file as a documentation object. It is generat
 | `docs/data_layer/BR_DATA_LAYER_CONTRACT.md` | `DataContract` | `active` | package documentation object |
 | `docs/data_layer/DATA_AVAILABILITY_BY_DOMAIN.md` | `DataContract` | `active` | package documentation object |
 | `docs/data_layer/EXPERIMENT_DATASETS_BY_DOMAIN.md` | `DataContract` | `active` | package documentation object |
+| `docs/data_layer/PUBG_OFFICIAL_TELEMETRY_OBSERVABILITY_TABLE_2026-07-05.md` | `DataContract` | `active` | RQ2 table of what PUBG official telemetry provides, derives, labels, proxies, and does not directly provide |
 | `docs/data_layer/README.md` | `DataContractInterface` | `active` | package public interface |
 | `docs/data_layer/RESEARCH_COHORT_FLAT.md` | `DataContract` | `active` | package documentation object |
 | `docs/data_layer/RQ1_STDB_REDESIGN.md` | `DataContract` | `active` | package documentation object |
@@ -60,6 +61,14 @@ This manifest treats each Markdown file as a documentation object. It is generat
 | `docs/experiment_design/BATTLE_ROYALE_FRAMEWORK_VALIDATION_PLAN_2026-07-02.md` | `ExperimentContract` | `active` | Battle Royale framework validation plan |
 | `docs/experiment_design/BATTLE_ROYALE_RESEARCH_EXECUTION_CHECKLIST_2026-07-03.md` | `ExperimentContract` | `active` | current Battle Royale research execution checklist |
 | `docs/experiment_design/BATTLE_ROYALE_EXPERIMENT_EVIDENCE_LEDGER_2026-07-05.md` | `ExperimentResult` | `active` | detailed evidence ledger mapping experiments to supported and bounded claims |
+| `docs/experiment_design/BATTLE_ROYALE_CLAIM_EXPERIMENT_MAPPING_2026-07-06.md` | `ExperimentSynthesis` | `active` | manuscript-facing RQ1-RQ4 claim-to-experiment/result mapping and remaining gap summary |
+| `docs/experiment_design/BATTLE_ROYALE_EXPERIMENT_STATUS_AND_NEXT_DECISION_2026-07-06.md` | `ExperimentDecision` | `active` | current revised RQ1-RQ4 experiment status, model comparison conclusion, and board-baseline decision |
+| `docs/experiment_design/BATTLE_ROYALE_RQ4_PRIOR_BASELINE_RESULT_2026-07-05.md` | `ExperimentResult` | `active` | revised-RQ3 Sagong-style/basic tabular baseline result; graph design removed from core |
+| `docs/experiment_design/BATTLE_ROYALE_RQ4_DYNAMIC_PROBABILITY_FLUCTUATION_RESULT_2026-07-06.md` | `ExperimentResult` | `active` | revised-RQ3 dynamic probability trajectory result for realtime survival readouts |
+| `docs/experiment_design/BATTLE_ROYALE_RQ4_PHASE_TRANSITION_RISK_ADVANTAGE_BOARD_RESULT_2026-07-06.md` | `ExperimentResult` | `active` | RQ4 phase-transition risk/advantage board result |
+| `docs/experiment_design/BATTLE_ROYALE_RQ4_BOARD_BASELINE_COMPARISON_PROTOCOL_2026-07-06.md` | `ExperimentContract` | `active` | frozen RQ4 board-baseline comparison protocol |
+| `docs/experiment_design/BATTLE_ROYALE_RQ4_BOARD_BASELINE_COMPARISON_RESULT_2026-07-06.md` | `ExperimentResult` | `active` | RQ4 board-baseline comparison result and claim boundary |
+| `docs/experiment_design/BATTLE_ROYALE_RQ4_HIERARCHICAL_SURVIVAL_PROTOCOL_2026-07-05.md` | `ExperimentContract` | `active` | revised-RQ3 hierarchical / 10-second phase-survival model protocol and cumulative-survival bridge smoke status |
 | `docs/experiment_design/BATTLE_ROYALE_REQUIRED_COHORT_SET_2026-07-03.md` | `ExperimentContract` | `active` | required cohort set for main training and cohort ablations |
 | `docs/experiment_design/BATTLE_ROYALE_ONTOLOGY_VALIDATION_PROTOCOL_2026-07-03.md` | `ExperimentContract` | `active` | staged ontology validation protocol before predictive claims |
 | `docs/experiment_design/BATTLE_ROYALE_FEATURE_AVAILABILITY_AUDIT_2026-07-03.md` | `ExperimentContract` | `active` | OM0-OM6 feature availability audit for required PUBG cohorts |
@@ -72,6 +81,12 @@ This manifest treats each Markdown file as a documentation object. It is generat
 | `docs/experiment_design/BATTLE_ROYALE_O6_Z_LADDER_FEATURE_AVAILABILITY_AUDIT_2026-07-04.md` | `ExperimentResult` | `active` | Z1-Z3 source/tensor availability audit before OM6Z training |
 | `docs/experiment_design/BATTLE_ROYALE_O6_Z_LADDER_RESULT_2026-07-05.md` | `ExperimentResult` | `active` | corrected O6Z required-cohort sensitivity result and claim boundary |
 | `docs/experiment_design/BATTLE_ROYALE_O7_EDGE_STREAM_NULL_GUARD_PROTOCOL_2026-07-05.md` | `ExperimentContract` | `active` | O7 advantage-edge stream 3-arm protocol and null-guard contract |
+| `docs/experiment_design/BATTLE_ROYALE_GEN1_GEN2_RESULT_BOUNDARY_2026-07-05.md` | `ExperimentBoundary` | `active` | decision note separating legacy gen-1 pilots from current gen-2 manuscript evidence |
+| `docs/experiment_design/BATTLE_ROYALE_O7_EDGE_SHUFFLE_AUDIT_2026-07-05.md` | `ExperimentResult` | `active` | O7 advantage-edge edge-shuffle audit and cohort-aware runner smoke result |
+| `docs/experiment_design/BATTLE_ROYALE_O7_EARLY_READOUT_ERANGEL_2026-07-05.md` | `ExperimentResult` | `active` | first gen-2 O7 advantage-edge A/B/C early readout on Erangel TPP squad |
+| `docs/experiment_design/BATTLE_ROYALE_O7_EARLY_READOUT_4COHORT_RESULT_2026-07-05.md` | `ExperimentResult` | `active` | four-cohort O7 advantage-edge early readout and expansion decision |
+| `docs/experiment_design/BATTLE_ROYALE_O7_REQUIRED_COHORT_HAZARD_RESULT_2026-07-05.md` | `ExperimentResult` | `active` | 13-cohort O7 advantage-edge hazard-AUC result and claim boundary |
+| `docs/experiment_design/BATTLE_ROYALE_O7_REQUIRED_COHORT_RANK_BRIDGE_RESULT_2026-07-05.md` | `ExperimentResult` | `active` | 13-cohort O7 hazard-implied rank bridge result and claim boundary |
 | `docs/experiment_design/REPRESENTATION_ABLATION_STATUS_2026-06-14.md` | `ExperimentContract` | `active` | package documentation object |
 | `docs/experiment_design/REQUIRED_EXPERIMENTS.md` | `ExperimentContract` | `active` | package documentation object |
 | `docs/experiment_design/V3_FINAL_DESIGN_STATUS_2026-06-15.md` | `ExperimentContract` | `active` | package documentation object |
@@ -100,6 +115,7 @@ This manifest treats each Markdown file as a documentation object. It is generat
 | `docs/handoffs/NEXT_CHAT_HANDOFF_2026-07-05_BATTLE_ROYALE_FRAMEWORK.md` | `ContinuationState` | `handoff` | current Battle Royale framework continuation state after OM6Z |
 | `docs/handoffs/README.md` | `ContinuationStateInterface` | `active` | package public interface |
 | `docs/model_design/BATTLE_ROYALE_SURVIVAL_FORMALIZATION_2026-07-03.md` | `ModelContract` | `active` | model-facing survival formula for the locked ontology |
+| `docs/model_design/BATTLE_ROYALE_REALTIME_RISK_ADVANTAGE_FRAMEWORK_2026-07-06.md` | `ModelContract` | `active` | realtime elimination-risk prediction and phase-transition risk/advantage board framework |
 | `docs/model_design/BATTLE_ROYALE_GRAPH_FORMALISM_2026-06-22.md` | `ModelContract` | `active` | package documentation object |
 | `docs/model_design/BR_PARALLEL_MODEL_VISUALIZATION_ROADMAP.md` | `ModelContract` | `active` | package documentation object |
 | `docs/model_design/DSACG_METHOD_SKELETON.md` | `ModelContract` | `active` | package documentation object |
@@ -111,10 +127,20 @@ This manifest treats each Markdown file as a documentation object. It is generat
 | `docs/model_design/PUBG_GRAPH_MODELING_RESEARCH_FRAME_2026-06-22.md` | `ModelContract` | `active` | package documentation object |
 | `docs/model_design/README.md` | `ModelContractInterface` | `active` | package public interface |
 | `docs/model_design/SNAPSHOT_PHASE_SURVIVAL_DESIGN.md` | `ModelContract` | `active` | package documentation object |
+| `docs/paper_writing/BATTLE_ROYALE_MANUSCRIPT_ASSEMBLY_PLAN_2026-07-05.md` | `ManuscriptSurface` | `active` | next-action plan for manuscript section drafts, figure/table storyboard, captions, and claim-boundary prose |
+| `docs/paper_writing/BATTLE_ROYALE_RQ1_MANUSCRIPT_CLAIM_2026-07-06.md` | `ManuscriptSurface` | `active` | manuscript-facing RQ1 build-up from general genre definition to PUBG empirical instantiation |
 | `docs/paper_writing/README.md` | `ManuscriptSurfaceInterface` | `active` | package public interface |
 | `docs/research_framing/CALDERA_DATASET_STATUS_REDECISION_2026-07-02.md` | `ClaimBoundary` | `active` | Caldera label/zone/redeploy status decision |
 | `docs/research_framing/BATTLE_ROYALE_PROBLEM_DEFINITION_2026-07-03.md` | `ClaimBoundary` | `active` | problem definition, motivation, and contribution boundary |
 | `docs/research_framing/BATTLE_ROYALE_PAPER_ARGUMENT_CHAIN_2026-07-03.md` | `ClaimBoundary` | `active` | paper-level premise and argument order for the Battle Royale framework |
+| `docs/research_framing/BATTLE_ROYALE_PROBLEM_METHOD_EXPERIMENT_STRUCTURE_2026-07-05.md` | `ClaimBoundary` | `active` | paper-writing rule from problem formalization to required methodology, experiments/results, and claim boundary |
+| `docs/research_framing/BATTLE_ROYALE_MANUSCRIPT_CANONICAL_FLOW_2026-07-05.md` | `ClaimBoundary` | `active` | final manuscript flow from genre formalization to PUBG telemetry mapping, prior/tabular plus 10-second realtime survival model, and phase-transition risk/advantage board |
+| `docs/research_framing/BATTLE_ROYALE_RESEARCH_QUESTION_CHAIN_2026-07-05.md` | `ClaimBoundary` | `active` | RQ1-RQ4 manuscript spine and auxiliary-experiment placement |
+| `docs/research_framing/BATTLE_ROYALE_RQ_OBJECT_CHAIN_2026-07-06.md` | `ClaimBoundary` | `active` | object-oriented RQ1-RQ4 claim, experiment, evidence, result, and boundary chain |
+| `docs/research_framing/BATTLE_ROYALE_RQ1_GENRE_FORMALIZATION_OBJECT_2026-07-06.md` | `ClaimBoundary` | `active` | RQ1 genre formalization claim object |
+| `docs/research_framing/BATTLE_ROYALE_RQ2_PUBG_REPRESENTATION_OBJECT_2026-07-06.md` | `ClaimBoundary` | `active` | RQ2 PUBG official-telemetry representation claim object |
+| `docs/research_framing/BATTLE_ROYALE_RQ3_REALTIME_SURVIVAL_READOUT_OBJECT_2026-07-06.md` | `ClaimBoundary` | `active` | RQ3 realtime survival readout claim object |
+| `docs/research_framing/BATTLE_ROYALE_RQ4_RISK_ADVANTAGE_BOARD_OBJECT_2026-07-06.md` | `ClaimBoundary` | `active` | RQ4 phase-transition risk/advantage board claim object |
 | `docs/research_framing/BATTLE_ROYALE_ANALYTIC_FRAMEWORK_NARRATIVE_FOR_MANUSCRIPT_2026-07-04.md` | `ClaimBoundary` | `active` | manuscript-facing analytic-framework narrative and reviewer-defense map |
 | `docs/research_framing/BATTLE_ROYALE_ONTOLOGY_LOCK_2026-07-03.md` | `ClaimBoundary` | `active` | locked O0-O8 ontology decision for the current prediction cycle |
 | `docs/research_framing/BATTLE_ROYALE_ANALYTIC_FRAMEWORK_STATUS_2026-07-04.md` | `ClaimBoundary` | `active` | claim boundary for presenting an ontology-guided Battle Royale analytic framework |
@@ -133,7 +159,10 @@ This manifest treats each Markdown file as a documentation object. It is generat
 | `docs/research_framing/TERRAIN_AFFORDANCE_CAPABILITY_BOUNDARY_2026-07-02.md` | `ClaimBoundary` | `active` | package documentation object |
 | `docs/spatial_world_modeling/CALDERA_3D_VISUALIZATION_PLAN.md` | `WorldModel` | `active` | package documentation object |
 | `docs/spatial_world_modeling/CALDERA_ST_3D_DESIGN_CONCEPTS_2026-07-01.md` | `WorldModel` | `active` | package documentation object |
+| `docs/spatial_world_modeling/WARZONE_CALDERA_RQ3_3D_RENDER_EVIDENCE_PACKAGE_2026-07-06.md` | `WorldModel` | `active` | supplementary Warzone/Caldera 3D render evidence package, figure selection, captions, and claim boundary |
 | `docs/spatial_world_modeling/CALDERA_O6_CONSTRUCT_VALIDATION_ARTIFACT_SCOPE_2026-07-05.md` | `WorldModel` | `active` | bounded Caldera O6 construct-validation artifact scope |
+| `docs/spatial_world_modeling/CALDERA_O6_CONSTRUCT_VALIDATION_ARTIFACT_RESULT_2026-07-05.md` | `WorldModel` | `active` | completed Caldera O6 construct-validation artifact package and claim boundary |
+| `docs/spatial_world_modeling/PUBG_WARZONE_OBSERVABILITY_GAP_BRIDGE_2026-07-05.md` | `WorldModel` | `active` | supplementary bridge from PUBG official telemetry gaps to Warzone / Caldera geometry representations |
 | `docs/spatial_world_modeling/README.md` | `WorldModelInterface` | `active` | package public interface |
 
 ## Refactoring Rule

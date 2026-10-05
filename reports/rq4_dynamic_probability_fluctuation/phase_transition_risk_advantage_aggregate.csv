@@ -1,0 +1,2 @@
+model_variant,cohorts,phase_boards,median_risk_top1_hit,median_risk_top3_hit,median_risk_mrr,median_adv_top_final_top5,median_adv_top_final_top10,median_adv_top5_contains_top10,median_adv_ndcg_top5_top10,mean_leader_change_rate
+snapshot_lstm_no_graph,13,10616,0.7003610108303249,0.9172413793103448,0.8121346469622331,0.776813880126183,0.9489795918367347,1.0,0.9381105043083444,0.4214350711469661

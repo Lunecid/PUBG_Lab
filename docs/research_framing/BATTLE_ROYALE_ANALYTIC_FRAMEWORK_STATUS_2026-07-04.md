@@ -147,7 +147,7 @@ PUBG and Caldera/Warzone play different roles:
 | Dataset | Current role |
 | --- | --- |
 | PUBG | label-rich, geometry-poor supervised prediction test |
-| Caldera / Warzone | geometry-rich, label-poor construct-validation evidence for O6 |
+| Caldera / Warzone | geometry-rich, label-poor construct-validation evidence for O6, now represented by a PUBG observability-gap bridge plus a completed composite artifact and descriptive table |
 
 This supports the framework as a mechanism-and-observability scheme. It does
 not make Caldera a supervised survival-prediction dataset under the current
@@ -170,7 +170,11 @@ The following are now supported for the current paper:
 - corrected PUBG `pos_z`-only O6Z features do not robustly improve prediction
   after OM5, bounding PUBG as geometry-poor for fine spatial-affordance claims;
 - Caldera/Warzone belongs in the paper as construct-validation evidence for
-  richer spatial affordance measurement, not as supervised prediction evidence.
+  richer spatial affordance measurement, not as supervised prediction evidence;
+- the completed PUBG-Warzone observability-gap bridge demonstrates which
+  terrain, route, building, and tactical-state constructs official PUBG
+  telemetry cannot directly observe, and how Caldera geometry can represent
+  them as supplementary O6 observability-boundary evidence.
 
 ## What Is Not Claimed
 
@@ -181,8 +185,9 @@ The following claims are not yet established:
   sense;
 - `O1` survival capital is useless, because the integrity audit shows direct
   univariate hazard association even though incremental OM1 gains are small;
-- O7 graph structure is fully tested, because the completed OM5 run used
-  node-summary `net_*` and `cum_*` features only;
+- O7 graph structure is fully tested across relation families, because the
+  completed advantage-edge result is a supplementary test of one relation
+  stream rather than the core framework evidence;
 - O6 spatial affordance is fully tested in general, because the corrected
   OM6Z result only tests PUBG telemetry-derived `pos_z` proxies, not true
   terrain mesh, cover, line of sight, or building occlusion;
@@ -224,17 +229,23 @@ importance structure.
 
 ## Next Work
 
-The next work is not ontology construction. The next work is targeted evidence
-completion:
+The next work is not ontology construction or another O7 run.  The manuscript
+spine is now fixed as RQ1-RQ4:
 
-1. resolve the gen-1 / gen-2 result boundary so manuscript claims only cite
-   results that are reusable under the current cohort / feature / split
-   contract;
-2. run the locked O7 edge-stream / graph-relation protocol after the null-guard
-   audit;
-3. produce the Caldera O6 construct-validation artifact to show what richer
-   geometry-derived spatial affordance can measure;
-4. convert the framework narrative and completed result audits into manuscript
+1. establish Battle Royale as an analyzable genre framework;
+2. operationalize that framework in PUBG official telemetry;
+3. extend prior tabular and phase-aware PUBG prediction into a 10-second
+   realtime elimination-risk model;
+4. convert the realtime survival readout into phase-transition
+   most-at-risk and most-advantaged team predictions.
+
+Targeted next work:
+
+1. run the board-baseline comparison so RQ4 is not only evaluated against the
+   proposed readout;
+2. convert the framework narrative and completed result audits into manuscript
    section drafts;
-5. keep small-cohort seed repeats and extended corpus / negative-control work
+3. keep Warzone/Caldera and O7 advantage-edge as supplementary boundary /
+   reviewer-defense evidence rather than as the core paper path;
+4. keep small-cohort seed repeats and extended corpus / negative-control work
    as optional robustness or appendix work if schedule permits.

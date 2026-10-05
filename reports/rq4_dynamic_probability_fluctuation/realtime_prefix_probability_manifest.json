@@ -1,0 +1,15 @@
+{
+  "checkpoint": "/Users/lunecid/project/PUBG/model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/erangel_tpp_squad/snapshot_lstm_no_graph/model.pt",
+  "model_variant": "snapshot_lstm_no_graph",
+  "match_id": "10691322-1ab3-42be-b896-c9c76f3e10f7",
+  "snapshots_total": 200,
+  "prefix_rows": 2234,
+  "test_match": true,
+  "readout_contract": "10-second prefix readout from phase-cut-trained LSTM; descriptive demo, not separately supervised prefix metric.",
+  "outputs": {
+    "csv": "/Users/lunecid/project/PUBG/reports/rq4_dynamic_probability_fluctuation/realtime_prefix_probability_trajectory.csv",
+    "figure": "/Users/lunecid/project/PUBG/reports/rq4_dynamic_probability_fluctuation/realtime_prefix_probability_example_match.png",
+    "note": "/Users/lunecid/project/PUBG/reports/rq4_dynamic_probability_fluctuation/RQ4_REALTIME_PREFIX_PROBABILITY_DEMO_2026-07-06.md",
+    "manifest": "/Users/lunecid/project/PUBG/reports/rq4_dynamic_probability_fluctuation/realtime_prefix_probability_manifest.json"
+  }
+}

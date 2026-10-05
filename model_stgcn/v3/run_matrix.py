@@ -15,6 +15,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from model_stgcn.provenance import git_provenance
 from model_stgcn.v3.cohorts import resolve_map_mode
 from model_stgcn.v3.experiment_matrix import EXPERIMENT_GROUPS, all_experiments
 
@@ -59,6 +60,8 @@ def _cmd_train(row: dict[str, str], args: argparse.Namespace, checkpoint: Path) 
         "--seed",
         str(args.seed),
     ]
+    if args.require_existing_split:
+        cmd.append("--require-existing-split")
     if args.limit is not None:
         cmd += ["--limit", str(args.limit)]
     if args.cohort is not None:
@@ -102,6 +105,8 @@ def _cmd_eval(row: dict[str, str], args: argparse.Namespace, checkpoint: Path, o
         "--out",
         str(out),
     ]
+    if args.require_existing_split:
+        cmd.append("--require-existing-split")
     if args.limit is not None:
         cmd += ["--limit", str(args.limit)]
     if args.cohort is not None:
@@ -217,6 +222,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "eval_only": args.eval_only,
         "force": args.force,
         "force_eval": args.force_eval,
+        "require_existing_split": args.require_existing_split,
+        "provenance": git_provenance(),
         "experiments": experiments,
     }
     (root / "matrix_manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
@@ -244,6 +251,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                         "map": args.map,
                         "mode": args.mode,
                         "experiment": row,
+                        "provenance": git_provenance(),
                     },
                     indent=2,
                 ),
@@ -293,6 +301,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "elapsed_s": round(time.time() - started, 3),
         "metrics": metric_rows,
         "metrics_csv": str(root / "matrix_metrics.csv"),
+        "provenance": git_provenance(),
     }
     (root / "matrix_summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     return summary
@@ -322,6 +331,11 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--force-eval", action="store_true", help="recompute eval JSON/CSV without forcing retrain")
     ap.add_argument("--eval-only", action="store_true", help="require existing checkpoints and only run evaluation")
+    ap.add_argument(
+        "--require-existing-split",
+        action="store_true",
+        help="fail if --split-json is absent instead of creating a new split manifest",
+    )
     return ap.parse_args()
 
 

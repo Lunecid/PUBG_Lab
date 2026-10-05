@@ -1,0 +1,22 @@
+{
+  "checkpoint": "model_stgcn/checkpoints/full_required_core13_v1/taego_tpp_duo/main/mr_farnet/model.pt",
+  "finished_at_unix": 1783553085.433362,
+  "epochs": 12,
+  "seed": 42,
+  "cohort": "Taego TPP duo",
+  "map": "Tiger_Main",
+  "mode": "duo",
+  "experiment": {
+    "group": "main",
+    "name": "mr_farnet",
+    "model": "mr",
+    "global_fusion": "film",
+    "graph_encoder": "rgcn",
+    "edge_mode": "full",
+    "edge_control": "observed",
+    "team_decoder": "attention",
+    "pairwise_rank_weight": "0.1",
+    "feature_preset": "full",
+    "note": "final MR-FARNet candidate"
+  }
+}

@@ -14,6 +14,7 @@ definitions, and data availability.
 | `BATTLE_ROYALE_COHORT_REGISTRY_2026-07-03.md` | locked map / perspective / team-size cohort registry |
 | `BATTLE_ROYALE_PRIMARY_COHORT_DECISION_2026-07-03.md` | supporting group-level TPP squad cohort note |
 | `BR_DATA_LAYER_CONTRACT.md` | canonical ground/representation layer contract |
+| `PUBG_OFFICIAL_TELEMETRY_OBSERVABILITY_TABLE_2026-07-05.md` | manuscript-facing table of what PUBG official telemetry directly provides, derives, labels, proxies, or does not provide |
 | `RQ1_STDB_REDESIGN.md` | STDB redesign notes |
 | `RESEARCH_COHORT_FLAT.md` | cohort definition and exclusions |
 | `DATA_AVAILABILITY_BY_DOMAIN.md` | domain data availability |

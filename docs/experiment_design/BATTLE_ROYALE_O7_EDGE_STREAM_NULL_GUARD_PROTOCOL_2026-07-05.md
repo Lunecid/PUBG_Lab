@@ -293,15 +293,53 @@ registry, not an open-ended redesign.
 | paired bootstrap if sign threshold passes | uncertainty support |
 | result document | claim boundary for O7 |
 
-## Immediate Next Step
+## Post-Run Status
 
-Do not launch the O7 full run yet.
-
-First produce:
+The gen-1 / gen-2 boundary note is available:
 
 ```text
-gen-1 / gen-2 result boundary note
+docs/experiment_design/BATTLE_ROYALE_GEN1_GEN2_RESULT_BOUNDARY_2026-07-05.md
 ```
 
-Then run the short edge-shuffle audit and the high-power early readout cohorts.
+The edge-shuffle audit and cache/run smoke are available:
 
+```text
+docs/experiment_design/BATTLE_ROYALE_O7_EDGE_SHUFFLE_AUDIT_2026-07-05.md
+```
+
+The Erangel and four-cohort early readouts are available:
+
+```text
+docs/experiment_design/BATTLE_ROYALE_O7_EARLY_READOUT_ERANGEL_2026-07-05.md
+docs/experiment_design/BATTLE_ROYALE_O7_EARLY_READOUT_4COHORT_RESULT_2026-07-05.md
+```
+
+The full 13-cohort hazard-AUC and hazard-implied rank bridge results are
+available:
+
+```text
+docs/experiment_design/BATTLE_ROYALE_O7_REQUIRED_COHORT_HAZARD_RESULT_2026-07-05.md
+docs/experiment_design/BATTLE_ROYALE_O7_REQUIRED_COHORT_RANK_BRIDGE_RESULT_2026-07-05.md
+```
+
+Post-run interpretation:
+
+```text
+As supplementary PUBG relation-topology evidence, observed contact-gated
+relative-advantage edges clear the edge-shuffle null in hazard AUC and in a
+hazard-implied rank bridge.
+```
+
+Boundary:
+
+```text
+The rank bridge uses Spearman(final_rank_norm, hazard_prob).  The O7
+advantage-edge model has no independent rank head.
+```
+
+Manuscript boundary:
+
+```text
+This is not a core research-question experiment.  Use it as a supplementary
+null-control / reviewer-defense result.
+```

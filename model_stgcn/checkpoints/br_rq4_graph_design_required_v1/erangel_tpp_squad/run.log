@@ -1,0 +1,84 @@
++ python3 -m model_stgcn.v3.run_matrix --groups graph_relation --cohort Erangel TPP squad --split-json model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/split.json --out-dir model_stgcn/checkpoints/br_rq4_graph_design_required_v1/erangel_tpp_squad --epochs 12 --batch 8 --workers 4 --log-every 250 --device mps --seed 42
++ /Library/Frameworks/Python.framework/Versions/3.12/bin/python3 -m model_stgcn.v3.train --model mr --graph-encoder none --global-fusion concat --team-decoder mlp --pairwise-rank-weight 0.0 --edge-mode none --edge-control observed --feature-preset core_habitat --epochs 12 --batch 8 --workers 4 --prefetch-factor 2 --log-every 250 --device mps --checkpoint model_stgcn/checkpoints/br_rq4_graph_design_required_v1/erangel_tpp_squad/graph_relation/graph_core_habitat_no_graph/model.pt --split-json model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/split.json --seed 42 --cohort Erangel TPP squad
+2026-07-05 14:10:26,356 INFO cohort=Erangel TPP squad map=Baltic_Main mode=squad
+2026-07-05 14:10:27,912 INFO ids total=6204 train=4964 val=620 test=620
+2026-07-05 14:12:07,725 INFO CachedFactorizedMRDataset: 620 matches loaded
+2026-07-05 14:12:07,901 INFO model=mr graph=none global=concat node_dim=55 global_dim=25 params=0.422M
+2026-07-05 14:12:07,901 INFO feature_preset=core_habitat node_features=55 global_features=25
+2026-07-05 14:13:53,346 INFO epoch 001 progress 250/621 batches loss=0.8038 haz=0.5673
+2026-07-05 14:15:37,863 INFO epoch 001 progress 500/621 batches loss=0.7784 haz=0.5541
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/lunecid/project/PUBG/model_stgcn/v3/train.py", line 409, in <module>
+    run(parse_args())
+  File "/Users/lunecid/project/PUBG/model_stgcn/v3/train.py", line 315, in run
+    tr = _run_epoch(model, train_loader, device, args, train=True, opt=opt, epoch=epoch)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lunecid/project/PUBG/model_stgcn/v3/train.py", line 144, in _run_epoch
+    hazard, survival, rank, topk = model(
+                                   ^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lunecid/project/PUBG/model_stgcn/v3/models.py", line 418, in forward
+    snap_emb = self.snap_encoder(X_s, A_s, edge_active_mask=snap_edge_mask)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lunecid/project/PUBG/model_stgcn/snapshot_encoder.py", line 51, in forward
+    h = block(h, A_s, edge_active_mask=edge_active_mask)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lunecid/project/PUBG/model_stgcn/dyn_stgnn.py", line 119, in forward
+    h = F.relu(self.s(h, A, edge_active_mask=edge_active_mask))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lunecid/project/PUBG/model_stgcn/dyn_stgnn.py", line 70, in forward
+    masked_logits = self.edge_logits.masked_fill(~edge_active_mask, -1e9)
+                    ^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1927, in __getattr__
+    def __getattr__(self, name: str) -> Union[Tensor, "Module"]:
+
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/lunecid/project/PUBG/model_stgcn/v3/run_matrix.py", line 329, in <module>
+    run(parse_args())
+  File "/Users/lunecid/project/PUBG/model_stgcn/v3/run_matrix.py", line 235, in run
+    _run(_cmd_train(row, args, checkpoint), cwd=Path.cwd())
+  File "/Users/lunecid/project/PUBG/model_stgcn/v3/run_matrix.py", line 122, in _run
+    subprocess.run(cmd, cwd=str(cwd), env=env, check=True)
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 550, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1201, in communicate
+    self.wait()
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1264, in wait
+    return self._wait(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 2053, in _wait
+    (pid, sts) = self._try_wait(0)
+                 ^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 2011, in _try_wait
+    (pid, sts) = os.waitpid(self.pid, wait_flags)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt

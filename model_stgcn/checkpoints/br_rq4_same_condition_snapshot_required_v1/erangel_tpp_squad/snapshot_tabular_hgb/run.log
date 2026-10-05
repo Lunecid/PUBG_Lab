@@ -1,0 +1,26 @@
++ python3 -m model_stgcn.snapshot_tabular_baseline --map Baltic_Main --mode squad --seed 42 --split-json model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_tpp_squad/split.json --out-dir model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v1/erangel_tpp_squad/snapshot_tabular_hgb --configs snapshot_last_hgb\,snapshot_summary_hgb
+2026-07-05 18:08:51,074 INFO split total=6204 train=4964 val=620 test=620
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/lunecid/project/PUBG/model_stgcn/snapshot_tabular_baseline.py", line 390, in <module>
+    run(parse_args())
+  File "/Users/lunecid/project/PUBG/model_stgcn/snapshot_tabular_baseline.py", line 299, in run
+    train_df = load_snapshot_tabular_rows(train_ids, configs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lunecid/project/PUBG/model_stgcn/snapshot_tabular_baseline.py", line 176, in load_snapshot_tabular_rows
+    item = fetch_snapshot_phase(match_id, include_edges=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lunecid/project/PUBG/model_stgcn/snapshot_phase_dataset.py", line 22, in fetch_snapshot_phase
+    phase = fetch_phase_match_tensors(match_id)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lunecid/project/PUBG/stdb/queries.py", line 864, in fetch_phase_match_tensors
+    conn = connect()
+           ^^^^^^^^^
+  File "/Users/lunecid/project/PUBG/stdb/conn.py", line 59, in connect
+    conn = psycopg2.connect(password=require_pg_password(), **DB_CONFIG)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lunecid/Library/Python/3.12/lib/python/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt

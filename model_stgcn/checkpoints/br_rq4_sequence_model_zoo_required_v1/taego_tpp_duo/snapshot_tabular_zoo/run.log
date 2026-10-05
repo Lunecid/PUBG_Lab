@@ -1,0 +1,14 @@
++ python3 -m model_stgcn.snapshot_tabular_baseline --map Tiger_Main --mode duo --seed 42 --split-json model_stgcn/checkpoints/br_om_ladder_required_v1/taego_tpp_duo/split.json --out-dir model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/taego_tpp_duo/snapshot_tabular_zoo --configs snapshot_last_hgb\,snapshot_summary_hgb --learners all --max-iter 200 --n-estimators 100 --n-jobs 4
+2026-07-06 03:20:05,857 INFO split total=573 train=459 val=57 test=57
+2026-07-06 03:20:16,330 INFO rows train=38447 test=4610
+2026-07-06 03:20:16,330 INFO fit snapshot_last_hgb        learner=lr   rows=38447 test=4610 features=17
+2026-07-06 03:20:16,432 INFO fit snapshot_last_hgb        learner=rf   rows=38447 test=4610 features=17
+2026-07-06 03:20:18,448 INFO fit snapshot_last_hgb        learner=hgb  rows=38447 test=4610 features=17
+2026-07-06 03:20:19,609 INFO fit snapshot_last_hgb        learner=xgb  rows=38447 test=4610 features=17
+2026-07-06 03:20:19,797 INFO fit snapshot_last_hgb        learner=mlp  rows=38447 test=4610 features=17
+2026-07-06 03:20:21,080 INFO fit snapshot_summary_hgb     learner=lr   rows=38447 test=4610 features=99
+2026-07-06 03:20:22,439 INFO fit snapshot_summary_hgb     learner=rf   rows=38447 test=4610 features=99
+2026-07-06 03:20:27,921 INFO fit snapshot_summary_hgb     learner=hgb  rows=38447 test=4610 features=99
+2026-07-06 03:20:29,604 INFO fit snapshot_summary_hgb     learner=xgb  rows=38447 test=4610 features=99
+2026-07-06 03:20:30,062 INFO fit snapshot_summary_hgb     learner=mlp  rows=38447 test=4610 features=99
+2026-07-06 03:20:31,492 INFO wrote model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/taego_tpp_duo/snapshot_tabular_zoo/snapshot_tabular_summary.json

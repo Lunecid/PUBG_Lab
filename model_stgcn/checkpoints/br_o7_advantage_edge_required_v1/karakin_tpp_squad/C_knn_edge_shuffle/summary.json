@@ -1,0 +1,8 @@
+{
+  "gate": "knn",
+  "control": "edge_shuffle",
+  "best_val_auc": 0.6762448776133592,
+  "n_test_cells": 1159,
+  "pred_csv": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/karakin_tpp_squad/C_knn_edge_shuffle/pred_test.csv",
+  "elapsed_s": 3.3
+}

@@ -9,8 +9,20 @@ statements, and submission text.
 
 ## Public Interface
 
-No active manuscript-facing object has been moved here yet. Create new paper
-drafts here instead of mixing prose into feature/model/experiment contracts.
+| Object | Role |
+| --- | --- |
+| `BATTLE_ROYALE_MANUSCRIPT_ASSEMBLY_PLAN_2026-07-05.md` | next-action plan for turning the locked RQ1-RQ4 chain into manuscript sections, figures, tables, captions, and claim-boundary prose |
+| `BATTLE_ROYALE_RQ1_MANUSCRIPT_CLAIM_2026-07-06.md` | manuscript-facing RQ1 build-up from general Battle Royale definition to PUBG empirical instantiation and RQ2 observability bridge |
+
+## Active TEX Root
+
+The actual thesis TEX files live outside this repository:
+
+```text
+/Users/lunecid/학위논문
+```
+
+Follow the writing guide PDF in that folder when editing or generating TEX.
 
 ## Does Not Own
 

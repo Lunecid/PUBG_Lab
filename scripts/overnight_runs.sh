@@ -5,7 +5,7 @@
 #     -- resolution = MR-vs-phase headline ablation (front-loaded, fast phase models first)
 set -uo pipefail
 cd /Users/lunecid/project/PUBG
-export PG_PASSWORD=104204
+: "${PG_PASSWORD:?PG_PASSWORD must be set}"
 SPLIT=model_stgcn/checkpoints/v3_full_main_causal/split.json
 
 echo "===== OVERNIGHT START $(date) ====="
@@ -21,6 +21,7 @@ python3 -m model_stgcn.v3.run_matrix \
   --groups resolution,decoder,graph_control \
   --out-dir model_stgcn/checkpoints/v3_full_controls \
   --split-json "$SPLIT" \
+  --require-existing-split \
   --mode squad --epochs 12 --batch 8 --workers 4 --log-every 250 --device mps \
   > logs/v3_controls.log 2>&1 \
   && echo "[2] CONTROLS OK $(date +%H:%M:%S)" \

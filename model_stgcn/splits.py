@@ -11,6 +11,8 @@ from typing import Any
 
 import numpy as np
 
+from model_stgcn.provenance import git_provenance
+
 logger = logging.getLogger("model_stgcn.splits")
 
 
@@ -61,6 +63,7 @@ def write_split_manifest(
         "n_matches": len(ids),
         "ids_sha1": _ids_sha1(ids),
         "metadata": metadata or {},
+        "provenance": git_provenance(),
         "splits": {
             "train": train_ids,
             "val": val_ids,
@@ -101,6 +104,7 @@ def load_or_create_split(
     val_frac: float = 0.1,
     test_frac: float = 0.1,
     metadata: dict[str, Any] | None = None,
+    require_existing: bool = False,
 ) -> tuple[list[str], list[str], list[str]]:
     """Load a split manifest if present; otherwise create it when requested."""
     if split_json:
@@ -113,6 +117,13 @@ def load_or_create_split(
                     "(manifest takes precedence)", path, manifest_seed, seed,
                 )
             return load_split_manifest(path, available_ids=ids)
+        if require_existing:
+            raise FileNotFoundError(
+                f"required split manifest does not exist: {path}. "
+                "Refusing to silently create a different train/val/test split."
+            )
+    elif require_existing:
+        raise ValueError("--require-existing-split needs --split-json")
 
     train_ids, val_ids, test_ids = split_ids(
         ids,

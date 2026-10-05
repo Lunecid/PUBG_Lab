@@ -3,7 +3,7 @@
 # Forward-only eval on saved checkpoints, shared test split, no training.
 set -e
 cd /Users/lunecid/project/PUBG
-export PG_PASSWORD=104204
+: "${PG_PASSWORD:?PG_PASSWORD must be set}"
 SPLIT=model_stgcn/checkpoints/v3_full_main_causal/split.json
 OUT=model_stgcn/checkpoints/v3_pred
 mkdir -p "$OUT"
@@ -19,7 +19,7 @@ echo "$CKPTS" | while IFS= read -r c; do
   echo "=== $(date +%H:%M:%S) eval $c ==="
   python3 -m model_stgcn.v3.eval \
     --checkpoint "model_stgcn/checkpoints/$c/model.pt" \
-    --split test --split-json "$SPLIT" --seed 42 --batch 8 \
+    --split test --split-json "$SPLIT" --require-existing-split --seed 42 --batch 8 \
     --device cpu --cached --mode squad \
     --out "$OUT/$name.eval.json" \
     --pred-out "$OUT/$name.pred.csv"

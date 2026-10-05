@@ -1,0 +1,6 @@
++ python3 -m model_stgcn.snapshot_tabular_baseline --map Baltic_Main --mode squad-fpp --seed 42 --split-json model_stgcn/checkpoints/br_om_ladder_required_v1/erangel_fpp_squad/split.json --out-dir model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/erangel_fpp_squad/snapshot_tabular_hgb --configs snapshot_last_hgb\,snapshot_summary_hgb
+2026-07-05 23:36:54,862 INFO split total=430 train=344 val=43 test=43
+2026-07-05 23:37:00,047 INFO rows train=16654 test=2204
+2026-07-05 23:37:00,047 INFO fit snapshot_last_hgb        rows=16654 test=2204 features=17
+2026-07-05 23:37:00,933 INFO fit snapshot_summary_hgb     rows=16654 test=2204 features=99
+2026-07-05 23:37:01,976 INFO wrote model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/erangel_fpp_squad/snapshot_tabular_hgb/snapshot_tabular_summary.json

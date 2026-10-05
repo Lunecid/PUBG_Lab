@@ -1,0 +1,14 @@
+started_at	finished_at	status	cohort_slug	cohort	out_dir
+2026-07-04T18:31:17Z	2026-07-04T18:39:22Z	passed	erangel_tpp_squad	Erangel TPP squad	model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/erangel_tpp_squad
+2026-07-04T18:41:53Z	2026-07-04T18:47:33Z	passed	taego_tpp_squad	Taego TPP squad	model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/taego_tpp_squad
+2026-07-04T18:47:33Z	2026-07-04T18:50:21Z	passed	erangel_tpp_solo	Erangel TPP solo	model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/erangel_tpp_solo
+2026-07-04T18:50:21Z	2026-07-04T18:52:31Z	passed	miramar_desert_tpp_squad	Miramar / Desert TPP squad	model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/miramar_desert_tpp_squad
+2026-07-04T18:54:19Z	2026-07-04T18:55:50Z	passed	rondo_tpp_squad	Rondo TPP squad	model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/rondo_tpp_squad
+2026-07-04T18:55:50Z	2026-07-04T18:57:16Z	passed	sanhok_tpp_squad	Sanhok TPP squad	model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/sanhok_tpp_squad
+2026-07-04T18:57:16Z	2026-07-04T18:58:05Z	passed	vikendi_tpp_squad	Vikendi TPP squad	model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/vikendi_tpp_squad
+2026-07-04T18:58:05Z	2026-07-04T18:58:36Z	passed	paramo_tpp_squad	Paramo TPP squad	model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/paramo_tpp_squad
+2026-07-04T18:58:36Z	2026-07-04T18:59:07Z	passed	karakin_tpp_squad	Karakin TPP squad	model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/karakin_tpp_squad
+2026-07-04T18:59:07Z	2026-07-04T19:00:30Z	passed	erangel_tpp_duo	Erangel TPP duo	model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/erangel_tpp_duo
+2026-07-04T19:00:30Z	2026-07-04T19:01:40Z	passed	taego_tpp_duo	Taego TPP duo	model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/taego_tpp_duo
+2026-07-04T19:01:40Z	2026-07-04T19:02:24Z	passed	taego_fpp_squad	Taego FPP squad	model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/taego_fpp_squad
+2026-07-04T19:02:24Z	2026-07-04T19:03:06Z	passed	erangel_fpp_squad	Erangel FPP squad	model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/erangel_fpp_squad

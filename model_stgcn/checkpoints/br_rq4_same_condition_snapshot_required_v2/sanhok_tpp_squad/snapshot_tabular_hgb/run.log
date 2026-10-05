@@ -1,0 +1,6 @@
++ python3 -m model_stgcn.snapshot_tabular_baseline --map Savage_Main --mode squad --seed 42 --split-json model_stgcn/checkpoints/br_om_ladder_required_v1/sanhok_tpp_squad/split.json --out-dir model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/sanhok_tpp_squad/snapshot_tabular_hgb --configs snapshot_last_hgb\,snapshot_summary_hgb
+2026-07-05 22:36:20,673 INFO split total=940 train=752 val=94 test=94
+2026-07-05 22:36:32,441 INFO rows train=37497 test=4637
+2026-07-05 22:36:32,442 INFO fit snapshot_last_hgb        rows=37497 test=4637 features=17
+2026-07-05 22:36:33,416 INFO fit snapshot_summary_hgb     rows=37497 test=4637 features=99
+2026-07-05 22:36:35,051 INFO wrote model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/sanhok_tpp_squad/snapshot_tabular_hgb/snapshot_tabular_summary.json

@@ -4,7 +4,7 @@
 # ON TOP of complete nodes. Main 8-condition matrix + k-ablation, all node-abs base.
 set -e
 cd /Users/lunecid/project/PUBG
-export PG_PASSWORD=104204
+: "${PG_PASSWORD:?PG_PASSWORD must be set}"
 EP=${ADV_EPOCHS:-12}
 
 echo "=== $(date +%H:%M:%S) precompute base (all gates, node-abs) + k3/k8 (knn) parallel ==="

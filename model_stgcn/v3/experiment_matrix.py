@@ -71,6 +71,16 @@ MAIN_ARCHITECTURE_EXPERIMENTS: list[dict[str, str]] = [
         pairwise_rank_weight="0.1",
         note="final MR-FARNet candidate",
     ),
+    _row(
+        group="main",
+        name="mr_st_gnn_mamba",
+        model="mr",
+        graph_encoder="mamba",
+        global_fusion="film",
+        team_decoder="attention",
+        pairwise_rank_weight="0.1",
+        note="ST-GNN-Mamba: relation-aware graph messages with causal selective state-space temporal mixing",
+    ),
 ]
 
 

@@ -10,6 +10,15 @@ This document records what the project has tested so far, how each test was
 run, what result it produced, and what claim can or cannot be made from it.
 
 It is the bridge from internal experiment artifacts to manuscript claims.
+It is not the manuscript order.  The manuscript order is problem
+formalization -> required methodology -> experiments/results -> claim
+boundary.
+
+The paper-writing rule is fixed in:
+
+```text
+docs/research_framing/BATTLE_ROYALE_PROBLEM_METHOD_EXPERIMENT_STRUCTURE_2026-07-05.md
+```
 
 The project should use evidence-status language:
 
@@ -24,19 +33,57 @@ Avoid using "proved" for causal, universal, or ontology-exhaustiveness claims.
 The strongest current language is:
 
 ```text
-The framework's central pressure-habitat mechanism is supported by
-cohort-separated PUBG prediction experiments.
+The Battle Royale research program is organized as a four-step chain:
+genre formalization -> PUBG official-telemetry representation and mapping ->
+prior tabular/phase-aware prediction plus 10-second realtime elimination-risk
+model -> phase-transition most-at-risk / most-advantaged team prediction.
+```
+
+The manuscript spine is fixed in:
+
+```text
+docs/research_framing/BATTLE_ROYALE_RESEARCH_QUESTION_CHAIN_2026-07-05.md
+docs/research_framing/BATTLE_ROYALE_MANUSCRIPT_CANONICAL_FLOW_2026-07-05.md
 ```
 
 ## Current Bottom Line
 
-The core paper result is supported:
+The core paper path is:
 
 ```text
-Battle Royale can be formulated as a phase-conditioned multi-agent survival
-process, and the central pressure-habitat block improves next-phase survival
-prediction and phase-cut rank/top-k forecasts across independently trained PUBG
-cohorts.
+1. establish Battle Royale as a phase-conditioned multi-agent survival
+   framework;
+2. represent that formalization exactly in PUBG official telemetry through
+   an explicit observability table and leakage-guarded team x phase-cut
+   and 10-second snapshot features;
+3. extend prior tabular and phase-aware PUBG prediction into a causal
+   realtime elimination-risk model using 10-second telemetry;
+4. use the realtime survival readout to identify the most unfavorable and most
+   favorable teams at phase transitions.
+```
+
+The strongest completed supervised result remains:
+
+```text
+In PUBG, the pressure-habitat block improves next-phase survival prediction,
+and phase-wise survival scores support phase-cut final-rank/top-k forecasts
+across independently trained cohorts.
+```
+
+The newest RQ3 readout-form result adds:
+
+```text
+Phase-wise hazards can be accumulated into dynamic match-local survival-share
+trajectories, making the output a changing survival probability process rather
+than only a static phase score or post-game rank label.
+```
+
+The newest board-level result adds:
+
+```text
+Those trajectories can be converted into phase-transition risk and advantage
+boards that identify high next-phase elimination risk and strong match-local
+survival advantage.
 ```
 
 The current bounded results are also important:
@@ -52,9 +99,14 @@ or rank-prediction dataset under current labels.
 | Claim / question | Evidence status | Main evidence |
 | --- | --- | --- |
 | O0-O8 is not merely a PUBG feature list | `supported as framework vocabulary` | mini corpus: 15/15 source-rich games/modes map to O0-O8 without requiring O9 |
+| PUBG official telemetry observability is explicitly bounded | `supported as data contract` | official telemetry observability table separates direct telemetry, derived pre-cut features, proxy-only O6 signals, label-only outcomes, and not-provided geometry |
 | OM0-OM6 can be executed without forbidden inputs on required PUBG cohorts | `supported` | feature availability audit, forbidden-list tests, cohort adapter, smoke runs |
 | Pressure-habitat is the central supervised mechanism | `supported` | OM2->OM3 positive in 13/13 cohorts; median hazard AUC delta about `+0.010` |
 | OM3 is not just pooled phase-base-rate encoding | `supported` | phase-stratified within-cut-phase gains and paired bootstrap |
+| RQ3 comparison against prior-work/basic tabular baselines | `supported` | 13-cohort prior baseline result: representation-rich habitat/full features beat Sagong-style and basic official-telemetry baselines |
+| RQ3 realtime survival readout | `supported with phase-cut boundary` | phase-wise LSTM hazards converted to cumulative survival and match-local survival share over 13 cohorts; one-match 10-second prefix demo exists |
+| RQ4 phase-transition risk/advantage board | `supported with HGB-scoring boundary` | LSTM board: 10,616 phase boards, median risk top-1 0.7004, median risk top-3 0.9172, median advantage top-team final top-10 0.9490; seven-board comparison beats simple/prior boards on the intersected board universe, while pressure-habitat HGB is stronger on median phase-cut risk scoring |
+| Graph architecture as core RQ4 explanation | `not retained` | bounded Erangel early readout: observed graph did not beat no-graph hazard AUC and shuffle controls were comparable |
 | Hazard-to-rank bridge is meaningful | `supported with phase boundary` | early/mid rank Spearman and top-10 gains after OM3 |
 | O1 survival capital is broken or irrelevant | `not supported` | O1 tensor integrity audit shows valid direct univariate hazard signal |
 | O1 adds large independent value in the cumulative ladder | `not supported` | OM0->OM1 deltas near zero and bootstrap unsupported |
@@ -62,8 +114,8 @@ or rank-prediction dataset under current labels.
 | O7 node-summary relation features are a complete graph test | `not supported` | OM5 used `graph_encoder=none` and no edge stream |
 | PUBG `pos_z` Z-ladder validates fine terrain/high-ground affordance | `bounded negative` | OM5->OM6Z fails pre-registered 9/13 sign threshold |
 | Caldera can be used for supervised survival/rank prediction | `not supported` | no rank/survival labels, no zone states, redeploy-like discontinuities |
-| Caldera can support geometry-rich O6 construct validation | `supported as construct role` | OpenUSD geometry + trajectories + semantic world modeling capability |
-| O7 advantage-edge topology carries signal | `pending` | protocol locked; long run not yet launched under current required-cohort contract |
+| Caldera can support geometry-rich O6 construct validation | `supported as supplementary construct role` | PUBG-Warzone observability gap bridge, completed composite figure, and descriptive O6 construct table from OpenUSD geometry and trajectories |
+| Supplementary O7 advantage-edge null-control | `supported as auxiliary / defensive evidence` | one PUBG relation stream passes edge-shuffle null; useful for reviewer defense, not the paper spine |
 
 Scope note: the supervised PUBG ladder runs currently use a single training
 seed (`42`).  The paired bootstrap covers test-match uncertainty, not training
@@ -71,6 +123,95 @@ seed variance.  The main OM3 pattern is still treated as strong because it
 repeats across 13 independently trained, map / perspective / team-size separated
 cohorts, but seed-repeat robustness remains a possible follow-up rather than a
 completed claim.
+
+## RQ4 Addendum. Dynamic Probability Fluctuation
+
+### Question
+
+```text
+Can the phase-wise Battle Royale survival formulation produce a dynamic
+probability trajectory rather than only a static score or final-label
+prediction?
+```
+
+### Method
+
+The completed `snapshot_lstm_no_graph` phase-cut hazard predictions were
+converted into:
+
+```text
+lambda_i(k) = predicted next-phase elimination hazard
+S_i(k)      = product_{j <= k} (1 - lambda_i(j))
+pi_i(k)     = S_i(k) / sum_j S_j(k)
+```
+
+The script carries cumulative survival forward through missing phase rows so
+that the match-local denominator does not change merely because one team lacks
+an explicit later readout.
+
+### Artifact
+
+```text
+docs/experiment_design/BATTLE_ROYALE_RQ4_DYNAMIC_PROBABILITY_FLUCTUATION_RESULT_2026-07-06.md
+tools/build_dynamic_probability_fluctuation.py
+tools/build_realtime_prefix_probability_demo.py
+reports/rq4_dynamic_probability_fluctuation/dynamic_probability_trajectories.csv
+reports/rq4_dynamic_probability_fluctuation/dynamic_probability_example_match.png
+reports/rq4_dynamic_probability_fluctuation/realtime_prefix_probability_trajectory.csv
+reports/rq4_dynamic_probability_fluctuation/realtime_prefix_probability_example_match.png
+```
+
+### Result
+
+The artifact covers:
+
+| Field | Value |
+| --- | ---: |
+| cohorts | 13 |
+| matches | 1,789 |
+| teams | 33,584 |
+| observed prediction rows | 103,860 |
+| trajectory rows | 105,491 |
+| median hazard AUC | 0.7441 |
+| median latest top-5 AUC from `pi` | 0.9290 |
+| median latest top-10 AUC from `pi` | 0.9033 |
+| median latest rank Spearman | 0.7914 |
+
+The descriptive 10-second prefix demo covers one Erangel TPP squad test match:
+
+| Field | Value |
+| --- | ---: |
+| snapshots in match tensor | 200 |
+| prefix probability rows | 2,234 |
+| unique teams | 28 |
+| represented prefix snapshots | 146 |
+
+### Supported Claim
+
+```text
+The proposed Battle Royale survival formulation supports a dynamic phase-cut
+probability readout: hazards update cumulative survival and match-local
+survival share as a match progresses.
+```
+
+### Not Claimed
+
+```text
+The LSTM sequence model is the strongest overall predictor.
+```
+
+The strongest current hazard-AUC models remain the mechanism-aligned tabular
+representation models.
+
+Also do not claim:
+
+```text
+This is a separately validated 10-second real-time deployment model.
+```
+
+The aggregate result is dynamic at phase-cut resolution.  A descriptive
+10-second prefix-readout demo exists, but strict streaming validation requires a
+dedicated prefix-label evaluation protocol.
 
 ## Experiment 1. Mini Corpus Coverage
 
@@ -636,7 +777,9 @@ only as geometry-rich construct validation?
 ### Method
 
 Read-only DB audit of Caldera matches, agents, trajectory samples, outcome
-fields, zone-state availability, and trajectory discontinuities.
+fields, zone-state availability, and trajectory discontinuities, followed by a
+bounded artifact assembly from existing semantic basemap, trajectory,
+terrain-experience, and feature-summary outputs.
 
 ### Artifacts
 
@@ -644,6 +787,13 @@ fields, zone-state availability, and trajectory discontinuities.
 docs/research_framing/CALDERA_DATASET_STATUS_REDECISION_2026-07-02.md
 docs/research_framing/TERRAIN_AFFORDANCE_CAPABILITY_BOUNDARY_2026-07-02.md
 docs/spatial_world_modeling/CALDERA_O6_CONSTRUCT_VALIDATION_ARTIFACT_SCOPE_2026-07-05.md
+docs/spatial_world_modeling/CALDERA_O6_CONSTRUCT_VALIDATION_ARTIFACT_RESULT_2026-07-05.md
+docs/spatial_world_modeling/PUBG_WARZONE_OBSERVABILITY_GAP_BRIDGE_2026-07-05.md
+reports/caldera_3d/construct_validation/caldera_o6_pubg_warzone_observability_bridge.md
+reports/caldera_3d/construct_validation/caldera_o6_pubg_warzone_observability_bridge_board.png
+reports/caldera_3d/construct_validation/caldera_o6_pubg_gap_situation_cards.md
+reports/caldera_3d/construct_validation/caldera_o6_construct_validation_composite.png
+reports/caldera_3d/construct_validation/caldera_o6_construct_validation_descriptive_table.md
 ```
 
 ### Result
@@ -670,11 +820,40 @@ Death is not an absorbing state in this source, and phase/zone/rank labels are
 not available for supervised survival or rank prediction.
 ```
 
+Completed construct artifact:
+
+| Artifact quantity | Value |
+| --- | --- |
+| bridge artifact | PUBG official telemetry gap -> Warzone / Caldera geometry representation -> current evidence -> claim status |
+| figure panels | semantic basemap, trajectory overlay, terrain-experience zoom, feature callout |
+| descriptive feature rows | 120 |
+| time window | `1155.360-1629.456s` |
+| life segments | 1 |
+| motion gap rows | 0 |
+| redeploy-gap candidate rows | 0 |
+| `height_above_terrain_m` median / p75 / max | `0.18` / `0.33` / `4.13` |
+| `building_dist_m` median | `0.91` |
+| `cover_building_r25` | `85.00%` |
+| tactical states | `compound_movement=102`, `rough_mobility=18` |
+
+Bridge rows supported now:
+
+| PUBG official telemetry gap family | Warzone / Caldera representation | Status |
+| --- | --- | --- |
+| terrain surface and vertical context | terrain mesh + trajectory -> `terrain_z_m`, `height_above_terrain_m`, relative elevation, relief | supported descriptive construct |
+| rough terrain mobility | mesh slope / relief / ruggedness around path samples | supported descriptive construct |
+| compound and building affordance | semantic building triangles -> building distance, density, cover proxy | supported descriptive construct |
+| route corridor context | road / runway mesh categories -> corridor proximity | supported descriptive construct |
+| local tactical-state labeling | rules over geometry-derived terrain / building / corridor features | supported descriptive construct, not outcome supervision |
+| visibility / occlusion / LOS | future mesh ray casting over occluding geometry | pending extension, not claimed |
+
 ### Supported Claim
 
 ```text
-Caldera is geometry-rich but label-poor.  It should be used for O6
-construct-validation artifacts, not supervised survival/rank prediction.
+Caldera is geometry-rich but label-poor.  The completed bridge artifact
+demonstrates how Warzone / Caldera can represent terrain, route, building, and
+local tactical-state constructs that official PUBG telemetry cannot directly
+observe.  This is construct evidence, not supervised survival/rank prediction.
 ```
 
 ### Not Claimed
@@ -683,17 +862,18 @@ construct-validation artifacts, not supervised survival/rank prediction.
 Caldera validates the PUBG supervised model.
 ```
 
-### Current Artifact Scope
+### Completed Artifact Package
 
-Caldera artifact scope is locked to:
+Caldera artifact scope was locked to and completed as:
 
 ```text
 1 composite figure + 1 descriptive statistics table
 ```
 
-Pairwise LOS is a useful stretch goal, not the first required artifact.
+Pairwise LOS is a useful stretch goal, not part of the completed first artifact
+package.
 
-## Experiment 9. O7 Edge-Stream Protocol
+## Experiment 9. Supplementary O7 Required-Cohort Null-Control
 
 ### Question
 
@@ -702,17 +882,29 @@ Can observed relation topology carry signal beyond node summaries and graph
 encoder smoothing?
 ```
 
-### Method Status
+### Manuscript Placement
 
-This is not yet a completed experiment.  The protocol is locked before the run.
+This is not a core research-question experiment.
 
-### Artifact
+Correct placement:
 
 ```text
-docs/experiment_design/BATTLE_ROYALE_O7_EDGE_STREAM_NULL_GUARD_PROTOCOL_2026-07-05.md
+Supplementary PUBG relation-topology null-control.
 ```
 
-### Locked Design
+It supports a boundary claim inside RQ2/RQ4:
+
+```text
+One specific PUBG relation stream is not reducible to graph capacity/smoothing
+under an edge-shuffled null.
+```
+
+It does not answer RQ1, RQ3, or the main RQ4 pressure-habitat prediction claim.
+
+### Method
+
+The experiment used the pre-registered O7 advantage-edge protocol after the
+gen-1 / gen-2 boundary decision and edge-shuffle audit.
 
 Headline stream:
 
@@ -728,59 +920,369 @@ Three-arm contract:
 | `B` | same nodes + graph encoder + observed advantage edges |
 | `C` | same as B + `edge_shuffle` |
 
-Primary contrast:
+Primary topology-specific contrast:
 
 ```text
 B - C
 ```
 
-Secondary contrast:
+Secondary graph-capacity / smoothing contrast:
 
 ```text
 B - A
 ```
 
-Interpretation rule:
+The first analyzer covers hazard AUC with match-cluster bootstrap over phase
+groups.  A second bridge analyzer evaluates `Spearman(final_rank_norm,
+hazard_prob)`.  The O7 advantage-edge model has no independent rank head, so
+this is a hazard-implied rank bridge rather than a rank-head metric.
 
-| Pattern | Interpretation |
-| --- | --- |
-| `B-C` positive in at least 9/13 cohorts for a primary cell | observed relation topology support |
-| `B-A > 0` but `B-C ~= 0` | capacity / smoothing gain, not topology-specific signal |
-| `B-C` below threshold | bounded negative for current O7 edge stream |
-
-### Pending Work
-
-Do not launch the long O7 run before:
+### Artifacts
 
 ```text
-gen-1 / gen-2 result boundary note
-edge-shuffle implementation audit
+docs/experiment_design/BATTLE_ROYALE_O7_EDGE_STREAM_NULL_GUARD_PROTOCOL_2026-07-05.md
+docs/experiment_design/BATTLE_ROYALE_O7_EDGE_SHUFFLE_AUDIT_2026-07-05.md
+docs/experiment_design/BATTLE_ROYALE_O7_EARLY_READOUT_ERANGEL_2026-07-05.md
+docs/experiment_design/BATTLE_ROYALE_O7_EARLY_READOUT_4COHORT_RESULT_2026-07-05.md
+docs/experiment_design/BATTLE_ROYALE_O7_REQUIRED_COHORT_HAZARD_RESULT_2026-07-05.md
+docs/experiment_design/BATTLE_ROYALE_O7_REQUIRED_COHORT_RANK_BRIDGE_RESULT_2026-07-05.md
+model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/o7_required_13cohort_phase_group_deltas.csv
+model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/o7_required_13cohort_summary.json
+model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/o7_required_13cohort_rank_bridge_phase_group_deltas.csv
+model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/o7_required_13cohort_rank_bridge_summary.json
+tools/analyze_o7_advantage_readout.py
+tools/analyze_o7_advantage_rank_bridge.py
+tools/aggregate_o7_advantage_readout.py
 ```
+
+### Result
+
+All 13 required cohorts completed.
+
+Macro hazard-AUC result:
+
+| Phase group | `B-C` positive cohorts | `B-C` CI-positive cohorts | Median `B-C` | Weighted mean `B-C` | Interpretation |
+| --- | ---: | ---: | ---: | ---: | --- |
+| all | 13/13 | 6/13 | `+0.0023` | `+0.0028` | positive overall |
+| early `1-2` | 12/13 | 4/13 | `+0.0027` | `+0.0033` | clears hazard sign threshold |
+| mid `3-4` | 8/13 | 3/13 | `+0.0007` | `+0.0018` | below sign threshold |
+| late `5-6` | 9/13 | 3/13 | `+0.0038` | `+0.0069` | secondary / exploratory |
+| final `7` | 8/13 | 0/13 | `+0.0071` | `+0.0054` | sparse and unstable |
+
+The pre-registered 9/13 sign threshold is met for the hazard-AUC early
+phase-group cell, but not for the mid hazard-AUC cell.  The overall cell is
+directionally unanimous, and late `5-6` also reaches 9/13, but late effects were
+not registered as headline evidence.
+
+Hazard-implied rank bridge result:
+
+| Phase group | `B-C` positive cohorts | `B-C` CI-positive cohorts | Median `B-C` | Weighted mean `B-C` | Interpretation |
+| --- | ---: | ---: | ---: | ---: | --- |
+| all | 9/13 | 7/13 | `+0.0081` | `+0.0149` | positive overall |
+| early `1-2` | 9/13 | 5/13 | `+0.0062` | `+0.0064` | clears bridge sign threshold |
+| mid `3-4` | 11/13 | 8/13 | `+0.0168` | `+0.0136` | strongest bridge cell |
+| late `5-6` | 11/13 | 5/13 | `+0.0221` | `+0.0214` | secondary / exploratory |
+| final `7` | 8/13 | 2/13 | `+0.0164` | `+0.0351` | sparse and unstable |
+
+The bridge result meets the 9/13 sign threshold in both primary phase groups,
+but it must be described as hazard-implied rank ordering because no O7 rank head
+was trained.
+
+### Supported Claim
+
+```text
+As a supplementary null-control, observed contact-gated relative-advantage
+edges carry topology-specific signal over an edge-shuffled null in hazard AUC
+and in a hazard-implied final-rank ordering bridge.
+```
+
+### Not Claimed
+
+```text
+The O7 model's independent rank head validates relation topology.
+```
+
+The O7 advantage-edge model has no independent rank head.
+
+```text
+All graph relation structure is predictive.
+```
+
+The result covers one edge stream: contact-gated relative-advantage edges.
+
+```text
+O7 validates terrain, high-ground, cover, or LOS affordance.
+```
+
+That remains bounded by the corrected O6Z negative result and the Caldera
+construct-validation boundary.
+
+### Remaining Boundary
+
+```text
+Do not describe the rank result as a separate rank-head metric.  Describe it as
+a hazard-implied rank bridge unless a future O7 model with an explicit rank head
+is trained.
+```
+
+## Experiment 10. Revised-RQ3 Prior Baseline Comparison
+
+### Question
+
+```text
+Does the realtime phase-survival representation add evidence beyond Sagong-style
+strategy scores and basic official-telemetry tabular baselines?
+```
+
+### Artifact
+
+```text
+docs/experiment_design/BATTLE_ROYALE_RQ4_PRIOR_BASELINE_RESULT_2026-07-05.md
+```
+
+### Runnable Artifacts
+
+```text
+scripts/run_br_rq4_prior_baseline_required_cohorts.sh
+tools/collect_rq4_baseline_metrics.py
+```
+
+### Status
+
+```text
+supported
+```
+
+The 13-cohort run completed.  The full feature-only representation improves
+hazard AUC over Sagong-style raw features, Sagong-style scores, current
+conventional features, and official raw telemetry on the same team-phase risk
+set.
+
+Key completed deltas:
+
+| Comparison | Hazard AUC wins | Mean AUC delta | Median AUC delta |
+| --- | ---: | ---: | ---: |
+| `a7_raw_plus_habitat - a0_official_raw` | 13/13 | +0.021690 | +0.019163 |
+| `a11_full_representation - a0_official_raw` | 13/13 | +0.021434 | +0.021297 |
+| `a11_full_representation - a1_prior_raw` | 13/13 | +0.059714 | +0.061459 |
+| `a11_full_representation - a3_current_conventional` | 13/13 | +0.028539 | +0.027681 |
+
+### Graph Exclusion Decision
+
+Graph model design was tested as a possible core comparison and removed
+from the core claim.  In the bounded Erangel TPP squad early readout, observed
+graph did not improve hazard AUC over no-graph and shuffle controls were
+comparable:
+
+```text
+no_graph AUC        0.776948
+observed graph AUC  0.774473
+node_shuffle AUC    0.774039
+edge_shuffle AUC    0.774102
+```
+
+Therefore the manuscript should not frame RQ3 or RQ4 as a graph-model
+contribution.
+Graph runs may be cited only as an internal/supplementary design audit showing
+why the thesis relies on phase-survival representation and pressure-habitat
+features rather than graph architecture.
+
+### Boundary
+
+The Sagong-style baseline is a team-phase adaptation on this project's data,
+not a reproduction of Sagong et al.'s confidential solo-player dataset.
+
+Do not claim that graph architecture is necessary for the realtime survival
+or risk/advantage-board result.
+
+## Experiment 11. Revised-RQ3 Hierarchical Survival Model
+
+### Question
+
+```text
+Can the phase-survival claim be modeled directly as within-phase state
+accumulation, phase-to-phase hazard recurrence, and cumulative survival to
+final top-k/rank outcomes?
+```
+
+### Artifact
+
+```text
+docs/experiment_design/BATTLE_ROYALE_RQ4_HIERARCHICAL_SURVIVAL_PROTOCOL_2026-07-05.md
+```
+
+### Runnable Artifacts
+
+```text
+model_stgcn/snapshot_tabular_baseline.py
+model_stgcn/snapshot_baselines.py::SnapshotGRUNoGraphHazard
+model_stgcn/snapshot_baselines.py::SnapshotHierGRUNoGraphHazard
+tools/eval_snapshot_survival_bridge.py
+scripts/run_br_rq4_hier_survival_required_cohorts.sh
+tools/collect_snapshot_survival_bridge_metrics.py
+docs/experiment_design/BATTLE_ROYALE_RQ4_SAME_CONDITION_SEQUENCE_RESULT_2026-07-05.md
+```
+
+### Status
+
+```text
+protocol implemented; smoke passed; Erangel TPP squad anchor complete; full
+required-cohort result complete with bounded model-form claim
+```
+
+The implemented model consumes official PUBG 10s snapshot node features and no
+graph relation channel.  The default recurrent arm now uses a causal
+snapshot-level GRU over the full 10s sequence, then reads hidden states at phase
+cuts before predicting next-phase elimination hazard.  The slower
+phase-explicit hierarchical GRU remains implemented but is not the default
+required-cohort arm.
+
+The same-condition tabular baselines consume the same official 10s snapshot
+feature surface:
+
+| Baseline | Input |
+| --- | --- |
+| `snapshot_last_hgb` | last official snapshot at the phase cut |
+| `snapshot_summary_hgb` | summary statistics over official snapshots up to the cut |
+
+These are not the same as the stronger phase-aggregate representation
+baselines.  They exist specifically to test whether DL adds value over tabular
+reductions under the same snapshot feature surface.
+
+The evaluator converts hazard outputs to cumulative survival scores:
+
+```text
+S_i(k) = product_{j <= k} (1 - hazard_i(j))
+rank_pred_norm_i(k) = 1 - S_i(k)
+```
+
+Those derived scores are evaluated against final top5/top10 and rank labels as
+hazard-implied bridge metrics.  They are not independent rank or top-k heads.
+The evaluator also reports a `latest_cut_bridge` block that uses each team's
+latest observed cut as the final-outcome bridge unit, avoiding a pooled-phase
+comparison that can be confounded by phase depth.
+
+Smoke checks passed:
+
+| Check | Result |
+| --- | --- |
+| compile | passed |
+| manual pytest-style unit functions | passed; `pytest` package unavailable |
+| causal no-future-snapshot-leak regression | passed |
+| 30-match / 1-epoch Erangel TPP squad training smoke | passed |
+| survival bridge JSON/CSV export | passed |
+| 30-match / 1-epoch three-variant runner smoke | passed |
+| 30-match / 12-epoch same-condition tabular + DL runner smoke | passed; tabular `snapshot_summary_hgb` was stronger in this smoke |
+| Erangel TPP squad full anchor | passed for `snapshot_last_hgb`, `snapshot_summary_hgb`, `snapshot_last_only`, `snapshot_tcn_no_graph`, `snapshot_gru_no_graph` |
+| 13-cohort required same-condition run | passed; `snapshot_summary_hgb` remains strongest aggregate arm |
+
+Smoke artifacts:
+
+```text
+/private/tmp/pubg_hier_gru_smoke.pt
+/private/tmp/pubg_hier_gru_smoke_survival_bridge.json
+/private/tmp/pubg_hier_gru_smoke_survival_bridge.pred.csv
+/private/tmp/pubg_hier_runner_smoke/snapshot_survival_bridge_metrics_summary.csv
+/private/tmp/pubg_hier_same_condition_smoke12/snapshot_survival_bridge_metrics_summary.csv
+```
+
+### Boundary
+
+The smoke run is not performance evidence.  It only shows that the modeling and
+evaluation pipeline is executable.
+
+The same-condition smoke does not support a DL advantage yet.  It shows why the
+required-cohort comparison must include `snapshot_summary_hgb` before making a
+deep-learning claim.
+
+Erangel TPP squad full anchor result:
+
+| Variant | Hazard AUC | Hazard AP | Boundary |
+| --- | ---: | ---: | --- |
+| `snapshot_summary_hgb` | `0.7723` | `0.6627` | strongest same-condition arm |
+| `snapshot_gru_no_graph` | `0.7658` | `0.6541` | beats last-only, TCN, and last-snapshot HGB, but not summary HGB |
+| `snapshot_last_hgb` | `0.7491` | `0.6346` | last snapshot tabular baseline |
+| `snapshot_tcn_no_graph` | `0.7436` | `0.6269` | causal temporal conv baseline |
+| `snapshot_last_only` | `0.7281` | `0.6113` | neural lower bound |
+
+This anchor supports a limited sequence-accumulation claim but does not support
+a general deep-learning advantage over strong tabular summary reductions of
+the same official snapshot feature surface.  The hazard-only cumulative
+survival bridge also does not yet support a final-rank headline claim because
+the recurrent models have negative rank Spearman on this anchor.
+
+Full required-cohort result:
+
+| Variant | Cohorts | Median Hazard AUC | Mean Hazard AUC | Boundary |
+| --- | ---: | ---: | ---: | --- |
+| `snapshot_summary_hgb` | 13 | `0.7534` | `0.7487` | strongest overall same-condition arm |
+| `snapshot_last_hgb` | 13 | `0.7411` | `0.7407` | stronger than current sequence models in aggregate |
+| `snapshot_gru_no_graph` | 13 | `0.7355` | `0.7345` | best sequence arm by median AUC |
+| `snapshot_tcn_no_graph` | 13 | `0.7325` | `0.7316` | best overall on `paramo_tpp_squad` only |
+| `snapshot_last_only` | 13 | `0.7213` | `0.7233` | neural lower bound |
+
+Derived comparison:
+
+| Comparison | Result |
+| --- | --- |
+| best sequence beats `snapshot_last_only` | 12/13 cohorts |
+| best sequence beats `snapshot_last_hgb` | 4/13 cohorts |
+| best sequence beats `snapshot_summary_hgb` | 2/13 cohorts |
+| overall winner count | `snapshot_summary_hgb`: 11/13; `snapshot_tcn_no_graph`: 1/13; `snapshot_last_only`: 1/13 |
+| median AUC delta, best sequence minus last-only | `+0.0123` |
+| median AUC delta, best sequence minus summary-HGB | `-0.0156` |
+
+Supported:
+
+```text
+Official PUBG snapshot telemetry can support next-phase hazard prediction, and
+temporal accumulation generally improves over a neural phase-cut-only lower
+bound.
+```
+
+Do not claim:
+
+```text
+The recurrent snapshot model improves over same-condition tabular summary
+baselines across required cohorts.
+```
+
+The hazard-only cumulative survival bridge also remains bounded: all neural
+arms have negative median rank Spearman, so this experiment should not be used
+as a final-rank headline without calibration or an explicit final-outcome head.
 
 ## Overall Manuscript Interpretation
 
-### Strongest Current Contribution
+### Research Question Chain
 
-```text
-We formulate Battle Royale as phase-conditioned multi-agent survival and show
-that a leakage-guarded pressure-habitat feature block improves next-phase
-survival and phase-cut rank/top-k prediction across independently trained PUBG
-cohorts.
-```
+| RQ | Core question | Current evidence |
+| --- | --- | --- |
+| `RQ1` | How can the Battle Royale genre be established as an analyzable framework? | O0-O8 lock, mini corpus, survival formalization |
+| `RQ2` | How can that framework be represented in PUBG? | official telemetry observability table, feature audit, required cohorts, OM ladder |
+| `RQ3` | How can prior tabular and phase-aware PUBG prediction be extended into a 10-second realtime elimination-risk model? | prior/basic baseline comparison, same-condition sequence result, dynamic probability trajectory, 10-second prefix demo |
+| `RQ4` | Can the realtime survival readout identify the most unfavorable and most favorable teams at phase transitions? | phase-transition risk/advantage board, risk top-k hit, advantage top-k/final-rank readout, completed board-baseline comparison with HGB-scoring boundary |
 
 ### Evidence Chain
 
-1. Mini corpus shows O0-O8 is not PUBG-only.
-2. Feature audit shows the vocabulary can be operationalized without forbidden
-   inputs.
-3. OM ladder shows the central pressure-habitat block is the only universally
-   positive block.
-4. Phase stratification shows the result is not only a pooled phase artifact.
-5. Paired bootstrap supports the early hazard and early/mid rank/top-k gains.
-6. O1 audit rules out a cheap feature-construction bug.
-7. O6Z bounds PUBG as geometry-poor for fine terrain affordance.
-8. Caldera provides the geometry-rich construct-validation path.
-9. O7 advantage-edge remains a pre-registered next test, not a completed claim.
+1. Mini corpus and ontology lock address RQ1.
+2. Official telemetry observability table and feature audit show the vocabulary
+   can be operationalized in PUBG without forbidden inputs.
+3. The OM ladder and cohort contract address RQ2.
+4. Prior/basic baseline comparison positions the work against existing
+   tabular and phase-aware PUBG prediction.
+5. Same-condition sequence and dynamic-probability results address RQ3 by
+   turning phase hazards into realtime survival readouts.
+6. The phase-transition risk/advantage board addresses RQ4; the board-level
+   baseline comparison is complete and supports the board claim against
+   simple/prior baselines while preserving the pressure-habitat HGB scoring
+   boundary.
+7. O6Z and Caldera / Warzone are supplementary boundary evidence: PUBG is
+   geometry-poor for fine terrain affordance, while Caldera / Warzone is
+   geometry-rich but not supervised-label ready.
+8. The same-condition hierarchical survival run is complete and bounds the
+   model-form claim: temporal sequence models generally beat the neural
+   phase-cut-only lower bound, but not strong tabular snapshot summaries.
+9. O1 and O7 are supplementary checks, not the main chain.
 
 ### Claims Allowed Now
 
@@ -795,24 +1297,39 @@ cohorts.
 - PUBG `pos_z`-only features do not validate fine-grained O6 terrain
   affordance.
 - Caldera should be used for O6 construct validation, not supervised outcome
-  prediction.
+  prediction; the completed artifact shows geometry-derived terrain, route,
+  building, and tactical-state measurements.
+- As supplementary evidence, observed contact-gated relative-advantage edges
+  carry topology-specific signal over an edge-shuffled null in the gen-2 PUBG
+  O7 run.
+- The same-condition hierarchical survival pipeline is implemented,
+  required-cohort tested, and supports a bounded model-form claim: sequence
+  accumulation helps over last-only, but current compact DL sequence models do
+  not generally beat strong tabular snapshot-summary baselines.
 
 ### Claims Not Allowed Now
 
 - A universal formal Battle Royale ontology has been proven.
 - Causal terrain or habitat effects have been identified.
-- O7 graph topology has been proven useful.
+- O7 graph topology has been fully validated across all relation streams and
+  primary metrics.
+- O7 is one of the paper's core research-question answers.
+- The O7 advantage-edge model has an independent rank head.
+- The hierarchical GRU or compact snapshot sequence models are generally
+  better than same-surface tabular summary baselines.
 - PUBG validates true terrain, cover, LOS, or building affordance.
 - Caldera supports phase-wise survival or final-rank prediction.
 
 ## Immediate Next Step
 
-Before launching new long experiments:
+Move to manuscript figure and prose drafting around the RQ1-RQ4 chain.  The
+revised-RQ3 same-condition sequence result should be presented after the prior/basic
+baseline comparison and the OM2->OM3 pressure-habitat result, as a bounded
+model-form test rather than as the main positive supervised evidence.
+The O7 wording is usable if it preserves the metric boundary:
 
 ```text
-Resolve the gen-1 / gen-2 result boundary.
+positive for contact-gated relative-advantage edges, hazard AUC, and
+hazard-implied final-rank ordering; not all O7 relation structure, and not an
+independent rank-head result.
 ```
-
-The boundary note must decide which legacy / preliminary results are reusable
-as manuscript evidence and which must be rerun under the current required-
-cohort, feature, split, and claim-boundary contract.

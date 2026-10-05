@@ -1,0 +1,15 @@
+{
+  "root": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2",
+  "cohorts": 13,
+  "model_variants": [
+    "snapshot_gru_no_graph",
+    "snapshot_last_hgb",
+    "snapshot_last_only",
+    "snapshot_summary_hgb",
+    "snapshot_tcn_no_graph"
+  ],
+  "outputs": {
+    "metrics_all_cohorts": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/snapshot_survival_bridge_metrics_all_cohorts.csv",
+    "metrics_summary": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/snapshot_survival_bridge_metrics_summary.csv"
+  }
+}

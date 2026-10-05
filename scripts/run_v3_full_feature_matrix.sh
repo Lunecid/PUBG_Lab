@@ -21,7 +21,7 @@ if [[ -n "${V3_LIMIT:-}" ]]; then
 fi
 
 if [[ -n "${V3_SPLIT_JSON:-}" ]]; then
-  cmd+=(--split-json "$V3_SPLIT_JSON")
+  cmd+=(--split-json "$V3_SPLIT_JSON" --require-existing-split)
 fi
 
 if [[ "${V3_CACHED:-0}" == "1" ]]; then

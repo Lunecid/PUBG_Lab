@@ -1,0 +1,6 @@
++ python3 -m model_stgcn.snapshot_tabular_baseline --map Desert_Main --mode squad --seed 42 --split-json model_stgcn/checkpoints/br_om_ladder_required_v1/miramar_desert_tpp_squad/split.json --out-dir model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/miramar_desert_tpp_squad/snapshot_tabular_hgb --configs snapshot_last_hgb\,snapshot_summary_hgb
+2026-07-05 22:13:51,863 INFO split total=1543 train=1235 val=154 test=154
+2026-07-05 22:14:19,548 INFO rows train=69527 test=9068
+2026-07-05 22:14:19,549 INFO fit snapshot_last_hgb        rows=69527 test=9068 features=17
+2026-07-05 22:14:21,044 INFO fit snapshot_summary_hgb     rows=69527 test=9068 features=99
+2026-07-05 22:14:23,581 INFO wrote model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/miramar_desert_tpp_squad/snapshot_tabular_hgb/snapshot_tabular_summary.json

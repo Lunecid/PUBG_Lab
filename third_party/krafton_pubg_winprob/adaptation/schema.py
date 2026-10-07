@@ -141,7 +141,7 @@ _p(["item_throwables_count", "item_grenade_count", "item_smoke_count", "item_fla
 _p(["item_aids_count", "item_bandage_count", "item_firstaid_count", "item_medkit_count", "item_painkiller_count", "item_energydrink_count", "item_adrenaline_count"],
    "proxy", "telem_item_pickup pickup - drop, telem_item_use", "max(0, picked up - dropped - used) per item id; upstream also subtracts LogHeal events (absent)")  # fmt: skip
 _p("squad_total_health", "proxy", "telem_positions.health", "sum of the latest sampled health (<= t) over alive members (upstream reads health from every event type)")
-_p("squad_alive_count", "exact", "participants + telem_kills (+ time_survived fallback)", "member alive iff its last death time (dump rule, labels v2) is later than t; revivals are not modelled (no revive events), consistent with team_death_s")
+_p("squad_alive_count", "exact", "participants + telem_kills (+ time_survived fallback)", "member alive at t from the records before t (v2 dump, phase_v2.alive): a kill ends a life until a return, inferred from the first position sample with health > 0 at least 20 s after the kill and before the next kill (no revive / redeploy events); v1 dump: last death time (dump rule) later than t, revivals not modelled, consistent with team_death_s")
 _p("squad_non_groggy_count", "proxy", "telem_groggy victim events + telem_positions.health", "alive member is groggy if the latest position sample has health 0 or a knock event follows it (no LogPlayerRevive: recovery is seen only through health > 0 in a later sample)")
 _p("squad_out_bluezone_count", "proxy", "telem_positions + telem_game_states", "alive members outside the current safe circle (safe_zone_*), geometry instead of the isInBlueZone flag")
 for _f in FEATURES:

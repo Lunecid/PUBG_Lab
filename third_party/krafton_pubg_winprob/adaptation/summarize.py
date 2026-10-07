@@ -1,34 +1,75 @@
 """Summary table of the KRAFTON baseline runs (KRAFTON-tf, KRAFTON-mlp, KRAFTON-tf-ourfeat) next to the PTR reference arms.
 
-    python -m adaptation.summarize [--seed 42] [--out reports/krafton_baseline_2026-10-05/summary_seed42.csv]
+    python -m adaptation.summarize [--seed 42] [--out reports/krafton_baseline_v2/summary_seed42.csv]
 
 Reads ``<ckpt>/<cohort>/KRAFTON-tf|KRAFTON-mlp|KRAFTON-tf-ourfeat/seed<seed>/metrics.json`` and ``reports/
-bigcomp2027_results/arm_metrics_per_cohort.csv`` (HGB-cut, M01, M11R, seed 42, stratum all).  Prints one row per
+bigcomp2027_results_v2/arm_metrics_per_cohort.csv`` (HGB-cut, M01, M11R, seed 42, stratum all).  Prints one row per
 cohort; facts only.
+
+Both defaults are the v2 roots of ``model_stgcn.ptr.paths``.  The run directory (``--ckpt-dir``) and the directory that holds the reference table
+(``--ref``, the aggregator's results root) must come from the same dump version (``paths.artifact_version``: stamp, run metrics, summary.json,
+``_v<N>`` in the name): a v1 table next to v2 runs (or the reverse), or a source whose version cannot be told next to one that can, is refused
+before anything is read (:func:`check_sources`).
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
+import sys
 from pathlib import Path
 
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 REPO = ROOT.parents[1]
+for _p in (str(ROOT), str(REPO)):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
+
+from model_stgcn.ptr import paths as P  # noqa: E402  (the v2 roots and the version guard)
+
 COHORTS = ["erangel_tpp_squad", "taego_tpp_squad", "miramar_desert_tpp_squad", "rondo_tpp_squad", "sanhok_tpp_squad", "erangel_tpp_solo", "erangel_tpp_duo",
            "taego_tpp_duo", "taego_fpp_squad", "erangel_fpp_squad", "karakin_tpp_squad", "paramo_tpp_squad"]  # fmt: skip
 
 
-def main(argv=None) -> int:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--ckpt-dir", type=Path, default=REPO / "model_stgcn/checkpoints/bigcomp2027_ptr_v1")
-    ap.add_argument("--ref", type=Path, default=REPO / "reports/bigcomp2027_results/arm_metrics_per_cohort.csv")
+def check_sources(ckpt_dir: Path, ref: Path) -> str | None:
+    """Refuse to pair a v1 source with a v2 source; returns the common version (None when neither source says).
+
+    The sources are the run directory ``ckpt_dir`` and the directory that holds the reference table ``ref`` (the aggregator's results root).
+    Their versions come from ``paths.artifact_version`` (stamp, run metrics, summary.json's ``runs_dir``, ``_v<N>`` in the name).  A mismatch is
+    refused, and so is a source whose version cannot be told next to one that can (it may be a v1 root that was renamed or copied).
+    Raises ``paths.VersionMixError``."""
+    ckpt_dir, ref = Path(os.path.abspath(ckpt_dir)), Path(os.path.abspath(ref))  # absolute: a bare file name or '.' has no directory name to read a version from
+    (cv, c_why), (rv, r_why) = P.artifact_version(ckpt_dir), P.artifact_version(ref.parent)
+    if cv == rv:
+        return cv
+    say = lambda role, path, v, why: f"{role} {path} is {v} ({why})" if v else f"{role} {path} carries no version evidence"  # noqa: E731
+    raise P.VersionMixError(
+        f"refusing to pair {say('--ckpt-dir', ckpt_dir, cv, c_why)} with {say('--ref', ref, rv, r_why)}: runs and reference table must come from the "
+        f"same dump (v2 roots: {P.RUNS_DIR}, {P.RESULTS_DIR}; a root without evidence can be stamped with "
+        "`python -m model_stgcn.ptr.paths stamp <root> --dump-dir <dump>`)"
+    )
+
+
+def parse_args(argv=None) -> argparse.Namespace:
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    ap.add_argument("--ckpt-dir", type=Path, default=P.RUNS_DIR, help="run directory with the KRAFTON arms (default: the v2 root)")
+    ap.add_argument("--ref", type=Path, default=P.RESULTS_DIR / "arm_metrics_per_cohort.csv",
+                    help="PTR reference table of the aggregator (default: the v2 results root); must be of the same dump version as --ckpt-dir")  # fmt: skip
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--out", type=Path, default=None)
     ap.add_argument("--md", action="store_true", help="print a markdown table")
-    a = ap.parse_args(argv)
+    return ap.parse_args(argv)
+
+
+def main(argv=None) -> int:
+    a = parse_args(argv)
+    try:
+        check_sources(a.ckpt_dir, a.ref)
+    except P.VersionMixError as exc:
+        raise SystemExit(f"refusing to run: {exc}") from exc
     ref = pd.read_csv(a.ref)
     ref = ref[(ref.seed == 42) & (ref.stratum == "all")]
     rows = []

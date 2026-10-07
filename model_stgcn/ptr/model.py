@@ -16,15 +16,23 @@ with ``b`` learned per block and head and ``W_r`` the relation matrices of
 position relative to the current and next zone circles: ``(pos - centre) / radius`` and
 ``dist / radius`` for both.  ``zone_valid == False`` masks the token.
 
-Masking contract (all verified in ``tests/test_ptr_model.py``):
+Masking contract (all verified in ``tests/test_ptr_model.py`` and ``tests/test_v2_masks_labels.py``):
 
 * the relation bias diagonal is 0 (a team still attends to itself through the q.k term);
-* ``node_mask`` (alive at phase start) is the key mask on both axes; dead tokens are forced to exactly
-  zero after every sub-layer and every raw input is sanitised with ``torch.where`` (never ``* mask``)
-  so NaN / huge values at dead positions cannot reach an alive output, not even through gradients.
+* ``node_mask`` is the KEY mask on both axes (v1: alive at phase start; v2: teams causally alive at the cut a_k).  The
+  optional ``query_mask`` (batches of a v2 dump) is the TOKEN mask: ``node_mask | target`` -- it adds the *comeback*
+  rows, risk-set teams that are causally dead at the cut.  A query token always attends to its own key in addition to
+  the ``node_mask`` keys (team axis and, with the same rule, the phase axis: the slot's own position is always allowed,
+  past slots count only where their own ``node_mask`` is set), so no attention row of a query token is ever empty,
+  while no other team (and no later slot of the same team) can attend to a non-key token.  Without ``query_mask`` the
+  model behaves exactly as before (tokens = keys).
+* tokens outside the token mask are forced to exactly zero after every sub-layer and every raw input is sanitised with
+  ``torch.where`` (never ``* mask``) so NaN / huge values at dead positions cannot reach a live output, not even through
+  gradients.
 * Rows with no valid key return zeros (never NaN).
 * The hazard head reads the final token ``(p, i)``; the rank head is a separate linear score
-  (higher = worse expected final placement, see :mod:`model_stgcn.ptr.loss`).
+  (higher = worse expected final placement, see :mod:`model_stgcn.ptr.loss`).  The loss and the metrics read the
+  ``target_mask`` rows only (a subset of the token mask): a comeback row is scored exactly once.
 
 Stage 2 (``cfg.player``, the M11RZ-P arms; design doc 3 / 4.1).  Before the blocks above, every alive player token of a
 phase slot -- ``[Xp (player features) | the team's token features | player_is_ai]`` -- passes ``player_layers``
@@ -233,26 +241,38 @@ class PTRBlock(nn.Module):
             bias = torch.cat([top, bottom], dim=-2)  # queries: teams + zone
         return bias
 
-    def forward(self, h, z, alive, rel, geo, geo_ok, zone_ok):
+    def forward(self, h, z, alive, rel, geo, geo_ok, zone_ok, query=None):
+        """``alive`` is the KEY mask ``[B,P,N]``; ``query`` the token mask (default: the key mask, the v1 behaviour).  A query
+        token always attends to its own key (team axis) / its own slot (phase axis) in addition to the key mask."""
+        key = alive
+        own = query is not None and query is not key
+        query = key if query is None else query
         n_teams = h.shape[2]
         P = h.shape[1]
-        a = alive.unsqueeze(-1)
+        a = query.unsqueeze(-1)
         zero = torch.zeros((), dtype=h.dtype, device=h.device)
 
-        if self.attn_p is not None:  # phase axis: per team, causal over phases, alive keys only
+        if self.attn_p is not None:  # phase axis: per team, causal over phases, key slots only (+ the query's own slot)
             t = self.ln_p(h).transpose(1, 2)  # [B,N,P,d]
-            mask = self.causal[:P, :P][None, None, None] & alive.transpose(1, 2)[:, :, None, None, :]
+            mask = self.causal[:P, :P][None, None, None] & key.transpose(1, 2)[:, :, None, None, :]
+            if own:
+                eye_p = torch.eye(P, dtype=torch.bool, device=h.device)
+                mask = mask | (eye_p & query.transpose(1, 2)[:, :, None, :, None])
             upd = self.attn_p(t, t, mask).transpose(1, 2)
             h = h + torch.where(a, self.drop(upd), zero)
 
-        toks = self.ln_t(h)  # team axis: per phase over alive teams (+ zone token)
-        key_alive = alive
+        toks = self.ln_t(h)  # team axis: per phase over the key teams (+ zone token) and the query's own key
+        key_alive, qry_alive = key, query
         if z is not None:
             toks = torch.cat([toks, self.ln_t(z)], dim=2)
-            key_alive = torch.cat([alive, zone_ok.unsqueeze(-1)], dim=2)
+            key_alive = torch.cat([key, zone_ok.unsqueeze(-1)], dim=2)
+            qry_alive = torch.cat([query, zone_ok.unsqueeze(-1)], dim=2)
         mask = key_alive[:, :, None, None, :]
+        m = toks.shape[2]
+        if own:
+            eye = torch.eye(m, dtype=torch.bool, device=h.device)
+            mask = mask | (eye & qry_alive[:, :, None, :, None])
         if not self.cfg.team_axis:  # self only: each token may only look at itself
-            m = toks.shape[2]
             mask = mask & torch.eye(m, dtype=torch.bool, device=h.device)
         upd = self.attn_t(toks, toks, mask, self._team_bias(rel, geo, geo_ok, n_teams))
         h = h + torch.where(a, self.drop(upd[:, :, :n_teams]), zero)
@@ -352,7 +372,8 @@ class PTRFormer(nn.Module):
     def n_parameters(self) -> int:
         return sum(p.numel() for p in self.parameters())
 
-    def _relations(self, batch, alive):
+    def _relations(self, batch, alive, query=None):
+        """Relation channels ``[B,P,R,N,N]`` (query i, key j); a pair counts only if i is a token and j a KEY (v1: both alive)."""
         rel = batch.get("rel")
         B, P, N = alive.shape
         want = (B, P, len(self.cfg.relation_types), N, N)
@@ -360,7 +381,8 @@ class PTRFormer(nn.Module):
             got = None if rel is None else tuple(rel.shape)
             raise ValueError(f"relation bias needs batch['rel'] of shape {want}, got {got}")
         eye = torch.eye(N, dtype=torch.bool, device=alive.device)  # relation bias diagonal = 0
-        pair_alive = (alive.unsqueeze(-1) & alive.unsqueeze(-2) & ~eye).unsqueeze(2)
+        query = alive if query is None else query
+        pair_alive = (query.unsqueeze(-1) & alive.unsqueeze(-2) & ~eye).unsqueeze(2)
         return torch.where(pair_alive, rel, torch.zeros_like(rel))
 
     def _player_relations(self, batch, p_alive):
@@ -401,19 +423,21 @@ class PTRFormer(nn.Module):
 
     def forward(self, batch: dict) -> dict[str, torch.Tensor]:
         cfg = self.cfg
-        x, alive = batch["x"], batch["node_mask"].bool()
+        x, key = batch["x"], batch["node_mask"].bool()  # node_mask = the attention KEY mask
+        qm = batch.get("query_mask")  # v2 batches: the token mask (node_mask | target); absent -> tokens = keys (v1)
+        query = key if qm is None else (qm.bool() | key)
         B, P, N, _ = x.shape
         if P > cfg.n_phases:
             raise ValueError(f"batch has {P} phase slots, the model was built for {cfg.n_phases}")
-        x = torch.where(alive.unsqueeze(-1), x, torch.zeros_like(x))
+        x = torch.where(query.unsqueeze(-1), x, torch.zeros_like(x))
         phase = self.phase_emb.weight[:P]
         h = self.token_mlp(x) + phase[None, :, None, :]
         if cfg.player:
-            h = h + self.pool_players(batch, x, alive, phase)
+            h = h + self.pool_players(batch, x, query, phase)
         h = self.emb_drop(h)
-        h = torch.where(alive.unsqueeze(-1), h, torch.zeros_like(h))
+        h = torch.where(query.unsqueeze(-1), h, torch.zeros_like(h))
 
-        rel = self._relations(batch, alive) if cfg.relation else None
+        rel = self._relations(batch, key, None if qm is None else query) if cfg.relation else None
         z = geo = geo_ok = zone_ok = None
         if cfg.zone:
             zone_ok = batch["zone_valid"].bool()
@@ -421,10 +445,10 @@ class PTRFormer(nn.Module):
             z = self.emb_drop(self.zone_mlp(zs) + phase[None])
             z = torch.where(zone_ok.unsqueeze(-1), z, torch.zeros_like(z)).unsqueeze(2)  # [B,P,1,d]
             pos_ok = batch.get("pos_valid")
-            pos_ok = alive if pos_ok is None else alive & pos_ok.bool()
+            pos_ok = query if pos_ok is None else query & pos_ok.bool()
             geo, geo_ok = zone_geometry(batch["pos"], batch["zone"], pos_ok, zone_ok)
         for block in self.blocks:
-            h, z = block(h, z, alive, rel, geo, geo_ok, zone_ok)
+            h, z = block(h, z, key, rel, geo, geo_ok, zone_ok, query=None if qm is None else query)
         out = self.final_ln(h)
         return {
             "hazard_logit": self.hazard_head(out).squeeze(-1),

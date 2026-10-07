@@ -849,12 +849,15 @@ def test_the_cli_prints_the_metareg_table(tmp_path, capsys):
 
 # --------------------------------------------------------------------------- external baselines (design doc 4.3)
 EXTERNAL_QUALITY = {
-    "SAGONG-xgb": 0.75, "SAGONG-rf": 0.7, "SAGONG-lr": 0.6, "KRAFTON-tf": 0.85, "KRAFTON-mlp": 0.8, "KRAFTON-tf-ourfeat": 1.2,
-    "KRAFTON-tf-ourfeat-bce": 1.1, "KRAFTON-tf-ourfeat-hazard": 1.25, "SAGONG-hgb": 0.72, "HGB-kraftonfeat": 0.95,
-}  # fmt: skip  (K2 = KRAFTON-tf-ourfeat, K3a = -bce, K3 = -hazard; SAGONG-hgb = HGB-cut's learner on Sagong's 12 inputs)
+    "SAGONG-xgb": 0.75, "SAGONG-rf": 0.7, "SAGONG-lr": 0.6, "KRAFTON-tf": 0.85, "KRAFTON-tf-h0": 0.95, "KRAFTON-mlp": 0.8, "KRAFTON-tf-ourfeat": 1.2,
+    "KRAFTON-tf-ourfeat-h0": 1.3, "KRAFTON-tf-ourfeat-bce": 1.1, "KRAFTON-tf-ourfeat-hazard": 1.25, "SAGONG-hgb": 0.72, "HGB-kraftonfeat": 0.95,
+}  # fmt: skip  (K2 = KRAFTON-tf-ourfeat, K2H0 = -h0, K3a = -bce, K3 = -hazard; KRAFTON-tf-h0 = K1 scores + a phase baseline; SAGONG-hgb = HGB-cut's learner on Sagong's 12 inputs)
 EXTERNAL_RANK_QUALITY = {
-    "KRAFTON-tf": 1.3, "KRAFTON-mlp": 1.1, "KRAFTON-tf-ourfeat": 1.6, "KRAFTON-tf-ourfeat-bce": 1.5, "KRAFTON-tf-ourfeat-hazard": 1.7,
+    "KRAFTON-tf": 1.3, "KRAFTON-tf-h0": 1.3, "KRAFTON-mlp": 1.1, "KRAFTON-tf-ourfeat": 1.6, "KRAFTON-tf-ourfeat-h0": 1.6, "KRAFTON-tf-ourfeat-bce": 1.5,
+    "KRAFTON-tf-ourfeat-hazard": 1.7,
 }  # fmt: skip
+NORANK_QUALITY = {"M01-norank": 0.88, "M11R-norank": 1.46}  # d' (M01 0.9, M11R 1.5): the PTR arms trained with the hazard BCE alone
+NORANK_RANK_QUALITY = {"M01-norank": 1.0, "M11R-norank": 1.4}  # the rank head is untrained: the rank score is the hazard head's ranking
 EXT_FORMULAS = {
     "m11r_vs_sagong_xgb": {"M11R": 1, "SAGONG-xgb": -1}, "hgbcut_vs_sagong_xgb": {"HGB-cut": 1, "SAGONG-xgb": -1},
     "m11r_vs_krafton_tf": {"M11R": 1, "KRAFTON-tf": -1}, "hgbcut_vs_krafton_tf": {"HGB-cut": 1, "KRAFTON-tf": -1},
@@ -871,16 +874,23 @@ EXT_FORMULAS = {
     "k3_vs_k3a": {"KRAFTON-tf-ourfeat-hazard": 1, "KRAFTON-tf-ourfeat-bce": -1},  # the phase baseline
     "k3_vs_k2": {"KRAFTON-tf-ourfeat-hazard": 1, "KRAFTON-tf-ourfeat": -1},  # the formulation in total
     "m01_vs_k3": {"M01": 1, "KRAFTON-tf-ourfeat-hazard": -1},  # the residual: our architecture vs theirs, same formulation and features
+    "k2h0_vs_k2": {"KRAFTON-tf-ourfeat-h0": 1, "KRAFTON-tf-ourfeat": -1},  # (c1) the same Cox scores plus a training-set phase baseline
+    "k3a_vs_k2h0": {"KRAFTON-tf-ourfeat-bce": 1, "KRAFTON-tf-ourfeat-h0": -1},  # (c2) the objective with the baseline held
+    "m11r_vs_krafton_tf_h0": {"M11R": 1, "KRAFTON-tf-h0": -1}, "hgbcut_vs_krafton_tf_h0": {"HGB-cut": 1, "KRAFTON-tf-h0": -1},  # RQ2 additions
+    "hgbcut_vs_sagong_rf": {"HGB-cut": 1, "SAGONG-rf": -1}, "hgbcut_vs_sagong_lr": {"HGB-cut": 1, "SAGONG-lr": -1},  # RQ2: HGB-cut vs every SAGONG model
 }  # fmt: skip
 EXT_TABLE_ORDER = [  # the rows of tab_external_contrasts, top to bottom, with the blocks separated by a rule
     ("M11R $-$ SAGONG-xgb", "m11r_vs_sagong_xgb"), ("M11R $-$ SAGONG-rf", "m11r_vs_sagong_rf"), ("M11R $-$ SAGONG-lr", "m11r_vs_sagong_lr"),
-    ("HGB-cut $-$ SAGONG-xgb (bundled)", "hgbcut_vs_sagong_xgb"),
+    ("HGB-cut $-$ SAGONG-xgb (bundled)", "hgbcut_vs_sagong_xgb"), ("HGB-cut $-$ SAGONG-rf (bundled)", "hgbcut_vs_sagong_rf"),
+    ("HGB-cut $-$ SAGONG-lr (bundled)", "hgbcut_vs_sagong_lr"),
     ("HGB-cut $-$ SAGONG-hgb (input)", "hgbcut_vs_sagong_hgb"), ("SAGONG-hgb $-$ SAGONG-xgb (learner check)", "sagong_hgb_vs_sagong_xgb"), None,
-    ("M11R $-$ KRAFTON-tf", "m11r_vs_krafton_tf"), ("M11R $-$ KRAFTON-mlp", "m11r_vs_krafton_mlp"),
-    ("M11R $-$ KRAFTON-tf-ourfeat", "m11r_vs_krafton_tf_ourfeat"), ("HGB-cut $-$ KRAFTON-tf", "hgbcut_vs_krafton_tf"), None,
+    ("M11R $-$ KRAFTON-tf", "m11r_vs_krafton_tf"), ("M11R $-$ KRAFTON-tf-h0", "m11r_vs_krafton_tf_h0"), ("M11R $-$ KRAFTON-mlp", "m11r_vs_krafton_mlp"),
+    ("M11R $-$ KRAFTON-tf-ourfeat", "m11r_vs_krafton_tf_ourfeat"), ("HGB-cut $-$ KRAFTON-tf", "hgbcut_vs_krafton_tf"),
+    ("HGB-cut $-$ KRAFTON-tf-h0", "hgbcut_vs_krafton_tf_h0"), None,
     ("KRAFTON-tf $-$ KRAFTON-mlp", "krafton_tf_mlp"), ("KRAFTON-tf-ourfeat $-$ KRAFTON-tf (bundled)", "krafton_ourfeat_input"),
     ("M01 $-$ KRAFTON-tf-ourfeat (bundled)", "m01_vs_krafton_tf_ourfeat"), None,
     ("HGB-cut $-$ HGB-kraftonfeat (input)", "hgbcut_vs_hgb_kraftonfeat"), ("HGB-kraftonfeat $-$ KRAFTON-tf (bundled)", "hgb_kraftonfeat_vs_krafton_tf"), None,
+    ("K2+H0 $-$ K2 (phase baseline for Cox)", "k2h0_vs_k2"), ("K3a $-$ K2+H0 (objective, baseline held)", "k3a_vs_k2h0"),
     ("K3a $-$ K2 (objective)", "k3a_vs_k2"), ("K3 $-$ K3a (phase baseline)", "k3_vs_k3a"), ("K3 $-$ K2 (total)", "k3_vs_k2"),
     ("M01 $-$ K3 (residual)", "m01_vs_k3"),
 ]  # fmt: skip
@@ -894,23 +904,27 @@ EXT_PAIRS = {
     "hgbcut_vs_sagong_hgb": ("HGB-cut", "SAGONG-hgb"), "sagong_hgb_vs_sagong_xgb": ("SAGONG-hgb", "SAGONG-xgb"),
     "k3a_vs_k2": ("KRAFTON-tf-ourfeat-bce", "KRAFTON-tf-ourfeat"), "k3_vs_k3a": ("KRAFTON-tf-ourfeat-hazard", "KRAFTON-tf-ourfeat-bce"),
     "k3_vs_k2": ("KRAFTON-tf-ourfeat-hazard", "KRAFTON-tf-ourfeat"), "m01_vs_k3": ("M01", "KRAFTON-tf-ourfeat-hazard"),
+    "k2h0_vs_k2": ("KRAFTON-tf-ourfeat-h0", "KRAFTON-tf-ourfeat"), "k3a_vs_k2h0": ("KRAFTON-tf-ourfeat-bce", "KRAFTON-tf-ourfeat-h0"),
+    "m11r_vs_krafton_tf_h0": ("M11R", "KRAFTON-tf-h0"), "hgbcut_vs_krafton_tf_h0": ("HGB-cut", "KRAFTON-tf-h0"),
+    "hgbcut_vs_sagong_rf": ("HGB-cut", "SAGONG-rf"), "hgbcut_vs_sagong_lr": ("HGB-cut", "SAGONG-lr"),
 }  # fmt: skip
 
 
-def external_runs(tmp_path, cohorts=COHORTS[:3], arms=tuple(EXTERNAL_QUALITY), skip=frozenset()):
-    quality = {**{a: q for a, q in QUALITY.items() if a not in EXPLORATORY}, **{a: EXTERNAL_QUALITY[a] for a in arms}}
-    rank_quality = {**{a: q for a, q in RANK_QUALITY.items() if a in quality}, **{a: q for a, q in EXTERNAL_RANK_QUALITY.items() if a in quality}}
+def external_runs(tmp_path, cohorts=COHORTS[:3], arms=tuple(EXTERNAL_QUALITY), skip=frozenset(), norank=False):
+    quality = {**{a: q for a, q in QUALITY.items() if a not in EXPLORATORY}, **{a: EXTERNAL_QUALITY[a] for a in arms}, **(NORANK_QUALITY if norank else {})}
+    rank_quality = {**{a: q for a, q in RANK_QUALITY.items() if a in quality}, **{a: q for a, q in EXTERNAL_RANK_QUALITY.items() if a in quality},
+                    **{a: q for a, q in NORANK_RANK_QUALITY.items() if a in quality}}  # fmt: skip
     return make_runs(tmp_path, cohorts=cohorts, quality=quality, rank_quality=rank_quality, skip=set(skip), seeds={})
 
 
 def test_external_arms_and_their_exploratory_contrasts_are_registered():
     assert A.EXTERNAL_ARMS == (
-        "SAGONG-xgb", "SAGONG-rf", "SAGONG-lr", "KRAFTON-tf", "KRAFTON-mlp", "KRAFTON-tf-ourfeat", "KRAFTON-tf-ourfeat-bce",
-        "KRAFTON-tf-ourfeat-hazard", "SAGONG-hgb", "HGB-kraftonfeat",
-    )  # fmt: skip  (the K3 ladder follows K2; the two arms that run OUR learner on their inputs close the list)
-    assert A.ARM_ORDER[-10:] == A.EXTERNAL_ARMS  # after the HGB references and the union arms
+        "SAGONG-xgb", "SAGONG-rf", "SAGONG-lr", "KRAFTON-tf", "KRAFTON-tf-h0", "KRAFTON-mlp", "KRAFTON-tf-ourfeat", "KRAFTON-tf-ourfeat-h0",
+        "KRAFTON-tf-ourfeat-bce", "KRAFTON-tf-ourfeat-hazard", "SAGONG-hgb", "HGB-kraftonfeat",
+    )  # fmt: skip  (the H0 arms follow their parents; the K3 ladder follows K2H0; the two arms that run OUR learner on their inputs close the list)
+    assert A.ARM_ORDER[-12:] == A.EXTERNAL_ARMS  # after the HGB references and the union arms
     assert "HGB-kraftonfeat" not in A.HGB_ARMS and "SAGONG-hgb" not in A.HGB_ARMS  # not HGB-* variants of the main matrix
-    assert set(EXT_FORMULAS) == set(EXT_PAIRS) and len(EXT_FORMULAS) == 19
+    assert set(EXT_FORMULAS) == set(EXT_PAIRS) and len(EXT_FORMULAS) == 25
     for name, coefs in EXT_FORMULAS.items():
         f = A.FORMULAS[name]
         assert f.coefs == coefs and f.optional and f.pooled and f.group == "external"
@@ -920,12 +934,15 @@ def test_external_arms_and_their_exploratory_contrasts_are_registered():
     assert {name for _, name, *_ in ext_rows} == set(EXT_FORMULAS)
     assert {name: tag for _, name, _, tag in ext_rows if tag} == {
         "krafton_ourfeat_input": "bundled", "m01_vs_krafton_tf_ourfeat": "bundled", "hgbcut_vs_sagong_xgb": "bundled",
+        "hgbcut_vs_sagong_rf": "bundled", "hgbcut_vs_sagong_lr": "bundled",
         "hgbcut_vs_hgb_kraftonfeat": "input", "hgb_kraftonfeat_vs_krafton_tf": "bundled",
         "hgbcut_vs_sagong_hgb": "input", "sagong_hgb_vs_sagong_xgb": "learner check",
+        "k2h0_vs_k2": "phase baseline for Cox", "k3a_vs_k2h0": "objective, baseline held",
         "k3a_vs_k2": "objective", "k3_vs_k3a": "phase baseline", "k3_vs_k2": "total", "m01_vs_k3": "residual"}  # fmt: skip
-    assert [g for _, _, g, _ in ext_rows] == ["sagong"] * 6 + ["krafton"] * 4 + ["ablation"] * 3 + ["grid"] * 2 + ["formulation"] * 4
+    assert [g for _, _, g, _ in ext_rows] == ["sagong"] * 8 + ["krafton"] * 6 + ["ablation"] * 3 + ["grid"] * 2 + ["formulation"] * 6
     # arm order puts the new arm after KRAFTON-mlp: it is listed last in the external arms table
     assert A.arm_rank("KRAFTON-tf-ourfeat") > A.arm_rank("KRAFTON-mlp") > A.arm_rank("KRAFTON-tf") > A.arm_rank("HGB-noHab")
+    assert A.arm_rank("KRAFTON-tf") < A.arm_rank("KRAFTON-tf-h0") < A.arm_rank("KRAFTON-mlp") < A.arm_rank("KRAFTON-tf-ourfeat") < A.arm_rank("KRAFTON-tf-ourfeat-h0")
 
 
 def test_external_runs_are_kind_external_and_the_contrasts_are_pooled_without_holm(tmp_path):
@@ -1015,8 +1032,8 @@ def test_external_tables_follow_the_arms_table_layout(tmp_path):
     assert rows[0][1:] == arms_rows[0][1:] and rows[1][1:] == arms_rows[1][1:]  # the two header rows of the arms table
     body = [r for r in rows if r[0].startswith(("HGB", "M11R", "SAGONG", "KRAFTON"))]
     assert [r[0] for r in body] == [
-        "HGB-cut (reference)", "M11R (reference)", "SAGONG-xgb", "SAGONG-rf", "SAGONG-lr", "KRAFTON-tf", "KRAFTON-mlp", "KRAFTON-tf-ourfeat",
-        "KRAFTON-tf-ourfeat-bce", "KRAFTON-tf-ourfeat-hazard", "SAGONG-hgb", "HGB-kraftonfeat",
+        "HGB-cut (reference)", "M11R (reference)", "SAGONG-xgb", "SAGONG-rf", "SAGONG-lr", "KRAFTON-tf", "KRAFTON-tf-h0", "KRAFTON-mlp",
+        "KRAFTON-tf-ourfeat", "KRAFTON-tf-ourfeat-h0", "KRAFTON-tf-ourfeat-bce", "KRAFTON-tf-ourfeat-hazard", "SAGONG-hgb", "HGB-kraftonfeat",
     ]  # fmt: skip
     m = res.arm_means
     for r in body:
@@ -1035,7 +1052,7 @@ def test_external_tables_follow_the_arms_table_layout(tmp_path):
     assert [r[0] for r in rows2[1:]] == [row[0] for row in EXT_TABLE_ORDER if row]
     body_lines = text.split("\\midrule", 1)[1].split("\\bottomrule")[0]  # between the header rule and the bottom rule
     blocks = [[ln for ln in blk.splitlines() if ln.strip().endswith("\\\\")] for blk in body_lines.split("\\midrule")]
-    assert [len(b) for b in blocks] == [6, 4, 3, 2, 4]  # SAGONG, KRAFTON, KRAFTON ablations, the C1 grid effects, the K3 ladder
+    assert [len(b) for b in blocks] == [8, 6, 3, 2, 6]  # SAGONG, KRAFTON, KRAFTON ablations, the C1 grid effects, the K3 ladder (with the H0 steps)
     for tag in ("(input)", "(bundled)", "(learner check)"):
         assert tag in text  # tags explained in the header comment (and used by rows)
     assert "(learner)" not in text and "(model)" not in text  # the old tags are gone: those rows are bundled, not single-factor effects
@@ -1061,7 +1078,8 @@ def test_external_tables_only_list_what_was_run_and_flag_partial_coverage(tmp_pa
     _, rows = parse_tabular((tmp_path / "o" / "tables" / "tab_external_contrasts.tex").read_text())
     labels = [r[0] for r in rows[1:]]
     assert labels == ["M11R $-$ SAGONG-xgb (2 cohorts)", "M11R $-$ SAGONG-rf (2 cohorts)", "M11R $-$ SAGONG-lr (2 cohorts)",
-                      "HGB-cut $-$ SAGONG-xgb (bundled, 2 cohorts)"]  # no KRAFTON rows: not run  # fmt: skip
+                      "HGB-cut $-$ SAGONG-xgb (bundled, 2 cohorts)", "HGB-cut $-$ SAGONG-rf (bundled, 2 cohorts)",
+                      "HGB-cut $-$ SAGONG-lr (bundled, 2 cohorts)"]  # no KRAFTON rows: not run  # fmt: skip
     assert pooled(res, "m11r_vs_sagong_xgb", "auc").k == 2 and (res.pooled.contrast == "m11r_vs_krafton_tf").sum() == 0
     for gone in ("m11r_vs_krafton_tf_ourfeat", "krafton_ourfeat_input", "m01_vs_krafton_tf_ourfeat", "m11r_vs_krafton_mlp"):
         assert (res.pooled.contrast == gone).sum() == 0
@@ -1249,7 +1267,7 @@ def text_overlaps(fig):
     return [(a[:3], b[:3]) for i, a in enumerate(items) for b in items[i + 1 :] if a[3].overlaps(b[3])]
 
 
-def test_figures_can_be_redrawn_from_the_csvs_without_the_bootstrap(full, tmp_path):
+def test_figures_can_be_redrawn_from_the_csvs_without_the_bootstrap(full, tmp_path, monkeypatch):
     import shutil
 
     res, root, out = full
@@ -1273,7 +1291,12 @@ def test_figures_can_be_redrawn_from_the_csvs_without_the_bootstrap(full, tmp_pa
     assert A.main(["--out-dir", str(work), "--redraw-figures"]) == 0
     with pytest.raises(FileNotFoundError, match="run the aggregator"):
         A.redraw_figures(tmp_path / "empty")
-    with pytest.raises(SystemExit):
+    # without --runs-dir the aggregator reads the default v2 root; with that root missing it fails loudly.  The default is patched to a directory that does not
+    # exist, so that the test does not depend on the real run directories (the v2 root exists once the re-run has produced it)
+    no_runs = tmp_path / "no_v2_runs"
+    monkeypatch.setattr(A.P, "RUNS_DIR", no_runs)
+    assert A.parse_args(["--out-dir", str(work)]).runs_dir == str(no_runs)
+    with pytest.raises(FileNotFoundError, match="runs directory not found"):
         A.main(["--out-dir", str(work)])  # neither --runs-dir nor --redraw-figures
 
 
@@ -1317,20 +1340,21 @@ UNION_PAIRS = {name: tuple(coefs) for name, coefs in UNION_FORMULAS.items()}  # 
 UNION_GRID_LABELS = ["Sagong features", "KRAFTON features", "Our representation", "Union (ours + KRAFTON)"]
 
 
-def union_runs(tmp_path, cohorts=COHORTS[:3], arms=tuple(UNION_QUALITY), external=tuple(EXTERNAL_QUALITY), skip=frozenset()):
+def union_runs(tmp_path, cohorts=COHORTS[:3], arms=tuple(UNION_QUALITY), external=tuple(EXTERNAL_QUALITY), skip=frozenset(), norank=False):
     quality = {**{a: q for a, q in QUALITY.items() if a not in EXPLORATORY}, **{a: EXTERNAL_QUALITY[a] for a in external},
-               **{a: UNION_QUALITY[a] for a in arms}}  # fmt: skip
+               **{a: UNION_QUALITY[a] for a in arms}, **(NORANK_QUALITY if norank else {})}  # fmt: skip
     rank_quality = {**{a: q for a, q in RANK_QUALITY.items() if a in quality},
                     **{a: q for a, q in EXTERNAL_RANK_QUALITY.items() if a in quality},
-                    **{a: q for a, q in UNION_RANK_QUALITY.items() if a in quality}}  # fmt: skip
+                    **{a: q for a, q in UNION_RANK_QUALITY.items() if a in quality},
+                    **{a: q for a, q in NORANK_RANK_QUALITY.items() if a in quality}}  # fmt: skip
     return make_runs(tmp_path, cohorts=cohorts, quality=quality, rank_quality=rank_quality, skip=set(skip), seeds={})
 
 
 def test_union_arms_and_their_exploratory_contrasts_are_registered():
     assert A.UNION_ARMS == ("HGB-union", "M11R-union")
-    for group in (A.MAIN_ARMS, A.HGB_ARMS, A.EXTERNAL_ARMS, A.EXPLORATORY_ARMS, A.STAGE2_ARMS):
+    for group in (A.MAIN_ARMS, A.HGB_ARMS, A.EXTERNAL_ARMS, A.EXPLORATORY_ARMS, A.STAGE2_ARMS, A.NORANK_ARMS):
         assert not set(A.UNION_ARMS) & set(group)  # the union arms belong to no other family
-    assert A.ARM_ORDER == A.MAIN_ARMS + A.EXPLORATORY_ARMS + A.STAGE2_ARMS + A.HGB_ARMS + A.UNION_ARMS + A.EXTERNAL_ARMS
+    assert A.ARM_ORDER == A.MAIN_ARMS + A.EXPLORATORY_ARMS + A.STAGE2_ARMS + A.NORANK_ARMS + A.HGB_ARMS + A.ECOLOGICAL_ARMS + A.UNION_ARMS + A.EXTERNAL_ARMS
     assert A.arm_rank("HGB-noHab") < A.arm_rank("HGB-union") < A.arm_rank("M11R-union") < A.arm_rank("SAGONG-xgb")
     assert len(UNION_FORMULAS) == 5
     for name, coefs in UNION_FORMULAS.items():
@@ -1393,7 +1417,7 @@ def test_the_union_block_of_the_contrasts_table_and_the_union_row_of_the_grid(tm
     assert [r[0] for r in rows[1:]] == [label for label, _ in flat]  # the union block comes last, after the C1 grid effects
     body_lines = text.split("\\midrule", 1)[1].split("\\bottomrule")[0]  # between the header rule and the bottom rule
     blocks = [[ln for ln in blk.splitlines() if ln.strip().endswith("\\\\")] for blk in body_lines.split("\\midrule")]
-    assert [len(b) for b in blocks] == [6, 4, 3, 2, 4, 5]  # ... the K3 ladder, then the union block
+    assert [len(b) for b in blocks] == [8, 6, 3, 2, 6, 5]  # ... the K3 ladder, then the union block
     assert "(+kf)" in text and "(+ours)" in text and "post hoc" in text  # the tags are explained in the header comment
     for r, (label, name) in zip(rows[1:], flat):
         for cell, metric in zip(r[1:], ("auc", "spearman", "top5_auc", "cindex")):
@@ -1442,29 +1466,46 @@ def test_union_arms_without_any_external_arm_still_write_the_grid_and_the_contra
 
 
 # --------------------------------------------------------------------------- within-phase AUC, the K3 ladder and the decomposition
-DECOMP_ROWS = [  # (step, contrast) of tab_decomp.tex, top to bottom: seven single-factor steps
-    ("Input vs Sagong (same HGB)", "HGB-cut $-$ SAGONG-hgb"),
-    ("Input vs KRAFTON (same HGB)", "HGB-cut $-$ HGB-kraftonfeat"),
-    ("Objective (Cox $\\to$ BCE)", "K3a $-$ K2"),
-    ("Phase baseline", "K3 $-$ K3a"),
-    ("Architecture (theirs $\\to$ ours)", "M01 $-$ K3"),
-    ("Structure (phase axis, relations)", "M11R $-$ M01"),
-    ("Extended representation (+kf, HGB)", "HGB-union $-$ HGB-cut"),
+DECOMP_ROWS = [  # (step, contrast) of tab_decomp.tex, top to bottom: the single-factor steps (a)-(g), then the rank auxiliary loss group
+    ("(a) Input vs Sagong (same HGB)", "HGB-cut $-$ SAGONG-hgb"),
+    ("(b) Input vs KRAFTON (same HGB)", "HGB-cut $-$ HGB-kraftonfeat"),
+    ("(c1) Phase baseline for the Cox score (+H0)", "K2+H0 $-$ K2"),
+    ("(c2) Objective (Cox+H0 $\\to$ BCE)", "K3a $-$ K2+H0"),
+    ("(d) Explicit phase baseline $\\alpha_k$", "K3 $-$ K3a"),
+    ("(e) Architecture (theirs $\\to$ ours, no rank loss)", "M01-norank $-$ K3"),
+    ("(f) Structure (phase axis, relations; no rank loss)", "M11R-norank $-$ M01-norank"),
+    ("(g) Extended representation (+kf, HGB)", "HGB-union $-$ HGB-cut"),
+    ("Rank auxiliary loss, team axis", "M01 $-$ M01-norank"),
+    ("Rank auxiliary loss, phase + relations", "M11R $-$ M11R-norank"),
 ]  # fmt: skip
-DECOMP_FORMULAS = ["hgbcut_vs_sagong_hgb", "hgbcut_vs_hgb_kraftonfeat", "k3a_vs_k2", "k3_vs_k3a", "m01_vs_k3", "m11r_vs_m01", "hgb_union_vs_hgbcut"]
+DECOMP_FORMULAS = ["hgbcut_vs_sagong_hgb", "hgbcut_vs_hgb_kraftonfeat", "k2h0_vs_k2", "k3a_vs_k2h0", "k3_vs_k3a", "m01norank_vs_k3", "m11rnorank_vs_m01norank",
+                   "hgb_union_vs_hgbcut", "m01_vs_m01norank", "m11r_vs_m11rnorank"]  # fmt: skip
 DECOMP_PAIRS = {  # formula -> (to, from): a plain difference of two models, the pairs of the plan
     "hgbcut_vs_sagong_hgb": ("HGB-cut", "SAGONG-hgb"), "hgbcut_vs_hgb_kraftonfeat": ("HGB-cut", "HGB-kraftonfeat"),
-    "k3a_vs_k2": ("KRAFTON-tf-ourfeat-bce", "KRAFTON-tf-ourfeat"), "k3_vs_k3a": ("KRAFTON-tf-ourfeat-hazard", "KRAFTON-tf-ourfeat-bce"),
-    "m01_vs_k3": ("M01", "KRAFTON-tf-ourfeat-hazard"), "m11r_vs_m01": ("M11R", "M01"), "hgb_union_vs_hgbcut": ("HGB-union", "HGB-cut"),
+    "k2h0_vs_k2": ("KRAFTON-tf-ourfeat-h0", "KRAFTON-tf-ourfeat"), "k3a_vs_k2h0": ("KRAFTON-tf-ourfeat-bce", "KRAFTON-tf-ourfeat-h0"),
+    "k3_vs_k3a": ("KRAFTON-tf-ourfeat-hazard", "KRAFTON-tf-ourfeat-bce"), "m01norank_vs_k3": ("M01-norank", "KRAFTON-tf-ourfeat-hazard"),
+    "m11rnorank_vs_m01norank": ("M11R-norank", "M01-norank"), "hgb_union_vs_hgbcut": ("HGB-union", "HGB-cut"),
+    "m01_vs_m01norank": ("M01", "M01-norank"), "m11r_vs_m11rnorank": ("M11R", "M11R-norank"),
 }  # fmt: skip
-DECOMP_BLOCKS = [2, 3, 1, 1]  # rows per block between the rules: inputs | the K ladder | structure | extension
-BUNDLED_CONTRASTS = ("krafton_ourfeat_input", "hgb_kraftonfeat_vs_krafton_tf", "hgbcut_vs_sagong_xgb", "m01_vs_krafton_tf_ourfeat")  # several factors at once
+DECOMP_BLOCKS = [2, 4, 1, 1, 2]  # rows per block between the rules: inputs | the K ladder | structure | extension | the rank auxiliary loss
+BUNDLED_CONTRASTS = ("krafton_ourfeat_input", "hgb_kraftonfeat_vs_krafton_tf", "hgbcut_vs_sagong_xgb", "m01_vs_krafton_tf_ourfeat", "m01_vs_k3")  # several factors at once
+RQ2_ROWS = [  # (label, formula) of tab_rq2_external.tex, top to bottom: our two models against the external baselines
+    ("M11R $-$ KRAFTON-tf", "m11r_vs_krafton_tf"), ("M11R $-$ KRAFTON-tf-h0", "m11r_vs_krafton_tf_h0"), ("M11R $-$ SAGONG-xgb", "m11r_vs_sagong_xgb"),
+    ("M11R $-$ SAGONG-rf", "m11r_vs_sagong_rf"), ("M11R $-$ SAGONG-lr", "m11r_vs_sagong_lr"), ("HGB-cut $-$ KRAFTON-tf", "hgbcut_vs_krafton_tf"),
+    ("HGB-cut $-$ KRAFTON-tf-h0", "hgbcut_vs_krafton_tf_h0"), ("HGB-cut $-$ SAGONG-xgb", "hgbcut_vs_sagong_xgb"),
+    ("HGB-cut $-$ SAGONG-rf", "hgbcut_vs_sagong_rf"), ("HGB-cut $-$ SAGONG-lr", "hgbcut_vs_sagong_lr"),
+]  # fmt: skip
 
 
 def decomp_blocks(text):
-    """Rows per block (blocks are separated by a \\midrule) of the body of a generated tabular."""
+    """Rows per block (blocks are separated by a \\midrule) of the body of a generated tabular; a \\multicolumn title row is not a row."""
     body = text.split("\\midrule", 1)[1].split("\\bottomrule")[0]
-    return [len([ln for ln in blk.splitlines() if ln.strip().endswith("\\\\")]) for blk in body.split("\\midrule")]
+    return [len([ln for ln in blk.splitlines() if ln.strip().endswith("\\\\") and not ln.strip().startswith("\\multicolumn")]) for blk in body.split("\\midrule")]
+
+
+def data_rows(rows):
+    """The rows of a parsed tabular without the title rows of a group."""
+    return [r for r in rows if not r[0].startswith("\\multicolumn")]
 
 
 def cohort_estimates(res, name, metric="auc", stratum="all"):
@@ -1557,61 +1598,145 @@ def test_the_k3_ladder_contrasts_are_linear_exploratory_and_follow_the_planted_t
     assert "KRAFTON-tf-ourfeat-" not in " ".join(res2.issues.message)
 
 
-def test_the_decomposition_table_lists_the_seven_single_factor_steps_with_pooled_and_within_phase_deltas(tmp_path):
-    root = union_runs(tmp_path / "r")  # the external arms (incl. SAGONG-hgb and the K3 ladder) and the union arms
+def test_the_decomposition_table_lists_the_single_factor_steps_and_the_rank_loss_group_with_pooled_and_within_phase_deltas(tmp_path):
+    root = union_runs(tmp_path / "r", norank=True)  # the external arms (incl. SAGONG-hgb, K2H0 and the K3 ladder), the union arms and the no-rank-loss arms
     res = A.aggregate(root, tmp_path / "o", n_boot=60, seed=2, workers=1, figures=False)
     text = (tmp_path / "o" / "tables" / "tab_decomp.tex").read_text()
     _, rows = parse_tabular(text)
     assert "\\begin{tabular}{@{}l l c c c c@{}}" in text and "generated by model_stgcn.ptr.aggregate" in text
     assert rows[0] == ["Step", "Contrast", "$\\Delta$AUC [95\\% CI]", "Coh.", "$\\Delta$AUC within phase [95\\% CI]", "Coh."]
+    title = [r for r in rows if r[0].startswith("\\multicolumn")]
+    assert len(title) == 1 and "Rank auxiliary loss" in title[0][0]  # the separate group has a title row, placed right after its rule
+    assert text.index("\\multicolumn") > text.index("HGB-union $-$ HGB-cut") and text.count("\\midrule") == 1 + 4  # the header rule + one per group change
+    rows = data_rows(rows)
     assert [(r[0], r[1]) for r in rows[1:]] == DECOMP_ROWS and [name for *_, name in A.DECOMP_STEPS] == DECOMP_FORMULAS
-    assert decomp_blocks(text) == DECOMP_BLOCKS  # a rule between the groups: inputs | K ladder | structure | extension
+    assert [g for g, *_ in A.DECOMP_STEPS] == ["inputs"] * 2 + ["ladder"] * 4 + ["structure", "extension"] + [A.RANK_AUX_GROUP] * 2
+    assert decomp_blocks(text) == DECOMP_BLOCKS  # a rule between the groups: inputs | K ladder | structure | extension | rank auxiliary loss
     # every step changes ONE factor: a plain difference of two models, exactly the pairs of the plan, written to - from
     for name, (to, frm) in DECOMP_PAIRS.items():
         assert A.FORMULAS[name].coefs == {to: 1, frm: -1}, name
     # the bundled contrasts (several factors at once) are NOT steps: they stay in the external contrasts table, tagged
     assert not set(BUNDLED_CONTRASTS) & set(DECOMP_FORMULAS)
     assert not {r[1] for r in rows[1:]} & {"KRAFTON-tf-ourfeat $-$ KRAFTON-tf", "HGB-kraftonfeat $-$ KRAFTON-tf", "HGB-cut $-$ SAGONG-xgb",
-                                           "M01 $-$ KRAFTON-tf-ourfeat"}  # fmt: skip
+                                           "M01 $-$ KRAFTON-tf-ourfeat", "M01 $-$ K3", "M11R $-$ M01"}  # fmt: skip
     _, crows = parse_tabular((tmp_path / "o" / "tables" / "tab_external_contrasts.tex").read_text())
     labels = [r[0] for r in crows[1:]]
     assert all(f"{c} (bundled)" in labels for c in ("KRAFTON-tf-ourfeat $-$ KRAFTON-tf", "HGB-kraftonfeat $-$ KRAFTON-tf",
                                                       "HGB-cut $-$ SAGONG-xgb", "M01 $-$ KRAFTON-tf-ourfeat"))  # fmt: skip
-    # the structure step is M11R - M01 (to - from): positive in the planted truth (d' 1.5 vs 0.9) and the sum of the two simple effects of the main matrix
+    # the structure step with the rank loss on both sides (M11R - M01) stays a formula and is the sum of the two simple effects of the main matrix
     assert not A.FORMULAS["m11r_vs_m01"].optional and pooled(res, "m11r_vs_m01", "auc").theta > 0.05
     assert np.allclose(cohort_estimates(res, "m11r_vs_m01"), cohort_estimates(res, "m11r_m11") + cohort_estimates(res, "m11_m01"), atol=1e-12)
     assert pooled(res, "hgb_union_vs_hgbcut", "auc").theta > 0.02 and pooled(res, "hgbcut_vs_sagong_hgb", "auc").theta > 0  # planted: +0.057, +0.020
+    # the steps are linear in the arms: (c1) + (c2) = the old objective step K3a - K2, (e) + the rank loss of M01 = M01 - K3, and the chain of the structure
+    for metric in ("auc", "auc_within_phase"):
+        assert np.allclose(cohort_estimates(res, "k2h0_vs_k2", metric) + cohort_estimates(res, "k3a_vs_k2h0", metric), cohort_estimates(res, "k3a_vs_k2", metric), atol=1e-12)
+        assert np.allclose(cohort_estimates(res, "m01norank_vs_k3", metric) + cohort_estimates(res, "m01_vs_m01norank", metric), cohort_estimates(res, "m01_vs_k3", metric), atol=1e-12)
+        assert np.allclose(cohort_estimates(res, "m11rnorank_vs_m01norank", metric) + cohort_estimates(res, "m11r_vs_m11rnorank", metric)
+                           - cohort_estimates(res, "m01_vs_m01norank", metric), cohort_estimates(res, "m11r_vs_m01", metric), atol=1e-12)  # fmt: skip
     for r, name in zip(rows[1:], DECOMP_FORMULAS):
         auc, wp = pooled(res, name, "auc"), pooled(res, name, "auc_within_phase")
         assert r[2:] == [A.fmt_delta(auc.theta, auc.ci95_low, auc.ci95_high), f"{int(auc.k)}/{int(auc.k_total)}",
                          A.fmt_delta(wp.theta, wp.ci95_low, wp.ci95_high), f"{int(wp.k)}/{int(wp.k_total)}"]  # fmt: skip
         assert r[3] == r[5] == "3/3"  # three cohorts, all pooled
-    for needle in ("every row is (to) - (from) and changes ONE factor", "K2 = KRAFTON-tf-ourfeat", "K3a = KRAFTON-tf-ourfeat-bce",
-                   "K3 = KRAFTON-tf-ourfeat-hazard", "within phase = unweighted mean over the cut phases", "Coh. = cohorts pooled",
-                   "exploratory, no Holm", "bundled", "tab_external_contrasts.tex",
+    for needle in ("every row is (to) - (from) and changes ONE factor", "K2 = KRAFTON-tf-ourfeat", "K2+H0 = KRAFTON-tf-ourfeat-h0", "K3a = KRAFTON-tf-ourfeat-bce",
+                   "K3 = KRAFTON-tf-ourfeat-hazard", "within phase = unweighted mean over the cut phases", "Coh. = cohorts pooled", "exploratory, no Holm", "bundled",
+                   "tab_external_contrasts.tex", "tab_rq2_external.tex", "(c1) K2+H0 - K2 adds a training-set phase baseline to the Cox score",
+                   "(c2) K3a - K2+H0 changes the objective, Cox with baseline -> BCE", "(d) K3 - K3a adds the explicit phase baseline",
+                   "WITHOUT the rank auxiliary loss", "rank auxiliary loss (separate, not a step of the ladder)",
                    "KRAFTON-tf-ourfeat - KRAFTON-tf, HGB-kraftonfeat - KRAFTON-tf, HGB-cut - SAGONG-xgb, M01 - KRAFTON-tf-ourfeat"):  # fmt: skip
         assert needle in text, needle
-    assert "steps not run" not in text  # all seven steps are there
+    assert "steps not run" not in text  # all ten rows are there
+    # the pre-specified analysis does not know the no-rank-loss arms: P1-P5 and the Holm family are what they were
+    assert set(A.PRIMARY) == {"P1", "P2", "P3", "P4", "P5"} and A.HOLM_FAMILY == ("P1", "P2", "P3", "P4", "P5")
+    assert all(not any(a in A.NORANK_ARMS for a in A.FORMULAS[f].coefs) for f, _ in A.PRIMARY.values())
+    assert set(res.pooled[res.pooled.primary_id != ""].contrast) == {"phase_main", "team_main", "rel_vs_shuf", "zone_nohab"}
+
+
+def test_h0_arms_are_ingested_as_regular_arms_with_paired_bootstrap_and_pooling(tmp_path):
+    root = external_runs(tmp_path / "r", norank=True)
+    res = A.aggregate(root, tmp_path / "o", n_boot=60, seed=2, workers=1, figures=False)
+    inv = res.inventory
+    for arm in ("KRAFTON-tf-h0", "KRAFTON-tf-ourfeat-h0"):
+        assert set(inv[inv.arm == arm].kind) == {"external"} and len(inv[inv.arm == arm]) == 3 and inv[inv.arm == arm].aligned.all()
+        assert (res.arm_metrics.arm == arm).sum() == len(A.METRICS) * 3 * 3  # every metric, every stratum, every cohort: like any other arm
+    assert set(inv[inv.arm.isin(A.NORANK_ARMS)].kind) == {"neural"} and len(inv[inv.arm == "M01-norank"]) == 3
+    for name in ("k2h0_vs_k2", "k3a_vs_k2h0", "m11r_vs_krafton_tf_h0", "hgbcut_vs_krafton_tf_h0"):
+        row = pooled(res, name, "auc")
+        assert row.k == 3 and row.kind == "secondary" and row.exploratory and np.isnan(row.p_holm) and row.verdict_basis == "unadjusted"
+        assert (res.contrasts.contrast == name).sum() == len(A.METRICS) * 3 * 3 and np.isfinite(pooled(res, name, "auc_within_phase").theta)
+    qual = {**QUALITY, **EXTERNAL_QUALITY, **NORANK_QUALITY}
+    for name in ("k2h0_vs_k2", "k3a_vs_k2h0", "m11r_vs_krafton_tf_h0", "m01norank_vs_k3", "m11rnorank_vs_m01norank", "m01_vs_m01norank", "m11r_vs_m11rnorank"):
+        f = A.FORMULAS[name]
+        (to, _), (frm, _) = [(a, c) for a, c in f.coefs.items() if c > 0][0], [(a, c) for a, c in f.coefs.items() if c < 0][0]
+        want = np.mean([auc_theory(eff(c, to, qual)) - auc_theory(eff(c, frm, qual)) for c in COHORTS[:3]])
+        assert pooled(res, name, "auc").theta == pytest.approx(want, abs=0.03), name
+    # adding the H0 and the no-rank-loss arms changes none of the primary results (the resamples depend on the cohort and stratum only)
+    base = A.aggregate(external_runs(tmp_path / "b"), None, n_boot=60, seed=2, workers=1, figures=False)
+    key = ["contrast", "metric", "stratum"]
+    a = res.pooled.merge(base.pooled, on=key, suffixes=("_a", "_b"))
+    assert len(a) == len(base.pooled) > 0
+    for col in ("theta", "se", "ci95_low", "ci95_high", "tau2", "p_one_sided", "p_holm"):
+        assert np.array_equal(a[col + "_a"].to_numpy(), a[col + "_b"].to_numpy(), equal_nan=True), col
+    assert res.summary["primary_results"] == base.summary["primary_results"]
+    # the sensitivity variants (-slope, -h0val) are inventoried by prefix without being registered
+    assert A.Run("c", "KRAFTON-tf-ourfeat-h0-slope", 42, Path("p"), "v2", "h").kind == "external"
+
+
+def test_the_rq2_table_holds_the_bundled_external_contrasts_in_a_table_of_its_own(tmp_path):
+    root = external_runs(tmp_path / "r")
+    res = A.aggregate(root, tmp_path / "o", n_boot=60, seed=2, workers=1, figures=False)
+    text = (tmp_path / "o" / "tables" / "tab_rq2_external.tex").read_text()
+    _, rows = parse_tabular(text)
+    assert "\\begin{tabular}{@{}l c c c c@{}}" in text and "generated by model_stgcn.ptr.aggregate (tab_rq2_external)" in text
+    assert rows[0] == ["Contrast", "$\\Delta$AUC [95\\% CI]", "Coh.", "$\\Delta$AUC within phase [95\\% CI]", "Coh."]
+    assert [r[0] for r in rows[1:]] == [label for label, _ in RQ2_ROWS]  # M11R against the five baselines, then HGB-cut against the same five
+    assert [(m, b, f) for m, b, f in A.RQ2_ROWS] == [(label.split(" $-$ ")[0], label.split(" $-$ ")[1], name) for label, name in RQ2_ROWS]
+    assert decomp_blocks(text) == [5, 5]  # one block per model of ours
+    for r, (label, name) in zip(rows[1:], RQ2_ROWS):
+        auc, wp = pooled(res, name, "auc"), pooled(res, name, "auc_within_phase")
+        assert r[1:] == [A.fmt_delta(auc.theta, auc.ci95_low, auc.ci95_high), f"{int(auc.k)}/{int(auc.k_total)}",
+                         A.fmt_delta(wp.theta, wp.ci95_low, wp.ci95_high), f"{int(wp.k)}/{int(wp.k_total)}"]  # fmt: skip
+    assert not {r[0] for r in rows[1:]} & {r[1] for r in DECOMP_ROWS}  # none of them is a decomposition step
+    for needle in ("BUNDLED", "not decomposition steps", "KRAFTON-tf-h0 = KRAFTON-tf scores with a phase baseline fitted on VAL", "exploratory, no Holm"):
+        assert needle in text, needle
+    # the two new contrasts are plain differences of the planned pairs
+    assert A.FORMULAS["m11r_vs_krafton_tf_h0"].coefs == {"M11R": 1, "KRAFTON-tf-h0": -1}
+    assert A.FORMULAS["hgbcut_vs_krafton_tf_h0"].coefs == {"HGB-cut": 1, "KRAFTON-tf-h0": -1}
+    # a baseline that was not run leaves its rows out and is named; without any external arm there is no table (and a stale file is removed)
+    part = external_runs(tmp_path / "p", arms=("KRAFTON-tf", "SAGONG-xgb"))
+    A.aggregate(part, tmp_path / "op", n_boot=30, seed=1, workers=1, figures=False)
+    text2 = (tmp_path / "op" / "tables" / "tab_rq2_external.tex").read_text()
+    _, rows2 = parse_tabular(text2)
+    assert [r[0] for r in rows2[1:]] == ["M11R $-$ KRAFTON-tf", "M11R $-$ SAGONG-xgb", "HGB-cut $-$ KRAFTON-tf", "HGB-cut $-$ SAGONG-xgb"]
+    assert "contrasts not run (left out): m11r_vs_krafton_tf_h0, m11r_vs_sagong_rf, m11r_vs_sagong_lr, hgbcut_vs_krafton_tf_h0, hgbcut_vs_sagong_rf, hgbcut_vs_sagong_lr" in text2
+    out = tmp_path / "o2"
+    (out / "tables").mkdir(parents=True)
+    (out / "tables" / "tab_rq2_external.tex").write_text("stale")
+    A.aggregate(external_runs(tmp_path / "q", arms=()), out, n_boot=20, seed=1, workers=1, figures=False)
+    assert not (out / "tables" / "tab_rq2_external.tex").exists()
 
 
 def test_decomposition_steps_without_their_models_are_left_out_and_named(tmp_path):
-    root = external_runs(tmp_path / "r", arms=("SAGONG-hgb", "SAGONG-xgb", "KRAFTON-tf-ourfeat", "KRAFTON-tf-ourfeat-bce"), skip={("c_gamma", "KRAFTON-tf-ourfeat-bce")})
+    root = external_runs(tmp_path / "r", arms=("SAGONG-hgb", "SAGONG-xgb", "KRAFTON-tf-ourfeat", "KRAFTON-tf-ourfeat-h0", "KRAFTON-tf-ourfeat-bce"),
+                         skip={("c_gamma", "KRAFTON-tf-ourfeat-bce")})  # fmt: skip
     res = A.aggregate(root, tmp_path / "o", n_boot=40, seed=1, workers=1, figures=False)
     text = (tmp_path / "o" / "tables" / "tab_decomp.tex").read_text()
     _, rows = parse_tabular(text)
-    assert [r[0] for r in rows[1:]] == [DECOMP_ROWS[0][0], DECOMP_ROWS[2][0], DECOMP_ROWS[5][0]]  # input vs Sagong, objective, structure
-    assert "steps not run (left out): hgbcut_vs_hgb_kraftonfeat, k3_vs_k3a, m01_vs_k3, hgb_union_vs_hgbcut" in text
-    assert decomp_blocks(text) == [1, 1, 1]  # rules only between the groups that have rows
-    k2_k3a = rows[2]
-    assert k2_k3a[3] == "2/3" and k2_k3a[5] == "2/3" and pooled(res, "k3a_vs_k2", "auc").k == 2  # c_gamma lacks K3a: pooled over two cohorts
-    assert rows[1][3] == "3/3" and rows[3][3] == "3/3"
+    rows = data_rows(rows)
+    assert [r[0] for r in rows[1:]] == [DECOMP_ROWS[0][0], DECOMP_ROWS[2][0], DECOMP_ROWS[3][0]]  # input vs Sagong, the Cox baseline, the objective step
+    assert ("steps not run (left out): hgbcut_vs_hgb_kraftonfeat, k3_vs_k3a, m01norank_vs_k3, m11rnorank_vs_m01norank, hgb_union_vs_hgbcut, "
+            "m01_vs_m01norank, m11r_vs_m11rnorank") in text  # fmt: skip
+    assert decomp_blocks(text) == [1, 2] and "multicolumn" not in text  # rules only between the groups that have rows; no title for a group without rows
+    c2 = rows[3]
+    assert c2[3] == "2/3" and c2[5] == "2/3" and pooled(res, "k3a_vs_k2h0", "auc").k == 2  # c_gamma lacks K3a: pooled over two cohorts
+    assert rows[1][3] == "3/3" and rows[2][3] == "3/3"
     # a bundled contrast never stands in for a missing clean step: without SAGONG-hgb there is no "input vs Sagong" row,
-    # although HGB-cut - SAGONG-xgb (input + learner) exists
-    only_xgb = external_runs(tmp_path / "x", arms=("SAGONG-xgb",))
+    # although HGB-cut - SAGONG-xgb (input + learner) exists; only the steps whose arms exist (here: with the no-rank-loss arms) are listed
+    only_xgb = external_runs(tmp_path / "x", arms=("SAGONG-xgb",), norank=True)
     res_x = A.aggregate(only_xgb, tmp_path / "ox", n_boot=30, seed=1, workers=1, figures=False)
     text_x = (tmp_path / "ox" / "tables" / "tab_decomp.tex").read_text()
     _, rows_x = parse_tabular(text_x)
-    assert [r[0] for r in rows_x[1:]] == [DECOMP_ROWS[5][0]] and pooled(res_x, "hgbcut_vs_sagong_xgb", "auc").k == 3
+    assert [r[0] for r in data_rows(rows_x)[1:]] == [DECOMP_ROWS[6][0], DECOMP_ROWS[8][0], DECOMP_ROWS[9][0]] and pooled(res_x, "hgbcut_vs_sagong_xgb", "auc").k == 3
     assert "hgbcut_vs_sagong_hgb" in text_x.split("steps not run (left out):")[1].splitlines()[0]
     # no step at all: no table, and a stale file is removed
     few = ("M00", "M10", "M01", "M11")
@@ -1622,8 +1747,90 @@ def test_decomposition_steps_without_their_models_are_left_out_and_named(tmp_pat
     (out / "tables" / "tab_decomp.tex").write_text("stale")
     A.aggregate(plain, out, n_boot=20, seed=1, workers=1, figures=False)
     assert not (out / "tables" / "tab_decomp.tex").exists()
-    # only the structure step exists with the main arms alone
+    # the main arms alone: no step exists (the structure step needs the no-rank-loss arms now); with the norank arms: (f) and the rank loss group
     main_only = external_runs(tmp_path / "m", arms=())
     A.aggregate(main_only, tmp_path / "o3", n_boot=20, seed=1, workers=1, figures=False)
-    _, rows3 = parse_tabular((tmp_path / "o3" / "tables" / "tab_decomp.tex").read_text())
-    assert [r[0] for r in rows3[1:]] == [DECOMP_ROWS[5][0]]
+    assert not (tmp_path / "o3" / "tables" / "tab_decomp.tex").exists()
+    nr = external_runs(tmp_path / "n", arms=(), norank=True)
+    A.aggregate(nr, tmp_path / "o4", n_boot=20, seed=1, workers=1, figures=False)
+    _, rows4 = parse_tabular((tmp_path / "o4" / "tables" / "tab_decomp.tex").read_text())
+    assert [r[0] for r in data_rows(rows4)[1:]] == [DECOMP_ROWS[6][0], DECOMP_ROWS[8][0], DECOMP_ROWS[9][0]]
+
+
+def test_rerendering_the_tables_from_the_csvs_reproduces_the_tables_of_the_run(tmp_path):
+    root = union_runs(tmp_path / "r", norank=True)
+    res = A.aggregate(root, tmp_path / "o", n_boot=40, seed=2, workers=1, figures=False)
+    tables = tmp_path / "o" / "tables"
+    before = {p.name: p.read_text() for p in tables.glob("*.tex")}
+    assert {"tab_decomp.tex", "tab_rq2_external.tex", "tab_external_contrasts.tex", "tab_grid.tex", "tab_external.tex"} <= set(before)
+    for p in tables.glob("*.tex"):
+        p.write_text("stale")
+    (tables / "tab_rq2_external.tex").unlink()
+    written = A.rerender_tables(tmp_path / "o")
+    assert {p.name for p in written} == set(before)
+    assert {p.name: p.read_text() for p in tables.glob("*.tex")} == before  # the tables are a function of the CSVs alone
+    assert A.main(["--rerender-tables", "--out-dir", str(tmp_path / "o")]) == 0
+    with pytest.raises(FileNotFoundError, match="run the aggregator once"):
+        A.rerender_tables(tmp_path / "nowhere")
+    # the norank arms are rows of the arms table only when they were run
+    _, arows = parse_tabular((tables / "tab_arms_metrics.tex").read_text())
+    assert any(r[0] == "M01$-$norank" for r in arows) and any(r[0] == "M11R$-$norank" for r in arows)
+    plain = A.aggregate(external_runs(tmp_path / "p"), tmp_path / "op", n_boot=20, seed=2, workers=1, figures=False)
+    assert "norank" not in (tmp_path / "op" / "tables" / "tab_arms_metrics.tex").read_text() and plain is not None
+
+
+# --------------------------------------------------------------------------- ecological arms (PHASE-only, EHM, EHM-int)
+ECO_QUALITY = {"PHASE-only": 0.45, "EHM": 1.0, "EHM-int": 1.02, "EHM-lite": 0.95}  # d' (HGB-cut 0.8, M11R 1.5)
+ECO_FORMULAS = {
+    "ehm_vs_phase": {"EHM": 1, "PHASE-only": -1}, "ehmint_vs_ehm": {"EHM-int": 1, "EHM": -1},
+    "hgbcut_vs_ehm": {"HGB-cut": 1, "EHM": -1}, "m11r_vs_ehm": {"M11R": 1, "EHM": -1},
+    "ehmlite_vs_phase": {"EHM-lite": 1, "PHASE-only": -1}, "ehm_vs_ehmlite": {"EHM": 1, "EHM-lite": -1},
+    "hgbcut_vs_ehmlite": {"HGB-cut": 1, "EHM-lite": -1},
+}  # fmt: skip
+
+
+def eco_runs(tmp_path, cohorts=COHORTS[:3], arms=tuple(ECO_QUALITY), skip=frozenset()):
+    quality = {**{a: q for a, q in QUALITY.items() if a not in EXPLORATORY}, **{a: ECO_QUALITY[a] for a in arms}}
+    rank_quality = {**{a: q for a, q in RANK_QUALITY.items() if a in quality}, **{a: 1.0 for a in arms}}
+    return make_runs(tmp_path, cohorts=cohorts, quality=quality, rank_quality=rank_quality, skip=set(skip), seeds={})
+
+
+def test_ecological_arms_are_their_own_kind_and_have_seven_exploratory_contrasts(tmp_path):
+    assert A.ECOLOGICAL_ARMS == ("PHASE-only", "EHM", "EHM-int", "EHM-lite")
+    for group in (A.MAIN_ARMS, A.EXPLORATORY_ARMS, A.STAGE2_ARMS, A.NORANK_ARMS, A.HGB_ARMS, A.UNION_ARMS, A.EXTERNAL_ARMS):
+        assert not set(A.ECOLOGICAL_ARMS) & set(group)  # a family of their own
+    assert A.arm_rank("HGB-noHab") < A.arm_rank("PHASE-only") < A.arm_rank("EHM") < A.arm_rank("EHM-int") < A.arm_rank("EHM-lite") < A.arm_rank("HGB-union")
+    for name, coefs in ECO_FORMULAS.items():
+        f = A.FORMULAS[name]
+        assert f.coefs == coefs and f.optional and f.pooled and f.group == "ecological"
+        assert name not in {k for k, _ in A.PRIMARY.values()}  # never part of the Holm family
+    res = A.aggregate(eco_runs(tmp_path / "r"), tmp_path / "o", n_boot=60, seed=2, workers=1, figures=False)
+    inv = res.inventory
+    assert set(inv[inv.arm.isin(A.ECOLOGICAL_ARMS)].kind) == {"ecological"} and len(inv[inv.arm == "EHM"]) == 3
+    assert set(inv[inv.arm.isin(A.HGB_ARMS)].kind) == {"hgb"} and set(inv[inv.arm.isin(["M11R", "M00"])].kind) == {"neural"}
+    qual = {**QUALITY, **ECO_QUALITY}
+    pairs = {"ehm_vs_phase": ("EHM", "PHASE-only"), "ehmint_vs_ehm": ("EHM-int", "EHM"), "hgbcut_vs_ehm": ("HGB-cut", "EHM"), "m11r_vs_ehm": ("M11R", "EHM"),
+             "ehmlite_vs_phase": ("EHM-lite", "PHASE-only"), "ehm_vs_ehmlite": ("EHM", "EHM-lite"), "hgbcut_vs_ehmlite": ("HGB-cut", "EHM-lite")}  # fmt: skip
+    for name, (a, b) in pairs.items():
+        row = pooled(res, name, "auc")
+        want = np.mean([auc_theory(eff(c, a, qual)) - auc_theory(eff(c, b, qual)) for c in COHORTS[:3]])
+        assert row.k == 3 and row.kind == "secondary" and row.exploratory and np.isnan(row.p_holm) and row.verdict_basis == "unadjusted"
+        assert row.theta == pytest.approx(want, abs=0.03), name
+        assert (res.pooled.contrast == name).sum() == len(A.METRICS) * 3 and np.isfinite(pooled(res, name, "auc_within_phase").theta)
+    assert pooled(res, "ehm_vs_phase", "auc").theta > 0.1 and pooled(res, "hgbcut_vs_ehm", "auc").theta < 0
+    # no external or union arm: none of their tables; the ecological arms are not in the paper tables either
+    assert not (tmp_path / "o" / "tables" / "tab_external.tex").exists() and not (tmp_path / "o" / "tables" / "tab_grid.tex").exists()
+    _, rows = parse_tabular((tmp_path / "o" / "tables" / "tab_arms_metrics.tex").read_text())
+    assert not any(r[0] in A.ECOLOGICAL_ARMS for r in rows)
+
+
+def test_without_ecological_arms_nothing_changes_and_nothing_warns(tmp_path):
+    res = A.aggregate(eco_runs(tmp_path / "r", arms=()), None, n_boot=30, seed=1, workers=1, figures=False)
+    assert all((res.pooled.contrast == n).sum() == 0 for n in ECO_FORMULAS)
+    assert "ehm" not in " ".join(res.issues.message).lower() and "phase-only" not in " ".join(res.issues.message).lower()
+    with_eco = A.aggregate(eco_runs(tmp_path / "r2"), None, n_boot=30, seed=1, workers=1, figures=False)
+    key = ["contrast", "metric", "stratum"]
+    a = with_eco.pooled.merge(res.pooled, on=key, suffixes=("_a", "_b"))
+    assert len(a) == len(res.pooled) > 0
+    for col in ("theta", "se", "ci95_low", "ci95_high", "tau2", "p_one_sided", "p_holm"):
+        assert np.array_equal(a[col + "_a"].to_numpy(), a[col + "_b"].to_numpy(), equal_nan=True), col  # adding arms changes no other contrast

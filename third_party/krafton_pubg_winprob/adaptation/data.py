@@ -4,6 +4,12 @@ A sample is one (match, time point): all ALIVE squads of the match at that time.
 are excluded from the attention keys and from the loss in the adapted code, so storing them would only cost time),
 and padding is added per batch up to the largest squad count of the batch (no 16-squad cap).
 
+v2 shards (written from a v2 dump, ``dump_version`` array in the shard) also store the squads that are at risk but causally
+dead at the sample time (the dump's *comeback* rows) and carry two per-row flags: ``KEY`` (causally alive: an attention key)
+and ``RISK`` (``T > t``: a Cox loss row).  A batch then has ``squad_alive_mask`` = ``RISK`` (the rows of the loss, as the
+upstream ``Trainer`` reads it), ``key_mask`` = ``KEY`` (the attention keys, read by ``adaptation.train.TimedTrainer``) and
+``padding_mask`` = the stored rows.  Shards without the flags (v1) give ``KEY = RISK = stored`` as before.
+
 The input vector is upstream's dataset-v2 vector: the 55 ``CONTINUOUS_FEATURES`` standardised with train mean / std
 (pandas ``std``, ddof=1, zero std -> 1) followed by the two zone-distance ratios recomputed unscaled (negative =
 unknown -> 0), 57 values.  Positions are cm / 80000 (NaN = dead or unknown player), zones cm / 800000, the target
@@ -31,6 +37,9 @@ class SampleSet:
         self.S_cut = arrays["S_cut"]
         self.S_zone = arrays["S_zone"]
         self.S_mi = arrays["S_mi"]  # index into match_ids
+        self.KEY = arrays.get("KEY")  # [R] bool, v2 shards only: the row is an attention key (causally alive at t)
+        self.RISK = arrays.get("RISK")  # [R] bool, v2 shards only: the row is in the Cox risk set (T > t)
+        self.dump_version = str(arrays.get("dump_version", "v1"))
         self.match_ids = match_ids
         self.map_idx = int(map_idx)
         self.off = np.concatenate([[0], np.cumsum(self.S_n)])
@@ -70,13 +79,16 @@ class SampleSet:
         pos = np.where(valid[:, :, None, None], self.pos_scaled[rows], np.nan).astype(np.float32)
         y = np.where(valid, self.TGT[rows] / S.TARGET_SCALE, 0.0).astype(np.float32)
         z = self.zone_scaled[idx]
+        risk = valid.copy() if self.RISK is None else (valid & self.RISK[rows])  # v1: stored squads are alive by construction
+        key = valid.copy() if self.KEY is None else (valid & self.KEY[rows])
         return {
             "x_continuous": torch.from_numpy(x),
             "positions": torch.from_numpy(pos),
             "bluezone_info": torch.from_numpy(z[:, :3].copy()),
             "whitezone_info": torch.from_numpy(z[:, 3:].copy()),
             "y": torch.from_numpy(y),
-            "squad_alive_mask": torch.from_numpy(valid.copy()),  # stored squads are alive by construction
+            "squad_alive_mask": torch.from_numpy(risk),  # rows of the Cox loss (v2: T > t); v1: every stored squad
+            "key_mask": torch.from_numpy(key),  # attention keys (v2: causally alive); v1: every stored squad
             "padding_mask": torch.from_numpy(valid.copy()),
             "num_squads": torch.from_numpy(n),
             "time_point": torch.from_numpy(self.S_t[idx].astype(np.float32)),
@@ -119,6 +131,16 @@ def _load_shards(split_dir: Path) -> dict:
         mids.append(d["match_ids"])
         parts.append(d)
     out = {k: np.concatenate([p[k] for p in parts]) for k in ("X", "POS", "TGT", "TIDX", "S_mi", "S_t", "S_cut", "S_n", "S_zone")}
+    versions = {str(p["dump_version"]) if "dump_version" in p else "v1" for p in parts}
+    if len(versions) != 1:
+        raise ValueError(f"{split_dir}: shards of different dump versions {sorted(versions)} (mixing v1 and v2 shards)")
+    out["dump_version"] = versions.pop()
+    if "v2" == out["dump_version"]:
+        missing = [k for k in ("KEY", "RISK") if any(k not in p for p in parts)]
+        if missing:
+            raise ValueError(f"{split_dir}: v2 shards without the per-row flags {missing}")
+        for k in ("KEY", "RISK"):
+            out[k] = np.concatenate([p[k] for p in parts])
     return out, np.concatenate(mids)
 
 

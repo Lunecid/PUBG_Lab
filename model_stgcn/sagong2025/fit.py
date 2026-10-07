@@ -7,10 +7,12 @@ Pipeline (every statistic is fitted on the TRAIN split of the cohort only):
 1. ``FightScore = attack + kill + damage + assist`` and ``ActiveScore = distance + density + item + carepackage`` of a
    unit (solo: the player; duo / squad: the team, see ``features.py``), raw unweighted sums (Eq. 1, 2).
 2. Type (Eq. 3, Table 5): Hunter 1 = F+ A+, Sniper 2 = F+ A-, Traveler 3 = F- A+, Camper 4 = F- A-, where + means strictly
-   above the phase mean over the TRAIN units that are alive at the start of that phase (``alive_start``), - means <=.
+   above the phase mean over the TRAIN units that are alive in that phase (v1 plan: alive at the start, ``alive_start``; v2
+   plan: causally alive at the cut a_k = the dump's ``node_mask``, ``alive_cut``), - means <=.
 3. Survival rate (Eq. 4), a type-level lookup over the PRECEDING transition.  ``sr_mode='paper'`` (default, literal):
-   ``SR_k[i]`` = share of the train units of type ``i`` present in phase k-1 (alive at its start) that are still alive at
-   the start of phase k, over the train matches that have phase k (the paper's "100 hunters in 2.0, 85 survive to 2.5").
+   ``SR_k[i]`` = share of the train units of type ``i`` present in phase k-1 (alive at its start; v2: causally alive at the
+   cut k-1) that are still alive at the start of phase k (v2: causally alive at the cut k), over the train matches that have
+   phase k (the paper's "100 hunters in 2.0, 85 survive to 2.5"); a statistic fitted on the TRAIN split only.
    ``sr_mode='label'`` (sensitivity): ``SR_k[i] = 1 - mean(y_{k-1})`` over the train risk-set rows of cut k-1 of type ``i``
    (survival of phase k among the units at risk at the end of k-1).  A row of cut k looks up the rate of its own type
    at k (the paper does not say whether the current or the previous type indexes the rate).  Cut 1 has no preceding
@@ -21,10 +23,12 @@ Pipeline (every statistic is fitted on the TRAIN split of the cohort only):
    ``hgb`` is a control for the paper headline (not a Sagong model): ``HistGradientBoostingClassifier`` built by
    ``model_stgcn.ptr.hgb.make_classifier`` (max_iter 200, learning_rate 0.06, l2 0.01, early_stopping False) on the same 12
    inputs; its parameters are asserted equal to the ``classifier`` block of the cohort's HGB-cut ``metrics.json``.
+   ``hgb-hab`` is the same classifier on the 12 inputs PLUS the 44 zone / habitat columns of the dump (the columns the
+   noHab arms remove; stage ``habcols`` writes them to ``hab44.parquet``), joined by (match_id, team_id, phase).
    LogisticRegression gets a train-fitted StandardScaler (the paper names no preprocessing; raw metres / damage do not
    converge under the default ``max_iter``); the scaler is a deviation and is written to metrics.json.
 
-Outputs: ``<out-dir>/<cohort>/SAGONG-{xgb,rf,lr,hgb}/seed<seed>/{pred_val.csv, pred_test.csv, metrics.json}`` in the PTR
+Outputs: ``<out-dir>/<cohort>/SAGONG-{xgb,rf,lr,hgb,hgb-hab}/seed<seed>/{pred_val.csv, pred_test.csv, metrics.json}`` in the PTR
 format.  The rows are the PTR risk-set rows (``plan``); they are asserted equal to the existing HGB-cut and M11R
 prediction files of the same cohort when those exist.
 """
@@ -44,11 +48,13 @@ import pandas as pd
 from model_stgcn.ptr import metrics as M
 from model_stgcn.ptr.util import config_hash as _hash
 from model_stgcn.ptr.util import git_info, write_json
-from model_stgcn.sagong2025.features import ACTIVE_FEATURES, FEATURES, FIGHT_FEATURES
+from model_stgcn.sagong2025.features import ACTIVE_FEATURES, ALIVE_COLUMNS, FEATURES, FIGHT_FEATURES
 
 logger = logging.getLogger("model_stgcn.sagong2025.fit")
 
-MODELS: dict[str, str] = {"xgb": "SAGONG-xgb", "rf": "SAGONG-rf", "lr": "SAGONG-lr", "hgb": "SAGONG-hgb"}
+MODELS: dict[str, str] = {"xgb": "SAGONG-xgb", "rf": "SAGONG-rf", "lr": "SAGONG-lr", "hgb": "SAGONG-hgb",
+                          "hgb-hab": "SAGONG-hgb-hab"}
+HGB_KINDS: tuple[str, ...] = ("hgb", "hgb-hab")  # both use ptr.hgb.make_classifier
 TYPE_CODES: dict[str, int] = {"Hunter": 1, "Sniper": 2, "Traveler": 3, "Camper": 4}
 INPUT_NAMES: list[str] = [
     "phase_attack_count", "phase_kill_count", "phase_total_damage", "phase_assist_count", "distance",
@@ -102,14 +108,22 @@ def fit_survival_table(rows: pd.DataFrame, n_cuts: int = N_CUTS) -> tuple[dict, 
     return table, info
 
 
+def alive_column(df: pd.DataFrame) -> str:
+    """Name of the "unit is in phase k" flag: ``alive_cut`` (v2 plan) or ``alive_start`` (v1 plan)."""
+    for name in ALIVE_COLUMNS:
+        if name in df.columns:
+            return name
+    raise KeyError(f"units carry neither of {ALIVE_COLUMNS}")
+
+
 def fit_survival_table_paper(units: pd.DataFrame, phase_exists: set, n_cuts: int = N_CUTS) -> tuple[dict, dict]:
-    """``sr_mode='paper'``: Eq. 4 literally.  ``units``: train unit-phase rows (``match_id, team_id, phase, alive_start,
+    """``sr_mode='paper'``: Eq. 4 literally.  ``units``: train unit-phase rows (``match_id, team_id, phase, alive_start | alive_cut,
     ptype``); ``phase_exists``: set of ``(match_id, phase)`` of the train matches.  ``SR_k[i]`` = (units of type ``i`` alive
     at the start of phase k-1 that are alive at the start of phase k) / (units of type ``i`` alive at the start of k-1),
-    over the matches that have phase k.  Cut 1 -> 1.0 for every type."""
+    over the matches that have phase k.  Cut 1 -> 1.0 for every type.  With a v2 plan "alive" is the causal status at the cut."""
     table: dict[tuple[int, int], float] = {(1, t): 1.0 for t in TYPE_CODES.values()}
     info = {"fallback_cells": [], "n_by_cell": {}}
-    alive = units[units["alive_start"]]
+    alive = units[units[alive_column(units)]]
     for k in range(2, n_cuts + 1):
         prev = alive[alive["phase"] == k - 1]
         keep = np.fromiter(((m, k) in phase_exists for m in prev["match_id"]), dtype=bool, count=len(prev))
@@ -152,7 +166,7 @@ def make_model(kind: str, seed: int, n_jobs: int):
         from sklearn.preprocessing import StandardScaler
 
         return make_pipeline(StandardScaler(), LogisticRegression(random_state=seed))
-    if kind == "hgb":  # the HGB-cut classifier, imported so that its settings cannot drift from model_stgcn/ptr/hgb.py
+    if kind in HGB_KINDS:  # the HGB-cut classifier, imported so that its settings cannot drift from model_stgcn/ptr/hgb.py
         from model_stgcn.ptr.hgb import make_classifier
 
         return make_classifier(seed)
@@ -232,7 +246,7 @@ def _pred_frame(rows: pd.DataFrame, p: np.ndarray) -> pd.DataFrame:
 
 def _code_fingerprint() -> str:
     h = hashlib.sha1()
-    for name in ("features", "fit", "plan", "extract", "db"):
+    for name in ("features", "fit", "plan", "extract", "db", "hab"):
         h.update((Path(__file__).parent / f"{name}.py").read_bytes())
     return h.hexdigest()
 
@@ -243,6 +257,20 @@ def _file_fp(path: Path) -> list:
 
 
 # --------------------------------------------------------------------------- one cohort
+def _check_cache_versions(base: Path) -> tuple[str, dict]:
+    """The plan, the extracted features and (if present) the habitat table must come from ONE dump version; absent markers = v1."""
+    from model_stgcn.ptr.data import check_same_version
+    from model_stgcn.sagong2025.extract import FEATURES_META
+
+    audit = json.loads((base / "plan_audit.json").read_text()) if (base / "plan_audit.json").is_file() else {}
+    version = str(audit.get("version", "v1"))
+    fmeta = json.loads((base / FEATURES_META).read_text()) if (base / FEATURES_META).is_file() else {"version": "v1"}
+    check_same_version(str(fmeta.get("version", "v1")), version, what=f"the Sagong features under {base}", against="the plan (units.parquet)")
+    if fmeta.get("windows_sha1") not in (None, audit.get("windows_sha1")) and audit.get("windows_sha1") is not None:
+        raise ValueError(f"{base}: features.parquet was extracted for other windows than the plan's (re-run plan and extract --force)")
+    return version, audit
+
+
 def prepare(plan_dir, cohort: str, sr_mode: str = "paper") -> tuple[pd.DataFrame, dict]:
     """Merge plan units with the extracted features; scores, types and the survival table fitted on train."""
     if sr_mode not in ("paper", "label"):
@@ -250,16 +278,18 @@ def prepare(plan_dir, cohort: str, sr_mode: str = "paper") -> tuple[pd.DataFrame
     base = Path(plan_dir) / cohort
     units = pd.read_parquet(base / "units.parquet")
     feats = pd.read_parquet(base / "features.parquet")
+    version, plan_info = _check_cache_versions(base)
     df = units.merge(feats.drop(columns=["n_members"]), on=["match_id", "team_id", "phase"], how="left", indicator=True)
     n_missing = int((df["_merge"] != "both").sum())
     df = df.drop(columns="_merge")
     df[list(FEATURES)] = df[list(FEATURES)].fillna(0.0)
     df["n_obs"] = df["n_obs"].fillna(0.0)
     df = add_scores(df)
-    train_alive = df[(df["split"] == "train") & df["alive_start"]]
+    acol = alive_column(df)
+    train_alive = df[(df["split"] == "train") & df[acol]]
     means = fit_phase_means(train_alive)
     df["ptype"] = assign_types(df, means)
-    train_alive = df[(df["split"] == "train") & df["alive_start"]]  # re-slice: now carries ptype
+    train_alive = df[(df["split"] == "train") & df[acol]]  # re-slice: now carries ptype
     train_rows = df[(df["split"] == "train") & df["target"]]
     if sr_mode == "label":
         table, sr_info = fit_survival_table(train_rows)
@@ -268,6 +298,10 @@ def prepare(plan_dir, cohort: str, sr_mode: str = "paper") -> tuple[pd.DataFrame
         win = win[win["split"] == "train"]
         table, sr_info = fit_survival_table_paper(df[df["split"] == "train"], set(zip(win["match_id"], win["phase"])))
     info = {
+        "dump_version": version,
+        "alive_status": ("units causally alive at the cut a_k (the dump's node_mask), tokens = query_mask" if version == "v2"
+                         else "units alive at the start of the phase (team_death_s > phase_start_s)"),
+        "alive_column": acol,
         "survival_rate_mode": sr_mode,
         "n_unit_phase_rows_without_features": n_missing,
         "phase_means": {int(k): {"fight": float(r.mean_fight), "active": float(r.mean_active)} for k, r in means.iterrows()},
@@ -303,6 +337,11 @@ def _run_cohort(plan_dir, cohort: str, out_dir, seed: int, n_jobs: int, models, 
     rows = {s: df[(df["split"] == s) & df["target"]].sort_values(["match_id", "team_id", "phase"], kind="mergesort").reset_index(drop=True)
             for s in ("train", "val", "test")}
     X = {s: model_inputs(r, table) for s, r in rows.items()}
+    XH, hab_names, hab_info = None, None, None
+    if "hgb-hab" in models:  # the 12 inputs + the 44 zone / habitat columns of the dump (stage habcols)
+        from model_stgcn.sagong2025.hab import attach_hab
+
+        XH, hab_names, hab_info = attach_hab(plan_dir, cohort, rows, X, version=info["dump_version"])
     y_tr = rows["train"]["y"].to_numpy().astype(int)
     if len(np.unique(y_tr)) < 2:
         raise ValueError(f"{cohort}: the train rows hold a single class")
@@ -310,8 +349,12 @@ def _run_cohort(plan_dir, cohort: str, out_dir, seed: int, n_jobs: int, models, 
     for kind in models:
         name = MODELS[kind]
         t0 = time.perf_counter()
+        Xk = XH if kind == "hgb-hab" else X
+        input_names = INPUT_NAMES + hab_names if kind == "hgb-hab" else INPUT_NAMES
+        if kind == "hgb-hab" and scope != "pooled":
+            raise ValueError("hgb-hab is defined for the pooled scope only")
         if scope == "pooled":
-            preds, extra = _fit_predict(kind, seed, n_jobs, X["train"], y_tr, {"val": X["val"], "test": X["test"]})
+            preds, extra = _fit_predict(kind, seed, n_jobs, Xk["train"], y_tr, {"val": Xk["val"], "test": Xk["test"]})
             model_info = {"warnings": extra["warnings"], **({"n_iter": extra["n_iter"]} if "n_iter" in extra else {})}
             params = model_params(extra["model"])
             imp = _importances(extra["model"])
@@ -339,19 +382,21 @@ def _run_cohort(plan_dir, cohort: str, out_dir, seed: int, n_jobs: int, models, 
                     preds[s][m] = pk[s]
                 model_info["per_phase"][str(k)] = {"n_train": int(tr.sum()), "fitted": bool(ok), "warnings": ex["warnings"]}
         fit_sec = time.perf_counter() - t0
-        if kind == "hgb" and runs_ref is not None:
+        if kind in HGB_KINDS and runs_ref is not None:
             _assert_hgb_settings(params, Path(runs_ref), cohort, seed)
         out = Path(out_dir) / cohort / name / f"seed{seed}"
         res = {
-            "variant": name, "cohort": cohort, "seed": seed, "labels": "v2",
+            "variant": name, "cohort": cohort, "seed": seed, "labels": "v2", "dump_version": info["dump_version"],
             "label_fields": {"y": "y_hazard_v2", "target": "target_mask_v2"},
             "scope": scope, "sr_mode": sr_mode,
             "config_hash": _hash({"kind": "sagong2025", "variant": name, "cohort": cohort, "seed": seed, "scope": scope, "sr_mode": sr_mode,
-                                  "inputs": INPUT_NAMES, "plan": info["plan_fingerprint"], "code": _code_fingerprint()}),
+                                  "inputs": input_names, "plan": info["plan_fingerprint"],
+                                  "hab": None if kind != "hgb-hab" else hab_info["hab44_file"], "code": _code_fingerprint()}),
             "match_types_allowed": ["official", "competitive"],
-            "n_features": len(INPUT_NAMES), "input_names": INPUT_NAMES, "n_train_rows": int(len(y_tr)),
+            "n_features": len(input_names), "input_names": input_names, "n_train_rows": int(len(y_tr)),
             "classifier": params, **model_info, "fit_sec": fit_sec, "git": git_info(),
             "sagong": info,
+            **({"habitat_columns": hab_info, "n_sagong_inputs": len(INPUT_NAMES)} if kind == "hgb-hab" else {}),
         }
         frames = {split: _pred_frame(rows[split], preds[split]) for split in ("val", "test")}
         if runs_ref is not None:  # assert BEFORE anything is written: the rows are exactly the PTR rows

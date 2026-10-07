@@ -3,8 +3,12 @@
 Everything is computed on ONE clock, the LogMatchStart clock W (``event_time - stdb.matches.started_at``), the clock
 of ``phase_start_s`` / ``phase_end_s`` of the PTR dumps.  Telemetry rows carry their own ``event_time``, so position
 samples are placed on W exactly (no game-clock ``delta`` is needed; ``stdb/causal_cut.py`` needs it only for the
-resampled 10 s grid).  Phase ``k`` window = ``[phase_start_s(k), phase_end_s(k) - GUARD_S]`` (``GUARD_S`` = the
-``stdb.causal_cut.GUARD_S`` = 10 s): a feature of phase ``k`` never reads a row later than ``phase_end_s(k) - 10 s``.
+resampled 10 s grid).  v1 dump: phase ``k`` window = ``[phase_start_s(k), phase_end_s(k) - GUARD_S]`` (``GUARD_S`` = the
+``stdb.causal_cut.GUARD_S`` = 10 s, upper end inclusive): a feature of phase ``k`` never reads a row later than
+``phase_end_s(k) - 10 s``.  **v2 dump** (``end_is_cut=True``): the window is ``[s_k, a_k)`` with the producer's exact cut
+``a_k = b_k - 10 s`` passed as the window end (``windows.parquet`` column ``A``), upper end EXCLUSIVE: a feature of cut ``k``
+reads only records with ``w < a_k`` (the rule of the dump).  The raw times ``ep`` are then already W (computed by the database,
+``db.fetch_raw_batch(..., clock='w')``) and ``start_epoch`` is 0.
 
 Features and the proxies used (our tables have no LogPlayerAttack events and no assist identities):
 
@@ -51,6 +55,7 @@ DENSITY_GRID_S = 10.0
 PICKUP_PREFIX = "pickup"
 CAREPACKAGE_EVENT = "pickup_carepackage"
 OUT_COLUMNS: list[str] = ["team_id", "phase", *FEATURES, "n_members", "n_obs"]
+ALIVE_COLUMNS: tuple[str, ...] = ("alive_cut", "alive_start")  # plan.parquet flag "the unit is in phase k": v2 / v1 name
 
 
 @dataclass
@@ -113,11 +118,13 @@ def compute_match_features(
     *,
     assist_lookback_s: float = ASSIST_LOOKBACK_S,
     radius_m: float = DENSITY_RADIUS_M,
+    end_is_cut: bool = False,
 ) -> pd.DataFrame:
     """One row per (team, phase) with the 8 team-level features; ``windows[k] = (phase_start_s, phase_end_s)`` on W.
 
     Rows exist for every roster team of the match (dead teams get zeros); ``n_members`` = roster size,
-    ``n_obs`` = members with at least one position sample inside the window.
+    ``n_obs`` = members with at least one position sample inside the window.  ``end_is_cut=True`` (v2): ``windows[k] =
+    (s_k, a_k)`` and the window is ``[s_k, a_k)``, i.e. records strictly before the cut; default (v1): ``[s, e - GUARD_S]``.
     """
     accs = sorted(raw.team_of)
     a_idx = {a: i for i, a in enumerate(accs)}
@@ -183,16 +190,20 @@ def compute_match_features(
         s, e = windows[k]
         if not (np.isfinite(s) and np.isfinite(e)):
             continue
-        c = float(e) - GUARD_S  # causal cut of the phase
+        c = float(e) if end_is_cut else float(e) - GUARD_S  # causal cut of the phase
+
+        def upto(x, c=c):  # records that exist at the cut: v2 strictly before it, v1 up to and including phase_end - GUARD_S
+            return (x < c) if end_is_cut else (x <= c)
+
         zero = np.zeros(n_acc)
         att, kil, dam, ast, dis, itm, cpk = (zero.copy() for _ in range(7))
         den_team = np.zeros(n_teams)
         obs = np.zeros(n_acc)
         if c > s:
-            mk = (dw >= s) & (dw <= c)
+            mk = (dw >= s) & upto(dw)
             att = np.bincount(da[mk], minlength=n_acc).astype(np.float64)
             dam = np.bincount(da[mk], weights=dd[mk], minlength=n_acc)
-            mk = (kw >= s) & (kw <= c)
+            mk = (kw >= s) & upto(kw)
             kil = np.bincount(ka[mk], minlength=n_acc).astype(np.float64)
             for killer, victim, t in zip(ka[mk], kv[mk], kw[mk]):  # assist proxy
                 lo, hi = v_lo[victim], v_hi[victim]
@@ -205,10 +216,10 @@ def compute_match_features(
                     helpers = np.unique(sda[a0:a1])
                     helpers = helpers[helpers != killer]
                     ast[helpers] += 1.0
-            mk = (pkw >= s) & (pkw <= c)
+            mk = (pkw >= s) & upto(pkw)
             itm = np.bincount(pi[mk], minlength=n_acc).astype(np.float64)
             cpk = (np.bincount(pi[mk & pk_cp], minlength=n_acc) > 0).astype(np.float64)
-            mk = (pw >= s) & (pw <= c)
+            mk = (pw >= s) & upto(pw)
             if mk.any():
                 obs = np.bincount(pa[mk], minlength=n_acc).astype(np.float64)
                 dis = np.bincount(pa[mk], weights=step[mk], minlength=n_acc)

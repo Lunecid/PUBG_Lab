@@ -30,6 +30,12 @@ all alive players with the teammate, enemy-proximity and combat biases, attentio
 Union arm (``UNION_ARMS``; design doc 4.6, post hoc and exploratory): ``M11R-union`` = M11R plus the ``kf_*`` features that
 reconstruct KRAFTON's input representation (``model_stgcn.ptr.extra``), appended to the team token features after ``X``, the team
 centre and ``team_ai_frac``.  It needs ``--extra-features DIR`` (the kf tables); its HGB counterpart is ``hgb.HGB-union``.
+
+Rank-loss control arms (``NORANK_ARMS``; post hoc and exploratory, supplementary experiment E1): ``M01-norank`` and ``M11R-norank`` are M01 and
+M11R trained with the hazard BCE ALONE (``ArmSpec.rank_weight = 0``: no pairwise rank loss), everything else identical (seed, recipe,
+architecture, rows).  The KRAFTON arms (K2 / K3a / K3) train without a rank loss, so the architecture step K3 -> M01 also adds one;
+``M01-norank`` removes that confound.  Their rank head is untrained, so ``train.py`` writes ``rank_score = -hazard logit`` for them (the
+convention of the tabular and KRAFTON arms) and the rank metrics are the hazard head's ranking.
 """
 
 from __future__ import annotations
@@ -63,6 +69,7 @@ class ArmSpec:
     player: bool = False  # stage 2: player tokens + relation-biased player attention + pooling to team tokens
     player_relation_types: tuple[str, ...] = ()  # bias channels of the player attention (subset of PLAYER_RELATION_TYPES)
     extra: bool = False  # union arm: the kf_* features of --extra-features are appended to the team token features
+    rank_weight: float | None = None  # loss override: None = the --rank-weight of the command line (default 0.1); 0.0 = BCE only (E1 controls)
 
 
 def _arm(name: str, phase: bool, team: bool, relation: bool, zone: bool, **kw) -> ArmSpec:
@@ -100,11 +107,18 @@ _UNION = (
     _arm("M11R-union", True, True, True, False, exploratory=True, extra=True),
 )  # fmt: skip
 
-ARMS: dict[str, ArmSpec] = {a.name: a for a in (*_MAIN, *_EXPLORATORY, *_STAGE2, *_UNION)}
+_NORANK = (
+    # supplementary experiment E1 (post hoc): the PTR loss without the pairwise rank term, same architecture / recipe otherwise
+    _arm("M01-norank", False, True, False, False, exploratory=True, rank_weight=0.0),
+    _arm("M11R-norank", True, True, True, False, exploratory=True, rank_weight=0.0),
+)  # fmt: skip
+
+ARMS: dict[str, ArmSpec] = {a.name: a for a in (*_MAIN, *_EXPLORATORY, *_STAGE2, *_UNION, *_NORANK)}
 MAIN_ARMS: tuple[str, ...] = tuple(a.name for a in _MAIN)
 EXPLORATORY_ARMS: tuple[str, ...] = tuple(a.name for a in _EXPLORATORY)
 STAGE2_ARMS: tuple[str, ...] = tuple(a.name for a in _STAGE2)
 UNION_ARMS: tuple[str, ...] = tuple(a.name for a in _UNION)
+NORANK_ARMS: tuple[str, ...] = tuple(a.name for a in _NORANK)
 STUB_ARMS: tuple[str, ...] = ()  # no arm is registered-but-unimplemented any more
 
 

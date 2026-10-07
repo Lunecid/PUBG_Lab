@@ -558,3 +558,160 @@ def test_union_real_subprocess_run_writes_both_arms_and_resumes(tmp_path):
         assert met["extra_features"]["join"]["test"]["alignment"]["checked"]
     assert RM.main(argv) == 0
     assert {r["status"] for r in csv.DictReader(open(out / "run_matrix_status_union.csv"))} == {"skipped_done"}
+
+
+# --------------------------------------------------------------------------- rank-loss control (supplementary experiment E1)
+def test_norank_enumeration_and_plan(tmp_path):
+    cohorts = list(RM.PROJECTED_REGISTRY)
+    runs = RM.enumerate_norank_runs(cohorts)
+    assert RM.NORANK_GROUP == "norank" and RM.GROUPS == ("main", "exploratory", "seeds", "hgb")  # the main plan is not widened
+    assert len(runs) == 24 and Counter(r.group for r in runs) == {"norank": 24} and len({r.run_id for r in runs}) == 24
+    assert {r.arm for r in runs} == {"M01-norank", "M11R-norank"} and {r.seed for r in runs} == {42} and {r.kind for r in runs} == {"neural"}
+    assert {r.cohort for r in runs} == set(cohorts)
+    assert RM.ARM_CLASS["M01-norank"] == "base" and RM.ARM_CLASS["M11R-norank"] == "rel"
+    st = RM.Settings(dump_dir=str(tmp_path / "d"), out_dir=str(tmp_path / "o"), max_epochs=3, threads=1)
+    for r in runs[:2]:
+        argv = RM.build_argv(r, st)
+        assert "--rank-weight" not in argv  # the arm carries its loss; the command line does not repeat it
+        assert T.parse_args(argv[3:]).rank_weight == 0.0
+        assert RM.expected_hash(r, st) == T.config_hash(T.parse_args(argv[3:]))
+    main_m01 = RM.RunSpec("neural", runs[0].cohort, "M01", 42, "main")
+    assert RM.expected_hash(main_m01, st) != RM.expected_hash(RM.RunSpec("neural", runs[0].cohort, "M01-norank", 42, "norank"), st)
+
+
+def test_norank_flag_is_exclusive_with_the_other_plans(tmp_path, capsys):
+    root = tmp_path / "dumps"
+    for c in ("karakin_tpp_squad", "paramo_tpp_squad"):
+        write_cohort_dumps(root, c, sizes={"train": 5, "val": 3, "test": 3}, seed=1)
+    base = ["--dump-dir", str(root), "--out-dir", str(tmp_path / "o"), "--dry-run"]
+    assert RM.main([*base, "--norank"]) == 0
+    text = capsys.readouterr().out
+    assert "runs: 4 = rank-loss control (M01-norank, M11R-norank" in text and "x 2 cohorts" in text
+    for other in ("--union", "--stage2", "--lc"):
+        with pytest.raises(SystemExit):
+            RM.main([*base, "--norank", other])
+
+
+# --------------------------------------------------------------------------- the v2 roots, the version guard, no reuse of v1 status files or fingerprints
+def v2_marked_dump(tmp_path, names=("karakin_tpp_squad", "paramo_tpp_squad")):
+    """A synthetic dump whose manifests say ``version: v2`` (the guard reads the manifests; the fake runner never loads the tensors)."""
+    root = tmp_path / "dumps" / "bigcomp2027_phase_v2"
+    for k, name in enumerate(names):
+        write_cohort_dumps(root, name, sizes={"train": 5, "val": 3, "test": 3}, seed=k)
+        man_path = root / name / "dump_manifest.json"
+        man = json.loads(man_path.read_text())
+        man["version"] = "v2"
+        man_path.write_text(json.dumps(man))
+    return root
+
+
+def test_defaults_are_the_v2_roots_and_the_kf_table_follows_the_dump_version(tmp_path):
+    from model_stgcn.ptr import paths as P
+
+    a = RM.parse_args([])
+    assert a.dump_dir == str(P.DUMP_DIR) and a.out_dir == str(P.RUNS_DIR) and a.extra_features is None
+    assert P.kf_dir_for(P.DUMP_DIR) == P.KF_DIR  # the union runs of the v2 dump read the v2 table, never the v1 one next to it
+    v2 = v2_marked_dump(tmp_path)
+    assert P.kf_dir_for(v2) == tmp_path / "dumps" / "bigcomp2027_kraftonfeat_v2"
+    assert P.kf_dir_for(tiny_dump(tmp_path / "legacy")) == tmp_path / "legacy" / "bigcomp2027_kraftonfeat_v1"  # a legacy dump keeps its v1 table
+
+
+def test_a_v1_root_next_to_a_v2_dump_is_refused_before_anything_runs(tmp_path, fake):
+    v2 = v2_marked_dump(tmp_path)
+    v1_out = tmp_path / "checkpoints" / "bigcomp2027_ptr_v1"
+    for extra in (["--dry-run"], []):
+        with pytest.raises(SystemExit, match="refusing to run: refusing to mix versions"):
+            RM.main(["--dump-dir", str(v2), "--out-dir", str(v1_out), *extra], popen=fake)
+    assert not v1_out.exists() and fake.started == []  # the v1 run directory is never touched
+    kf_v1 = tmp_path / "dumps" / "bigcomp2027_kraftonfeat_v1"
+    with pytest.raises(SystemExit, match="kf table"):
+        RM.main(["--dump-dir", str(v2), "--out-dir", str(tmp_path / "out_v2"), "--union", "--extra-features", str(kf_v1), "--dry-run"], popen=fake)
+    # a v2 root of unknown origin that holds runs is refused too (a renamed v1 root), the same root with a stamp is fine
+    renamed = tmp_path / "checkpoints" / "renamed"
+    (renamed / "karakin_tpp_squad" / "M00" / "seed42").mkdir(parents=True)
+    with pytest.raises(SystemExit, match="no version evidence"):
+        RM.main(["--dump-dir", str(v2), "--out-dir", str(renamed), "--dry-run"], popen=fake)
+    from model_stgcn.ptr import paths as P
+
+    P.write_stamp(renamed, version="v2")
+    assert RM.main(["--dump-dir", str(v2), "--out-dir", str(renamed), "--dry-run"], popen=fake) == 0
+    assert RM.main(["--dump-dir", str(v2), "--out-dir", str(tmp_path / "fresh_v2"), "--dry-run"], popen=fake) == 0 and not (tmp_path / "fresh_v2").exists()
+    # a projection reads no dump: no comparison, nothing to refuse
+    assert RM.main(["--dump-dir", str(tmp_path / "nowhere"), "--out-dir", str(v1_out), "--dry-run", "--projected"], popen=fake) == 0
+
+
+def test_stage_2_never_pairs_a_v1_player_dump_with_a_v2_dump(tmp_path, fake):
+    """The player dump that sits next to a v2 dump by default is ``bigcomp2027_player_v1``: ``--stage2`` compares it with the dump like every other root,
+    so the v2 re-run (which leaves stage 2 out) cannot start it by accident."""
+    v2 = v2_marked_dump(tmp_path)
+    v1_player = tmp_path / "dumps" / "bigcomp2027_player_v1"
+    for c in ("karakin_tpp_squad", "paramo_tpp_squad"):
+        (v1_player / c).mkdir(parents=True)
+        for split in ("train", "val", "test"):
+            (v1_player / c / f"{split}.pt").write_bytes(b"x")
+    out = tmp_path / "checkpoints" / "bigcomp2027_ptr_v2"
+    for extra in (["--dry-run"], []):
+        with pytest.raises(SystemExit, match=r"refusing to run: refusing to mix versions.*player dump"):
+            RM.main(["--dump-dir", str(v2), "--out-dir", str(out), "--stage2", *extra], popen=fake)  # the default player dump
+        with pytest.raises(SystemExit, match=r"refusing to run: refusing to mix versions.*player dump"):
+            RM.main(["--dump-dir", str(v2), "--out-dir", str(out), "--stage2", "--player-dump-dir", str(v1_player), *extra], popen=fake)  # the same one, explicit
+    assert not out.exists() and fake.started == []
+    # a player dump that is v2 (here: not rebuilt yet, so no cohort has one) is no version conflict; the main matrix never looks at the player dump
+    assert RM.main(["--dump-dir", str(v2), "--out-dir", str(out), "--stage2", "--player-dump-dir", str(tmp_path / "dumps" / "bigcomp2027_player_v2"), "--dry-run"], popen=fake) == 0
+    assert RM.main(["--dump-dir", str(v2), "--out-dir", str(out), "--dry-run"], popen=fake) == 0
+    # a legacy (v1) dump keeps its v1 player dump
+    legacy = tiny_dump(tmp_path / "legacy")
+    assert RM.main(["--dump-dir", str(legacy), "--out-dir", str(tmp_path / "legacy_out"), "--stage2", "--dry-run"], popen=fake) == 0
+
+
+def test_the_run_directory_is_stamped_for_a_v2_dump_and_a_legacy_run_stays_untouched(tmp_path, fake):
+    from model_stgcn.ptr import paths as P
+
+    v2 = v2_marked_dump(tmp_path)
+    out = tmp_path / "checkpoints" / "bigcomp2027_ptr_v2"
+    assert RM.main(["--dump-dir", str(v2), "--out-dir", str(out), "--workers", "2", "--poll-seconds", "0", "--only", "arm=M00"], popen=fake) == 0
+    stamp = json.loads((out / P.STAMP_NAME).read_text())
+    assert stamp["version"] == "v2" and stamp["role"] == "runs" and stamp["dump_meta_sha1"] == P.dump_meta_sha1(v2)
+    assert (out / "run_matrix_status.csv").is_file() and {r["status"] for r in read_status(out)} == {"done"}
+    # a second launch with the same dump keeps the stamp and skips what is done
+    first = (out / P.STAMP_NAME).read_text()
+    assert RM.main(["--dump-dir", str(v2), "--out-dir", str(out), "--workers", "2", "--poll-seconds", "0", "--only", "arm=M00"], popen=fake) == 0
+    assert (out / P.STAMP_NAME).read_text() == first
+    # the aggregator and the other readers still see a plain run directory (the stamp is a file, not a cohort)
+    from model_stgcn.ptr import aggregate as A
+
+    assert [p.name for p in A.scan_runs(out)[0]] == []  # no pred files from the fake runner: nothing to scan, and the stamp did not break the scan
+    legacy = tiny_dump(tmp_path / "legacy")
+    lout = tmp_path / "legacy_out"
+    assert RM.main(["--dump-dir", str(legacy), "--out-dir", str(lout), "--workers", "2", "--poll-seconds", "0", "--only", "arm=M00"], popen=fake) == 0
+    assert not (lout / P.STAMP_NAME).exists()  # legacy roots stay byte-identical
+
+
+def test_a_v1_metrics_file_or_status_file_is_never_reused_in_a_v2_root(tmp_path, fake, capsys):
+    v2 = v2_marked_dump(tmp_path)
+    out = tmp_path / "checkpoints" / "bigcomp2027_ptr_v2"
+    # a metrics.json copied from a v1 run (another config hash) is not 'done': the run is planned again
+    run = out / "karakin_tpp_squad" / "M00" / "seed42"
+    run.mkdir(parents=True)
+    (run / "metrics.json").write_text(json.dumps({"config_hash": "0123456789abcdef", "labels": "v2"}))
+    from model_stgcn.ptr import paths as P
+
+    P.write_stamp(out, version="v2")
+    base = ["--dump-dir", str(v2), "--out-dir", str(out), "--dry-run", "--only", "arm=M00"]
+    assert RM.main(base, popen=fake) == 0
+    text = capsys.readouterr().out
+    assert "to run: 2 (already done with the same config hash: 0)" in text
+    # a status CSV that was written for another root (its logs and metrics live in the v1 run directory) is refused
+    status = out / "run_matrix_status.csv"
+    status.write_text(",".join(RM.STATUS_FIELDS) + "\n" + ",".join(
+        {"run_id": "karakin_tpp_squad/M00/seed42", "log": str(tmp_path / "checkpoints" / "bigcomp2027_ptr_v1" / "logs" / "x.log"),
+         "metrics": str(tmp_path / "checkpoints" / "bigcomp2027_ptr_v1" / "karakin_tpp_squad" / "M00" / "seed42" / "metrics.json")}.get(f, "") for f in RM.STATUS_FIELDS) + "\n")
+    with pytest.raises(SystemExit, match="outside .*another root"):
+        RM.main(base, popen=fake)
+    # the same file with paths inside the directory is a normal status file; a relative path of the repository is resolved there too
+    status.write_text(",".join(RM.STATUS_FIELDS) + "\n" + ",".join(
+        {"log": str(out / "logs" / "x.log"), "metrics": str(run / "metrics.json")}.get(f, "") for f in RM.STATUS_FIELDS) + "\n")
+    assert RM.check_status_files(out) == [status]
+    assert RM.main(base, popen=fake) == 0
+    # unreadable rows are an error, a missing directory is nothing to check
+    assert RM.check_status_files(tmp_path / "nowhere") == []

@@ -271,6 +271,55 @@ def test_fit_stage_writes_ptr_format(tmp_path, kind):
     assert res[name]["test"]["hazard"]["auc"] > 0.55  # the toy signal is learnable
 
 
+def _toy_hab_table(plan, names=("zone_a", "hab_b")):
+    """A hab44.parquet for the synthetic plan: one row per risk-set row, columns = a deterministic function of the key."""
+    import json
+
+    units = pd.read_parquet(plan / "toy" / "units.parquet")
+    units = units[units.target]
+    h = units[["split", "match_id", "team_id", "phase", "y"]].copy()
+    h["zone_a"] = (h.team_id * 3 + h.phase).astype("float32")
+    h["hab_b"] = (h.phase * 0.5).astype("float32")
+    h.sample(frac=1.0, random_state=0).to_parquet(plan / "toy" / "hab44.parquet", index=False)  # shuffled on purpose
+    (plan / "toy" / "hab44_audit.json").write_text(json.dumps(
+        {"names": list(names), "indices": [0, 1], "dump_fingerprint": {}, "equals_hgb_noHab_feature_removal": True}))
+
+
+def test_attach_hab_joins_by_key_and_checks_labels(tmp_path):
+    pytest.importorskip("pyarrow")
+    from model_stgcn.sagong2025.hab import attach_hab
+
+    plan = _synthetic_plan(tmp_path / "plan")
+    _toy_hab_table(plan)
+    df, prep = T.prepare(plan, "toy")
+    rows = {s: df[(df.split == s) & df.target].sort_values(["match_id", "team_id", "phase"], kind="mergesort").reset_index(drop=True)
+            for s in ("train", "val", "test")}
+    X = {s: T.model_inputs(r, prep["table"]) for s, r in rows.items()}
+    XH, names, info = attach_hab(plan, "toy", rows, X)
+    assert names == ["zone_a", "hab_b"] and info["n_columns"] == 2
+    for s, r in rows.items():
+        assert XH[s].shape == (len(r), 12 + 2) and np.array_equal(XH[s][:, :12], X[s])
+        assert np.array_equal(XH[s][:, 12], (r.team_id * 3 + r.phase).to_numpy(dtype=float))  # joined by key, not by position
+        assert np.array_equal(XH[s][:, 13], (r.phase * 0.5).to_numpy(dtype=float))
+    bad = pd.read_parquet(plan / "toy" / "hab44.parquet")
+    bad.loc[bad.index[0], "y"] = 1.0 - bad.loc[bad.index[0], "y"]  # one flipped label must be caught
+    bad.to_parquet(plan / "toy" / "hab44.parquet", index=False)
+    with pytest.raises(AssertionError):
+        attach_hab(plan, "toy", rows, X)
+
+
+def test_hgb_hab_arm_writes_ptr_format(tmp_path):
+    pytest.importorskip("pyarrow")
+    plan = _synthetic_plan(tmp_path / "plan")
+    _toy_hab_table(plan)
+    out = tmp_path / "runs"
+    res = T.run_cohort(plan, "toy", out, seed=42, n_jobs=1, models=("hgb-hab",))
+    r = res["SAGONG-hgb-hab"]
+    assert r["n_features"] == 14 and r["n_sagong_inputs"] == 12 and r["input_names"][-2:] == ["zone_a", "hab_b"]
+    assert r["habitat_columns"]["n_columns"] == 2 and (out / "toy" / "SAGONG-hgb-hab" / "seed42" / "pred_test.csv").is_file()
+    assert r["test"]["hazard"]["auc"] > 0.55
+
+
 def test_hgb_control_is_the_hgb_cut_classifier():
     hgb = pytest.importorskip("model_stgcn.ptr.hgb")
     own = T.make_model("hgb", 42, 2)

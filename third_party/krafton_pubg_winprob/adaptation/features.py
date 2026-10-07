@@ -9,6 +9,14 @@ Causality: the features at time ``t`` read events / samples with time ``< t`` (c
 ``[0, t)`` / ``(0, t)`` as upstream) or ``<= t`` (snapshots as upstream) only.  Death times enter as "alive at t
 iff last death time > t" (labels v2 rule); the death time itself is never read before it has happened.
 
+**v2 (causal) mode** (``raw['life']`` present, see :func:`causal_mode`): the leak-free dump of
+``model_stgcn.dump_phase_tier_v2``.  Then EVERY read is strict, a record exists at ``t`` iff its time is ``< t`` (snapshots
+too: latest position, zone state, equip level, use / ride / held counts), and the member alive status is the v2 causal
+one of ``model_stgcn.phase_v2.alive`` (no kill event of the player ``< t``, or a healthy position sample after its last
+kill and ``< t``; knocked players are alive), never "last death time > t": that rule reads the future (revives, the
+final-death fallback of leavers).  ``raw['d']`` is not used.  With ``causal=False`` (the v1 path, kept for the v1 tests
+and the v1 results) nothing changes.
+
 Output layout: ``F[N, K, 55]`` squad features in the order of upstream ``CONTINUOUS_FEATURES``, ``POS[N, K, 4, 3]``
 player positions (cm, NaN = dead / unknown), zone ``Z[K, 6]`` = (blue x, y, r, white x, y, r) and the alive
 flags.  See schema.PARITY for the status of every feature.
@@ -43,9 +51,18 @@ class Events:
         self.order = order
         ww = np.ones(len(t)) if w is None else np.asarray(w, dtype=np.float64)[order]
         self.w = ww
-        self.cw = np.concatenate(([0.0], np.cumsum(ww)))
         self.keys = self.p * BIG + (self.t + OFF)
         self.starts = np.searchsorted(self.p, np.arange(P), side="left")
+        ends = np.searchsorted(self.p, np.arange(P), side="right")
+        # Block-local prefix sums, one zero-padded block per player: ``cwp[starts[p] + p + j]`` = sum of the first j event weights
+        # of player p.  A global running sum minus the block offset would round differently once events of OTHER players (or later
+        # events) are removed; the block-local sum of a player depends on that player's events before the cut only, so a prefix
+        # replay (records < t) reproduces the full-data features bit for bit.
+        self.cwp = np.zeros(len(ww) + P)
+        for p_ in np.flatnonzero(ends > self.starts):
+            s0, e0 = int(self.starts[p_]), int(ends[p_])
+            self.cwp[s0 + p_ + 1 : e0 + p_ + 1] = np.cumsum(ww[s0:e0])
+        self._pad = np.arange(P)[:, None]
 
     def _q(self, ts: np.ndarray) -> np.ndarray:
         return (np.arange(self.P, dtype=np.float64)[:, None] * BIG + (ts[None, :] + OFF)).ravel()
@@ -55,13 +72,14 @@ class Events:
         if len(self.t) == 0:
             return np.zeros((self.P, K))
         ix = np.searchsorted(self.keys, self._q(ts), side="left" if strict else "right").reshape(self.P, K)
-        return self.cw[ix] - self.cw[self.starts][:, None]
+        return self.cwp[ix + self._pad]
 
-    def last(self, ts: np.ndarray) -> np.ndarray:
+    def last(self, ts: np.ndarray, strict: bool = False) -> np.ndarray:
+        """Index of the latest event ``<= ts[k]`` (``< ts[k]`` if ``strict``) of every player, -1 if there is none."""
         K = len(ts)
         if len(self.t) == 0:
             return np.full((self.P, K), -1, dtype=np.int64)
-        ix = np.searchsorted(self.keys, self._q(ts), side="right").reshape(self.P, K) - 1
+        ix = np.searchsorted(self.keys, self._q(ts), side="left" if strict else "right").reshape(self.P, K) - 1
         return np.where(ix >= self.starts[:, None], ix, -1)
 
 
@@ -94,6 +112,56 @@ def member_death_times(death_type, time_survived, last_kill_w, is_ai, fallback_o
     return d, off
 
 
+def member_life(kill_w: np.ndarray, kill_victim: np.ndarray, pos_w: np.ndarray, pos_member: np.ndarray, pos_health: np.ndarray) -> dict:
+    """``{member index: model_stgcn.phase_v2.alive.PlayerTimeline}`` of the members that have a kill event (all others are
+    always alive).  Same inputs and rule as the v2 dump (``alive.build_timelines``); indices are the members' own indices."""
+    from model_stgcn.phase_v2 import alive as AL  # read-only: the v2 contract of the causal alive status
+
+    kill_w, kill_victim = np.asarray(kill_w, dtype=np.float64), np.asarray(kill_victim, dtype=np.int64)
+    ok = kill_victim >= 0
+    return AL.build_timelines(kill_w[ok], kill_victim[ok], np.asarray(pos_w, dtype=np.float64), np.asarray(pos_member, dtype=np.int64),
+                              np.asarray(pos_health, dtype=np.float64))  # fmt: skip
+
+
+def member_alive_causal(life: dict, n_members: int, ts: np.ndarray) -> np.ndarray:
+    """``[P, K]`` bool: member alive at ``ts[k]`` using only records strictly before it.
+
+    The status is evaluated by the v2 contract's own function (``model_stgcn.phase_v2.alive.player_alive_at`` on the timelines of
+    :func:`member_life`, whose revive rule, including the 20 s stale-health guard, lives in ``alive.build_timelines``): nothing of
+    it is re-implemented here.  The contract's functions read records ``<= t``; the dump truncates at ``w < a_k`` and evaluates at
+    ``a_k``, which is the same as evaluating the full timelines at ``nextafter(t, -inf)``.  Members without a kill event are
+    always alive."""
+    from model_stgcn.phase_v2 import alive as AL
+
+    ts = np.asarray(ts, dtype=np.float64)
+    tb = np.nextafter(ts, -np.inf)
+    alive = np.ones((n_members, len(ts)), dtype=bool)
+    for a, tl in life.items():
+        if not 0 <= int(a) < n_members or len(tl.kills) == 0:
+            continue
+        alive[int(a)] = [AL.player_alive_at(life, int(a), float(t)) for t in tb]
+    return alive
+
+
+def team_alive_causal(raw: dict, ts: np.ndarray, member_alive: np.ndarray | None = None) -> np.ndarray:
+    """``[N, K]`` bool: the squad has >= 1 causally alive member at ``ts[k]`` (v2 rule, records ``< t``).  ``member_alive`` may
+    hand in the result of :func:`member_alive_causal` for the same ``ts`` (saves the second evaluation)."""
+    alive = member_alive_causal(raw["life"], len(raw["pid"]), ts) if member_alive is None else member_alive
+    return _squad_matrix(raw) @ alive.astype(np.float64) > 0
+
+
+def _squad_matrix(raw: dict) -> np.ndarray:
+    P, N = len(raw["pid"]), int(raw["N"])
+    M = np.zeros((N, P))
+    M[raw["team"], np.arange(P)] = 1.0
+    return M
+
+
+def causal_mode(raw: dict) -> bool:
+    """True iff ``raw`` carries the v2 member life timelines (``raw['life']``): the strict, causal reconstruction."""
+    return "life" in raw
+
+
 def _hypot_ratio(x, y, cx, cy, r):
     """distance / radius; NaN where r < MIN_ZONE_RADIUS_CM (upstream: r <= 0)."""
     with np.errstate(invalid="ignore", divide="ignore"):
@@ -101,7 +169,7 @@ def _hypot_ratio(x, y, cx, cy, r):
     return np.where(r >= S.MIN_ZONE_RADIUS_CM, out, np.nan)
 
 
-def compute_features(raw: dict, ts: np.ndarray) -> dict:
+def compute_features(raw: dict, ts: np.ndarray, member_alive: np.ndarray | None = None) -> dict:
     """Features at the (sorted) times ``ts`` of one match.  ``raw`` keys (all numpy, times on W):
 
     players   : pid (str[P]), team (int[P] squad index 0..N-1), d (float[P] last death time, inf = alive), is_ai
@@ -120,15 +188,25 @@ def compute_features(raw: dict, ts: np.ndarray) -> dict:
     P = len(raw["pid"])
     N = int(raw["N"])
     team = raw["team"]
-    d = raw["d"]
-    alive = d[:, None] > ts[None, :]  # [P, K] member alive (dump rule)
+    causal = causal_mode(raw)  # v2: strict (< t) reads and the causal alive status; v1: the legacy rule below
+    if causal:
+        alive = member_alive_causal(raw["life"], P, ts) if member_alive is None else member_alive  # [P, K] causally alive (records < t)
+    else:
+        alive = raw["d"][:, None] > ts[None, :]  # [P, K] member alive (dump rule, v1)
     Mmat = np.zeros((N, P))
     Mmat[team, np.arange(P)] = 1.0
+
+    def msum(a):
+        """Per-squad sum of a ``[P, K]`` member array, members added in index order (``np.add.at``): the order does not depend on K
+        or on the BLAS blocking, so one cut and many cuts give bit-identical values (``Mmat @ a`` does not guarantee that)."""
+        out = np.zeros((N, a.shape[1]))
+        np.add.at(out, team, np.asarray(a, dtype=np.float64))
+        return out
 
     # ---------------------------------------------------------------- latest position sample per (player, time)
     pz = raw["pos"]
     pos_ev = Events(pz["pidx"], pz["t"], None, P)
-    li = pos_ev.last(ts)  # indices into the sorted position arrays
+    li = pos_ev.last(ts, strict=causal)  # indices into the sorted position arrays
     has = li >= 0
     o = pos_ev.order
     sx, sy, sz = pz["x"][o], pz["y"][o], pz["z"][o]
@@ -150,7 +228,7 @@ def compute_features(raw: dict, ts: np.ndarray) -> dict:
 
     # ---------------------------------------------------------------- zones at t (latest game state <= t)
     zn = raw["zone"]
-    zix = np.searchsorted(zn["t"], ts, side="right") - 1
+    zix = np.searchsorted(zn["t"], ts, side="left" if causal else "right") - 1
     zvalid = zix >= 0
     zc = np.clip(zix, 0, max(len(zn["t"]) - 1, 0))
     if len(zn["t"]) == 0:
@@ -193,13 +271,13 @@ def compute_features(raw: dict, ts: np.ndarray) -> dict:
     # ---------------------------------------------------------------- groggy / health / vehicle
     gk = raw["groggy"]
     grg_victim = Events(gk["victim_pidx"][gk["victim_pidx"] >= 0], gk["t"][gk["victim_pidx"] >= 0], None, P)
-    g_now = grg_victim.cum(ts, strict=False)  # knocks <= t
+    g_now = grg_victim.cum(ts, strict=causal)  # knocks <= t (v2: < t)
     g_at_sample = np.zeros((P, K))
     if len(st):
         for_p = np.arange(P)[:, None] * BIG + (np.where(has, ST, 0.0) + OFF)
         if len(grg_victim.t):
             ix = np.searchsorted(grg_victim.keys, for_p.ravel(), side="right").reshape(P, K)
-            g_at_sample = grg_victim.cw[ix] - grg_victim.cw[grg_victim.starts][:, None]
+            g_at_sample = grg_victim.cwp[ix + grg_victim._pad]
     knock_after = (g_now - g_at_sample) > 0
     groggy = alive & ((has & (np.nan_to_num(H, nan=100.0) <= 0)) | knock_after)
     health = np.where(has & np.isfinite(H), H, 100.0)  # upstream default 100 when nothing observed
@@ -241,7 +319,7 @@ def compute_features(raw: dict, ts: np.ndarray) -> dict:
     use_cnt = {}
     for item in S.AIDS_ITEMS:
         mi = pk(us["pidx"]) & (uid == item)
-        use_cnt[item] = Events(us["pidx"][mi], us["t"][mi], None, P).cum(ts, False)  # t <= time_point
+        use_cnt[item] = Events(us["pidx"][mi], us["t"][mi], None, P).cum(ts, causal)  # t <= time_point (v2: < t)
 
     # held counts: per item id max(0, picked up - dropped - used) with stack counts (0 or missing -> 1), as upstream
     stack = np.where(pc["stack"] > 0, pc["stack"], 1.0)
@@ -250,8 +328,8 @@ def compute_features(raw: dict, ts: np.ndarray) -> dict:
         # snapshot pickups of aids / throwables use LogItemPickup (event_type pickup) incl. the clothing filter, as upstream
         mp = pk(pc["pidx"]) & (pc["item_id"] == item) & (pc["kind"] == 0)
         md = pk(pc["pidx"]) & (pc["item_id"] == item) & (pc["kind"] == 1)
-        got = Events(pc["pidx"][mp], pc["t"][mp], stack[mp], P).cum(ts, False)
-        gone = Events(pc["pidx"][md], pc["t"][md], stack[md], P).cum(ts, False)
+        got = Events(pc["pidx"][mp], pc["t"][mp], stack[mp], P).cum(ts, causal)
+        gone = Events(pc["pidx"][md], pc["t"][md], stack[md], P).cum(ts, causal)
         held[item] = np.maximum(0.0, got - gone - (use_cnt[item] if item in use_cnt else 0.0))
 
     # rides: a position sample in a vehicle whose predecessor (same player) was not
@@ -261,7 +339,7 @@ def compute_features(raw: dict, ts: np.ndarray) -> dict:
         first = np.concatenate(([True], pos_ev.p[1:] != pos_ev.p[:-1]))
         prev_in = np.where(first, False, prev_in)
         ride = sv & ~prev_in
-        ride_cnt = Events(pos_ev.p[ride], pos_ev.t[ride], None, P).cum(ts, False)
+        ride_cnt = Events(pos_ev.p[ride], pos_ev.t[ride], None, P).cum(ts, causal)
 
     # equipment levels: level of the latest matching equip event <= t
     eq = raw["equip"]
@@ -272,27 +350,27 @@ def compute_features(raw: dict, ts: np.ndarray) -> dict:
         if sel.any():
             ev = Events(eq["pidx"][sel], eq["t"][sel], None, P)
             vals = np.array([table[i] for i in eq["item_id"][sel][ev.order]], dtype=np.float64)
-            ix = ev.last(ts)
+            ix = ev.last(ts, strict=causal)
             lv = np.where(ix >= 0, vals[np.clip(ix, 0, len(vals) - 1)], 0.0)
         levels[name] = lv
 
     # ---------------------------------------------------------------- squad aggregation
     def squad_sum_all(a):  # all members (cumulative action features)
-        return Mmat @ a
+        return msum(a)
 
     def squad_sum_alive(a):
-        return Mmat @ (a * alive)
+        return msum(a * alive)
 
-    n_alive = Mmat @ alive  # [N, K]
+    n_alive = msum(alive)  # [N, K]
     with np.errstate(invalid="ignore", divide="ignore"):
 
         def squad_mean_alive(a, empty):
-            return np.where(n_alive > 0, (Mmat @ (a * alive)) / n_alive, empty)
+            return np.where(n_alive > 0, msum(a * alive) / n_alive, empty)
 
         # squad centre of alive members with a position
-        cnt_pos = Mmat @ pos_ok
-        cx = (Mmat @ np.where(pos_ok, X, 0.0)) / cnt_pos
-        cy = (Mmat @ np.where(pos_ok, Y, 0.0)) / cnt_pos
+        cnt_pos = msum(pos_ok)
+        cx = msum(np.where(pos_ok, X, 0.0)) / cnt_pos
+        cy = msum(np.where(pos_ok, Y, 0.0)) / cnt_pos
         has_c = cnt_pos > 0
         v2_b = np.where(has_c & zvalid[None, :] & (bz[None, :, 2] >= S.MIN_ZONE_RADIUS_CM), _hypot_ratio(cx, cy, bz[None, :, 0], bz[None, :, 1], bz[None, :, 2]), -1.0)
         v2_w = np.where(has_c & zvalid[None, :] & (wz[None, :, 2] >= S.MIN_ZONE_RADIUS_CM), _hypot_ratio(cx, cy, wz[None, :, 0], wz[None, :, 1], wz[None, :, 2]), -1.0)
@@ -349,8 +427,8 @@ def compute_features(raw: dict, ts: np.ndarray) -> dict:
             put(f"item_{nm}_count", squad_sum_alive(held[key]))
         put("squad_total_health", squad_sum_alive(health))
         put("squad_alive_count", n_alive)
-        put("squad_non_groggy_count", n_alive - (Mmat @ (groggy & alive)))
-        put("squad_out_bluezone_count", Mmat @ out_blue)
+        put("squad_non_groggy_count", n_alive - msum(groggy & alive))
+        put("squad_out_bluezone_count", msum(out_blue))
 
     # ---------------------------------------------------------------- positions of the first four members
     slot = raw["slot"]  # [N, 4]

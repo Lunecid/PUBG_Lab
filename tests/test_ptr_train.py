@@ -15,7 +15,7 @@ from model_stgcn.ptr import hgb as H
 from model_stgcn.ptr import metrics as M
 from model_stgcn.ptr import relations as R
 from model_stgcn.ptr import train as T
-from model_stgcn.ptr.arms import ARMS, EXPLORATORY_ARMS, MAIN_ARMS, STAGE2_ARMS, STUB_ARMS, UNION_ARMS, get_arm
+from model_stgcn.ptr.arms import ARMS, EXPLORATORY_ARMS, MAIN_ARMS, NORANK_ARMS, STAGE2_ARMS, STUB_ARMS, UNION_ARMS, get_arm
 from model_stgcn.ptr.synthetic import write_cohort_dumps
 
 # design doc section 4 (phase axis, team axis, relation bias, zone object, shuffle, dropped groups)
@@ -84,7 +84,8 @@ def test_arm_registry_matches_design_table():
         ), name  # fmt: skip
         assert a.name == name and a.implemented and not a.exploratory and a.stage == 1
         assert a.relation_types == ("prox", "combat_out", "combat_in", "copress")
-    assert set(ARMS) == set(MAIN_ARMS) | set(EXPLORATORY_ARMS) | set(STAGE2_ARMS) | set(UNION_ARMS)
+    assert set(ARMS) == set(MAIN_ARMS) | set(EXPLORATORY_ARMS) | set(STAGE2_ARMS) | set(UNION_ARMS) | set(NORANK_ARMS)
+    assert all(ARMS[a].rank_weight is None for a in ARMS if a not in NORANK_ARMS)  # only the E1 controls fix their loss
     with pytest.raises(KeyError):
         get_arm("M99")
 
@@ -103,6 +104,17 @@ def test_stage_two_arms_are_registered_with_the_player_layer():
         from model_stgcn.ptr.arms import model_config
 
         model_config(full, 10)  # a player arm needs the player feature count
+
+
+def test_norank_arms_are_m01_and_m11r_with_the_rank_loss_switched_off():
+    assert NORANK_ARMS == ("M01-norank", "M11R-norank")
+    for name, parent in (("M01-norank", "M01"), ("M11R-norank", "M11R")):
+        a, base = get_arm(name, implemented_only=True), ARMS[parent]
+        assert a.rank_weight == 0.0 and a.exploratory and a.stage == 1 and not a.player and not a.extra
+        assert (a.phase_axis, a.team_axis, a.relation, a.zone, a.shuffle, a.drop_groups, a.relation_types) == (
+            base.phase_axis, base.team_axis, base.relation, base.zone, base.shuffle, base.drop_groups, base.relation_types,
+        )  # fmt: skip
+        assert name not in MAIN_ARMS
 
 
 def test_exploratory_relation_type_arms_follow_section_4_1():
@@ -374,6 +386,40 @@ def test_combat_weight_mode_is_resolved_from_the_dump_and_recorded(tmp_path, sto
     assert T.main(cli(root, out / "n", "M11", *SMALL, cohort="cw")) == 0
     rel = json.loads((run_dir(out / "n", "M11", cohort="cw") / "metrics.json").read_text())["relations"]
     assert rel["relation_types"] == [] and rel["combat_weight_max_train"] is None
+
+
+def test_rank_weight_default_and_the_arm_override(tmp_path, cohort_dir):
+    args = T.parse_args(cli(cohort_dir, tmp_path, "M01", *SMALL))
+    assert args.rank_weight == 0.1  # the shared recipe (None on the command line resolves to 0.1)
+    assert T.parse_args(cli(cohort_dir, tmp_path, "M01", *SMALL, "--rank-weight", "0.3")).rank_weight == 0.3
+    nr = T.parse_args(cli(cohort_dir, tmp_path, "M01-norank", *SMALL))
+    assert nr.rank_weight == 0.0 and isinstance(nr.rank_weight, float)
+    assert T.parse_args(cli(cohort_dir, tmp_path, "M01-norank", *SMALL, "--rank-weight", "0")).rank_weight == 0.0  # the same value is fine
+    with pytest.raises(SystemExit):  # a conflicting value is an error, never silently replaced
+        T.parse_args(cli(cohort_dir, tmp_path, "M11R-norank", *SMALL, "--rank-weight", "0.1"))
+    # the hash separates the loss: M01 (0.1) and M01-norank differ in the arm and in the weight; an explicit 0.1 on M01 is the default
+    assert T.config_hash(args) == T.config_hash(T.parse_args(cli(cohort_dir, tmp_path, "M01", *SMALL, "--rank-weight", "0.1")))
+    assert T.config_spec(nr)["rank_weight"] == 0.0 and T.config_spec(args)["rank_weight"] == 0.1
+
+
+def test_norank_arm_trains_on_bce_alone_and_writes_the_hazard_ranking(tmp_path, cohort_dir):
+    out = tmp_path / "out"
+    assert T.main(cli(cohort_dir, out, "M01-norank", *SMALL, epochs=2)) == 0
+    assert T.main(cli(cohort_dir, out, "M01", *SMALL, epochs=2)) == 0
+    d, d0 = run_dir(out, "M01-norank"), run_dir(out, "M01")
+    met, met0 = json.loads((d / "metrics.json").read_text()), json.loads((d0 / "metrics.json").read_text())
+    assert met["train_config"]["rank_weight"] == 0.0 and met0["train_config"]["rank_weight"] == 0.1
+    assert met["arm_spec"]["name"] == "M01-norank" and met["arm_spec"]["rank_weight"] == 0.0
+    assert "untrained" in met["rank_score_source"] and met0["rank_score_source"] == "rank_head"
+    assert met["n_params"] == met0["n_params"] and met["config"] == met0["config"]  # the same architecture
+    df, df0 = pd.read_csv(d / "pred_test.csv"), pd.read_csv(d0 / "pred_test.csv")
+    assert list(df.columns) == M.PRED_COLUMNS and len(df) == len(df0)
+    p = df["p_hazard"].to_numpy()
+    assert (df[["match_id", "team_id", "phase", "y"]].values == df0[["match_id", "team_id", "phase", "y"]].values).all()  # identical rows / labels
+    # rank_score is the (negated) hazard logit, i.e. a monotone function of p_hazard: the rank metrics read the hazard head
+    np.testing.assert_allclose(df["rank_score"], -np.log(p / (1 - p)), atol=2e-5)
+    assert met["test"]["rank"]["spearman"] == pytest.approx(met["test"]["rank_from_hazard"]["spearman"], abs=1e-6)
+    assert not np.allclose(df["p_hazard"], df0["p_hazard"])  # a different objective: different predictions
 
 
 def test_rank_head_learns_the_survival_direction_end_to_end(tmp_path):

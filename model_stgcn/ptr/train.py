@@ -6,7 +6,8 @@
 
 Shared recipe for every neural arm (design doc section 4): d=128, H=4, L=2, dropout 0.1; AdamW lr 1e-3,
 weight decay 1e-4, cosine schedule over ``--max-epochs`` (stepped per epoch), gradient clipping 5.0,
-batches of 8 matches, loss = hazard BCE + 0.1 * pairwise rank loss, early stopping on validation NLL
+batches of 8 matches, loss = hazard BCE + 0.1 * pairwise rank loss (``--rank-weight``; the ``*-norank`` control arms of
+``arms.NORANK_ARMS`` fix it to 0), early stopping on validation NLL
 (patience 3), best epoch restored.  Seeds fix the init (per-component streams, so shared components
 start identically across arms), the batch order and dropout; CPU runs are bitwise reproducible, MPS
 runs are not guaranteed to be.
@@ -94,6 +95,8 @@ from model_stgcn.ptr.util import (
 )
 
 logger = logging.getLogger("model_stgcn.ptr.train")
+
+DEFAULT_RANK_WEIGHT = 0.1  # the shared recipe: loss = hazard BCE + 0.1 * pairwise rank loss
 
 
 # --------------------------------------------------------------------------- helpers
@@ -183,7 +186,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     ap.add_argument("--weight-decay", type=float, default=1e-4)
     ap.add_argument("--grad-clip", type=float, default=5.0)
     ap.add_argument("--patience", type=int, default=3)
-    ap.add_argument("--rank-weight", type=float, default=0.1)
+    ap.add_argument(
+        "--rank-weight",
+        type=float,
+        default=None,
+        help=f"weight of the pairwise rank loss (default {DEFAULT_RANK_WEIGHT}); the *-norank arms of arms.NORANK_ARMS fix it to 0 and refuse another value",
+    )
     ap.add_argument(
         "--labels",
         default=DEFAULT_LABELS,
@@ -254,6 +262,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "kf_* columns are appended to the team token features; required by them and refused for every other arm",
     )
     args = ap.parse_args(argv)
+    fixed = ARMS[args.arm].rank_weight  # an arm that fixes its loss (the E1 controls) wins; a conflicting command line is an error
+    if fixed is not None:
+        if args.rank_weight is not None and float(args.rank_weight) != float(fixed):
+            ap.error(f"arm {args.arm} fixes --rank-weight at {fixed}; got {args.rank_weight}")
+        args.rank_weight = float(fixed)
+    elif args.rank_weight is None:
+        args.rank_weight = DEFAULT_RANK_WEIGHT
     if ARMS[args.arm].extra and not args.extra_features:
         ap.error(f"arm {args.arm} needs --extra-features DIR (the kf tables <DIR>/<cohort>/{{train,val,test}}.csv.gz)")
     if args.extra_features and not ARMS[args.arm].extra:
@@ -468,15 +483,20 @@ def evaluate_nll(model: PTRFormer, ds: PTRDataset, device: torch.device, batch_s
 
 
 @torch.no_grad()
-def predict(model: PTRFormer, ds: PTRDataset, device: torch.device, batch_size: int = 8) -> pd.DataFrame:
-    """Predictions for every target row, in the canonical prediction-file format and order."""
+def predict(
+    model: PTRFormer, ds: PTRDataset, device: torch.device, batch_size: int = 8, rank_from_hazard: bool = False
+) -> pd.DataFrame:
+    """Predictions for every target row, in the canonical prediction-file format and order.
+
+    ``rank_from_hazard``: the rank head was not trained (``rank_weight`` 0), so ``rank_score`` is ``-hazard logit`` instead of the
+    head's output (the convention of the tabular and KRAFTON arms: the rank metrics then read the hazard head's own ranking)."""
     model.eval()
     frames = []
     for idx in _chunks(range(len(ds)), batch_size):
         batch = ds.get_batch(idx)
         out = model(_to_device(batch, device))
         logit = out["hazard_logit"].float().cpu()
-        score = out["rank_score"].float().cpu()
+        score = -logit if rank_from_hazard else out["rank_score"].float().cpu()
         b, p, i = batch["target_mask"].nonzero(as_tuple=True)
         frames.append(
             pd.DataFrame(
@@ -626,6 +646,7 @@ def _run(args: argparse.Namespace) -> dict:
         )  # fmt: skip
     fit_res = fit(prep, args, device, ckpt_path=out / "best.pt")
     model = fit_res.model
+    rank_head_trained = args.rank_weight > 0
     result: dict = {
         "arm": args.arm,
         "cohort": args.cohort,
@@ -648,6 +669,7 @@ def _run(args: argparse.Namespace) -> dict:
             "max_epochs": args.max_epochs,
             "pos_feature": not args.no_pos_feature,
         },
+        "rank_score_source": "rank_head" if rank_head_trained else "-hazard_logit (rank_weight 0: the rank head is untrained)",
         "n_params": model.n_parameters(),
         "n_input_features": prep.datasets["train"].n_features,
         "feature_removal": prep.datasets["train"].removal,
@@ -667,7 +689,7 @@ def _run(args: argparse.Namespace) -> dict:
         "git": git_info(),
     }
     for split in ("val", "test"):
-        df = predict(model, prep.datasets[split], device, args.batch_size)
+        df = predict(model, prep.datasets[split], device, args.batch_size, rank_from_hazard=not rank_head_trained)
         M.write_predictions(df, out / f"pred_{split}.csv")
         result[split] = M.all_metrics(df)
     result["elapsed_sec"] = time.perf_counter() - t_start

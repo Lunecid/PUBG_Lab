@@ -6,8 +6,10 @@
   of the train / val / test split, ordered by (match_id, team_id, phase) like ``model_stgcn/ptr/hgb.py``; the label is
   ``y_hazard_v2`` of the next phase.
 * features: the 55 reconstructed upstream squad features (``schema.FEATURES``, raw, un-standardised) at the cut
-  t = ``phase_end_s - 10 s`` on the unified clock, read from the persisted table ``model_stgcn/dumps/bigcomp2027_kraftonfeat_v1``
-  (``adaptation/kftable.py``; the risk-set rows ``in_risk_set == 1`` of train, val and test).  Left out: the per-player xyz,
+  t = ``phase_end_s - 10 s`` on the unified clock, read from the persisted table ``model_stgcn/dumps/bigcomp2027_kraftonfeat_v2``
+  (``adaptation/kftable.py``; the risk-set rows ``in_risk_set == 1`` of train, val and test).  The table, the label tables and the
+  dump must come from the same dump version (``DumpVersionError`` otherwise); on the v2 dump the risk-set rows include the comeback
+  rows (causally dead at the cut, ``alive_at_cut == 0``) and the features are the causal, strictly-before-the-cut ones.  Left out: the per-player xyz,
   the zone values, the map, the PTR team features (``team_ai_frac`` included), the cut phase.  No other squad-level
   aggregate was built.
 * model: ``model_stgcn.ptr.hgb.make_classifier(seed)`` (``HistGradientBoostingClassifier(max_iter=200, learning_rate=0.06,
@@ -37,19 +39,20 @@ for p in (str(ROOT), str(REPO)):
         sys.path.insert(0, p)
 
 from adaptation import schema as S  # noqa: E402
-from adaptation.labels import load_labels  # noqa: E402
+from adaptation.labels import check_label_version, load_labels  # noqa: E402
+from model_stgcn.ptr import extra as EX  # noqa: E402  (read-only use: the table's dump version)
 from model_stgcn.ptr import metrics as M  # noqa: E402  (read-only use)
-from model_stgcn.ptr.data import DEFAULT_MATCH_TYPES, load_cohort  # noqa: E402
+from model_stgcn.ptr.data import DEFAULT_MATCH_TYPES, dump_version, load_cohort  # noqa: E402
 from model_stgcn.ptr.hgb import build_rows as ptr_build_rows  # noqa: E402
 from model_stgcn.ptr.hgb import make_classifier  # noqa: E402
 from model_stgcn.ptr.util import config_hash, git_info, to_jsonable  # noqa: E402
 
 logger = logging.getLogger("krafton.hgbkf")
 ARM = "HGB-kraftonfeat"
-DEFAULT_DATA = REPO / "model_stgcn/dumps/krafton_winprob_v1"  # label tables
-DEFAULT_TABLE = REPO / "model_stgcn/dumps/bigcomp2027_kraftonfeat_v1"
-DEFAULT_DUMP = REPO / "model_stgcn/dumps/bigcomp2027_phase_v1"
-DEFAULT_OUT = REPO / "model_stgcn/checkpoints/bigcomp2027_ptr_v1"
+DEFAULT_DATA = REPO / "model_stgcn/dumps/krafton_winprob_v2"  # label tables
+DEFAULT_TABLE = REPO / "model_stgcn/dumps/bigcomp2027_kraftonfeat_v2"
+DEFAULT_DUMP = REPO / "model_stgcn/dumps/bigcomp2027_phase_v2"
+DEFAULT_OUT = REPO / "model_stgcn/checkpoints/bigcomp2027_ptr_v2"
 
 
 def read_table(table_dir: Path, cohort: str, split: str) -> pd.DataFrame:
@@ -123,10 +126,15 @@ def run(args) -> dict:
     from threadpoolctl import threadpool_limits
 
     t0 = time.perf_counter()
-    tables = {sp: read_table(args.table_dir, args.cohort, sp) for sp in ("train", "val", "test")}
-    labs = {sp: {m["match_id"]: m for m in load_labels(args.data_dir, args.cohort, sp)["matches"]} for sp in ("train", "val", "test")}
-    rows = {sp: build_rows(tables[sp], labs[sp]) for sp in tables}
     dump = load_cohort(args.dump_dir, args.cohort, labels="v2", match_types=DEFAULT_MATCH_TYPES)
+    dump_ver = dump_version(dump["train"])
+    EX.check_table_version(args.table_dir, dump)  # a v1 table next to a v2 dump (or the reverse) is refused
+    recs = {sp: load_labels(args.data_dir, args.cohort, sp) for sp in ("train", "val", "test")}
+    for sp, rec in recs.items():
+        check_label_version(rec, dump_ver, against=f"the {sp} dump of {args.cohort} under {args.dump_dir}")
+    tables = {sp: read_table(args.table_dir, args.cohort, sp) for sp in ("train", "val", "test")}
+    labs = {sp: {m["match_id"]: m for m in recs[sp]["matches"]} for sp in ("train", "val", "test")}
+    rows = {sp: build_rows(tables[sp], labs[sp]) for sp in tables}
     train_check = check_train_rows(rows["train"], dump["train"])
     del dump
     train = rows["train"]
@@ -141,10 +149,11 @@ def run(args) -> dict:
     out.mkdir(parents=True, exist_ok=True)
     res = {
         "arm": ARM, "variant": ARM, "cohort": args.cohort, "seed": args.seed, "labels": "v2", "label_fields": {"y": "y_hazard_v2", "target": "target_mask_v2"},
+        "dump_version": dump_ver,
         "config_hash": config_hash({"arm": ARM, "cohort": args.cohort, "seed": args.seed, "code": code_fingerprint(), "classifier": clf.get_params()}),
         "baseline": {
             "source": "reconstructed KRAFTON squad inputs (third_party/krafton_pubg_winprob, adaptation/features.py) at the phase cuts, GBDT of model_stgcn/ptr/hgb.py",
-            "feature_table": "model_stgcn/dumps/bigcomp2027_kraftonfeat_v1/<cohort>/{train,val,test}.csv.gz (rows with in_risk_set = 1)",
+            "feature_table": f"{args.table_dir}/<cohort>/{{train,val,test}}.csv.gz (rows with in_risk_set = 1)",
             "features": list(S.FEATURES), "left_out": "per-player xyz, zone values, map, PTR team features (team_ai_frac included), cut phase",
             "zero_filled_features": [f for f, v in S.PARITY.items() if v[0] == "zero"], "proxy_features": [f for f, v in S.PARITY.items() if v[0] == "proxy"],
             "train_rows": "risk-set rows of the train matches at the phase cuts (t = phase_end_s - 10 s), winners censored (v2)",

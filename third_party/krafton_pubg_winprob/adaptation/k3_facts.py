@@ -1,6 +1,6 @@
 """Run facts of K2 / K3a / K3 (epochs, early stopping, Platt scaling, intercept movement, run time) from the metrics.json files.
 
-    python -m adaptation.k3_facts [--out reports/krafton_baseline_2026-10-06/k3_run_facts.csv]
+    python -m adaptation.k3_facts [--out reports/krafton_baseline_v2/k3_run_facts.csv]
 
 Per cohort and arm: epochs run / best epoch / early stopping, steps per epoch, run seconds; for K3a / K3 also whether the samples
 equal K2's (``same_samples_as_k2``), the Platt (a, b) fitted on val, the raw-logit and Platt test NLL, and how far the learned
@@ -29,9 +29,9 @@ ARMS = (("K2", "KRAFTON-tf-ourfeat"), ("K3a", "KRAFTON-tf-ourfeat-bce"), ("K3", 
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--ckpt-dir", type=Path, default=REPO / "model_stgcn/checkpoints/bigcomp2027_ptr_v1")
+    ap.add_argument("--ckpt-dir", type=Path, default=REPO / "model_stgcn/checkpoints/bigcomp2027_ptr_v2")
     ap.add_argument("--seed", type=int, default=42)
-    ap.add_argument("--out", type=Path, default=REPO / "reports/krafton_baseline_2026-10-06/k3_run_facts.csv")
+    ap.add_argument("--out", type=Path, default=REPO / "reports/krafton_baseline_v2/k3_run_facts.csv")
     a = ap.parse_args(argv)
     rows = []
     for c in COHORTS:

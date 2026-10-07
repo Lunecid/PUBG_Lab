@@ -19,25 +19,57 @@ SELECT p.match_id, p.player_id, r.team_id, coalesce(p.kills, 0), coalesce(p.dama
   JOIN pubg.rosters r ON r.roster_id = p.roster_id AND r.match_id = p.match_id
  WHERE p.match_id = ANY(%s) AND r.team_id IS NOT NULL AND p.player_id IS NOT NULL
 """
-SQL_POS = """
-SELECT match_id, account_id, extract(epoch FROM event_time)::float8, pos_x::float8 / 100.0, pos_y::float8 / 100.0
-  FROM pubg.telem_positions
- WHERE match_id = ANY(%s) AND is_game >= 0.1 AND account_id IS NOT NULL AND pos_x IS NOT NULL AND pos_y IS NOT NULL
+
+CLOCKS = ("epoch", "w")
+
+
+def _ts(clock: str, alias: str) -> str:
+    """Event time column: ``epoch`` (v1: seconds since 1970, ``start_epoch`` is subtracted later) or ``w`` (v2: seconds since
+    LogMatchStart computed by the database exactly like the dump producer, ``extract(epoch FROM (event_time - started_at))``)."""
+    if clock == "w":
+        return f"extract(epoch FROM ({alias}.event_time - m.started_at))::float8"
+    if clock == "epoch":
+        return f"extract(epoch FROM {alias}.event_time)::float8"
+    raise ValueError(f"clock must be one of {CLOCKS}, got {clock!r}")
+
+
+def _join(clock: str, alias: str) -> str:
+    return f"JOIN stdb.matches m ON m.match_id = {alias}.match_id" if clock == "w" else ""
+
+
+def sql_pos(clock: str = "epoch") -> str:
+    return f"""
+SELECT x.match_id, x.account_id, {_ts(clock, 'x')}, x.pos_x::float8 / 100.0, x.pos_y::float8 / 100.0
+  FROM pubg.telem_positions x {_join(clock, 'x')}
+ WHERE x.match_id = ANY(%s) AND x.is_game >= 0.1 AND x.account_id IS NOT NULL AND x.pos_x IS NOT NULL AND x.pos_y IS NOT NULL
 """
-SQL_DMG = """
-SELECT match_id, attacker_id, victim_id, damage::float8, extract(epoch FROM event_time)::float8
-  FROM pubg.telem_damage
- WHERE match_id = ANY(%s) AND attacker_id IS NOT NULL AND victim_id IS NOT NULL AND damage > 0
+
+
+def sql_dmg(clock: str = "epoch") -> str:
+    return f"""
+SELECT x.match_id, x.attacker_id, x.victim_id, x.damage::float8, {_ts(clock, 'x')}
+  FROM pubg.telem_damage x {_join(clock, 'x')}
+ WHERE x.match_id = ANY(%s) AND x.attacker_id IS NOT NULL AND x.victim_id IS NOT NULL AND x.damage > 0
 """
-SQL_KILL = """
-SELECT match_id, killer_id, victim_id, is_suicide, extract(epoch FROM event_time)::float8
-  FROM pubg.telem_kills WHERE match_id = ANY(%s) AND victim_id IS NOT NULL
+
+
+def sql_kill(clock: str = "epoch") -> str:
+    return f"""
+SELECT x.match_id, x.killer_id, x.victim_id, x.is_suicide, {_ts(clock, 'x')}
+  FROM pubg.telem_kills x {_join(clock, 'x')} WHERE x.match_id = ANY(%s) AND x.victim_id IS NOT NULL
 """
-SQL_PICK = """
-SELECT match_id, account_id, event_type, extract(epoch FROM event_time)::float8
-  FROM pubg.telem_item_pickup
- WHERE match_id = ANY(%s) AND event_type LIKE 'pickup%%' AND account_id IS NOT NULL
+
+
+def sql_pick(clock: str = "epoch") -> str:
+    return f"""
+SELECT x.match_id, x.account_id, x.event_type, {_ts(clock, 'x')}
+  FROM pubg.telem_item_pickup x {_join(clock, 'x')}
+ WHERE x.match_id = ANY(%s) AND x.event_type LIKE 'pickup%%' AND x.account_id IS NOT NULL
 """
+
+
+# the v1 (epoch) statements under their old names
+SQL_POS, SQL_DMG, SQL_KILL, SQL_PICK = sql_pos(), sql_dmg(), sql_kill(), sql_pick()
 
 
 def connect_readonly(statement_timeout_s: int = 180):
@@ -69,14 +101,22 @@ def _frame(cur, sql: str, ids: list[str], columns: list[str]) -> pd.DataFrame:
     return pd.DataFrame(cur.fetchall(), columns=columns)
 
 
-def fetch_raw_batch(cur, match_ids: list[str]) -> dict[str, MatchRaw]:
-    """Raw telemetry of several matches (one set of SELECTs); matches without ``started_at`` are left out."""
+def fetch_raw_batch(cur, match_ids: list[str], clock: str = "epoch") -> dict[str, MatchRaw]:
+    """Raw telemetry of several matches (one set of SELECTs); matches without ``started_at`` are left out.
+
+    ``clock='epoch'`` (v1): ``ep`` columns are epoch seconds and ``MatchRaw.start_epoch`` is ``stdb.matches.started_at``.
+    ``clock='w'`` (v2): ``ep`` columns are already seconds since LogMatchStart, computed by the database
+    (``extract(epoch FROM (event_time - started_at))``, bit for bit the clock of the dump) and ``start_epoch`` is 0."""
+    if clock not in CLOCKS:
+        raise ValueError(f"clock must be one of {CLOCKS}, got {clock!r}")
     start = dict(cur_rows(cur, SQL_START, match_ids))
+    if clock == "w":
+        start = {m: 0.0 for m, v in start.items() if v is not None}
     part = _frame(cur, SQL_PART, match_ids, ["match_id", "player_id", "team_id", "kills", "damage_dealt"])
-    pos = _frame(cur, SQL_POS, match_ids, ["match_id", "acc", "ep", "x", "y"])
-    dmg = _frame(cur, SQL_DMG, match_ids, ["match_id", "attacker", "victim", "damage", "ep"])
-    kill = _frame(cur, SQL_KILL, match_ids, ["match_id", "killer", "victim", "is_suicide", "ep"])
-    pick = _frame(cur, SQL_PICK, match_ids, ["match_id", "acc", "event_type", "ep"])
+    pos = _frame(cur, sql_pos(clock), match_ids, ["match_id", "acc", "ep", "x", "y"])
+    dmg = _frame(cur, sql_dmg(clock), match_ids, ["match_id", "attacker", "victim", "damage", "ep"])
+    kill = _frame(cur, sql_kill(clock), match_ids, ["match_id", "killer", "victim", "is_suicide", "ep"])
+    pick = _frame(cur, sql_pick(clock), match_ids, ["match_id", "acc", "event_type", "ep"])
     by = {name: {m: g for m, g in df.groupby("match_id", sort=False)} for name, df in
           (("part", part), ("pos", pos), ("dmg", dmg), ("kill", kill), ("pick", pick))}
     out: dict[str, MatchRaw] = {}

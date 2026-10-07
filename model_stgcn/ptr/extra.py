@@ -13,7 +13,10 @@ for the neural arms ("broadcast to the phase slots by cut k"), appended after th
 
 Coverage is asserted: every alive token of a cut slot (``data.effective_alive`` of the label choice at the slots
 ``0 .. P - 2``; it contains every target row, since a team at risk at cut ``p`` is alive at the start of slot ``p``) needs a
-row, otherwise :class:`ExtraCoverageError` lists the gaps.  The last slot has no cut, so no row: its tokens (counted in
+row, otherwise :class:`ExtraCoverageError` lists the gaps.  On a v2 dump the tokens are the stored ``query_mask`` rows
+(``node_mask | target``, comeback rows included) and the table must have been built from that same dump version:
+``<extra-dir>/meta.json`` records ``dump_version`` and :func:`load_extra` raises :class:`model_stgcn.ptr.data.DumpVersionError`
+for a v1 table next to a v2 dump (or the other way round); a table without ``meta.json`` counts as v1.  The last slot has no cut, so no row: its tokens (counted in
 ``report['last_slot_alive_tokens']``) are NaN, i.e. 0 after standardisation, and cannot influence a prediction (the phase
 axis is causal and that slot has no targets).  Rows nobody needs (dead teams, other matches) are ignored and counted.
 NaN values are allowed (HGB reads them natively, the neural arms zero-fill after z-scoring); +-inf becomes NaN and is counted.
@@ -30,6 +33,8 @@ float64; a constant column gets ``std = 1``), NaN / inf -> 0 after scaling.  The
 from __future__ import annotations
 
 import hashlib
+import json
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Mapping, Sequence
@@ -70,11 +75,38 @@ class ExtraAlignmentError(ValueError):
 
 # --------------------------------------------------------------------------- reading
 DEFAULT_EXTRA_DIRNAME = "bigcomp2027_kraftonfeat_v1"
+META_FILE = "meta.json"
 
 
 def default_extra_dir(dump_dir: str | Path) -> Path:
-    """The kf tables next to the phase dump directory (``<dumps>/bigcomp2027_kraftonfeat_v1``)."""
-    return Path(dump_dir).parent / DEFAULT_EXTRA_DIRNAME
+    """The kf tables next to the phase dump directory: ``<dumps>/bigcomp2027_kraftonfeat_v2`` for a dump directory named
+    ``*_v2`` (the v2 dump), else ``<dumps>/bigcomp2027_kraftonfeat_v1``.  (:func:`load_extra` checks the version anyway.)"""
+    version = "v2" if Path(dump_dir).name.endswith("_v2") else "v1"
+    return Path(dump_dir).parent / DEFAULT_EXTRA_DIRNAME.replace("_v1", f"_{version}")
+
+
+def table_dump_version(extra_dir: str | Path) -> str:
+    """``dump_version`` recorded in ``<extra_dir>/meta.json`` by ``adaptation.kftable``; a root without it is a v1 table."""
+    path = Path(extra_dir) / META_FILE
+    if not path.is_file():
+        return D.DUMP_V1
+    try:
+        meta = json.loads(path.read_text(encoding="utf-8"))
+    except ValueError as exc:
+        raise ValueError(f"{path} is not valid JSON: {exc}") from exc
+    value = meta.get("dump_version") if meta.get("dump_version") is not None else meta.get("version")
+    if value is None:  # a legacy root names its origin only in ``name`` (``bigcomp2027_kraftonfeat_v1``)
+        tokens = re.findall(r"(?:^|[_\-.])(v\d+)(?=$|[_\-.])", str(meta.get("name", "")))
+        value = tokens[-1] if tokens else D.DUMP_V1
+    return D.dump_version({D.VERSION_KEY: value})
+
+
+def check_table_version(extra_dir: str | Path, dumps: Mapping[str, Mapping]) -> str:
+    """Raise :class:`model_stgcn.ptr.data.DumpVersionError` unless the table root was built from the version of every dump."""
+    have = table_dump_version(extra_dir)
+    for split, dump in dumps.items():
+        D.check_same_version(have, D.dump_version(dump), what=f"the extra-feature tables under {extra_dir}", against=f"the {split} dump")
+    return have
 
 
 def table_path(extra_dir: str | Path, cohort: str, split: str) -> Path:
@@ -192,10 +224,15 @@ def extra_spec(extra_dir: str | Path | None, cohort: str, splits: Sequence[str] 
                 names = table_feature_names(path)
         except Exception:  # noqa: BLE001 - see the docstring: a missing / unreadable table must not break planning
             files[split] = files.get(split)
+    try:
+        version = table_dump_version(extra_dir) if extra_dir is not None else None
+    except Exception:  # noqa: BLE001 - total, like the rest of this function
+        version = None
     return {
         "names_sha1": None if not names else names_sha1(names),
         "n_features": None if not names else len(names),
         "files": files,
+        "dump_version": version,
     }
 
 
@@ -373,6 +410,7 @@ def load_extra(
 ) -> dict[str, ExtraSplit]:
     """Read and join the tables of every split of ``dumps`` (``{split: dump}``); all splits must carry the same ``kf_*`` set.
     Any gap or label disagreement raises before anything is trained or fitted."""
+    check_table_version(extra_dir, dumps)  # a v1 table next to a v2 dump (or vice versa) is refused before anything is read
     tables: dict[str, tuple[Path, pd.DataFrame]] = {}
     for split in dumps:
         path = table_path(extra_dir, cohort, split)

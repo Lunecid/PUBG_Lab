@@ -18,6 +18,12 @@
   same cohort (the train cut samples are re-shuffled and repeated to fill it), so patience / epoch cap act on the
   same step scale in both models.
 * outputs: same files and format as KRAFTON-tf, in ``<out>/<cohort>/KRAFTON-tf-ourfeat/seed<seed>/``.
+
+v2 dump (``meta['version'] == 'v2'``): a cut sample has one row per token of the dump (``query_mask`` = ``node_mask | target``)
+with the per-row flags ``KEY`` (``node_mask``: causally alive at the cut, an attention key) and ``RISK`` (``T > a_k``: a Cox
+loss row; T = the dump's ``team_death_s``, censoring at ``max(2000, match_end_s, latest finite T + 1)`` as KRAFTON-tf).  A
+comeback row (risk set, causally dead at the cut) is a row without being a key.  Nothing is derived from death times: the
+squad set, the labels and the masks are the dump's.  The backbone is unchanged (key padding mask = the key squads).
 """
 
 from __future__ import annotations
@@ -42,18 +48,26 @@ for p in (str(ROOT), str(REPO)):
 from adaptation import schema as S  # noqa: E402
 from adaptation import train as T  # noqa: E402  (K1 helpers: prediction frame, Platt, files, native metrics, trainer)
 from adaptation.data import load_split  # noqa: E402
-from adaptation.labels import load_labels  # noqa: E402
+from adaptation.labels import check_label_version, label_version, load_labels  # noqa: E402
 from model_stgcn.ptr import metrics as M  # noqa: E402
-from model_stgcn.ptr.data import PTRDataset, Standardizer, load_cohort  # noqa: E402  (read-only use)
+from model_stgcn.ptr.data import (  # noqa: E402  (read-only use)
+    DUMP_V2,
+    PTRDataset,
+    Standardizer,
+    check_same_version,
+    cut_times,
+    dump_version,
+    load_cohort,
+)
 from model_stgcn.ptr.util import config_hash, git_info, to_jsonable  # noqa: E402
 from src.models import TransformerBackbone  # noqa: E402
 from src.models.heads import get_head  # noqa: E402
 
 logger = logging.getLogger("krafton.ourfeat")
 ARM = "KRAFTON-tf-ourfeat"
-DEFAULT_DUMP = REPO / "model_stgcn/dumps/bigcomp2027_phase_v1"
-DEFAULT_DATA = REPO / "model_stgcn/dumps/krafton_winprob_v1"
-DEFAULT_OUT = REPO / "model_stgcn/checkpoints/bigcomp2027_ptr_v1"
+DEFAULT_DUMP = REPO / "model_stgcn/dumps/bigcomp2027_phase_v2"
+DEFAULT_DATA = REPO / "model_stgcn/dumps/krafton_winprob_v2"
+DEFAULT_OUT = REPO / "model_stgcn/checkpoints/bigcomp2027_ptr_v2"
 
 
 # --------------------------------------------------------------------------- model
@@ -87,6 +101,9 @@ class TokenSampleSet:
         self.X57 = arrays["X"]  # [R, 153] float32 (name kept for the shared helpers)
         self.TGT = arrays["TGT"]
         self.TIDX = arrays["TIDX"]
+        self.KEY = arrays.get("KEY")  # [R] bool, v2: the row is an attention key (node_mask)
+        self.RISK = arrays.get("RISK")  # [R] bool, v2: the row is in the Cox risk set (T > a_k)
+        self.dump_version = str(arrays.get("dump_version", "v1"))
         self.S_n = arrays["S_n"].astype(np.int64)
         self.S_cut = arrays["S_cut"]
         self.S_mi = arrays["S_mi"]
@@ -108,12 +125,14 @@ class TokenSampleSet:
         rows = np.where(valid, self.off[idx][:, None] + ar, 0)
         x = np.where(valid[:, :, None], self.X57[rows], 0.0).astype(np.float32)
         y = np.where(valid, self.TGT[rows] / S.TARGET_SCALE, 0.0).astype(np.float32)
+        risk = valid.copy() if self.RISK is None else (valid & self.RISK[rows])  # Cox loss rows (v1: every stored squad)
+        key = valid.copy() if self.KEY is None else (valid & self.KEY[rows])  # attention keys (v1: every stored squad)
         return {
             "x_continuous": torch.from_numpy(x),
             "positions": torch.zeros(B, pad, 4, 3),  # unused by TokenOnlyBackbone (kept for the shared Trainer interface)
             "bluezone_info": torch.zeros(B, 3), "whitezone_info": torch.zeros(B, 3),
             "y": torch.from_numpy(y),
-            "squad_alive_mask": torch.from_numpy(valid.copy()), "padding_mask": torch.from_numpy(valid.copy()),
+            "squad_alive_mask": torch.from_numpy(risk), "key_mask": torch.from_numpy(key), "padding_mask": torch.from_numpy(valid.copy()),
             "num_squads": torch.from_numpy(n), "time_point": torch.from_numpy(self.S_t[idx].astype(np.float32)),
             "map_idx": torch.zeros(B, dtype=torch.long),
         }  # fmt: skip
@@ -158,7 +177,64 @@ def _t_win_map(data_dir: Path) -> dict[str, float]:
     return out
 
 
+def t_win_of(m: dict) -> float:
+    """KRAFTON's censoring time of a v2 match: ``max(2000 s, C_m, latest finite T + 1 s)`` with the dump's ``match_end_s`` and T."""
+    T = np.asarray(m["team_death_s"], dtype=np.float64)
+    fin = T[np.isfinite(T)]
+    c_m = m.get("match_end_s")
+    c_m = 0.0 if c_m is None or not np.isfinite(c_m) else float(c_m)
+    return max(2000.0, c_m, (float(fin.max()) + 1.0) if fin.size else 0.0)
+
+
+def _build_samples_v2(dump: dict, std: Standardizer, t_win: dict[str, float], split: str) -> tuple[TokenSampleSet, dict]:
+    """v2 cut samples: rows = the dump's tokens (``query_mask``), ``KEY`` = ``node_mask``, ``RISK`` = ``T > a_k`` (see the docstring)."""
+    ds = PTRDataset(dump, std, relation_types=None, labels="v2", validate=False)
+    xs, tg, ti, sn, sc, smi, st, mids, ks, rs = [], [], [], [], [], [], [], [], [], []
+    n_fallback = n_log_mismatch = 0
+    for i, m in enumerate(dump["matches"]):
+        mid = str(m["match_id"])
+        it = ds[i]
+        x = it["x"].numpy()
+        target, key, query = it["target_mask"].numpy(), it["node_mask"].numpy(), it["query_mask"].numpy()
+        T = np.asarray(m["team_death_s"], dtype=np.float64)  # the dump's T, winners / survivors +inf
+        cut = cut_times(m["phase_end_s"])
+        tw = t_win_of(m)
+        if mid in t_win:
+            n_log_mismatch += int(abs(t_win[mid] - tw) > 1e-3)  # K1's extraction log must agree on the censoring time
+        else:
+            n_fallback += 1
+        tgt_all = np.where(np.isinf(T), tw, T).astype(np.float32)
+        mids.append(mid)
+        for p in range(x.shape[0]):
+            if not target[p].any():
+                continue
+            if bool((target[p] & ~query[p]).any()):
+                raise ValueError(f"{mid} cut {p + 1}: the token set does not cover the risk set")
+            idx = np.flatnonzero(query[p])
+            xs.append(x[p][idx])
+            tg.append(tgt_all[idx])
+            ti.append(idx.astype(np.int16))
+            ks.append(key[p][idx])
+            rs.append(T[idx] > cut[p])
+            sn.append(len(idx))
+            sc.append(p + 1)
+            smi.append(len(mids) - 1)
+            st.append(cut[p])
+    if n_log_mismatch:
+        raise ValueError(f"{n_log_mismatch} match(es): the censoring time of the extraction log differs from the dump's (T, match_end_s)")
+    arrays = {"X": np.concatenate(xs).astype(np.float32), "TGT": np.concatenate(tg), "TIDX": np.concatenate(ti),
+              "KEY": np.concatenate(ks), "RISK": np.concatenate(rs), "dump_version": np.array("v2"),
+              "S_n": np.asarray(sn, dtype=np.int16), "S_cut": np.asarray(sc, dtype=np.int8), "S_mi": np.asarray(smi, dtype=np.int32),
+              "S_t": np.asarray(st, dtype=np.float32)}  # fmt: skip
+    info = {"split": split, "n_matches": len(mids), "n_samples": len(sn), "n_rows": int(sum(sn)), "t_win_fallback": n_fallback,
+            "n_key_rows": int(arrays["KEY"].sum()), "n_risk_rows": int(arrays["RISK"].sum()),
+            "n_comeback_rows": int(sum(int((m["target_mask_v2"] & ~m["node_mask"]).sum()) for m in dump["matches"]))}  # fmt: skip
+    return TokenSampleSet(arrays, np.asarray(mids)), info
+
+
 def build_samples(dump: dict, std: Standardizer, t_win: dict[str, float], split: str) -> tuple[TokenSampleSet, dict]:
+    if dump_version(dump) == DUMP_V2:
+        return _build_samples_v2(dump, std, t_win, split)
     ds = PTRDataset(dump, std, relation_types=None, labels="v2", validate=False)
     xs, tg, ti, sn, sc, smi, st, mids = [], [], [], [], [], [], [], []
     n_fallback = n_outside = 0
@@ -208,12 +284,14 @@ def build_samples(dump: dict, std: Standardizer, t_win: dict[str, float], split:
 def check_against_krafton_tf(ss: TokenSampleSet, data_dir: Path, cohort: str, split: str) -> dict:
     """Same (match, cut) samples and the same alive squads as the KRAFTON-tf shards (val / test)."""
     ref = load_split(data_dir, cohort, split)
+    check_same_version(ref.dump_version, ss.dump_version, what=f"the KRAFTON-tf {split} shards of {cohort}", against="the K2 token samples")
     key = lambda s, i: (str(s.match_ids[s.S_mi[i]]), int(s.S_cut[i]))  # noqa: E731
-    mine = {key(ss, i): tuple(ss.TIDX[ss.off[i] : ss.off[i + 1]].tolist()) for i in range(len(ss))}
-    theirs = {key(ref, i): tuple(ref.TIDX[ref.off[i] : ref.off[i + 1]].tolist()) for i in range(len(ref))}
+    flags = lambda s, i: () if s.KEY is None else tuple(s.KEY[s.off[i] : s.off[i + 1]].astype(np.int8).tolist())  # noqa: E731
+    mine = {key(ss, i): (tuple(ss.TIDX[ss.off[i] : ss.off[i + 1]].tolist()), flags(ss, i)) for i in range(len(ss))}
+    theirs = {key(ref, i): (tuple(ref.TIDX[ref.off[i] : ref.off[i + 1]].tolist()), flags(ref, i)) for i in range(len(ref))}
     if set(mine) != set(theirs):
         raise AssertionError(f"{cohort}/{split}: the cut samples differ from KRAFTON-tf ({len(mine)} vs {len(theirs)})")
-    same = sum(mine[k] == theirs[k] for k in mine)
+    same = sum(mine[k] == theirs[k] for k in mine)  # same rows and (v2) the same key flags
     return {"split": split, "n_samples": len(mine), "same_alive_set": int(same)}
 
 
@@ -260,14 +338,18 @@ def run(args) -> dict:
     # ---- data: the dump's team tokens at the cuts
     t0 = time.perf_counter()
     splits = load_cohort(args.dump_dir, args.cohort, labels="v2")
-    std = Standardizer.fit(splits["train"], "v2")  # train alive tokens
+    std = Standardizer.fit(splits["train"], "v2")  # train alive tokens (v2: the dump's query tokens)
     t_win = _t_win_map(args.data_dir)
     sets, infos = {}, {}
     for sp in ("train", "val", "test"):
         sets[sp], infos[sp] = build_samples(splits[sp], std, t_win, sp)
     n_features = int(sets["train"].X57.shape[1])
+    dump_ver = dump_version(splits["train"])
     del splits
-    labs = {sp: {m["match_id"]: m for m in load_labels(args.data_dir, args.cohort, sp)["matches"]} for sp in ("val", "test")}
+    recs = {sp: load_labels(args.data_dir, args.cohort, sp) for sp in ("train", "val", "test")}
+    for sp, rec in recs.items():  # the label tables / shards of KRAFTON-tf must come from this very dump version
+        check_label_version(rec, dump_ver, against=f"the {sp} dump of {args.cohort} under {args.dump_dir}")
+    labs = {sp: {m["match_id"]: m for m in recs[sp]["matches"]} for sp in ("val", "test")}
     token_check = {sp: check_against_krafton_tf(sets[sp], args.data_dir, args.cohort, sp) for sp in ("val", "test")}
     t_data = time.perf_counter() - t0
     for sp, ss in sets.items():
@@ -312,7 +394,7 @@ def run(args) -> dict:
             "epoch_steps": epoch_steps, "device": device, "code": code_fingerprint()}  # fmt: skip
     res = {
         "arm": ARM, "cohort": args.cohort, "seed": args.seed, "device": device, "labels": "v2", "encoder": "transformer",
-        "config_hash": config_hash(spec),
+        "dump_version": dump_ver, "config_hash": config_hash(spec),
         "baseline": {
             "source": "krafton-ai/pubg-winprob 99ed9d1 transformer backbone, adapted (third_party/krafton_pubg_winprob/README_ADAPTATION.md), on the PTR team features",
             "loss": T.LOSS, "paper_hparams": T.PAPER, "max_epochs": args.max_epochs, "input": "dump team token at the cut: X(150) + team centre(2) + team_ai_frac(1), train-token z-score",
@@ -327,8 +409,8 @@ def run(args) -> dict:
         "history": [{"epoch": e + 1, "train_loss": float(tl), "val_loss": float(vl), "sec": float(sec)}
                     for e, (tl, vl, sec) in enumerate(zip(history["train_loss"], history["val_loss"], trainer.epoch_sec))],
         "git": git_info(), "val": M.all_metrics(canon_val), "test": M.all_metrics(canon_test),
-        "krafton_native": {"val": T.native_metrics(sets["val"], g_val), "test": T.native_metrics(sets["test"], g_test),
-                           "note": "winner accuracy / C-index of upstream metrics.py at the phase cuts over the alive squads, survival score = -hazard"},  # fmt: skip
+        "krafton_native": {"val": T.native_metrics(sets["val"], g_val, labs["val"]), "test": T.native_metrics(sets["test"], g_test, labs["test"]),
+                           "note": "winner accuracy / C-index of upstream metrics.py at the phase cuts over the dump's risk-set rows (T > b_k, the rows of pred_*.csv), survival score = -hazard"},  # fmt: skip
     }  # fmt: skip
     res["elapsed_sec"] = time.perf_counter() - t_start
     (out / "metrics.json").write_text(json.dumps(to_jsonable(res), indent=1))

@@ -1,6 +1,6 @@
 """Paired match-level bootstrap contrasts of the K3 test (pooled and within-phase AUC), with random-effects pooling.
 
-    python -m adaptation.k3_contrasts [--n-boot 2000] [--out reports/krafton_baseline_2026-10-06/k3_contrasts.csv]
+    python -m adaptation.k3_contrasts [--n-boot 2000] [--out reports/krafton_baseline_v2/k3_contrasts.csv]
 
 For every cohort the arms are scored on the SAME bootstrap resamples of whole test matches (``metrics.resample_counts``),
 so shared match-level noise cancels in the differences:
@@ -72,11 +72,11 @@ def summarise(est: float, draws: np.ndarray) -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--ckpt-dir", type=Path, default=REPO / "model_stgcn/checkpoints/bigcomp2027_ptr_v1")
+    ap.add_argument("--ckpt-dir", type=Path, default=REPO / "model_stgcn/checkpoints/bigcomp2027_ptr_v2")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--n-boot", type=int, default=2000)
     ap.add_argument("--boot-seed", type=int, default=0)
-    ap.add_argument("--out", type=Path, default=REPO / "reports/krafton_baseline_2026-10-06/k3_contrasts.csv")
+    ap.add_argument("--out", type=Path, default=REPO / "reports/krafton_baseline_v2/k3_contrasts.csv")
     a = ap.parse_args(argv)
     rows = []
     for c in COHORTS:

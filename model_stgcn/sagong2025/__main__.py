@@ -8,9 +8,9 @@ import logging
 import sys
 from pathlib import Path
 
-DEFAULT_DUMP_DIR = "model_stgcn/dumps/bigcomp2027_phase_v1"
-DEFAULT_PLAN_DIR = "model_stgcn/dumps/bigcomp2027_sagong_v1"
-DEFAULT_RUNS_DIR = "model_stgcn/checkpoints/bigcomp2027_ptr_v1"
+DEFAULT_DUMP_DIR = "model_stgcn/dumps/bigcomp2027_phase_v2"
+DEFAULT_PLAN_DIR = "model_stgcn/dumps/bigcomp2027_sagong_v2"
+DEFAULT_RUNS_DIR = "model_stgcn/checkpoints/bigcomp2027_ptr_v2"
 
 
 def _cohorts(dump_dir, only):
@@ -28,7 +28,7 @@ def _cohorts(dump_dir, only):
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="python -m model_stgcn.sagong2025")
     sub = ap.add_subparsers(dest="stage", required=True)
-    for name in ("plan", "extract", "fit"):
+    for name in ("plan", "extract", "habcols", "fit"):
         p = sub.add_parser(name)
         p.add_argument("--dump-dir", default=DEFAULT_DUMP_DIR)
         p.add_argument("--plan-dir", default=DEFAULT_PLAN_DIR)
@@ -42,7 +42,9 @@ def main(argv=None) -> int:
         if name == "fit":
             p.add_argument("--seed", type=int, default=42)
             p.add_argument("--n-jobs", type=int, default=2)
-            p.add_argument("--models", default="xgb,rf,lr,hgb", help="subset of xgb,rf,lr,hgb (hgb = HGB-cut classifier control)")
+            p.add_argument("--models", default="xgb,rf,lr,hgb",
+                           help="subset of xgb,rf,lr,hgb,hgb-hab (hgb = HGB-cut classifier control; hgb-hab = hgb + the 44 zone/habitat "
+                                "columns, needs stage habcols first)")
             p.add_argument("--scope", default="pooled", choices=("pooled", "per_phase"))
             p.add_argument("--sr-mode", default="paper", choices=("paper", "label"))
             p.add_argument("--out-dir", default=None, help="default: --runs-dir (pooled scope)")
@@ -58,6 +60,13 @@ def main(argv=None) -> int:
         for c in cohorts:
             a = build_plan(args.dump_dir, c, args.plan_dir, ref_runs=args.runs_dir)
             print(c, json.dumps({s: v["n_target"] for s, v in a["splits"].items()}), flush=True)
+    elif args.stage == "habcols":
+        from model_stgcn.sagong2025.hab import build_hab_table
+
+        for c in cohorts:
+            a = build_hab_table(args.dump_dir, c, args.plan_dir, runs_ref=args.runs_dir)
+            print(c, json.dumps({"n_columns": a["n_columns"], "n_rows": a["n_rows"], "n_nan": a["n_nan"],
+                                 "equals_hgb_noHab": a.get("equals_hgb_noHab_feature_removal")}), flush=True)
     elif args.stage == "extract":
         from model_stgcn.sagong2025.extract import run_extract
 

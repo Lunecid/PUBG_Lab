@@ -70,7 +70,8 @@ dumps' cohorts, splits, event-based death times, winner flags and phase boundari
 * **Who is a valid squad.** Upstream: squads with at least one valid position.  Here: squads alive at t on the event
   clock (`team_death_s > t`, winners censored as `+inf`, exactly the dump's alive rule); dead squads are not stored and
   padding is per batch.  Members are alive while their last death time (dump rule) is later than t; revivals are not
-  modelled (the database has no revive events), which is the dump's own convention.
+  modelled (the database has no revive events), which is the v1 dump's own convention.  With a v2 dump, returns are
+  inferred from position samples (first health > 0 sample at least 20 s after a kill, before the next kill; section 9).
 * **Sampling.** Train: upstream's schedule (178 uniform-random points over the fixed phase schedule 0-2000 s + the 14
   anchors 599, 601, ..., 1679, 1681; `np.random.RandomState` seeded per match by crc32(match_id) xor 42).  Points before
   the first game state (no zone observed; upstream falls back to the first future zone row) and points with fewer than
@@ -347,7 +348,8 @@ python -m pytest tests/test_krafton_adaptation.py
 ## 8. Limitations
 
 * Reconstructed inputs, not KRAFTON's: 22 proxies and one zero column (section 4); positions every 10 s (upstream
-  forward-fills a grid built from every event type); no revive events.
+  forward-fills a grid built from every event type); no revive / redeploy events, so returns after a kill are not
+  modelled with a v1 dump and are inferred from position samples with a v2 dump (section 9).
 * The fixed 2000 s sampling schedule is dense in the late game, so the early cuts (k = 1-3, 20+ alive squads) are covered
   by few training samples per match, and short maps (Karakin, Paramo, Sanhok) give 40-77 samples per match.
 * Early stopping on a small val set (one batch on Karakin / Paramo) is noisy; seeds differ only on the two large cohorts.
@@ -361,3 +363,44 @@ python -m pytest tests/test_krafton_adaptation.py
   already carries the phase", not a model without any phase information.  Seed 42 only.
 * Exploratory; no claim that the published performance of the method is reproduced.
 
+
+
+## 9. v2 dump (leak-free re-run, `model_stgcn/dumps/bigcomp2027_phase_v2`)
+
+Everything above describes the v1 dump (`meta['version']` absent).  With a v2 dump (`meta['version'] == 'v2'`, record contract
+`model_stgcn/dumps/bigcomp2027_phase_v2/CONTRACT.md`) the adaptation changes as follows; v1 dumps keep the old code paths, and a v1
+artifact next to a v2 dump (label table, shard, kf table, Sagong cache) raises `model_stgcn.ptr.data.DumpVersionError`.
+
+* **One source of truth.**  `adaptation.labels` copies from the dump, as stored: `team_death_s` (T, winners / survivors `+inf`), the risk
+  set and labels (`target_mask_v2` / `y_hazard_v2`), the key mask `node_mask` (causally alive at the cut), the token mask `query_mask`
+  (`node_mask | target`), the exact cut times `cut_t` (`a_k = b_k - 10 s`, float64) and `match_end_s` (`C_m`).  Nothing is re-derived
+  from kill events or `time_survived`; the v1 death-time rule, its 5 ms comparison with the dump and the winner override are not applied.
+  A v2 label without one of these keys is refused (no fallback to `team_death_s`).
+* **Inputs strictly before the cut.**  `features.compute_features` runs in a causal mode when `raw['life']` exists: every read is `< t`
+  (snapshots too), the member alive status comes from `model_stgcn.phase_v2.alive` (`build_timelines` with its 20 s stale-health guard,
+  evaluated with `player_alive_at`), the clock W is computed by the database (`extract(epoch FROM event_time - started_at)`, bitwise the
+  producer's).  Per-player cumulative sums are block-local and squad sums are added in member order, so the features at a cut are
+  bit-identical when rebuilt from the records before it (`tests/test_v2_real.py`, `adaptation.validate_causal`).
+* **Rows, keys, risk rows.**  A sample (match, time t) stores the squads that are keys (`KEY`: causally alive at t) or at risk
+  (`RISK`: `T > t`).  At a cut they are the dump's `query_mask` rows and `KEY` is its `node_mask` (checked per match against the
+  causally reconstructed status: any difference raises); a *comeback* squad (risk set, causally dead at the cut: 2 rows of 817,766)
+  is a row without being a key.  The attention keys of K1 / K2 / K3 are the `KEY` squads (key padding mask of the unchanged backbone), the
+  Cox / BCE loss rows are the `RISK` / risk-set rows, `squad_alive_mask` of a v2 batch is the loss-row mask (`TimedTrainer` reads
+  `key_mask` for the keys).  Evaluation rows are the dump's v2 risk-set rows at its cuts (`assert_rows_match` against the PTR arms).
+* **Training sampling and targets.**  K1 keeps KRAFTON's sampling (178 + 14 points of the fixed 2000 s schedule) and the weighted Cox
+  loss.  The event time of a squad is the dump's T (float32 in the shards), survivors are censored at `max(2000 s, C_m, latest T + 1 s)`.
+* **kf table.**  `adaptation.kftable` writes one row per token (`query_mask`) and cut, features at the exact cut, flags from the dump
+  (`alive_at_cut` = `node_mask`; 0 marks a comeback row); `meta.json` records `dump_version`, and `model_stgcn.ptr.extra.load_extra`
+  refuses a table of another version.
+* **No phase-duration input.**  None of the 55 features (nor the 12 Sagong inputs) is a rate or a duration; the scheduled durations
+  (`schedule_table.json` of the dump) feed only the dump's own duration features.
+
+Reproduce (v2 roots; paths relative to `third_party/krafton_pubg_winprob`, DB credentials sourced from the environment, never printed):
+
+```
+python -m adaptation.labels --dump-dir ../../model_stgcn/dumps/bigcomp2027_phase_v2 --out-dir ../../model_stgcn/dumps/krafton_winprob_v2
+python -m adaptation.extract --cohorts <c1,c2,...> --splits val,test,train --workers 3 --out-dir ../../model_stgcn/dumps/krafton_winprob_v2
+python -m adaptation.kftable --cohorts <c1,c2,...> --workers 1 --verify --label-dir ../../model_stgcn/dumps/krafton_winprob_v2 \
+    --data-dir ../../model_stgcn/dumps/krafton_winprob_v2 --out-dir ../../model_stgcn/dumps/bigcomp2027_kraftonfeat_v2
+python -m adaptation.validate_causal --cohorts <c1,c2> --n 12 --data-dir ../../model_stgcn/dumps/krafton_winprob_v2
+```

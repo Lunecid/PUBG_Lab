@@ -9,7 +9,7 @@ BCE per phase.  For every cohort this script reports, on the test rows of seed `
   one-hot cut phase; val rows only);
 * the same pooled / within-phase AUC for M11R and HGB-cut for reference.
 
-    python -m adaptation.diagnostics [--seed 42] [--arm KRAFTON-tf] [--out reports/krafton_baseline_2026-10-05/phase_offset_diagnostic_tf.csv]
+    python -m adaptation.diagnostics [--seed 42] [--arm KRAFTON-tf] [--out reports/krafton_baseline_v2/phase_offset_diagnostic_tf.csv]
 """
 
 from __future__ import annotations
@@ -52,7 +52,7 @@ def _design(df: pd.DataFrame) -> pd.DataFrame:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--ckpt-dir", type=Path, default=REPO / "model_stgcn/checkpoints/bigcomp2027_ptr_v1")
+    ap.add_argument("--ckpt-dir", type=Path, default=REPO / "model_stgcn/checkpoints/bigcomp2027_ptr_v2")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--arm", default="KRAFTON-tf")
     ap.add_argument("--out", type=Path, default=None)

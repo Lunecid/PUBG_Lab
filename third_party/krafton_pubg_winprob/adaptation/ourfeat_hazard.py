@@ -20,7 +20,8 @@ Only the objective changes:
   ``b`` = ``nn.Embedding(7, 1)`` over k = 1..7 (the discrete-time hazard with a phase-specific baseline).
 
 Squads that are alive at the cut but outside the risk set (they die in the last 10 s before the phase end) stay in the
-attention set as in K2 and carry no loss.  Early stopping is on the val NLL (pooled BCE over the val risk-set rows).
+attention set as in K2 and carry no loss.  On a v2 dump the rows are the dump's tokens: the attention keys are the causally
+alive squads (``node_mask``), and a comeback row (risk set but causally dead at the cut) is a loss row without being a key.  Early stopping is on the val NLL (pooled BCE over the val risk-set rows).
 Platt scaling on val as in K1 / K2 (for a BCE logit it should be close to the identity; a and b are stored, ``raw_score``
 is the raw logit, and ``uncalibrated`` in metrics.json holds the metrics of sigmoid(raw logit)).
 
@@ -53,9 +54,9 @@ for p in (str(ROOT), str(REPO)):
 
 from adaptation import ourfeat as OF  # noqa: E402  (K2: backbone, samples, loader, helpers)
 from adaptation import train as T  # noqa: E402  (K1 helpers: prediction frame, Platt, files, native metrics, trainer)
-from adaptation.labels import load_labels  # noqa: E402
+from adaptation.labels import check_label_version, load_labels  # noqa: E402
 from model_stgcn.ptr import metrics as M  # noqa: E402
-from model_stgcn.ptr.data import Standardizer, load_cohort  # noqa: E402  (read-only use)
+from model_stgcn.ptr.data import Standardizer, dump_version, load_cohort  # noqa: E402  (read-only use)
 from model_stgcn.ptr.util import config_hash, git_info, to_jsonable  # noqa: E402
 from src.models.heads import get_head  # noqa: E402
 
@@ -186,7 +187,7 @@ class BCETrainer(T.TimedTrainer):
 
     def _forward(self, batch):
         x = batch["x_continuous"].to(self.device)
-        valid = (batch["squad_alive_mask"] & batch["padding_mask"]).to(self.device)  # attention keys: every alive squad (as K2)
+        valid = T.key_mask_of(batch, self.device)  # attention keys: the alive squads (v2: node_mask; comeback rows are queries only)
         emb = self.backbone(x, None, None, None, None, valid_mask=valid)
         if self.phased:
             return self.head(emb, batch["cut_phase"].to(self.device))
@@ -203,7 +204,7 @@ class BCETrainer(T.TimedTrainer):
         total, n = 0.0, 0
         for batch in self.val_loader:
             y = batch["y"].to(self.device)
-            valid = (batch["squad_alive_mask"] & batch["padding_mask"]).to(self.device)
+            valid = (batch["squad_alive_mask"] & batch["padding_mask"]).to(self.device)  # loss rows (y >= 0 selects the risk set)
             pred = self._forward(batch)
             total += float(masked_bce(pred, y, valid, reduction="sum"))
             n += int((valid & (y >= 0)).sum())
@@ -219,7 +220,7 @@ def predict_logits(backbone, head, ss: OF.TokenSampleSet, device: str, phased: b
     for a in range(0, len(ss), batch_size):
         idx = np.arange(a, min(len(ss), a + batch_size))
         b = ss.batch(idx)
-        valid = (b["squad_alive_mask"] & b["padding_mask"]).to(device)
+        valid = T.key_mask_of(b, device)
         emb = backbone(b["x_continuous"].to(device), None, None, None, None, valid_mask=valid)
         g = (head(emb, b["cut_phase"].to(device)) if phased else head(emb)).float().cpu().numpy()
         for j, i in enumerate(idx):
@@ -267,8 +268,12 @@ def run(args) -> dict:
     for sp in ("train", "val", "test"):
         base_sets[sp], infos[sp] = OF.build_samples(splits[sp], std, t_win, sp)
     n_features = int(base_sets["train"].X57.shape[1])
+    dump_ver = dump_version(splits["train"])
     del splits
-    labs = {sp: {m["match_id"]: m for m in load_labels(args.data_dir, args.cohort, sp)["matches"]} for sp in ("train", "val", "test")}
+    recs = {sp: load_labels(args.data_dir, args.cohort, sp) for sp in ("train", "val", "test")}
+    for sp, rec in recs.items():  # label tables must come from the very dump the tokens were read from
+        check_label_version(rec, dump_ver, against=f"the {sp} dump of {args.cohort} under {args.dump_dir}")
+    labs = {sp: {m["match_id"]: m for m in recs[sp]["matches"]} for sp in ("train", "val", "test")}
     sets = {sp: attach_labels(base_sets[sp], labs[sp]) for sp in base_sets}
     for sp in sets:
         expect = int(sum(m["target"].sum() for m in labs[sp].values()))
@@ -324,7 +329,7 @@ def run(args) -> dict:
     rows_check = {sp: T.assert_rows_match(c, ref_dir, args.cohort, sp) for sp, c in (("val", canon_val), ("test", canon_test))}
     final_offsets = head.phase_bias.weight.detach().cpu().numpy()[:, 0].tolist() if phased else None
     final_bias = float(last_layer(head).bias.detach().cpu())
-    native = {sp: T.native_metrics(sets[sp], g) for sp, g in (("val", g_val), ("test", g_test))}
+    native = {sp: T.native_metrics(sets[sp], g, labs[sp]) for sp, g in (("val", g_val), ("test", g_test))}
     for sp in native:  # the 'unfixed direction' entry belongs to the Cox convention of K1 / K2; meaningless for a hazard logit
         native[sp]["all"].pop("winner_accuracy_unfixed_direction", None)
         for blk in native[sp]["by_cut_phase"].values():
@@ -332,7 +337,8 @@ def run(args) -> dict:
     spec = {"arm": arm, "cohort": args.cohort, "seed": args.seed, "objective": "bce", "phased": phased, "max_epochs": args.max_epochs, "min_steps": args.min_steps,
             "paper": T.PAPER, "epoch_steps": epoch_steps, "device": device, "code": code_fingerprint()}  # fmt: skip
     res = {
-        "arm": arm, "cohort": args.cohort, "seed": args.seed, "device": device, "labels": "v2", "encoder": "transformer", "config_hash": config_hash(spec),
+        "arm": arm, "cohort": args.cohort, "seed": args.seed, "device": device, "labels": "v2", "encoder": "transformer", "dump_version": dump_ver,
+        "config_hash": config_hash(spec),
         "baseline": {
             "source": "krafton-ai/pubg-winprob 99ed9d1 transformer backbone, adapted (third_party/krafton_pubg_winprob/README_ADAPTATION.md), on the PTR team features; objective changed vs K2",
             "objective": "per-team BCE on y_hazard_v2 over the v2 risk-set rows (winners censored), scalar logit head (upstream HazardHead)",
@@ -353,7 +359,7 @@ def run(args) -> dict:
         "history": [{"epoch": e + 1, "train_loss": float(tl), "val_nll": float(vl), "sec": float(sec)}
                     for e, (tl, vl, sec) in enumerate(zip(history["train_loss"], history["val_loss"], trainer.epoch_sec))],
         "git": git_info(), "val": M.all_metrics(canon_val), "test": M.all_metrics(canon_test), "uncalibrated": uncalibrated,
-        "krafton_native": {**native, "note": "winner accuracy / C-index of upstream metrics.py at the phase cuts over the alive squads, survival score = -logit"},
+        "krafton_native": {**native, "note": "winner accuracy / C-index of upstream metrics.py at the phase cuts over the dump's risk-set rows (T > b_k, the rows of pred_*.csv), survival score = -logit"},
     }  # fmt: skip
     res["elapsed_sec"] = time.perf_counter() - t_start
     (out / "metrics.json").write_text(json.dumps(to_jsonable(res), indent=1))

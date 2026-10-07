@@ -1,6 +1,6 @@
 """Pooled and within-phase test AUC of the K-arms and reference arms (the K3 table of the paper's headline test).
 
-    python -m adaptation.phase_auc [--arms KRAFTON-tf-ourfeat,KRAFTON-tf-ourfeat-bce,KRAFTON-tf-ourfeat-hazard,M01] [--out-dir reports/krafton_baseline_2026-10-06]
+    python -m adaptation.phase_auc [--arms KRAFTON-tf-ourfeat,KRAFTON-tf-ourfeat-bce,KRAFTON-tf-ourfeat-hazard,M01] [--out-dir reports/krafton_baseline_v2]
 
 For every cohort and arm (seed 42, test split, ``p_hazard`` of ``pred_test.csv``):
 
@@ -52,11 +52,11 @@ def per_phase_auc(df: pd.DataFrame, col: str = "p_hazard", min_rows: int = 30) -
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--ckpt-dir", type=Path, default=REPO / "model_stgcn/checkpoints/bigcomp2027_ptr_v1")
+    ap.add_argument("--ckpt-dir", type=Path, default=REPO / "model_stgcn/checkpoints/bigcomp2027_ptr_v2")
     ap.add_argument("--arms", default=DEFAULT_ARMS)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--min-rows", type=int, default=30)
-    ap.add_argument("--out-dir", type=Path, default=REPO / "reports/krafton_baseline_2026-10-06")
+    ap.add_argument("--out-dir", type=Path, default=REPO / "reports/krafton_baseline_v2")
     a = ap.parse_args(argv)
     arms = [x for x in a.arms.split(",") if x]
     rows, byphase = [], []

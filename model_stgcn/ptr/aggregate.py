@@ -56,18 +56,34 @@ Pipeline
    for every arm, every contrast and every stratum next to the seven metrics (paired match bootstrap: the per-phase AUCs are
    recomputed on each resample), DL-pooled like them, never in the Holm family and without a verdict (no SESOI): the pre-specified
    primary metric stays the pooled AUC.  The paper tables keep their seven metric columns.
-11. K3 ladder and decomposition (exploratory): the KRAFTON transformer on OUR features comes in three formulations, K2 =
-   ``KRAFTON-tf-ourfeat`` (their Cox loss), K3a = ``KRAFTON-tf-ourfeat-bce`` (BCE on the hazard rows) and K3 =
-   ``KRAFTON-tf-ourfeat-hazard`` (BCE with a phase baseline).  Contrasts ``k3a_vs_k2`` (objective), ``k3_vs_k3a`` (phase baseline),
-   ``k3_vs_k2`` (formulation total) and ``m01_vs_k3`` (the residual: our architecture against theirs under the same formulation and
-   features); ``tables/tab_decomp.tex`` lines up seven CLEAN single-factor steps (pooled and within-phase delta AUC with the cohort
-   counts, every row to - from): input vs Sagong (HGB-cut - SAGONG-hgb), input vs KRAFTON (HGB-cut - HGB-kraftonfeat), objective (K3a - K2),
-   phase baseline (K3 - K3a), architecture (M01 - K3), structure (M11R - M01) and the extended representation (HGB-union - HGB-cut).
-   Bundled contrasts (KRAFTON-tf -> K2, HGB-kraftonfeat - KRAFTON-tf, HGB-cut - SAGONG-xgb, M01 - K2) are not steps; a step whose arms were
-   not run is left out, never replaced by a bundled one.  The Sagong x GBDT cell of ``tab_grid.tex`` is SAGONG-hgb, so the GBDT column
-   is one learner (HistGradientBoosting, HGB-cut settings) with four inputs.
+11. K3 ladder and decomposition (exploratory): the KRAFTON transformer on OUR features comes in four formulations, K2 =
+   ``KRAFTON-tf-ourfeat`` (their Cox loss), K2H0 = ``KRAFTON-tf-ourfeat-h0`` (the same Cox scores plus a phase baseline estimated on the
+   TRAIN risk-set rows, grouped-time Cox / Prentice-Gloeckler, ``adaptation.h0_baseline``; its predictions are ingested like any other
+   arm), K3a = ``KRAFTON-tf-ourfeat-bce`` (BCE on the hazard rows) and K3 = ``KRAFTON-tf-ourfeat-hazard`` (BCE with a phase baseline
+   alpha_k).  ``tables/tab_decomp.tex`` lines up the CLEAN single-factor steps (pooled and within-phase delta AUC with the cohort counts,
+   every row to - from, :data:`DECOMP_STEPS`):
+   (a) HGB-cut - SAGONG-hgb (inputs), (b) HGB-cut - HGB-kraftonfeat (inputs), (c1) K2H0 - K2 (a training-set phase baseline for the Cox
+   score), (c2) K3a - K2H0 (objective: Cox with baseline -> BCE), (d) K3 - K3a (explicit phase baseline alpha_k), (e) M01-norank - K3
+   (architecture, no rank loss), (f) M11R-norank - M01-norank (phase axis + relation bias, no rank loss), (g) HGB-union - HGB-cut
+   (extension); and, as a SEPARATE group, the rank auxiliary loss M01 - M01-norank and M11R - M11R-norank.  The norank arms
+   (``arms.NORANK_ARMS``) are trained with the hazard BCE alone, like the KRAFTON arms, so (e) and (f) do not mix a loss change into
+   the architecture and structure steps.  The pre-specified analysis (P1-P5, the Holm family) is untouched and keeps the rank-loss arms.
+   Bundled contrasts (KRAFTON-tf -> K2, HGB-kraftonfeat - KRAFTON-tf, HGB-cut - SAGONG-xgb, M01 - K2, M01 - K3 with the rank loss) are
+   not steps; a step whose arms were not run is left out, never replaced by a bundled one.  The Sagong x GBDT cell of ``tab_grid.tex``
+   is SAGONG-hgb, so the GBDT column is one learner (HistGradientBoosting, HGB-cut settings) with four inputs.  RQ2 (bundled
+   contrasts, ``tables/tab_rq2_external.tex``): HGB-cut and M11R against KRAFTON-tf, KRAFTON-tf-h0 (their transformer with the phase
+   baseline fitted on val) and SAGONG-xgb / rf / lr, in a table of their own.
 
-Outputs (``--out-dir``, default ``reports/bigcomp2027_results``): tidy CSVs, ``summary.json``, LaTeX ``tabular`` files
+12. Ecological arms (exploratory; ``model_stgcn.ptr.ecomodel``): ``PHASE-only``, ``EHM``, ``EHM-int`` and ``EHM-lite`` are fitted per cohort on the rows of
+   HGB-cut and are inventoried as kind ``ecological``.  Seven paired, DL-pooled contrasts without Holm (``FORMULAS`` group ``ecological``):
+   ``ehm_vs_phase``, ``ehmint_vs_ehm``, ``hgbcut_vs_ehm``, ``m11r_vs_ehm``, ``ehmlite_vs_phase``, ``ehm_vs_ehmlite``, ``hgbcut_vs_ehmlite``; they appear in
+   the CSVs only (no table), and only when those arms exist.
+
+13. Re-run on the v2 dump: ``--runs-dir`` / ``--out-dir`` default to the v2 roots of :mod:`model_stgcn.ptr.paths`; ``--dump-dir`` is compared with
+   ``--runs-dir`` and ``--out-dir`` and a v1 root next to a v2 dump (or the reverse) is refused (without ``--dump-dir`` the two directories are compared
+   with each other: a v1 run directory aggregated into the default v2 results root is refused); ``--out-dir`` is stamped for a v2 dump.  ``--rerender-tables`` rewrites every LaTeX table from the CSVs of an earlier run (no bootstrap).
+
+Outputs (``--out-dir``, default ``reports/bigcomp2027_results_v2``): tidy CSVs, ``summary.json``, LaTeX ``tabular`` files
 (``tables/``) with the structure of the pre-registered paper skeletons, and the forest plot of P1-P5 (``figures/``, PDF + PNG
 and a CSV twin of the plotted numbers).  ``--redraw-figures`` regenerates the forest and bubble plots from the CSVs of an
 earlier run without any bootstrap.
@@ -97,6 +113,7 @@ import pandas as pd
 from scipy import stats
 
 from model_stgcn.ptr import metrics as M
+from model_stgcn.ptr import paths as P
 from model_stgcn.ptr.util import REPO_ROOT, git_info, to_jsonable, write_json
 
 logger = logging.getLogger("model_stgcn.ptr.aggregate")
@@ -128,7 +145,14 @@ MAIN_ARMS: tuple[str, ...] = (
 )  # fmt: skip
 EXPLORATORY_ARMS: tuple[str, ...] = ("M11R-noProx", "M11R-noCombat", "M11R-noCopress")
 STAGE2_ARMS: tuple[str, ...] = ("M11RZ-P", "M11RZ-P-tm")
+# rank-loss control arms (``arms.NORANK_ARMS``): M01 / M11R trained with the hazard BCE alone; neural arms of the decomposition steps (e), (f)
+NORANK_ARMS: tuple[str, ...] = ("M01-norank", "M11R-norank")
 HGB_ARMS: tuple[str, ...] = ("HGB-cut", "HGB-lag", "HGB-noHab")
+# ecological arms (exploratory, ``model_stgcn.ptr.ecomodel``): an explicit discrete-time local-extinction model fitted per cohort on the
+# rows of HGB-cut: PHASE-only (a base rate per cut phase), EHM (plus six habitat terms), EHM-int (plus outside depth x phase) and EHM-lite
+# (EHM without the two edge terms that are collinear with the required speed).  Kind ``ecological``: not neural, not a tree model, not an
+# external baseline.
+ECOLOGICAL_ARMS: tuple[str, ...] = ("PHASE-only", "EHM", "EHM-int", "EHM-lite")
 # external baselines (design doc 4.3, exploratory): re-implementations of Sagong et al. (2025) and the KRAFTON win-probability
 # models, run on the same cohorts / splits / label v2 / rows; they only ever enter exploratory contrasts, never the primary family
 # KRAFTON-tf-ourfeat is their transformer on OUR token features (same backbone and loss as KRAFTON-tf, other input).
@@ -138,15 +162,18 @@ HGB_ARMS: tuple[str, ...] = ("HGB-cut", "HGB-lag", "HGB-noHab")
 # KRAFTON-tf-ourfeat-bce (BCE on the hazard rows), K3 = KRAFTON-tf-ourfeat-hazard (BCE with a phase baseline).
 # SAGONG-hgb and HGB-kraftonfeat run OUR learner (the HGB-cut settings, rows and labels) on THEIR inputs (Sagong's 12 inputs, KRAFTON's
 # reconstructed inputs): the clean input effects are HGB-cut - SAGONG-hgb and HGB-cut - HGB-kraftonfeat.
+# The H0 arms (``adaptation.h0_baseline``, post hoc scores + a phase baseline fitted by grouped-time Cox, Prentice-Gloeckler) are ingested like
+# every other arm: KRAFTON-tf-h0 = K1 scores with the baseline fitted on VAL, KRAFTON-tf-ourfeat-h0 = K2 scores with the baseline fitted on
+# TRAIN (K2H0).  The sensitivity variants (-h0-slope, -h0val, -h0val-slope) are inventoried (kind external, by prefix) but not listed here.
 EXTERNAL_ARMS: tuple[str, ...] = (
-    "SAGONG-xgb", "SAGONG-rf", "SAGONG-lr", "KRAFTON-tf", "KRAFTON-mlp", "KRAFTON-tf-ourfeat", "KRAFTON-tf-ourfeat-bce",
-    "KRAFTON-tf-ourfeat-hazard", "SAGONG-hgb", "HGB-kraftonfeat",
+    "SAGONG-xgb", "SAGONG-rf", "SAGONG-lr", "KRAFTON-tf", "KRAFTON-tf-h0", "KRAFTON-mlp", "KRAFTON-tf-ourfeat", "KRAFTON-tf-ourfeat-h0",
+    "KRAFTON-tf-ourfeat-bce", "KRAFTON-tf-ourfeat-hazard", "SAGONG-hgb", "HGB-kraftonfeat",
 )  # fmt: skip
 EXTERNAL_PREFIXES: tuple[str, ...] = ("SAGONG-", "KRAFTON-")
 # union arms (design doc 4.6, post hoc / exploratory): our representation united with KRAFTON's reconstructed kf_* features; they are
 # our own models (kind hgb / neural), separate from the HGB_ARMS of the main matrix and from the external baselines
 UNION_ARMS: tuple[str, ...] = ("HGB-union", "M11R-union")
-ARM_ORDER: tuple[str, ...] = MAIN_ARMS + EXPLORATORY_ARMS + STAGE2_ARMS + HGB_ARMS + UNION_ARMS + EXTERNAL_ARMS
+ARM_ORDER: tuple[str, ...] = MAIN_ARMS + EXPLORATORY_ARMS + STAGE2_ARMS + NORANK_ARMS + HGB_ARMS + ECOLOGICAL_ARMS + UNION_ARMS + EXTERNAL_ARMS
 KAPPA_ARMS = {"num_a": "M11RZ-noHab", "num_b": "M11R-noHab", "den_a": "M11R", "den_b": "M11R-noHab"}
 
 
@@ -191,9 +218,14 @@ FORMULAS: dict[str, Formula] = {
         Formula("hgbcut_vs_sagong_xgb", {"HGB-cut": 1, "SAGONG-xgb": -1}, "HGB-cut - SAGONG-xgb", "external", optional=True),
         Formula("m11r_vs_krafton_tf", {"M11R": 1, "KRAFTON-tf": -1}, "M11R - KRAFTON-tf", "external", optional=True),
         Formula("hgbcut_vs_krafton_tf", {"HGB-cut": 1, "KRAFTON-tf": -1}, "HGB-cut - KRAFTON-tf", "external", optional=True),
+        # RQ2 (bundled): our models against their transformer WITH the phase baseline fitted on val (K1 scores, ``KRAFTON-tf-h0``)
+        Formula("m11r_vs_krafton_tf_h0", {"M11R": 1, "KRAFTON-tf-h0": -1}, "M11R - KRAFTON-tf-h0", "external", optional=True),
+        Formula("hgbcut_vs_krafton_tf_h0", {"HGB-cut": 1, "KRAFTON-tf-h0": -1}, "HGB-cut - KRAFTON-tf-h0", "external", optional=True),
         Formula("krafton_tf_mlp", {"KRAFTON-tf": 1, "KRAFTON-mlp": -1}, "KRAFTON-tf - KRAFTON-mlp", "external", optional=True),
         Formula("m11r_vs_sagong_rf", {"M11R": 1, "SAGONG-rf": -1}, "M11R - SAGONG-rf", "external", optional=True),
         Formula("m11r_vs_sagong_lr", {"M11R": 1, "SAGONG-lr": -1}, "M11R - SAGONG-lr", "external", optional=True),
+        Formula("hgbcut_vs_sagong_rf", {"HGB-cut": 1, "SAGONG-rf": -1}, "HGB-cut - SAGONG-rf", "external", optional=True),
+        Formula("hgbcut_vs_sagong_lr", {"HGB-cut": 1, "SAGONG-lr": -1}, "HGB-cut - SAGONG-lr", "external", optional=True),
         Formula("m11r_vs_krafton_mlp", {"M11R": 1, "KRAFTON-mlp": -1}, "M11R - KRAFTON-mlp", "external", optional=True),
         Formula("m11r_vs_krafton_tf_ourfeat", {"M11R": 1, "KRAFTON-tf-ourfeat": -1}, "M11R - KRAFTON-tf-ourfeat", "external", optional=True),
         # the input effect: their backbone and loss fixed, our features vs theirs
@@ -214,6 +246,26 @@ FORMULAS: dict[str, Formula] = {
         Formula("m01_vs_k3", {"M01": 1, "KRAFTON-tf-ourfeat-hazard": -1}, "M01 - KRAFTON-tf-ourfeat-hazard", "external", optional=True),
         # the structure step of the decomposition: what the phase axis and the relation bias add to the team axis alone
         Formula("m11r_vs_m01", {"M11R": 1, "M01": -1}, "M11R - M01", "decomp"),
+        # (c1) the Cox arm with a training-set phase baseline (grouped-time Cox, Prentice-Gloeckler; ``adaptation.h0_baseline``) against the
+        # plain Cox arm: the SAME scores (rank-equivalent within a phase), one factor: the phase baseline
+        Formula("k2h0_vs_k2", {"KRAFTON-tf-ourfeat-h0": 1, "KRAFTON-tf-ourfeat": -1}, "KRAFTON-tf-ourfeat-h0 - KRAFTON-tf-ourfeat", "external", optional=True),
+        # (c2) the objective with the baseline held: Cox scores + baseline -> BCE on the hazard rows
+        Formula("k3a_vs_k2h0", {"KRAFTON-tf-ourfeat-bce": 1, "KRAFTON-tf-ourfeat-h0": -1}, "KRAFTON-tf-ourfeat-bce - KRAFTON-tf-ourfeat-h0", "external", optional=True),
+        # (e) architecture and (f) structure at equal loss: no rank loss on either side (the K arms have none)
+        Formula("m01norank_vs_k3", {"M01-norank": 1, "KRAFTON-tf-ourfeat-hazard": -1}, "M01-norank - KRAFTON-tf-ourfeat-hazard", "decomp", optional=True),
+        Formula("m11rnorank_vs_m01norank", {"M11R-norank": 1, "M01-norank": -1}, "M11R-norank - M01-norank", "decomp", optional=True),
+        # the rank auxiliary loss, reported separately: the same architecture with and without the pairwise rank term
+        Formula("m01_vs_m01norank", {"M01": 1, "M01-norank": -1}, "M01 - M01-norank", "decomp", optional=True),
+        Formula("m11r_vs_m11rnorank", {"M11R": 1, "M11R-norank": -1}, "M11R - M11R-norank", "decomp", optional=True),
+        # ecological model (exploratory): what the habitat terms add to the phase base rates, what the edge-gradient interaction adds,
+        # and what the learned arms add beyond the ecological model (the complement of its "share of discrimination")
+        Formula("ehm_vs_phase", {"EHM": 1, "PHASE-only": -1}, "EHM - PHASE-only", "ecological", optional=True),
+        Formula("ehmint_vs_ehm", {"EHM-int": 1, "EHM": -1}, "EHM-int - EHM", "ecological", optional=True),
+        Formula("hgbcut_vs_ehm", {"HGB-cut": 1, "EHM": -1}, "HGB-cut - EHM", "ecological", optional=True),
+        Formula("m11r_vs_ehm", {"M11R": 1, "EHM": -1}, "M11R - EHM", "ecological", optional=True),
+        Formula("ehmlite_vs_phase", {"EHM-lite": 1, "PHASE-only": -1}, "EHM-lite - PHASE-only", "ecological", optional=True),
+        Formula("ehm_vs_ehmlite", {"EHM": 1, "EHM-lite": -1}, "EHM - EHM-lite", "ecological", optional=True),
+        Formula("hgbcut_vs_ehmlite", {"HGB-cut": 1, "EHM-lite": -1}, "HGB-cut - EHM-lite", "ecological", optional=True),
         # union (design doc 4.6, post hoc): what KRAFTON's kf_* features add to our representation, with the learner fixed ...
         Formula("hgb_union_vs_hgbcut", {"HGB-union": 1, "HGB-cut": -1}, "HGB-union - HGB-cut", "union", optional=True),
         Formula("m11r_union_vs_m11r", {"M11R-union": 1, "M11R": -1}, "M11R-union - M11R", "union", optional=True),
@@ -267,18 +319,24 @@ EXTERNAL_CONTRAST_ROWS = [  # (label, formula, group, tag): exploratory, paired,
     ("M11R $-$ SAGONG-rf", "m11r_vs_sagong_rf", "sagong", ""),
     ("M11R $-$ SAGONG-lr", "m11r_vs_sagong_lr", "sagong", ""),
     ("HGB-cut $-$ SAGONG-xgb", "hgbcut_vs_sagong_xgb", "sagong", "bundled"),
+    ("HGB-cut $-$ SAGONG-rf", "hgbcut_vs_sagong_rf", "sagong", "bundled"),
+    ("HGB-cut $-$ SAGONG-lr", "hgbcut_vs_sagong_lr", "sagong", "bundled"),
     ("HGB-cut $-$ SAGONG-hgb", "hgbcut_vs_sagong_hgb", "sagong", "input"),
     ("SAGONG-hgb $-$ SAGONG-xgb", "sagong_hgb_vs_sagong_xgb", "sagong", "learner check"),
     ("M11R $-$ KRAFTON-tf", "m11r_vs_krafton_tf", "krafton", ""),
+    ("M11R $-$ KRAFTON-tf-h0", "m11r_vs_krafton_tf_h0", "krafton", ""),
     ("M11R $-$ KRAFTON-mlp", "m11r_vs_krafton_mlp", "krafton", ""),
     ("M11R $-$ KRAFTON-tf-ourfeat", "m11r_vs_krafton_tf_ourfeat", "krafton", ""),
     ("HGB-cut $-$ KRAFTON-tf", "hgbcut_vs_krafton_tf", "krafton", ""),
+    ("HGB-cut $-$ KRAFTON-tf-h0", "hgbcut_vs_krafton_tf_h0", "krafton", ""),
     ("KRAFTON-tf $-$ KRAFTON-mlp", "krafton_tf_mlp", "ablation", ""),
     ("KRAFTON-tf-ourfeat $-$ KRAFTON-tf", "krafton_ourfeat_input", "ablation", "bundled"),
     ("M01 $-$ KRAFTON-tf-ourfeat", "m01_vs_krafton_tf_ourfeat", "ablation", "bundled"),
     ("HGB-cut $-$ HGB-kraftonfeat", "hgbcut_vs_hgb_kraftonfeat", "grid", "input"),
     ("HGB-kraftonfeat $-$ KRAFTON-tf", "hgb_kraftonfeat_vs_krafton_tf", "grid", "bundled"),
     # the K3 ladder: their transformer on our features, K2 (Cox) -> K3a (BCE) -> K3 (BCE + phase baseline), and what is left for our architecture
+    ("K2+H0 $-$ K2", "k2h0_vs_k2", "formulation", "phase baseline for Cox"),
+    ("K3a $-$ K2+H0", "k3a_vs_k2h0", "formulation", "objective, baseline held"),
     ("K3a $-$ K2", "k3a_vs_k2", "formulation", "objective"),
     ("K3 $-$ K3a", "k3_vs_k3a", "formulation", "phase baseline"),
     ("K3 $-$ K2", "k3_vs_k2", "formulation", "total"),
@@ -302,21 +360,37 @@ GRID_CELLS: dict[tuple[str, str], str] = {
     ("ours", "gbdt"): "HGB-cut", ("ours", "krafton_tf"): "KRAFTON-tf-ourfeat", ("ours", "ptr"): "M11R",
     ("union", "gbdt"): "HGB-union", ("union", "ptr"): "M11R-union",  # no KRAFTON transformer on the union inputs was run
 }  # fmt: skip
-# the decomposition table (tab_decomp.tex): seven CLEAN single-factor steps, every row "to - from" (paired, DL-pooled, exploratory, no Holm);
-# contrasts in which several factors differ (KRAFTON-tf -> K2, HGB-kraftonfeat - KRAFTON-tf, HGB-cut - SAGONG-xgb, M01 - K2) are not steps
+# the decomposition table (tab_decomp.tex): the CLEAN single-factor steps (a)-(g), every row "to - from" (paired, DL-pooled, exploratory, no Holm), and the
+# rank auxiliary loss as a separate group; contrasts in which several factors differ (KRAFTON-tf -> K2, HGB-kraftonfeat - KRAFTON-tf, HGB-cut - SAGONG-xgb,
+# M01 - K2, M01 - K3 with the rank loss) are not steps.  Steps (e) and (f) use the no-rank-loss arms (M01-norank, M11R-norank): the K arms have no rank
+# loss either, so no loss change hides in the architecture or the structure step.  The pre-specified P1-P5 keep the rank-loss arms.
+RANK_AUX_GROUP = "rank auxiliary loss"
 DECOMP_STEPS: tuple[tuple[str, str, str, str], ...] = (  # (group, step, contrast cell, formula); every step changes ONE factor
-    ("inputs", "Input vs Sagong (same HGB)", "HGB-cut $-$ SAGONG-hgb", "hgbcut_vs_sagong_hgb"),
-    ("inputs", "Input vs KRAFTON (same HGB)", "HGB-cut $-$ HGB-kraftonfeat", "hgbcut_vs_hgb_kraftonfeat"),
-    ("ladder", "Objective (Cox $\\to$ BCE)", "K3a $-$ K2", "k3a_vs_k2"),
-    ("ladder", "Phase baseline", "K3 $-$ K3a", "k3_vs_k3a"),
-    ("ladder", "Architecture (theirs $\\to$ ours)", "M01 $-$ K3", "m01_vs_k3"),
-    ("structure", "Structure (phase axis, relations)", "M11R $-$ M01", "m11r_vs_m01"),
-    ("extension", "Extended representation (+kf, HGB)", "HGB-union $-$ HGB-cut", "hgb_union_vs_hgbcut"),
+    ("inputs", "(a) Input vs Sagong (same HGB)", "HGB-cut $-$ SAGONG-hgb", "hgbcut_vs_sagong_hgb"),
+    ("inputs", "(b) Input vs KRAFTON (same HGB)", "HGB-cut $-$ HGB-kraftonfeat", "hgbcut_vs_hgb_kraftonfeat"),
+    ("ladder", "(c1) Phase baseline for the Cox score (+H0)", "K2+H0 $-$ K2", "k2h0_vs_k2"),
+    ("ladder", "(c2) Objective (Cox+H0 $\\to$ BCE)", "K3a $-$ K2+H0", "k3a_vs_k2h0"),
+    ("ladder", "(d) Explicit phase baseline $\\alpha_k$", "K3 $-$ K3a", "k3_vs_k3a"),
+    ("ladder", "(e) Architecture (theirs $\\to$ ours, no rank loss)", "M01-norank $-$ K3", "m01norank_vs_k3"),
+    ("structure", "(f) Structure (phase axis, relations; no rank loss)", "M11R-norank $-$ M01-norank", "m11rnorank_vs_m01norank"),
+    ("extension", "(g) Extended representation (+kf, HGB)", "HGB-union $-$ HGB-cut", "hgb_union_vs_hgbcut"),
+    (RANK_AUX_GROUP, "Rank auxiliary loss, team axis", "M01 $-$ M01-norank", "m01_vs_m01norank"),
+    (RANK_AUX_GROUP, "Rank auxiliary loss, phase + relations", "M11R $-$ M11R-norank", "m11r_vs_m11rnorank"),
 )  # fmt: skip
-ARMS_TABLE_ROWS = [  # (arm, row label); the stage-2 rows appear only when those arms were run
+# RQ2, the bundled external contrasts in a table of their own (tab_rq2_external.tex): our models against the external baselines; every
+# row differs in several factors at once (inputs, learner, objective, sampling), none is a decomposition step
+RQ2_ROWS: tuple[tuple[str, str, str], ...] = (  # (our model, baseline, formula)
+    ("M11R", "KRAFTON-tf", "m11r_vs_krafton_tf"), ("M11R", "KRAFTON-tf-h0", "m11r_vs_krafton_tf_h0"),
+    ("M11R", "SAGONG-xgb", "m11r_vs_sagong_xgb"), ("M11R", "SAGONG-rf", "m11r_vs_sagong_rf"), ("M11R", "SAGONG-lr", "m11r_vs_sagong_lr"),
+    ("HGB-cut", "KRAFTON-tf", "hgbcut_vs_krafton_tf"), ("HGB-cut", "KRAFTON-tf-h0", "hgbcut_vs_krafton_tf_h0"),
+    ("HGB-cut", "SAGONG-xgb", "hgbcut_vs_sagong_xgb"), ("HGB-cut", "SAGONG-rf", "hgbcut_vs_sagong_rf"), ("HGB-cut", "SAGONG-lr", "hgbcut_vs_sagong_lr"),
+)  # fmt: skip
+ARMS_TABLE_ROWS = [  # (arm, row label); the stage-2 and the no-rank-loss rows appear only when those arms were run
     *[(a, a) for a in MAIN_ARMS], ("M11RZ-P", "M11RZ-P"), ("M11RZ-P-tm", "M11RZ-P$-$tm"),
+    ("M01-norank", "M01$-$norank"), ("M11R-norank", "M11R$-$norank"),
     *[(a, a) for a in HGB_ARMS],
 ]  # fmt: skip
+OPTIONAL_TABLE_ARMS: tuple[str, ...] = STAGE2_ARMS + NORANK_ARMS  # no row of dashes for an experiment that was not run
 
 POOLED_COLUMNS = [
     "contrast", "metric", "stratum", "kind", "primary_id", "exploratory", "theta", "se", "ci95_low", "ci95_high",
@@ -451,6 +525,8 @@ class Run:
 
     @property
     def kind(self) -> str:
+        if self.arm in ECOLOGICAL_ARMS:
+            return "ecological"
         if self.arm in EXTERNAL_ARMS or self.arm.startswith(EXTERNAL_PREFIXES):
             return "external"
         return "hgb" if self.arm.startswith("HGB") else "neural"
@@ -882,7 +958,7 @@ def render_arms_table(means: pd.DataFrame) -> str:
     ]
     for arm, label in ARMS_TABLE_ROWS:
         have = [lookup.get((arm, m), float("nan")) for m in TABLE_METRICS]
-        if arm in STAGE2_ARMS and not any(math.isfinite(v) for v in have):
+        if arm in OPTIONAL_TABLE_ARMS and not any(math.isfinite(v) for v in have):
             continue
         out.append(" & ".join([label, *[fmt_value(v) for v in have]]) + " \\\\")
     out += ["\\bottomrule", "\\end{tabular}", ""]
@@ -1020,18 +1096,23 @@ def render_external_contrasts_table(pooled: pd.DataFrame) -> str:
 
 def render_decomposition_table(pooled: pd.DataFrame) -> str:
     """The decomposition table: the CLEAN single-factor steps of :data:`DECOMP_STEPS` (every row ``to - from``, one factor changes), in
-    four groups separated by a rule (inputs | the K ladder | structure | extension); pooled ``Delta AUC`` and ``Delta AUC within phase``
-    (unweighted mean over cut phases of the per-phase AUC), each as ``delta [95% CI]`` with the number of cohorts that were pooled over
-    the cohorts of the analysis (``k/k_total``).  Paired match-level bootstrap per cohort, DerSimonian-Laird pooling, exploratory, no Holm.
-    A step whose models were not run is left out and named in the header comment; a bundled contrast (several factors at once) never
-    stands in for it."""
+    groups separated by a rule (inputs | the K ladder | structure | extension | the rank auxiliary loss, a separate group with a title row);
+    pooled ``Delta AUC`` and ``Delta AUC within phase`` (unweighted mean over cut phases of the per-phase AUC), each as ``delta [95% CI]``
+    with the number of cohorts that were pooled over the cohorts of the analysis (``k/k_total``).  Paired match-level bootstrap per
+    cohort, DerSimonian-Laird pooling, exploratory, no Holm.  A step whose models were not run is left out and named in the header
+    comment; a bundled contrast (several factors at once) never stands in for it."""
     idx = _index_rows(pooled)
     legend = [
         "decomposition in single-factor steps, one row per step, every row is (to) - (from) and changes ONE factor; stratum all, exploratory, no Holm;",
         "delta [95% CI]: paired match-level bootstrap on identical rows per cohort, DerSimonian-Laird pooled; Coh. = cohorts pooled / cohorts analysed;",
         "within phase = unweighted mean over the cut phases (>= 30 rows and both classes) of the per-phase AUC, the pooled AUC stays the primary metric;",
-        "K2 = KRAFTON-tf-ourfeat (their transformer and Cox loss on our features), K3a = KRAFTON-tf-ourfeat-bce (BCE), K3 = KRAFTON-tf-ourfeat-hazard (BCE + phase baseline);",
-        "the bundled contrasts (several factors at once) are not steps, they are in tab_external_contrasts.tex: KRAFTON-tf-ourfeat - KRAFTON-tf, HGB-kraftonfeat - KRAFTON-tf, HGB-cut - SAGONG-xgb, M01 - KRAFTON-tf-ourfeat",
+        "K2 = KRAFTON-tf-ourfeat (their transformer and Cox loss on our features), K2+H0 = KRAFTON-tf-ourfeat-h0 (the same Cox scores plus a phase baseline fitted on the",
+        "TRAIN risk-set rows, grouped-time Cox / Prentice-Gloeckler), K3a = KRAFTON-tf-ourfeat-bce (BCE), K3 = KRAFTON-tf-ourfeat-hazard (BCE + explicit phase baseline alpha_k);",
+        "(c1) K2+H0 - K2 adds a training-set phase baseline to the Cox score; (c2) K3a - K2+H0 changes the objective, Cox with baseline -> BCE; (d) K3 - K3a adds the explicit phase baseline;",
+        "(e) M01-norank - K3 changes the architecture and (f) M11R-norank - M01-norank adds the phase axis and the relation bias, both WITHOUT the rank auxiliary loss (the K arms have none);",
+        "(g) HGB-union - HGB-cut extends the representation (+kf); (a), (b) change the inputs with the HGB fixed;",
+        "last group, the rank auxiliary loss (separate, not a step of the ladder): M01 - M01-norank and M11R - M11R-norank, the pairwise rank term added to the same architecture;",
+        "the bundled contrasts (several factors at once) are not steps, they are in tab_external_contrasts.tex / tab_rq2_external.tex: KRAFTON-tf-ourfeat - KRAFTON-tf, HGB-kraftonfeat - KRAFTON-tf, HGB-cut - SAGONG-xgb, M01 - KRAFTON-tf-ourfeat",
     ]
     rows, missing, previous = [], [], None
     for group, step, cell, name in DECOMP_STEPS:
@@ -1041,6 +1122,8 @@ def render_decomposition_table(pooled: pd.DataFrame) -> str:
             continue
         if previous is not None and group != previous:
             rows.append("\\midrule")  # a rule only between groups that have rows
+        if group == RANK_AUX_GROUP and previous != RANK_AUX_GROUP:
+            rows.append("\\multicolumn{6}{@{}l}{\\emph{Rank auxiliary loss (separate group)}} \\\\")
         previous = group
 
         def part(r):
@@ -1054,6 +1137,48 @@ def render_decomposition_table(pooled: pd.DataFrame) -> str:
         "\\begin{tabular}{@{}l l c c c c@{}}",
         "\\toprule",
         "Step & Contrast & $\\Delta$AUC [95\\% CI] & Coh. & $\\Delta$AUC within phase [95\\% CI] & Coh. \\\\",
+        "\\midrule",
+        *rows,
+        "\\bottomrule",
+        "\\end{tabular}",
+        "",
+    ]
+    return "\n".join(out)
+
+
+def render_rq2_table(pooled: pd.DataFrame) -> str:
+    """RQ2, the bundled external contrasts in a table of their own: our two models (M11R, HGB-cut) against KRAFTON-tf, KRAFTON-tf-h0 (their
+    transformer with the phase baseline fitted on val) and SAGONG-xgb / rf / lr, pooled ``Delta AUC`` and ``Delta AUC within phase`` as
+    ``delta [95% CI]`` with the cohorts pooled.  Every contrast differs in several factors at once (inputs, learner, objective, sampling), so none of
+    them is a decomposition step; paired match-level bootstrap on identical rows, DerSimonian-Laird pooled, exploratory, no Holm.  Rows
+    whose models were not run are left out and named in the header comment."""
+    idx = _index_rows(pooled)
+    legend = [
+        "RQ2: our models against the external baselines, every row (our model) - (baseline) on identical rows; BUNDLED (inputs, learner, objective and sampling differ), not decomposition steps;",
+        "delta [95% CI]: paired match-level bootstrap per cohort, DerSimonian-Laird pooled; Coh. = cohorts pooled / cohorts analysed; stratum all, exploratory, no Holm;",
+        "KRAFTON-tf-h0 = KRAFTON-tf scores with a phase baseline fitted on VAL (the K1 train-cut input is not on disk); within phase = unweighted mean over the cut phases of the per-phase AUC",
+    ]
+    rows, missing, previous = [], [], None
+    for model, baseline, name in RQ2_ROWS:
+        auc, within = _lookup(idx, name, "auc"), _lookup(idx, name, "auc_within_phase")
+        if auc is None and within is None:
+            missing.append(name)
+            continue
+        if previous is not None and model != previous:
+            rows.append("\\midrule")
+        previous = model
+
+        def part(r):
+            return ("---", "---") if r is None else (_delta_cell(r), f"{int(r.k)}/{int(r.k_total)}")
+
+        rows.append(" & ".join([f"{model} $-$ {baseline}", *part(auc), *part(within)]) + " \\\\")
+    if missing:
+        legend.append("contrasts not run (left out): " + ", ".join(missing))
+    out = [
+        _tex_comment("tab_rq2_external", legend),
+        "\\begin{tabular}{@{}l c c c c@{}}",
+        "\\toprule",
+        "Contrast & $\\Delta$AUC [95\\% CI] & Coh. & $\\Delta$AUC within phase [95\\% CI] & Coh. \\\\",
         "\\midrule",
         *rows,
         "\\bottomrule",
@@ -1750,6 +1875,59 @@ def write_phase_outputs(res: AggregateResult, *, figures: bool = True) -> None:
         derived.draw_phase_strata(res.by_phase, out / "figures" / "phase_strata")
 
 
+ALWAYS_TABLES: tuple[str, ...] = ("tab_primary.tex", "tab_exploratory.tex", "tab_arms_metrics.tex", "tab_primary_strata.tex")
+
+
+def render_tables(pooled: pd.DataFrame, kappa: pd.DataFrame, means: pd.DataFrame) -> dict[str, str | None]:
+    """Every LaTeX table of the aggregator as ``{file name: text}``; ``None`` = this table does not exist for these runs."""
+    # external baselines (4.3): the tables exist only when at least one external model was run (a stale file is removed)
+    have_external = len(means) > 0 and bool(means["arm"].isin(EXTERNAL_ARMS).any())
+    have_union = len(means) > 0 and bool(means["arm"].isin(UNION_ARMS).any())  # post hoc (4.6): same tables, one more block / row
+    ext_means = means[means["arm"].isin((*EXTERNAL_ARMS, *(a for a, _ in EXTERNAL_TABLE_REFERENCES)))] if have_external else means
+    return {
+        "tab_primary.tex": render_primary_table(pooled),
+        "tab_exploratory.tex": render_exploratory_table(pooled, kappa),
+        "tab_arms_metrics.tex": render_arms_table(means),
+        "tab_primary_strata.tex": render_strata_table(pooled),
+        "tab_external.tex": render_external_table(ext_means) if have_external else None,
+        "tab_external_contrasts.tex": render_external_contrasts_table(pooled) if have_external or have_union else None,
+        "tab_rq2_external.tex": render_rq2_table(pooled) if have_external else None,
+        "tab_grid.tex": render_grid_table(means) if have_external or have_union else None,
+        "tab_decomp.tex": render_decomposition_table(pooled),
+    }  # fmt: skip
+
+
+def write_tables(tables_dir: str | Path, texts: Mapping[str, str | None]) -> list[Path]:
+    """Write the tables of :func:`render_tables`; a table with no rows (or that does not exist) removes a stale file instead."""
+    tables = Path(tables_dir)
+    tables.mkdir(parents=True, exist_ok=True)
+    written = []
+    for name, text in texts.items():
+        path = tables / name
+        if name in ALWAYS_TABLES:
+            path.write_text(text, encoding="utf-8")
+            written.append(path)
+        elif text is not None and "\\midrule\n\\midrule" not in text and "\\midrule\n\\bottomrule" not in text:
+            path.write_text(text, encoding="utf-8")
+            written.append(path)
+        elif path.exists():
+            path.unlink()
+    return written
+
+
+def rerender_tables(out_dir: str | Path) -> list[Path]:
+    """Rewrite every LaTeX table of ``out_dir/tables`` from the CSVs of an earlier run (``contrasts_pooled.csv``, ``arm_metrics_mean.csv``,
+    ``kappa.csv``): no bootstrap, nothing else is touched (a table whose rows no longer exist is removed, as in a full run)."""
+    out = Path(out_dir)
+    for name in ("contrasts_pooled.csv", "arm_metrics_mean.csv"):
+        if not (out / name).is_file():
+            raise FileNotFoundError(f"{out / name} not found: run the aggregator once before re-rendering its tables")
+    pooled = pd.read_csv(out / "contrasts_pooled.csv")
+    means = pd.read_csv(out / "arm_metrics_mean.csv")
+    kappa = pd.read_csv(out / "kappa.csv") if (out / "kappa.csv").is_file() else _frame([], KAPPA_COLUMNS)
+    return write_tables(out / "tables", render_tables(pooled, kappa, means))
+
+
 def redraw_figures(out_dir: str | Path) -> list[Path]:
     """Regenerate the forest plot (+ its data twin) and the meta-regression bubble plot from the CSVs of an earlier run
     (``contrasts_pooled.csv``, ``contrasts_per_cohort.csv``, ``metareg*.csv``); no bootstrap, nothing else is rewritten."""
@@ -1789,25 +1967,7 @@ def write_outputs(res: AggregateResult, *, figures: bool = True) -> None:
         _write_csv(res.metareg, out / "metareg.csv")
         _write_csv(res.metareg_data, out / "metareg_data.csv")
     write_json(out / "summary.json", res.summary)
-    tables = out / "tables"
-    tables.mkdir(exist_ok=True)
-    (tables / "tab_primary.tex").write_text(render_primary_table(res.pooled), encoding="utf-8")
-    (tables / "tab_exploratory.tex").write_text(render_exploratory_table(res.pooled, res.kappa), encoding="utf-8")
-    (tables / "tab_arms_metrics.tex").write_text(render_arms_table(res.arm_means), encoding="utf-8")
-    (tables / "tab_primary_strata.tex").write_text(render_strata_table(res.pooled), encoding="utf-8")
-    # external baselines (4.3): the tables exist only when at least one external model was run (a stale file is removed)
-    have_external = len(res.arm_means) > 0 and bool(res.arm_means["arm"].isin(EXTERNAL_ARMS).any())
-    have_union = len(res.arm_means) > 0 and bool(res.arm_means["arm"].isin(UNION_ARMS).any())  # post hoc (4.6): same tables, one more block / row
-    ext_means = res.arm_means[res.arm_means["arm"].isin((*EXTERNAL_ARMS, *(a for a, _ in EXTERNAL_TABLE_REFERENCES)))] if have_external else res.arm_means
-    for name, text in (("tab_external.tex", render_external_table(ext_means) if have_external else None),
-                       ("tab_external_contrasts.tex", render_external_contrasts_table(res.pooled) if have_external or have_union else None),
-                       ("tab_grid.tex", render_grid_table(res.arm_means) if have_external or have_union else None),
-                       ("tab_decomp.tex", render_decomposition_table(res.pooled))):  # fmt: skip
-        path = tables / name
-        if text is not None and "\\midrule\n\\midrule" not in text and "\\midrule\n\\bottomrule" not in text:
-            path.write_text(text, encoding="utf-8")
-        elif path.exists():
-            path.unlink()
+    write_tables(out / "tables", render_tables(res.pooled, res.kappa, res.arm_means))
     if figures:
         data = forest_data(res.pooled, res.contrasts)
         _write_csv(data, out / "figures" / "forest_primary_data.csv")
@@ -1870,10 +2030,12 @@ def _positive_int(text: str) -> int:
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     ap = argparse.ArgumentParser(description="Aggregate a PTR run matrix: bootstrap, pooling, Holm, verdicts, tables, forest plot.")
-    ap.add_argument("--runs-dir", default=None, help="run_matrix output: <runs>/<cohort>/<arm>/seed<s>/ (required unless --redraw-figures)")
+    ap.add_argument("--runs-dir", default=str(P.RUNS_DIR), help="run_matrix output: <runs>/<cohort>/<arm>/seed<s>/ (default: the v2 root)")
     ap.add_argument("--redraw-figures", action="store_true",
                     help="only redraw the forest and bubble plots from the CSVs already in --out-dir (no bootstrap, nothing else changes)")  # fmt: skip
-    ap.add_argument("--out-dir", default=str(REPO_ROOT / "reports" / "bigcomp2027_results"))
+    ap.add_argument("--rerender-tables", action="store_true",
+                    help="only rewrite the LaTeX tables from the CSVs already in --out-dir (no bootstrap, nothing else changes)")  # fmt: skip
+    ap.add_argument("--out-dir", default=str(P.RESULTS_DIR), help="results directory (default: the v2 root)")
     ap.add_argument("--n-boot", type=_positive_int, default=N_BOOT, help="match-level bootstrap resamples (default 2000)")
     ap.add_argument("--seed", type=int, default=0, help="base seed of the bootstrap (a fixed offset per cohort / stratum is added)")
     ap.add_argument("--workers", type=_positive_int, default=None, help="parallel processes (default: cores / 2)")
@@ -1882,8 +2044,27 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     ap.add_argument("--no-figures", action="store_true")
     ap.add_argument("--skip-misaligned", action="store_true", help="drop runs whose rows differ from the other arms instead of failing")
     ap.add_argument("--dump-dir", default=None,
-                    help="dump directory: its population.json gives the training sizes of cohorts whose runs do not record them")  # fmt: skip
+                    help="dump directory: its population.json gives the training sizes of cohorts whose runs do not record them, and its "
+                    "meta.version is compared with --runs-dir / --out-dir (without it the two directories are compared with each other)")  # fmt: skip
     return ap.parse_args(argv)
+
+
+def guard_versions(runs_dir: str | Path, out_dir: str | Path, dump_dir: str | Path | None) -> str | None:
+    """Refuse a v1 run directory or results directory next to a v2 dump (or the reverse); stamp ``out_dir`` for a v2 dump.  Without a dump the
+    two directories must at least agree with each other (a v1 run directory aggregated into the default v2 results root is refused).
+    Returns the dump version (None without a dump)."""
+    try:
+        if dump_dir is not None:
+            dv = P.check_same_version(dump_dir, {"runs (--runs-dir)": runs_dir, "results (--out-dir)": out_dir})
+            if dv != "unknown":
+                P.claim_root(out_dir, dump_dir, role="results")
+            return dv
+        rv, ov = P.artifact_version(runs_dir)[0], P.artifact_version(out_dir)[0]
+        if rv and ov and rv != ov:
+            raise P.VersionMixError(f"--runs-dir {runs_dir} is {rv} but --out-dir {out_dir} is {ov}: pass --dump-dir and matching directories")
+    except P.VersionMixError as exc:
+        raise SystemExit(f"refusing to run: {exc}") from exc
+    return None
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -1896,13 +2077,17 @@ def main(argv: Sequence[str] | None = None) -> int:
         for path in redraw_figures(args.out_dir):
             print(f"wrote {path}")
         return 0
-    if not args.runs_dir:
-        raise SystemExit("--runs-dir is required (unless --redraw-figures)")
+    if args.rerender_tables:
+        for path in rerender_tables(args.out_dir):
+            print(f"wrote {path}")
+        return 0
+    dump_dir = args.dump_dir
+    guard_versions(args.runs_dir, args.out_dir, dump_dir)
     workers = args.workers or max(1, (os.cpu_count() or 2) // 2)
     cohorts = [c for c in args.cohorts.split(",") if c] if args.cohorts else None
     sizes = None
-    if args.dump_dir:
-        pop = Path(args.dump_dir) / "population.json"
+    if dump_dir:
+        pop = Path(dump_dir) / "population.json"
         if pop.is_file():
             info = json.loads(pop.read_text(encoding="utf-8")).get("cohorts", {})
             sizes = {c: int(v["after"]["train"]) for c, v in info.items() if v.get("status") == "kept"}

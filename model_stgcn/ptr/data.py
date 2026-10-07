@@ -29,6 +29,25 @@ the pipeline targets (alive at the END of a phase = alive at its start) and the 
 targets the same way, otherwise such a row would be scored from a dead token.  :func:`alive_source` names the
 rule in use; the training / HGB CLIs log it and write it to ``metrics.json``.
 
+Dump versions (``meta['version']``, :func:`dump_version`)
+------------------------------------------------------------
+``meta['version'] == 'v2'`` marks the leak-free dump of :mod:`model_stgcn.dump_phase_tier_v2` (record contract:
+``model_stgcn/dumps/bigcomp2027_phase_v2/CONTRACT.md``).  A dump without that key is a v1 dump and keeps every rule
+above unchanged.  For v2 the dump is the single source of truth and the loader derives NOTHING from death times:
+
+* risk set / labels: ``target_mask_v2`` / ``y_hazard_v2`` exactly as stored (``select_labels`` is a pass-through: no
+  winner override, no ``_cut_exists``; winners are censored in the dump itself, ``team_death_s == +inf``, and an
+  excluded (match, cut) has an all-False row that is never re-filled);
+* key mask (:func:`key_mask`): ``node_mask``, the teams causally alive at the cut ``a_k = b_k - 10 s``; only these
+  tokens are attention keys (both axes of the model);
+* query / token mask (:func:`effective_alive`, ``query_mask``): ``node_mask | target_mask_v2``.  It differs from the
+  key mask only for *comeback* rows, risk-set teams that are causally dead at ``a_k`` (``T > b_k``): they keep a
+  query token and a loss row but are never a key for another team;
+* loss and metrics: ``target_mask_v2`` rows only, each counted once (``target`` is a subset of ``query``).
+
+Mixing a v2 dump with anything derived from a v1 dump (kf tables, plan / label caches) raises
+:class:`DumpVersionError`.
+
 Team-level token features: the normalised team centre (``pos_in_token``) and ``team_ai_frac`` (share of the
 roster that are AI accounts, broadcast over phases like the position).  ``team_ai_frac`` and ``match_type`` are
 **required**: a dump without them fails loudly (no silent skip).  ``match_type`` is carried to the prediction
@@ -58,6 +77,94 @@ import torch
 
 from model_stgcn.ptr import player as PL
 from model_stgcn.ptr import relations as R
+
+# a_k = b_k - CUT_LEAD_S (the producer's cut lead; tests/test_v2_masks_labels.py asserts it equals model_stgcn.phase_v2.phases.CUT_LEAD_S)
+CUT_LEAD_S = 10.0
+
+# ---- dump versions: ``meta['version']`` (absent = v1)
+VERSION_KEY = "version"
+DUMP_V1, DUMP_V2 = "v1", "v2"
+DUMP_VERSIONS: tuple[str, ...] = (DUMP_V1, DUMP_V2)
+ALIVE_SOURCE_V2 = "node_mask+query_mask_v2"
+# v2 record keys beyond ``_MATCH_KEYS`` that the loader needs; ``node_mask_v2`` must NOT be present (v1 leak marker)
+V2_MATCH_KEYS: tuple[str, ...] = (
+    "query_mask", "target_mask_v2", "y_hazard_v2", "team_death_s", "team_won", "phase_mask", "phase_start_s", "phase_end_s", "cut_t",
+)  # fmt: skip
+
+
+class DumpVersionError(ValueError):
+    """A v2 dump was combined with something derived from a v1 dump (or the other way round), or its records do not
+    follow the contract of its ``meta['version']``."""
+
+
+def dump_version(dump_or_meta) -> str:
+    """``'v2'`` iff ``meta['version'] == 'v2'`` (the leak-free dump); a dump without the key is ``'v1'``.
+
+    Accepts a dump (``{'meta', 'matches'}``) or a meta dict; anything else (for example a ``'v3'`` written by a later
+    producer) raises :class:`DumpVersionError` instead of being read with the wrong rules."""
+    meta = dump_or_meta
+    if isinstance(dump_or_meta, Mapping) and "matches" in dump_or_meta:
+        meta = dump_or_meta.get("meta")
+    meta = meta if isinstance(meta, Mapping) else {}
+    value = meta.get(VERSION_KEY)
+    text = str(value).strip().lower() if value is not None else None
+    if text is None or text in ("v1", "1"):
+        return DUMP_V1
+    if text in ("v2", "2"):
+        return DUMP_V2
+    raise DumpVersionError(f"unsupported dump version meta['{VERSION_KEY}'] = {value!r}; this loader reads {DUMP_VERSIONS}")
+
+
+def check_same_version(have: str, want: str, *, what: str, against: str) -> None:
+    """Raise :class:`DumpVersionError` unless ``have == want`` (``what`` names the artefact, ``against`` the dump)."""
+    if have != want:
+        raise DumpVersionError(
+            f"{what} was derived from a {have} dump but {against} is a {want} dump: mixing them silently re-introduces the "
+            f"look-ahead of the v1 pipeline (or drops the v2 risk-set rows). Rebuild {what} from the {want} dump."
+        )
+
+
+# keys that only a v2 record carries (a v1 record never has any of them; ``cut_t`` / ``cut_wall_s`` exist in both and are not listed)
+V2_ONLY_KEYS: tuple[str, ...] = (
+    "query_mask", "cut_valid", "cut_mask", "cut_excluded", "cut_terminal", "match_end_s", "label_window_end_s", "phase_duration_sched_s",
+)  # fmt: skip
+
+
+def is_v2_match(m: Mapping) -> bool:
+    """A record is a v2 record iff it carries any v2-only key (:data:`V2_ONLY_KEYS`; :func:`validate_dump` enforces that a v1
+    dump has none and that a v2 dump has all of :data:`V2_MATCH_KEYS`).  Deciding on the *presence of any* v2 key (not just
+    ``query_mask``) means a v2 record whose mask was stripped is refused by the functions below instead of being read through
+    the v1 rules (which derive masks and winners from ``team_death_s``)."""
+    return any(k in m for k in V2_ONLY_KEYS)
+
+
+def _require_v2_keys(m: Mapping, keys: Sequence[str], what: str) -> None:
+    missing = [k for k in keys if k not in m]
+    if missing:
+        raise DumpVersionError(
+            f"match {m.get('match_id', '?')}: a v2 record without {missing} ({what}): the loader never rebuilds a mask, a risk set or a "
+            "winner from team_death_s for a v2 dump (that rule is the L3 look-ahead the v2 dump removes)"
+        )
+
+
+def boundary_times(phase_end_s) -> np.ndarray:
+    """``b_k`` per slot as float64 (NaN where the phase has no boundary).
+
+    The final v2 dump stores the time fields as float64 and they are returned as they are (compare ``w < cut_t`` exactly).  A
+    float32 copy (an earlier producer, resolution 0.12 ms near 1500 s) is rounded to the millisecond: every telemetry timestamp
+    is a whole number of milliseconds, so that recovers the exact float64 boundary."""
+    arr = torch.as_tensor(phase_end_s)
+    b = arr.double().numpy().copy()
+    if arr.dtype == torch.float32:
+        b = np.round(b, 3)
+    return b
+
+
+def cut_times(phase_end_s) -> np.ndarray:
+    """``a_k = b_k - 10 s`` per slot, float64, exactly the producer's cut time (NaN without a boundary).  Every input that
+    is built outside the dump reads the records with ``w < a_k`` (strict) only."""
+    return boundary_times(phase_end_s) - float(CUT_LEAD_S)
+
 
 ZONE_COLUMNS: tuple[str, ...] = (
     "cur_cx", "cur_cy", "cur_r", "next_cx", "next_cy", "next_r", "phase_frac", "phase_no",
@@ -160,7 +267,13 @@ def select_labels(m: Mapping, labels: str = DEFAULT_LABELS) -> tuple[torch.Tenso
 
     Winner censoring (labels v2 only): a team with ``team_won`` is treated as ``team_death_s = +inf`` whatever its
     last kill event says (a winner can carry a finite time from a kill event after its last teammate fell): it is
-    at risk at every cut whose phase ``k+1`` exists and never has a positive label."""
+    at risk at every cut whose phase ``k+1`` exists and never has a positive label.
+
+    A record of a **v2 dump** (any v2-only key present, :func:`is_v2_match`) is returned exactly as stored: the producer already censored the
+    winners (``team_death_s == +inf``), set the risk row of every excluded cut to all-False and wrote ``y`` on the risk
+    rows; nothing is re-derived here (no winner override, no cut-existence rule)."""
+    if is_v2_match(m):
+        return _select_labels_v2(m, labels)
     y_key, t_key = LABEL_FIELDS[check_labels(labels)]
     missing = [k for k in (y_key, t_key) if k not in m]
     if missing:
@@ -180,10 +293,31 @@ def select_labels(m: Mapping, labels: str = DEFAULT_LABELS) -> tuple[torch.Tenso
     return y, target
 
 
+def _select_labels_v2(m: Mapping, labels: str) -> tuple[torch.Tensor, torch.Tensor]:
+    """v2 record: ``(y, target)`` = ``(y_hazard_v2, target_mask_v2)`` as stored (pass-through, see :func:`select_labels`)."""
+    if check_labels(labels) != "v2":
+        raise DumpVersionError(
+            f"match {m.get('match_id', '?')}: a v2 dump carries ONE label set (the leak-free v2 labels; its 'target_mask' / "
+            f"'y_hazard' are aliases of them), labels={labels!r} is not defined for it"
+        )
+    _require_v2_keys(m, ("y_hazard_v2", "target_mask_v2", "query_mask", "node_mask"), "labels and masks are read as stored")
+    target = _bool(m["target_mask_v2"])
+    y = torch.where(target, torch.nan_to_num(_t(m["y_hazard_v2"], torch.float32)), torch.zeros(()))
+    return y, target
+
+
 def winner_censor_summary(dump: Mapping, labels: str = DEFAULT_LABELS) -> dict:
-    """What the winner censoring changed over a dump (zeros for pipeline labels)."""
+    """What the winner censoring changed over a dump (zeros for pipeline labels and for v2 dumps)."""
     out = {"applied": labels == "v2", "winner_teams": 0, "winners_finite_death": 0, "positives_removed": 0,
            "target_rows_added": 0, "target_rows_removed": 0}  # fmt: skip
+    if dump_version(dump) == DUMP_V2:  # the producer censors the winners; the loader changes no row
+        out["applied"] = False
+        out["source"] = "v2 dump: winners censored by the producer (team_death_s = +inf), no row added or removed by the loader"
+        for m in dump["matches"]:
+            won = winners(m)
+            out["winner_teams"] += int(won.sum())
+            out["winners_finite_death"] += int((won & ~torch.isinf(_t(m["team_death_s"], torch.float64))).sum())
+        return out
     if labels != "v2":
         return out
     for m in dump["matches"]:
@@ -202,8 +336,12 @@ def winner_censor_summary(dump: Mapping, labels: str = DEFAULT_LABELS) -> dict:
 
 
 def uses_event_alive(dump: Mapping, labels: str = DEFAULT_LABELS) -> bool:
-    """True iff the alive tokens come from the event-based death times (labels v2 on an event-based dump)."""
+    """True iff the alive tokens come from the event-based death times (labels v2 on an event-based v1 dump).
+
+    Always False for a v2 dump: its masks come from the records (``node_mask`` / ``query_mask``), never from ``T``."""
     if check_labels(labels) != "v2":
+        return False
+    if dump_version(dump) == DUMP_V2:
         return False
     meta = dump.get("meta") or {}
     if meta.get(TEAM_DEATH_SOURCE_KEY) in EVENT_DEATH_SOURCES:
@@ -213,19 +351,30 @@ def uses_event_alive(dump: Mapping, labels: str = DEFAULT_LABELS) -> bool:
 
 
 def alive_source(dump: Mapping, labels: str = DEFAULT_LABELS) -> str:
-    """Name of the alive-token rule in use: ``node_mask_v2`` | ``node_mask|target_v2`` | ``node_mask|target_pipeline``."""
+    """Name of the alive-token rule in use: ``node_mask+query_mask_v2`` (v2 dump) | ``node_mask_v2`` |
+    ``node_mask|target_v2`` | ``node_mask|target_pipeline`` (v1)."""
+    if dump_version(dump) == DUMP_V2:
+        return ALIVE_SOURCE_V2
     if uses_event_alive(dump, labels):
         return "node_mask_v2"
     return "node_mask|target_v2" if labels == "v2" else "node_mask|target_pipeline"
 
 
 def event_alive_mask(m: Mapping) -> torch.Tensor:
-    """``[P, N]`` bool: ``team_death_s > phase_start(k)`` (the dump's ``node_mask_v2`` rule).
+    """``[P, N]`` bool: ``team_death_s > phase_start(k)`` (the v1 dump's ``node_mask_v2`` rule).
 
     ``phase_start(k)`` is the dump's own ``phase_start_s[k]`` when the match carries it; otherwise (older event dumps)
     ``phase_start(0) = 0`` and ``phase_start(k) = phase_end_s[k-1]``, which is up to one grid gap earlier, so that
     fallback keeps a few more teams.  NaN death times (unknown) are never alive; slots of absent phases (``phase_mask``
-    False, NaN phase end or NaN start) are empty."""
+    False, NaN phase end or NaN start) are empty.
+
+    Refuses a v2 record: its masks are stored (``node_mask`` = causally alive at the cut, ``query_mask``), and a mask
+    derived from the final death time is exactly the look-ahead the v2 dump removes."""
+    if is_v2_match(m):
+        raise DumpVersionError(
+            f"match {m.get('match_id', '?')}: a v2 record carries node_mask / query_mask; deriving the alive mask from "
+            "team_death_s (the final death time) would re-introduce the L3 look-ahead"
+        )
     death = _t(m["team_death_s"], torch.float64)
     death = torch.where(winners(m), torch.full_like(death, float("inf")), death)  # winner censoring (labels v2)
     end = _t(m["phase_end_s"], torch.float64)
@@ -247,15 +396,40 @@ def event_alive_rule(m: Mapping) -> str:
 
 def effective_alive(m: Mapping, labels: str, event: bool) -> torch.Tensor:
     """Alive tokens ``[P, N]`` of a match: the event-based mask (``event=True``, labels v2 on an event-based dump) or
-    ``node_mask`` raised over the risk set of the chosen label set."""
+    ``node_mask`` raised over the risk set of the chosen label set.
+
+    A v2 record returns its stored ``query_mask`` (= ``node_mask | target_mask_v2``): every row that must exist as a
+    token, comeback rows included (``event`` is ignored).  Use :func:`key_mask` for the attention keys."""
+    if is_v2_match(m):
+        check_labels(labels)
+        _require_v2_keys(m, ("query_mask", "node_mask"), "the token mask is read as stored")
+        return _bool(m["query_mask"])
     if event and check_labels(labels) == "v2":
         return event_alive_mask(m)
     return _bool(m["node_mask"]) | select_labels(m, labels)[1]
 
 
+def key_mask(m: Mapping, labels: str = DEFAULT_LABELS, event: bool = False) -> torch.Tensor:
+    """Attention-key mask ``[P, N]`` of a match.  v2 record: ``node_mask``, the teams causally alive at the cut (a comeback
+    row is a query but never a key).  v1 record: the same mask as :func:`effective_alive` (every token is a key)."""
+    if is_v2_match(m):
+        check_labels(labels)
+        _require_v2_keys(m, ("query_mask", "node_mask"), "the key mask is read as stored")
+        return _bool(m["node_mask"])
+    return effective_alive(m, labels, event)
+
+
+def comeback_mask(m: Mapping) -> torch.Tensor:
+    """``target & ~node_mask`` ``[P, N]``: risk-set rows that are causally dead at the cut (v2 records; all False for v1)."""
+    if not is_v2_match(m):
+        return torch.zeros_like(_bool(m["node_mask"]))
+    _require_v2_keys(m, ("target_mask_v2", "node_mask", "query_mask"), "comeback rows are read from the stored masks")
+    return _bool(m["target_mask_v2"]) & ~_bool(m["node_mask"])
+
+
 def event_alive_audit(m: Mapping) -> dict | None:
     """Compare the loader's event mask with the dump's own ``node_mask_v2`` (None if the match has no such field)."""
-    if EVENT_ALIVE_FIELD not in m:
+    if is_v2_match(m) or EVENT_ALIVE_FIELD not in m:
         return None
     mine, theirs = event_alive_mask(m), _bool(m[EVENT_ALIVE_FIELD])
     return {
@@ -268,7 +442,26 @@ def event_alive_audit(m: Mapping) -> dict | None:
 
 
 def event_alive_summary(dump: Mapping, labels: str = DEFAULT_LABELS) -> dict:
-    """Token counts of the alive rule in use over a whole dump (what was added / removed w.r.t. ``node_mask``)."""
+    """Token counts of the alive rule in use over a whole dump (what was added / removed w.r.t. ``node_mask``).
+
+    v2 dump: ``n_alive`` = query tokens, ``n_node_mask`` = key tokens, ``raised`` = tokens that are not keys (the
+    comeback rows), ``ghost_removed`` = 0 (nothing is derived from death times), plus ``comeback_rows`` per cut."""
+    if dump_version(dump) == DUMP_V2:
+        P = int(_t(dump["matches"][0]["X"]).shape[0]) if dump["matches"] else 0
+        out = {"source": alive_source(dump, labels), "n_alive": 0, "n_node_mask": 0, "ghost_removed": 0, "raised": 0,
+               "n_query": 0, "n_key": 0, "comeback_rows": 0, "comeback_rows_by_cut": [0] * max(P - 1, 0)}  # fmt: skip
+        for m in dump["matches"]:
+            query, key = effective_alive(m, labels, False), key_mask(m, labels)
+            comeback = comeback_mask(m)
+            out["n_alive"] += int(query.sum())
+            out["n_query"] += int(query.sum())
+            out["n_node_mask"] += int(key.sum())
+            out["n_key"] += int(key.sum())
+            out["raised"] += int((query & ~key).sum())
+            out["comeback_rows"] += int(comeback.sum())
+            for p in range(len(out["comeback_rows_by_cut"])):
+                out["comeback_rows_by_cut"][p] += int(comeback[p].sum())
+        return out
     event = uses_event_alive(dump, labels)
     out = {"source": alive_source(dump, labels), "n_alive": 0, "n_node_mask": 0, "ghost_removed": 0, "raised": 0}
     if event:
@@ -340,12 +533,20 @@ def _zone_order(meta: Mapping) -> np.ndarray:
 
 # --------------------------------------------------------------------------- validation / IO
 def validate_dump(dump: Mapping, labels: str = DEFAULT_LABELS) -> None:
-    """Raise ``ValueError`` if the dump violates the schema or the invariants of the chosen label set."""
+    """Raise ``ValueError`` if the dump violates the schema or the invariants of the chosen label set.
+
+    Dispatches on ``meta['version']`` (:func:`dump_version`): a v2 dump is validated against the v2 record contract
+    (stored ``query_mask`` / ``node_mask``, censored winners, no rows at excluded cuts) and needs ``labels='v2'``."""
     check_labels(labels)
     meta = dump.get("meta") if isinstance(dump, Mapping) else None
-    event = isinstance(dump, Mapping) and uses_event_alive(dump, labels)
     if not isinstance(meta, Mapping):
         raise ValueError("dump has no 'meta' dict")
+    version = dump_version(meta)
+    if version == DUMP_V2 and labels != "v2":
+        raise DumpVersionError(
+            f"labels={labels!r} is not defined for a v2 dump (one leak-free label set, the pipeline labels are not stored)"
+        )
+    event = isinstance(dump, Mapping) and uses_event_alive(dump, labels)
     for key in ("feature_names", "feature_groups"):
         if key not in meta:
             raise ValueError(f"meta is missing '{key}'")
@@ -360,16 +561,62 @@ def validate_dump(dump: Mapping, labels: str = DEFAULT_LABELS) -> None:
         raise ValueError("dump has no matches")
     n_phases = None
     for k, m in enumerate(matches):
-        n_phases = _validate_match(m, n_feat, len(ZONE_COLUMNS), k, n_phases, labels, event)
+        n_phases = _validate_match(m, n_feat, len(ZONE_COLUMNS), k, n_phases, labels, event, version)
+
+
+def _validate_v2_record(m: Mapping, where: str, P: int, N: int) -> None:
+    """Invariants of one v2 record that are not shared with v1 (see ``CONTRACT.md``): nothing is re-derived, the stored masks
+    and labels are only checked against each other."""
+    if EVENT_ALIVE_FIELD in m:
+        raise DumpVersionError(
+            f"{where}: a v2 record must not carry '{EVENT_ALIVE_FIELD}' (its presence marks a v1 event dump whose alive mask "
+            "is derived from the final death time)"
+        )
+    node, query, target = _bool(m["node_mask"]), _bool(m["query_mask"]), _bool(m["target_mask_v2"])
+    if not torch.equal(query, node | target):
+        raise ValueError(f"{where}: query_mask must equal node_mask | target_mask_v2 ({int((query ^ (node | target)).sum())} cells differ)")
+    for key, shape in (("query_mask", (P, N)), ("team_death_s", (N,)), ("team_won", (N,)), ("phase_mask", (P,)),
+                       ("phase_start_s", (P,)), ("phase_end_s", (P,)), ("cut_t", (P,))):  # fmt: skip
+        if tuple(_t(m[key]).shape) != shape:
+            raise ValueError(f"{where}: {key} must have shape {shape}, got {tuple(_t(m[key]).shape)}")
+    T = _t(m["team_death_s"], torch.float64)
+    if bool((T == float("-inf")).any()):
+        raise ValueError(f"{where}: team_death_s must be finite, +inf (censored) or NaN (unknown)")
+    won = _bool(m["team_won"])
+    if won.any() and not bool(torch.isposinf(T[won]).all()):
+        raise ValueError(f"{where}: a v2 dump censors the winners (team_death_s = +inf); a winner has a finite or unknown T")
+    if bool((target & torch.isnan(T)[None, :]).any()):
+        raise ValueError(f"{where}: risk-set rows of teams with unknown death time (NaN)")
+    if won.any() and bool(((_t(m["y_hazard_v2"], torch.float32) > 0.5) & target & won[None, :]).any()):
+        raise ValueError(f"{where}: a censored winner has a positive label")
+    pm = _bool(m["phase_mask"])
+    rows = target.any(1)
+    has_cut = torch.zeros(P, dtype=torch.bool)
+    has_cut[: P - 1] = pm[: P - 1] & pm[1:P] & torch.isfinite(_t(m["phase_end_s"], torch.float64))[: P - 1]
+    if bool((rows & ~has_cut).any()):
+        raise ValueError(f"{where}: risk-set rows at a slot without a cut (phase k+1 missing or no boundary b_k)")
+    if "cut_valid" in m:
+        cv = _bool(m["cut_valid"])
+        if tuple(cv.shape) != (P,):
+            raise ValueError(f"{where}: cut_valid must have shape ({P},), got {tuple(cv.shape)}")
+        if bool((rows & ~cv).any()):
+            raise ValueError(f"{where}: risk-set rows at an excluded / invalid cut (cut_valid is False)")
 
 
 def _validate_match(
-    m: Mapping, n_feat: int, n_zone: int, k: int, n_phases: int | None, labels: str, event: bool = False
+    m: Mapping, n_feat: int, n_zone: int, k: int, n_phases: int | None, labels: str, event: bool = False,
+    version: str = DUMP_V1,
 ) -> int:
     where = f"match #{k} ({m.get('match_id', '?') if isinstance(m, Mapping) else '?'})"
-    y_key, t_key = LABEL_FIELDS[labels]
+    v2 = version == DUMP_V2
+    y_key, t_key = LABEL_FIELDS["v2" if v2 else labels]
+    if not v2 and is_v2_match(m):
+        raise DumpVersionError(
+            f"{where}: carries v2-only key(s) {[k for k in V2_ONLY_KEYS if k in m]} but meta['version'] is not 'v2'"
+        )
     event_keys = ("team_death_s", "phase_end_s") if event else ()
-    missing = [key for key in (*_MATCH_KEYS, y_key, t_key, *event_keys) if key not in m]
+    v2_keys = V2_MATCH_KEYS if v2 else ()
+    missing = [key for key in (*_MATCH_KEYS, y_key, t_key, *event_keys, *v2_keys) if key not in m]
     if missing:
         raise ValueError(f"{where}: missing keys {missing} (labels={labels!r})")
     mt = m["match_type"]
@@ -403,6 +650,8 @@ def _validate_match(
         raise ValueError(f"{where}: target_mask must be a subset of node_mask (alive at phase start)")
     if target[-1].any():  # the hazard of the last slot would need a phase after it (evaluation rows: cuts 1..7)
         raise ValueError(f"{where}: {t_key} marks targets in the last phase slot; cut phases are 1..{P - 1}")
+    if v2:
+        _validate_v2_record(m, where, P, N)
     if event:  # ghost fix: the v2 risk set must sit on tokens that the death times call alive
         if bool((_t(m["team_death_s"], torch.float64) == float("-inf")).any()):
             raise ValueError(f"{where}: team_death_s must be finite, +inf (alive at the end) or NaN (unknown)")
@@ -493,6 +742,10 @@ def load_cohort(
     ref = out[splits[0]]["meta"]
     for s in splits[1:]:
         meta = out[s]["meta"]
+        if dump_version(meta) != dump_version(ref):
+            raise DumpVersionError(
+                f"{cohort}: split {splits[0]} is a {dump_version(ref)} dump but split {s} is a {dump_version(meta)} dump"
+            )
         if list(meta["feature_names"]) != list(ref["feature_names"]):
             raise ValueError(f"{cohort}: feature_names differ between {splits[0]} and {s}")
         a = {k: list(map(int, v)) for k, v in meta["feature_groups"].items()}
@@ -611,7 +864,8 @@ class Standardizer:
     ) -> "Standardizer":
         """Statistics over the alive tokens (``effective_alive`` of the label choice) of the given matches.
 
-        Given a dump the alive rule follows :func:`uses_event_alive`; for a bare list of matches pass ``event``."""
+        Given a dump the alive rule follows :func:`uses_event_alive`; for a bare list of matches pass ``event``.  On a v2
+        dump the tokens are the stored ``query_mask`` rows (comeback tokens included: they are model inputs)."""
         if isinstance(dump_or_matches, Mapping):
             matches = dump_or_matches["matches"]
             order = _zone_order(dump_or_matches.get("meta", {}))
@@ -663,6 +917,14 @@ class Standardizer:
         return self._scale(_t(team_ai_frac, torch.float32).numpy(), self.ai_mean[0], self.ai_std[0])
 
 
+def _refuse_player_layer_on_v2(dump: Mapping) -> None:
+    if dump_version(dump) == DUMP_V2:
+        raise DumpVersionError(
+            "the stage-2 player layer (M11RZ-P arms) is not defined for a v2 dump: the player dump is derived from the v1 "
+            "phase dump (event-based alive flags, v1 phase bounds) and has not been rebuilt for v2"
+        )
+
+
 class PlayerStandardizer:
     """Train-only z-scoring of the player features ``Xp`` over the alive player tokens (stage 2)."""
 
@@ -677,6 +939,7 @@ class PlayerStandardizer:
         cls, phase_dump: Mapping, players: Mapping[str, Mapping], labels: str = DEFAULT_LABELS, event: bool | None = None
     ) -> "PlayerStandardizer":
         """Statistics over the alive players (:func:`player.alive_players` under the label choice's team alive rule)."""
+        _refuse_player_layer_on_v2(phase_dump)
         event = uses_event_alive(phase_dump, labels) if event is None else event
         matches = phase_dump["matches"]
         first = players[str(matches[0]["match_id"])]
@@ -706,7 +969,11 @@ class PTRDataset:
 
     ``labels`` picks the label set ('v2' default, 'pipeline'): the risk set, the hazard labels and the alive
     tokens all follow it (``alive_source`` names the rule: the event-based mask for v2 on an event-based dump,
-    else ``node_mask`` raised over that risk set).  ``relation_types=None`` skips edge
+    else ``node_mask`` raised over that risk set).  On a **v2 dump** (``meta['version'] == 'v2'``) the labels are the
+    stored ones and every item carries two masks: ``query_mask`` (``node_mask | target``: the tokens, the rows that
+    exist, shuffled and standardised) and ``node_mask`` (the attention KEYS: teams causally alive at the cut; a comeback
+    row is a query without being a key); ``target_mask`` (the loss / metric rows) is a subset of ``query_mask``.  For a v1
+    dump both masks are the alive tokens.  ``relation_types=None`` skips edge
     handling altogether (no ``rel`` tensor).  With ``shuffle_seed`` the relation matrices are relabelled by a
     fixed per-(match, phase, seed) permutation of the alive teams (the M11R-shuf control), identically on
     every access.  Token features = kept ``X`` columns, [team centre x/y], ``team_ai_frac``, then (union arms only) the extra
@@ -737,6 +1004,9 @@ class PTRDataset:
         self.labels = check_labels(labels)
         if validate:
             validate_dump(dump, self.labels)
+        self.version = dump_version(dump)
+        if players is not None:
+            _refuse_player_layer_on_v2(dump)
         self.event_alive = uses_event_alive(dump, self.labels)
         self.alive_source = alive_source(dump, self.labels)
         if combat_weights not in R.COMBAT_WEIGHT_MODES:
@@ -790,7 +1060,8 @@ class PTRDataset:
         m = self.matches[i]
         sz = self.standardizer
         y, target = select_labels(m, self.labels)
-        alive = effective_alive(m, self.labels, self.event_alive)  # event mask, or node_mask raised over the targets
+        alive = effective_alive(m, self.labels, self.event_alive)  # tokens: event mask / raised node_mask / v2 query_mask
+        key = key_mask(m, self.labels, self.event_alive)  # attention keys: v2 node_mask (causally alive at the cut), else = tokens
         x = sz.transform_x(m["X"], self.keep)
         pos_raw = _t(m["team_pos"], torch.float32)
         pos_valid = torch.isfinite(pos_raw).all(-1)
@@ -810,7 +1081,7 @@ class PTRDataset:
             "match_type": str(m["match_type"]),
             "team_ids": _t(m["team_ids"], torch.int64),
             "x": x,
-            "node_mask": alive,
+            "node_mask": key,  # attention KEY mask (v1: the alive tokens; v2: causally alive at the cut)
             "target_mask": target,
             "y_hazard": y,
             "final_rank_norm": torch.nan_to_num(_t(m["final_rank_norm"], torch.float32)),
@@ -821,6 +1092,8 @@ class PTRDataset:
             "zone_std": torch.where(zone_ok.unsqueeze(-1), sz.transform_zone(zone_raw), zero),
             "zone_valid": zone_ok,
         }
+        if self.version == DUMP_V2:  # v1 batches carry no query_mask: the model then reads node_mask for keys AND tokens
+            item["query_mask"] = alive  # tokens / queries: node_mask | target_mask (comeback rows are queries, not keys)
         if self.relation_types is not None:
             edges = m["edges"]
             if self.shuffle_seed is not None:
@@ -854,7 +1127,11 @@ def collate_batch(
     player_relation_types: Sequence[str] | None = None,
     player_combat_weights: str = "raw",
 ) -> dict:
-    """Pad teams (and, in stage 2, players) to the largest match in the batch; padding is dead (all masks False, labels 0)."""
+    """Pad teams (and, in stage 2, players) to the largest match in the batch; padding is dead (all masks False, labels 0).
+
+    ``node_mask`` is the attention key mask, ``query_mask`` (carried by the items of a v2 dump) the token mask:
+    ``target_mask`` and ``node_mask`` are subsets of ``query_mask``.  Without ``query_mask`` the model reads ``node_mask``
+    for keys and tokens alike (v1)."""
     if not items:
         raise ValueError("empty batch")
     B = len(items)
@@ -879,6 +1156,9 @@ def collate_batch(
     }
     team_keys = ("final_rank_norm", "top5", "team_ids")
     token_keys = ("x", "node_mask", "target_mask", "y_hazard", "pos", "pos_valid")
+    if "query_mask" in items[0]:  # tokens / queries; the model reads node_mask as the key mask and this as the token mask
+        batch["query_mask"] = torch.zeros(B, P, n_max, dtype=torch.bool)
+        token_keys = token_keys + ("query_mask",)
     for b, it in enumerate(items):
         n = int(it["x"].shape[1])
         for key in token_keys:

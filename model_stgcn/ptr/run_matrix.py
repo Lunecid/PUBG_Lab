@@ -1,7 +1,14 @@
 """Run the whole PTR experiment matrix on parallel CPU workers; resumable, one log per run, a status CSV.
 
-    python -m model_stgcn.ptr.run_matrix --dump-dir model_stgcn/dumps/bigcomp2027_phase_v1 \\
-        --out-dir model_stgcn/checkpoints/bigcomp2027_ptr_v1 [--workers 7] [--dry-run]
+    python -m model_stgcn.ptr.run_matrix --dump-dir model_stgcn/dumps/bigcomp2027_phase_v2 \\
+        --out-dir model_stgcn/checkpoints/bigcomp2027_ptr_v2 [--workers 6] [--dry-run]
+
+``--dump-dir`` / ``--out-dir`` default to the v2 roots of :mod:`model_stgcn.ptr.paths`; ``--extra-features`` (union runs) defaults to the kf
+table that belongs to the dump (``bigcomp2027_kraftonfeat_<dump version>`` next to it).  Nothing of a v1 re-run can be picked up by mistake:
+the dump version (``meta['version']``) is compared with the version of ``--out-dir``, ``--extra-features`` and ``--player-dump-dir`` (stamp,
+meta, or ``_v<N>`` in the name) and a v1 root next to a v2 dump (or the reverse) is refused; a status CSV in ``--out-dir`` whose rows point
+outside it (copied from another root) is refused; ``--out-dir`` is stamped (``.rerun_stamp.json``) when a run starts.  The config hash of
+every run (arguments, dump file sizes and mtimes, result modules) is what ``is_done`` compares, so a run of another dump is never skipped.
 
 Matrix (design doc sections 4 / 4.1), cohorts = the complete cohort directories of the dump directory
 (:func:`model_stgcn.ptr.cohorts.discover_cohorts`), ``C`` of them, ``L`` of which are the two large cohorts:
@@ -20,10 +27,18 @@ i.e. ``12 C + 13 L`` runs (170 for the 12 expected cohorts).  The large cohorts 
 (``--strict`` makes that an error).
 
 ``--union`` plans the post hoc union runs of design doc 4.6 instead (they need the kf tables, ``--extra-features DIR``, default
-``bigcomp2027_kraftonfeat_v1`` next to ``--dump-dir``; a cohort without a complete table is left out with a note):
+``bigcomp2027_kraftonfeat_<dump version>`` next to ``--dump-dir``, i.e. ``_v2`` next to the v2 dump; a cohort without a complete table is
+left out with a note):
 ``HGB-union`` and ``M11R-union`` on every cohort at seed 42, plus ``M11R-union`` at seeds 13 and 2026 on the large cohorts
 (``2 C + 2 L`` runs, 28 for the 12 expected cohorts); group ``union``.  Use ``--status-name`` so that the status of the main matrix is
 not overwritten.
+
+``--norank`` plans the post hoc rank-loss control of the supplementary experiment E1 instead (group ``norank``): ``M01-norank`` and
+``M11R-norank`` (``arms.NORANK_ARMS``: M01 / M11R trained with the hazard BCE alone, ``rank_weight`` 0) on every cohort at seed 42
+(``2 C`` runs, 24 for the 12 expected cohorts).  Use ``--status-name`` so that the status of the main matrix is not overwritten.
+
+``--stage2`` (the player-layer arms ``M11RZ-P`` / ``M11RZ-P-tm``) needs the player dump, whose version is compared with the dump like every other
+root: the default player dump next to a v2 dump is ``bigcomp2027_player_v1`` and is refused (the BigComp 2027 v2 re-run leaves stage 2 out).
 
 * Every run is one subprocess (``python -m model_stgcn.ptr.train|hgb ...``) with its stdout / stderr in
   ``<out-dir>/logs/<cohort>__<arm>__seed<seed>.log``; ``--workers`` of them run at once (default: cores / 2) with
@@ -65,7 +80,8 @@ from typing import Callable, Iterable, Sequence
 from model_stgcn.ptr import hgb as H
 from model_stgcn.ptr import train as T
 from model_stgcn.ptr import extra as X
-from model_stgcn.ptr.arms import EXPLORATORY_ARMS, MAIN_ARMS, STAGE2_ARMS, UNION_ARMS
+from model_stgcn.ptr import paths as P
+from model_stgcn.ptr.arms import EXPLORATORY_ARMS, MAIN_ARMS, NORANK_ARMS, STAGE2_ARMS, UNION_ARMS
 from model_stgcn.ptr.cohorts import discover_cohorts
 from model_stgcn.ptr.data import DEFAULT_LABELS, DEFAULT_MATCH_TYPES, LABEL_CHOICES
 from model_stgcn.ptr.hgb import HGB_VARIANTS, UNION_VARIANTS
@@ -82,6 +98,7 @@ GROUPS: tuple[str, ...] = ("main", "exploratory", "seeds", "hgb")
 LC_GROUPS: tuple[str, ...] = ("lc", "lc_full")  # learning curve (design doc 4.4): subsampled runs, full-size extra seeds
 STAGE2_GROUP = "stage2"  # M11RZ-P and M11RZ-P-tm x every cohort, seed 42 (design doc 4.4: needs the player dump)
 UNION_GROUP = "union"  # HGB-union + M11R-union x every cohort (seed 42), M11R-union seeds 13 / 2026 on the large cohorts (design doc 4.6)
+NORANK_GROUP = "norank"  # M01-norank and M11R-norank x every cohort, seed 42 (supplementary experiment E1: the rank-loss control)
 UNION_KF_COLUMNS = 55  # kf_* columns of the KRAFTON table (only used by the cost estimate)
 ONLY_KEYS: tuple[str, ...] = ("cohort", "arm", "seed", "kind", "group", "subsample")
 STATUS_FIELDS = (
@@ -173,6 +190,7 @@ ARM_CLASS = {
     **{a: "relzone" for a in ("M11RZ", "M11RZ-noHab")},
     **{a: "player" for a in STAGE2_ARMS},
     **{a: "rel" for a in UNION_ARMS},  # M11R plus 55 input columns: the extra first-layer columns are negligible
+    "M01-norank": "base", "M11R-norank": "rel",  # M01 / M11R without the rank loss: same cost class as their parents
 }
 
 
@@ -250,6 +268,11 @@ def enumerate_union_runs(cohorts: Iterable[str], large: Sequence[str] = LARGE_CO
     runs += [RunSpec("neural", c, a, MAIN_SEED, UNION_GROUP) for c in cohorts for a in UNION_ARMS]
     runs += [RunSpec("neural", c, a, s, UNION_GROUP) for c in cohorts if c in large for s in EXTRA_SEEDS for a in UNION_ARMS]
     return runs
+
+
+def enumerate_norank_runs(cohorts: Iterable[str]) -> list[RunSpec]:
+    """Rank-loss control (supplementary experiment E1, post hoc): ``M01-norank`` and ``M11R-norank`` on every cohort at seed 42."""
+    return [RunSpec("neural", c, a, MAIN_SEED, NORANK_GROUP) for c in sorted(set(cohorts)) for a in NORANK_ARMS]
 
 
 def enumerate_lc_runs(
@@ -464,7 +487,10 @@ def format_plan(plan: Plan, st: Settings, workers: int, *, list_runs: bool = Fal
     lines += [f"note: {n}" for n in plan.notes]
     lc = {g: sum(1 for i in plan.items if i.spec.group == g) for g in LC_GROUPS}
     n_stage2 = sum(1 for i in plan.items if i.spec.group == STAGE2_GROUP)
-    if n_stage2:
+    n_norank = sum(1 for i in plan.items if i.spec.group == NORANK_GROUP)
+    if n_norank:
+        lines.append(f"runs: {len(plan.items)} = rank-loss control ({', '.join(NORANK_ARMS)}; BCE only, post hoc) x {len(plan.cohorts)} cohorts")
+    elif n_stage2:
         lines.append(f"runs: {len(plan.items)} = stage 2 ({', '.join(STAGE2_ARMS)}) x {len(plan.cohorts)} cohorts")
     elif plan.union:
         lines.append(
@@ -514,6 +540,41 @@ def child_env(threads: int) -> dict[str, str]:
 
 def _utc() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+class StatusFileError(RuntimeError):
+    """A status CSV in the output directory that does not belong to it."""
+
+
+def check_status_files(out_dir: str | Path) -> list[Path]:
+    """Refuse status CSVs (``run_matrix_status*.csv``) in ``out_dir`` whose rows point to logs or metrics outside it: such a file was
+    copied from another root (a v1 run directory, say) and would make the table lie about what was run here.  The status table is only
+    ever written by this runner (it never decides what is done: ``is_done`` reads ``metrics.json``), so a foreign one is a mistake.
+    Returns the status files that were checked."""
+    root = Path(out_dir)
+    if not root.is_dir():
+        return []
+    here = root.resolve()
+    checked = []
+    for path in sorted(root.glob("run_matrix_status*.csv")):
+        checked.append(path)
+        try:
+            rows = list(csv.DictReader(open(path, newline="", encoding="utf-8")))
+        except (OSError, csv.Error) as exc:
+            raise StatusFileError(f"{path} is unreadable ({exc}); remove it or use another --out-dir") from exc
+        for r in rows:
+            for col in ("log", "metrics"):
+                value = (r.get(col) or "").strip()
+                if not value:
+                    continue
+                raw = Path(value)
+                cands = [raw] if raw.is_absolute() else [Path.cwd() / raw, REPO_ROOT / raw]  # a relative path of another working directory
+                if not any(here == t.resolve() or here in t.resolve().parents for t in cands):
+                    raise StatusFileError(
+                        f"{path} lists {col} {value!r} outside {root}: it was written for another root (a v1 run directory?); "
+                        "remove it or use a fresh --out-dir"
+                    )
+    return checked
 
 
 class StatusTable:
@@ -613,8 +674,8 @@ def execute(
 # --------------------------------------------------------------------------- command line
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     ap = argparse.ArgumentParser(prog="python -m model_stgcn.ptr.run_matrix", description=__doc__.split("\n")[0])
-    ap.add_argument("--dump-dir", required=True)
-    ap.add_argument("--out-dir", required=True)
+    ap.add_argument("--dump-dir", default=str(P.DUMP_DIR), help="phase dump directory (default: the v2 dump)")
+    ap.add_argument("--out-dir", default=str(P.RUNS_DIR), help="run directory <out>/<cohort>/<arm>/seed<s>/ (default: the v2 root)")
     ap.add_argument("--labels", default=DEFAULT_LABELS, choices=LABEL_CHOICES)
     ap.add_argument("--match-types", default=",".join(DEFAULT_MATCH_TYPES), type=T._parse_match_types,
                     help="allowed match_type values, comma separated ('any' = no check)")  # fmt: skip
@@ -645,7 +706,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                     "they need the kf tables (--extra-features)")  # fmt: skip
     ap.add_argument("--extra-features", default=None,
                     help="--union: directory of the kf tables <cohort>/{train,val,test}.csv.gz "
-                    "(default: bigcomp2027_kraftonfeat_v1 next to --dump-dir)")  # fmt: skip
+                    "(default: bigcomp2027_kraftonfeat_<dump version> next to --dump-dir, i.e. the v2 table for the v2 dump)")  # fmt: skip
+    ap.add_argument("--norank", action="store_true",
+                    help="plan the post hoc rank-loss control (M01-norank, M11R-norank on every cohort, seed 42) instead of the main matrix")  # fmt: skip
     ap.add_argument("--lc", action="store_true",
                     help="plan the learning curve of design doc 4.4 instead of the main matrix")  # fmt: skip
     ap.add_argument("--lc-cohorts", default=",".join(LARGE_COHORTS), help="learning-curve cohorts")
@@ -664,9 +727,22 @@ def main(argv: list[str] | None = None, popen: Callable = subprocess.Popen) -> i
         raise SystemExit("--projected only makes sense with --dry-run (there are no dumps to run)")
     if args.union and (args.stage2 or args.lc or args.projected):
         raise SystemExit("--union plans a different matrix than --stage2 / --lc / --projected; pick one")
+    if args.norank and (args.stage2 or args.lc or args.union or args.projected):
+        raise SystemExit("--norank plans a different matrix than --stage2 / --lc / --union / --projected; pick one")
     workers = args.workers or default_workers()
     threads = args.threads or default_threads(workers)
-    extra_dir = Path(args.extra_features) if args.extra_features else X.default_extra_dir(args.dump_dir)
+    extra_dir = Path(args.extra_features) if args.extra_features else P.kf_dir_for(args.dump_dir)
+    if not args.projected:  # a projection reads no dump: nothing to compare
+        roots = {"runs (--out-dir)": args.out_dir}
+        if args.union:
+            roots["kf table (--extra-features)"] = extra_dir
+        if args.stage2:  # the effective player dump, also the default next to the dump (a v1 player dump must never feed a v2 stage 2)
+            roots["player dump (--player-dump-dir)"] = args.player_dump_dir or default_player_dump_dir(args.dump_dir)
+        try:
+            P.check_same_version(args.dump_dir, roots)
+            check_status_files(args.out_dir)
+        except (P.VersionMixError, StatusFileError) as exc:
+            raise SystemExit(f"refusing to run: {exc}") from exc
     st = Settings(
         dump_dir=args.dump_dir, out_dir=args.out_dir, labels=args.labels, match_types=args.match_types,
         max_epochs=args.max_epochs, device=args.device, threads=threads, python=args.python,
@@ -692,6 +768,8 @@ def main(argv: list[str] | None = None, popen: Callable = subprocess.Popen) -> i
             notes.append(msg)
         cohorts = have
         runs = enumerate_stage2_runs(cohorts)
+    elif args.norank:
+        runs, notes = enumerate_norank_runs(cohorts), []
     elif args.union:
         have = []
         for c in cohorts:
@@ -724,7 +802,7 @@ def main(argv: list[str] | None = None, popen: Callable = subprocess.Popen) -> i
         notes = []
     else:
         runs, notes = enumerate_runs(cohorts, large, strict=args.strict)
-    if not args.projected and not args.lc and not args.stage2 and not args.union:
+    if not args.projected and not args.lc and not args.stage2 and not args.union and not args.norank:
         kept = population_stats(args.dump_dir)
         if kept is not None and set(kept) - set(cohorts):
             notes.append(f"population.json keeps {len(kept)} cohorts; not in the dump dir yet: {sorted(set(kept) - set(cohorts))}")
@@ -734,6 +812,10 @@ def main(argv: list[str] | None = None, popen: Callable = subprocess.Popen) -> i
     print(format_plan(plan, st, workers, list_runs=args.list))
     if args.dry_run:
         return 0
+    try:
+        P.claim_root(st.out_dir, args.dump_dir, role="runs")  # the stamp: this root belongs to this dump version from now on
+    except P.VersionMixError as exc:
+        raise SystemExit(f"refusing to run: {exc}") from exc
     status_path = Path(st.out_dir) / args.status_name
     rows = execute(plan, st, workers, popen=popen, poll_seconds=args.poll_seconds, status_path=status_path)
     failed = [r for r in rows.values() if r["status"] in ("failed", "interrupted")]

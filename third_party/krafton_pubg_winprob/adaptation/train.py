@@ -36,7 +36,7 @@ for p in (str(ROOT), str(REPO)):
 
 from adaptation import schema as S  # noqa: E402
 from adaptation.data import BatchLoader, fit_standardizer, load_split  # noqa: E402
-from adaptation.labels import load_labels  # noqa: E402
+from adaptation.labels import check_label_version, label_version, load_labels  # noqa: E402
 from model_stgcn.ptr import metrics as M  # noqa: E402  (read-only use: prediction format and metrics)
 from model_stgcn.ptr.util import config_hash, git_info, to_jsonable  # noqa: E402
 from src.models import TransformerBackbone  # noqa: E402
@@ -46,16 +46,32 @@ from src.training.trainer import Trainer, set_seed  # noqa: E402
 
 logger = logging.getLogger("krafton.train")
 ARM_NAME = {"transformer": "KRAFTON-tf", "mlp": "KRAFTON-mlp"}
-DEFAULT_DATA = REPO / "model_stgcn/dumps/krafton_winprob_v1"
-DEFAULT_OUT = REPO / "model_stgcn/checkpoints/bigcomp2027_ptr_v1"
+DEFAULT_DATA = REPO / "model_stgcn/dumps/krafton_winprob_v2"
+DEFAULT_OUT = REPO / "model_stgcn/checkpoints/bigcomp2027_ptr_v2"
 PAPER = dict(embed_dim=64, num_heads=8, num_layers=8, dropout=0.1, batch_size=512, lr=1e-4, weight_decay=1e-4, patience=4)
 LOSS = "weighted_cox"
 
 
+def key_mask_of(batch: dict, device=None) -> torch.Tensor:
+    """Attention keys of a batch: ``key_mask & padding_mask`` (v2: the causally alive squads) or, for batches without a
+    ``key_mask`` (v1), ``squad_alive_mask & padding_mask`` exactly as upstream.  A v2 ``squad_alive_mask`` is the Cox risk
+    set (the loss rows), so it must not be used as the key mask there: a comeback squad is a loss row but never a key."""
+    m = (batch["key_mask"] & batch["padding_mask"]) if "key_mask" in batch else (batch["squad_alive_mask"] & batch["padding_mask"])
+    return m if device is None else m.to(device)
+
+
 class TimedTrainer(Trainer):
-    """Upstream Trainer + seconds per epoch."""
+    """Upstream Trainer + seconds per epoch (+ the v2 key mask: attention keys are the causally alive squads, the Cox loss
+    rows are the risk-set squads, see :func:`key_mask_of`)."""
 
     epoch_sec: list
+
+    def _forward(self, batch):
+        x = batch["x_continuous"].to(self.device)
+        emb = self.backbone(x, batch["positions"].to(self.device), batch["bluezone_info"].to(self.device),
+                            batch["whitezone_info"].to(self.device), batch["map_idx"].to(self.device),
+                            valid_mask=key_mask_of(batch, self.device))  # fmt: skip
+        return self.head(emb)
 
     def train_epoch(self, epoch, num_epochs=None):
         t0 = time.perf_counter()
@@ -77,7 +93,7 @@ def predict_scores(backbone, head, ss, device, batch_size: int = 512) -> np.ndar
     for a in range(0, len(ss), batch_size):
         idx = np.arange(a, min(len(ss), a + batch_size))
         b = ss.batch(idx)
-        valid = (b["squad_alive_mask"] & b["padding_mask"]).to(device)
+        valid = key_mask_of(b, device)
         emb = backbone(b["x_continuous"].to(device), b["positions"].to(device), b["bluezone_info"].to(device),
                        b["whitezone_info"].to(device), b["map_idx"].to(device), valid_mask=valid)  # fmt: skip
         g = head(emb).float().cpu().numpy()
@@ -162,22 +178,45 @@ def assert_rows_match(canon: pd.DataFrame, out_base: Path, cohort: str, split: s
 
 
 # --------------------------------------------------------------------------- KRAFTON-native metrics at the cuts
-def native_metrics(ss, g: np.ndarray) -> dict:
+def target_rows(ss, labs: dict) -> np.ndarray:
+    """``[R]`` bool over the stored rows of ``ss``: the dump's risk-set rows of each sample's cut (``target`` of the label table, ``T > b_k``).
+
+    These are the rows of the prediction files (:func:`build_frame`, same completeness check): every risk-set row of the cut must be among the
+    stored squads.  They are NOT ``ss.RISK``: for K1 / K2 that is the Cox loss set ``T > a_k`` (``a_k = b_k - 10``), which also holds the squads
+    that die in ``(a_k, b_k]``; only K3a / K3 have ``RISK == target``."""
+    out = np.zeros(ss.n_rows, dtype=bool)
+    for i in range(len(ss)):
+        k = int(ss.S_cut[i])
+        assert k >= 1, "evaluation samples must be phase cuts"
+        lab = labs[str(ss.match_ids[ss.S_mi[i]])]
+        r0, r1 = ss.off[i], ss.off[i + 1]
+        sel = np.asarray(lab["target"][k - 1, ss.TIDX[r0:r1].astype(np.int64)], dtype=bool)
+        n_dump = int(lab["target"][k - 1].sum())
+        if n_dump < 1 or int(sel.sum()) != n_dump:
+            raise AssertionError(f"{lab['match_id']} cut {k}: {n_dump} risk-set rows, {int(sel.sum())} found among the stored squads")
+        out[r0:r1] = sel
+    return out
+
+
+def native_metrics(ss, g: np.ndarray, labs: dict) -> dict:
     """Winner accuracy and C-index of upstream (metrics.py) on the (match, cut) samples, survival score = -hazard.
 
-    Winner = the squad with the largest death time target (survivors censored at max(2000 s, match end)); both are
-    evaluated over the alive squads of the sample.  ``c_index`` is the pooled pair concordance of upstream
+    Rows scored, for every arm: the dump's risk-set rows of the cut (``labs[match]['target']``, ``T > b_k``, :func:`target_rows`) = the rows of
+    pred_*.csv; ``ss.RISK`` (the Cox loss set of K1 / K2, ``T > a_k``) is not read.  Winner = the squad with the largest death time target
+    (survivors censored at max(2000 s, match end)) among those rows.  ``c_index`` is the pooled pair concordance of upstream
     (ties in the score count 1/2); ``c_index_mean`` averages the per-sample values.  The ``*_unfixed_direction``
     entries read the raw hazard as 'higher = wins', which is what the upstream evaluation did for Cox losses."""
     acc, acc_raw, chance, conc, comp, per_c = [], [], [], [], [], []
     cut = []
+    rows = target_rows(ss, labs)
     for i in range(len(ss)):
         r0, r1 = ss.off[i], ss.off[i + 1]
-        t = ss.TGT[r0:r1].astype(np.float64)
-        s = -g[r0:r1]
+        sel = rows[r0:r1]
+        t = ss.TGT[r0:r1].astype(np.float64)[sel]
+        s = -g[r0:r1][sel]
         winner = int(np.argmax(t))
         acc.append(float(np.argmax(s) == winner))
-        acc_raw.append(float(np.argmax(g[r0:r1]) == winner))
+        acc_raw.append(float(np.argmax(g[r0:r1][sel]) == winner))
         chance.append(1.0 / len(t))
         dt = t[:, None] - t[None, :]
         ds = s[:, None] - s[None, :]
@@ -241,7 +280,10 @@ def run(args) -> dict:
     mean, std = fit_standardizer(train)
     for ss in (train, val, test):
         ss.finalize(mean, std)
-    labs = {sp: {m["match_id"]: m for m in load_labels(args.data_dir, args.cohort, sp)["matches"]} for sp in ("val", "test")}
+    recs = {sp: load_labels(args.data_dir, args.cohort, sp) for sp in ("train", "val", "test")}
+    for sp, ss in (("train", train), ("val", val), ("test", test)):  # shards and label tables must come from the same dump version
+        check_label_version(recs[sp], ss.dump_version, against=f"the {sp} shards of {args.cohort}")
+    labs = {sp: {m["match_id"]: m for m in recs[sp]["matches"]} for sp in ("val", "test")}
     t_data = time.perf_counter() - t0
     data_info = {sp: {"n_matches": int(len(set(ss.S_mi.tolist()))), "n_samples": int(len(ss)), "n_rows": int(ss.n_rows),
                       "mean_alive_squads": float(ss.n_rows / max(len(ss), 1)), "max_alive_squads": int(ss.S_n.max())}
@@ -286,7 +328,7 @@ def run(args) -> dict:
     rows_check = {sp: assert_rows_match(c, args.ref_dir or args.out_dir, args.cohort, sp) for sp, c in (("val", canon_val), ("test", canon_test))}
     res = {
         "arm": arm, "cohort": args.cohort, "seed": args.seed, "device": device, "labels": "v2", "encoder": args.encoder,
-        "config_hash": config_hash(spec_of(args)),
+        "dump_version": label_version(recs["train"]), "config_hash": config_hash(spec_of(args)),
         "baseline": {
             "source": "krafton-ai/pubg-winprob 99ed9d1, adapted (third_party/krafton_pubg_winprob/README_ADAPTATION.md)",
             "loss": LOSS, "paper_hparams": PAPER, "max_epochs": args.max_epochs, "train_sampling": "krafton192 (178 random + 14 anchors, points with < 2 alive squads dropped)",
@@ -302,8 +344,9 @@ def run(args) -> dict:
         "history": [{"epoch": e + 1, "train_loss": float(tl), "val_loss": float(vl), "sec": float(sec)}
                     for e, (tl, vl, sec) in enumerate(zip(history["train_loss"], history["val_loss"], trainer.epoch_sec))],
         "git": git_info(), "val": M.all_metrics(canon_val), "test": M.all_metrics(canon_test),
-        "krafton_native": {"val": native_metrics(val, g_val), "test": native_metrics(test, g_test),
-                           "note": "winner accuracy / C-index of upstream metrics.py at the phase cuts over the alive squads, survival score = -hazard"},  # fmt: skip
+        "krafton_native": {"val": native_metrics(val, g_val, labs["val"]), "test": native_metrics(test, g_test, labs["test"]),
+                           "note": "winner accuracy / C-index of upstream metrics.py at the phase cuts over the dump's risk-set rows (T > b_k, the rows of "
+                                   "pred_*.csv), survival score = -hazard"},  # fmt: skip
     }  # fmt: skip
     res["elapsed_sec"] = time.perf_counter() - t_start
     (out / "metrics.json").write_text(json.dumps(to_jsonable(res), indent=1))

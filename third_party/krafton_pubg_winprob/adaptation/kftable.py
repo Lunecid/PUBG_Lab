@@ -3,21 +3,30 @@
     python -m adaptation.kftable --cohorts <c1,c2,...> --splits train,val,test --workers 1 [--out-dir <root>]
 
 Output ``<root>/<cohort>/{train,val,test}.csv.gz`` (+ ``<root>/meta.json``), default root
-``model_stgcn/dumps/bigcomp2027_kraftonfeat_v1``.  One row per (match_id, team_id, phase) for the cut phases k = 1..P-1
-(PTR convention: k = dump slot + 1, 1..7) and for EVERY team that is alive at the start of phase k (the PTR token set
-``node_mask_v2`` = ``model_stgcn.ptr.data.event_alive_mask``), which contains every row of the dump's v2 risk set
-(winner censoring as ``select_labels``).  Columns:
+``model_stgcn/dumps/bigcomp2027_kraftonfeat_v2``.  One row per (match_id, team_id, phase) for the cut phases k = 1..P-1
+(PTR convention: k = dump slot + 1, 1..7) and for EVERY token of the dump at that cut.
+
+v2 dump (the default; ``meta['version'] == 'v2'``): the tokens are the dump's ``query_mask`` = ``node_mask | target_mask_v2``
+(``node_mask`` = causally alive at the cut a_k = b_k - 10 s, plus the *comeback* rows: risk-set squads that are causally dead
+at the cut), so the table contains every row of the dump's risk set.  The cut times are the producer's (exact ``cut_t``), every
+feature reads records strictly before ``a_k`` and the member alive status is the causal one of ``model_stgcn.phase_v2.alive``
+(``features.compute_features`` in its v2 mode); the squad status computed here must equal ``node_mask`` (checked per match).
+Nothing is derived from death times.  v1 dump (legacy, ``bigcomp2027_kraftonfeat_v1``): every team alive at the start of phase k
+by ``team_death_s`` (``model_stgcn.ptr.data.event_alive_mask``).  Columns:
 
     match_id, team_id, phase            keys
-    cut_t                               phase_end_s - 10 s on the unified clock W (event_time - stdb.matches.started_at)
+    cut_t                               a_k = phase_end_s - 10 s on the unified clock W (event_time - stdb.matches.started_at)
     in_risk_set                         1 if the row is in the dump's v2 risk set (a hazard label exists)
     y_hazard_v2                         the v2 next-phase hazard label of the risk-set rows (empty otherwise)
-    alive_at_cut                        1 if the team is alive at cut_t (team_death_s > cut_t, winners always alive)
+    alive_at_cut                        v2: 1 if the squad is causally alive at a_k (the dump's node_mask); 0 = a comeback row
+                                        (risk set, causally dead).  v1: 1 if team_death_s > cut_t (winners always alive)
     kf_<name> (55)                      the reconstructed upstream squad features at cut_t (adaptation/features.py)
 
-Strictly causal: every feature at cut_t reads events / samples with time < cut_t (cumulative windows) or <= cut_t
-(snapshots) only.  A team that is alive at phase start but dead at the cut keeps its cumulative action features and gets
-the upstream dead-squad snapshot values (-1 = no alive member for the means, 0 for sums / levels / counts).
+``<root>/meta.json`` records ``dump_version``: ``model_stgcn.ptr.extra.load_extra`` refuses a table whose version differs from the
+dump it is joined to (a v1 table next to a v2 dump would carry the v1 look-ahead and the v1 token set).  Strictly causal: every
+feature at cut_t reads events / samples with time < cut_t only (v2; v1: < for cumulative windows, <= for snapshots).  A squad that
+is dead at the cut keeps its cumulative action features and gets the upstream dead-squad snapshot values (-1 = no alive member for
+the means, 0 for sums / levels / counts).
 """
 
 from __future__ import annotations
@@ -48,10 +57,10 @@ if str(REPO) not in sys.path:
 
 from adaptation import extract as E  # noqa: E402
 from adaptation import schema as S  # noqa: E402
-from adaptation.features import compute_features  # noqa: E402
-from adaptation.labels import load_labels  # noqa: E402
+from adaptation.features import compute_features, team_alive_causal  # noqa: E402
+from adaptation.labels import check_label_version, label_version, load_labels  # noqa: E402
 
-DEFAULT_ROOT = REPO / "model_stgcn/dumps/bigcomp2027_kraftonfeat_v1"
+DEFAULT_ROOT = REPO / "model_stgcn/dumps/bigcomp2027_kraftonfeat_v2"
 KF = [f"kf_{n}" for n in S.FEATURES]
 FLAG_COLUMNS = ["cut_t", "in_risk_set", "y_hazard_v2", "alive_at_cut"]
 COLUMNS = ["match_id", "team_id", "phase"] + FLAG_COLUMNS + KF
@@ -59,7 +68,8 @@ BATCH = 8
 
 
 def _event_alive(lab: dict) -> np.ndarray:
-    """[P, N] alive at phase start: the PTR token rule (model_stgcn.ptr.data.event_alive_mask, read-only use)."""
+    """[P, N] v1 token set: alive at phase start (model_stgcn.ptr.data.event_alive_mask, read-only use).  v2 labels never
+    reach this function: their token set is the stored ``query_mask``."""
     from model_stgcn.ptr.data import event_alive_mask
 
     return event_alive_mask(lab).numpy()
@@ -67,6 +77,8 @@ def _event_alive(lab: dict) -> np.ndarray:
 
 def table_rows(mid: str, lab: dict, raw: dict, extra: dict) -> dict:
     """Rows of one match: arrays of keys, flags and the 55 features (see the module docstring)."""
+    if E._is_v2(lab):  # v2 label: the dump's masks; a v2 label with a stripped mask raises (no v1 re-derivation)
+        return table_rows_v2(mid, lab, raw, extra)
     P = len(lab["phase_end_s"])
     pe, pm = lab["phase_end_s"], lab["phase_mask"]
     alive_start = _event_alive(lab)
@@ -107,6 +119,49 @@ def table_rows(mid: str, lab: dict, raw: dict, extra: dict) -> dict:
     return res
 
 
+def table_rows_v2(mid: str, lab: dict, raw: dict, extra: dict) -> dict:
+    """v2 rows of one match: every token of the dump (``query_mask``) at every cut slot, features at the producer's cut ``a_k``.
+
+    Consistency with the dump (task rules 1-3): the tokens, the risk set, the labels and ``alive_at_cut`` (= ``node_mask``) are
+    the dump's; the causal squad status reconstructed from the raw rows must equal ``node_mask`` at every cut, and the risk set must
+    sit inside the tokens (a comeback row is a token with ``alive_at_cut == 0``)."""
+    node, query, target = lab["node_mask"], lab["query_mask"], lab["target"]
+    P = node.shape[0]
+    cut_t = np.asarray(lab["cut_t"], dtype=np.float64)
+    slots = [p for p in range(P - 1) if np.isfinite(cut_t[p]) and bool(query[p].any())]  # cut slots that have tokens
+    if not slots:
+        return {"n": 0}
+    ts = cut_t[slots]
+    if (ts < extra["flags"]["first_state_w"]).any():
+        raise ValueError(f"a cut falls before the first game state ({extra['flags']['first_state_w']:.1f}s)")
+    out = compute_features(raw, ts)  # v2 labels: raw carries the causal life timelines -> strict, causal reconstruction
+    alive_now = team_alive_causal(raw, ts)  # [N, K]
+    if not np.array_equal(alive_now, node[slots].T):
+        n_bad = int((alive_now != node[slots].T).sum())
+        raise ValueError(f"{mid}: the causal squad status differs from the dump's node_mask in {n_bad} (squad, cut) cells")
+    team_ids = lab["team_ids"]
+    keep_cols = {k: [] for k in ("team_id", "phase", "cut_t", "in_risk_set", "y", "alive_at_cut")}
+    feats = []
+    for kk, p in enumerate(slots):
+        idx = np.flatnonzero(query[p])
+        risk = target[p]
+        if (risk & ~query[p]).any():
+            raise AssertionError(f"{mid} slot {p}: risk-set rows outside the dump's token set")
+        keep_cols["team_id"].append(team_ids[idx])
+        keep_cols["phase"].append(np.full(idx.size, p + 1, dtype=np.int64))
+        keep_cols["cut_t"].append(np.full(idx.size, ts[kk], dtype=np.float64))
+        keep_cols["in_risk_set"].append(risk[idx].astype(np.int8))
+        keep_cols["y"].append(np.where(risk[idx], lab["y"][p, idx], np.nan).astype(np.float32))
+        keep_cols["alive_at_cut"].append(node[p, idx].astype(np.int8))
+        feats.append(out["F"][idx, kk, :])
+    res = {k: np.concatenate(v) for k, v in keep_cols.items()}
+    res["F"] = np.concatenate(feats).astype(np.float32)
+    res["n"] = len(res["team_id"])
+    res["match_id"] = mid
+    res["n_risk"] = int(sum(int(target[p].sum()) for p in slots))
+    return res
+
+
 def run_job(job: dict) -> dict:
     t0 = time.time()
     cohort, split, bidx, labs = job["cohort"], job["split"], job["bidx"], job["labs"]
@@ -123,7 +178,7 @@ def run_job(job: dict) -> dict:
                     raise ValueError("no stdb.matches row / started_at")
                 row = meta.loc[mid]
                 raw, extra = E.build_raw(mid, lab, TT, row, float(row.started_ep))
-                if extra["flags"]["n_death_mismatch"]:
+                if extra["flags"]["n_death_mismatch"]:  # v1 labels only (v2: the dump's T and masks are used as they are)
                     raise ValueError(f"{extra['flags']['n_death_mismatch']} death time mismatches vs the dump")
                 r = table_rows(mid, lab, raw, extra)
                 if r["n"]:
@@ -178,25 +233,35 @@ def feature_meta() -> list[dict]:
     return out
 
 
-def write_meta(root: Path, counts: dict, args) -> None:
+def write_meta(root: Path, counts: dict, args, dump_ver: str = "v2") -> None:
     from model_stgcn.ptr.util import git_info, to_jsonable
 
+    v2 = dump_ver == "v2"
     meta = {
-        "name": "bigcomp2027_kraftonfeat_v1", "created_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"), "git": git_info(),
+        "name": f"bigcomp2027_kraftonfeat_{dump_ver}", "version": dump_ver, "dump_version": dump_ver,
+        "created_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"), "git": git_info(),
         "what": "KRAFTON (krafton-ai/pubg-winprob 99ed9d1) squad-level continuous features reconstructed from the raw pubg.* tables at the PTR phase cuts",
         "code": "third_party/krafton_pubg_winprob/adaptation/{features,extract,kftable,schema}.py; definitions: README_ADAPTATION.md, PARITY_TABLE.csv",
         "files": "<cohort>/{train,val,test}.csv.gz (gzip CSV, floats with 9 significant digits; pyarrow is not installed in the interpreter)",
         "keys": ["match_id", "team_id", "phase"],
-        "phase": "cut phase k = 1..7 (PTR CSV convention: k = dump slot + 1); cut_t = phase_end_s[k-1] - 10 s on the unified clock W = event_time - stdb.matches.started_at",
-        "rows": "every team alive at the start of phase k (PTR token set node_mask_v2 = model_stgcn.ptr.data.event_alive_mask, winners always alive) for every cut phase "
-                "k = 1..P-1 whose phase exists; contains every row of the dump's v2 risk set (winner censoring as select_labels)",
+        "phase": "cut phase k = 1..7 (PTR CSV convention: k = dump slot + 1); cut_t = a_k = phase_end_s[k-1] - 10 s on the unified clock W = event_time - stdb.matches.started_at",
+        "rows": (
+            "every token of the v2 dump at every cut phase k = 1..P-1 that has a cut: query_mask = node_mask | target_mask_v2 (node_mask = causally alive "
+            "at a_k; the extra rows are the comeback squads: risk set, causally dead); contains every row of the dump's v2 risk set"
+            if v2 else
+            "every team alive at the start of phase k (PTR token set node_mask_v2 = model_stgcn.ptr.data.event_alive_mask, winners always alive) for every cut phase "
+            "k = 1..P-1 whose phase exists; contains every row of the dump's v2 risk set (winner censoring as select_labels)"
+        ),
         "flag_columns": {
             "cut_t": "float seconds on W; phase_end_s = cut_t + 10",
-            "in_risk_set": "1 = row of the dump's v2 risk set (target_mask_v2 after winner censoring)",
+            "in_risk_set": "1 = row of the dump's v2 risk set (target_mask_v2)" + ("" if v2 else " after winner censoring"),
             "y_hazard_v2": "next-phase hazard label of the risk-set rows (v2, winners 0); empty for the other rows",
-            "alive_at_cut": "1 = team_death_s > cut_t (winners always alive); 0 = alive at phase start but dead at the cut",
+            "alive_at_cut": ("1 = causally alive at a_k (the dump's node_mask); 0 = comeback row (risk set, causally dead at the cut)" if v2
+                             else "1 = team_death_s > cut_t (winners always alive); 0 = alive at phase start but dead at the cut"),
         },
-        "causality": "features at cut_t read events with time < cut_t (cumulative windows) or <= cut_t (snapshots) only; prefix replay on real matches gives identical features (validate_causal)",
+        "causality": "features at cut_t read records with time < cut_t only (v2: every read strict, causal alive status of model_stgcn.phase_v2.alive); "
+                     "prefix replay on real matches gives identical features (tests/test_v2_prefix_replay_real.py, validate_causal)" if v2 else
+                     "features at cut_t read events with time < cut_t (cumulative windows) or <= cut_t (snapshots) only; prefix replay on real matches gives identical features (validate_causal)",
         "dead_squad_convention": "rows with alive_at_cut = 0: cumulative action features as upstream (summed over all members); mean snapshot features (n_teammates, n_enemies, dist_*) = -1, "
                                  "dist_*_v2 = -1, sums / levels / counts over alive members = 0 (squad_alive_count, squad_total_health, items, is_vehicle_count, ...)",
         "unknown_values": "-1 in dist_* / n_teammates / n_enemies = no alive member (or no valid zone, zone radius < 1 m is treated as no zone)",
@@ -231,7 +296,10 @@ def verify(cohort: str, root: Path, data_dir: Path, label_dir: Path) -> dict:
             if sub["kf_n_kill"].isna().any():
                 n_missing += int(sub["kf_n_kill"].isna().sum())
                 continue
-            if not (sub["alive_at_cut"].to_numpy() == 1).all():
+            if ss.KEY is not None:  # v2 shards: the K1 key flag of every row is the table's alive_at_cut (the dump's node_mask)
+                if not np.array_equal(sub["alive_at_cut"].to_numpy().astype(bool), ss.KEY[r0:r1].astype(bool)):
+                    raise AssertionError(f"{mid} cut {k}: the K1 key flags differ from alive_at_cut in the table")
+            elif not (sub["alive_at_cut"].to_numpy() == 1).all():
                 raise AssertionError(f"{mid} cut {k}: a K1 squad is not flagged alive_at_cut in the table")
             a_, b_ = sub[KF].to_numpy(dtype=np.float64), ss.raw_X[r0:r1].astype(np.float64)
             # equal up to float32 rounding: BLAS sums over a different number of cut times can differ in the last bit
@@ -254,7 +322,7 @@ def main(argv=None) -> int:
     ap.add_argument("--cohorts", required=True)
     ap.add_argument("--splits", default="val,test,train")
     ap.add_argument("--workers", type=int, default=1)
-    ap.add_argument("--label-dir", default=str(E.DEFAULT_OUT), help="where adaptation.labels wrote the label tables")
+    ap.add_argument("--label-dir", default=str(E.DEFAULT_OUT), help="where adaptation.labels wrote the label tables (v2 dump -> v2 tables)")
     ap.add_argument("--out-dir", default=str(DEFAULT_ROOT))
     ap.add_argument("--limit-matches", type=int, default=0)
     ap.add_argument("--verify", action="store_true", help="compare the val / test tables with the KRAFTON-tf cut shards")
@@ -267,6 +335,10 @@ def main(argv=None) -> int:
     splits = [s for s in a.splits.split(",") if s]
     counts_path = root / "counts_partial.json"
     counts = json.loads(counts_path.read_text()) if counts_path.exists() else {}
+    table_version = None
+    if (root / "meta.json").exists():  # a root that already holds tables keeps ONE dump version
+        old_ver = str(json.loads((root / "meta.json").read_text()).get("dump_version", "v1"))
+        table_version = old_ver
     t0 = time.time()
     ctx = mp.get_context("spawn")
     for cohort in cohorts:
@@ -274,7 +346,13 @@ def main(argv=None) -> int:
             if counts.get(cohort, {}).get(split) and (root / cohort / f"{split}.csv.gz").exists():
                 print(f"skip {cohort}/{split} (done)", flush=True)
                 continue
-            labs_all = load_labels(a.label_dir, cohort, split)["matches"]
+            rec = load_labels(a.label_dir, cohort, split)
+            labs_all = rec["matches"]
+            ver = label_version(rec)
+            if table_version is None:
+                table_version = ver
+            elif ver != table_version:  # one table root = one dump version
+                raise SystemExit(f"{cohort}/{split}: label table of a {ver} dump, but this table root is being built from a {table_version} dump")
             labs = labs_all[: a.limit_matches] if a.limit_matches else labs_all
             jobs = [{"cohort": cohort, "split": split, "bidx": bi, "labs": labs[i : i + BATCH]} for bi, i in enumerate(range(0, len(labs), BATCH))]
             chunks, n_bad, risk_total = [], 0, 0
@@ -306,7 +384,7 @@ def main(argv=None) -> int:
         for cohort in cohorts:
             if all((root / cohort / f"{sp}.csv.gz").exists() for sp in ("val", "test")):
                 print("verify", cohort, verify(cohort, root, Path(a.data_dir), Path(a.label_dir)), flush=True)
-    write_meta(root, counts, a)
+    write_meta(root, counts, a, table_version or "v2")
     print("meta written", root / "meta.json", flush=True)
     return 0
 

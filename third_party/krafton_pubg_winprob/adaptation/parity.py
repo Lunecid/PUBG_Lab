@@ -1,6 +1,6 @@
 """Feature parity table of the reconstruction (definitional status + descriptive statistics of the train rows).
 
-    python -m adaptation.parity --data-dir model_stgcn/dumps/krafton_winprob_v1 --out third_party/krafton_pubg_winprob/PARITY_TABLE.csv
+    python -m adaptation.parity --data-dir model_stgcn/dumps/krafton_winprob_v2 --out third_party/krafton_pubg_winprob/PARITY_TABLE.csv
 
 ``status``: exact = same definition from the same event type of this database; proxy = approximated from a coarser /
 different signal (see ``note``); zero = not buildable, the column is 0 for every row.  The statistics are over the

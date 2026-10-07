@@ -5,7 +5,7 @@
 Answers whether the learned per-cut-phase bias can reach the baseline logits from zero at lr 1e-4 within a run (the reason for the
 base-rate initialisation of K3, ``ourfeat_hazard`` docstring).  Everything else is K3: the head bias still starts at the pooled
 train log-odds, the same samples, steps, early stopping and seed.  ``adaptation.ourfeat_hazard.init_intercepts`` is wrapped here,
-the module itself is not modified.  Results go to a SEPARATE root (default ``model_stgcn/checkpoints/bigcomp2027_ptr_v1_diag``) so
+the module itself is not modified.  Results go to a SEPARATE root (default ``model_stgcn/checkpoints/bigcomp2027_ptr_v2_diag``) so
 that the aggregator of the main directory never sees them; the PTR prediction files are still asserted against the main directory.
 Prints, per cohort, the offsets at the start, the offsets that the training reached, the base-rate offsets they would need and the
 test AUC next to K3a / K3 of the main directory.
@@ -29,8 +29,8 @@ for p in (str(ROOT), str(REPO)):
 
 from adaptation import ourfeat_hazard as H  # noqa: E402
 
-MAIN = REPO / "model_stgcn/checkpoints/bigcomp2027_ptr_v1"
-DIAG = REPO / "model_stgcn/checkpoints/bigcomp2027_ptr_v1_diag"
+MAIN = REPO / "model_stgcn/checkpoints/bigcomp2027_ptr_v2"
+DIAG = REPO / "model_stgcn/checkpoints/bigcomp2027_ptr_v2_diag"
 _orig_init = H.init_intercepts
 
 

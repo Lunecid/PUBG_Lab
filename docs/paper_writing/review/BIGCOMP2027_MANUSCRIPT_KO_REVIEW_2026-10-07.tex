@@ -1,0 +1,46 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=20mm]{geometry}
+\usepackage{fontspec}
+\usepackage{xetexko}
+\setmainfont{Helvetica Neue}[BoldFont={Helvetica Neue Bold},ItalicFont={Helvetica Neue Italic},BoldItalicFont={Helvetica Neue Bold Italic}]
+\setmainhangulfont{Apple SD Gothic Neo}[BoldFont={Apple SD Gothic Neo Bold}]
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{enumitem}
+\definecolor{revblue}{HTML}{1F4FD8}
+\newcommand{\rev}[1]{{\color{revblue}#1}}
+\renewcommand{\figurename}{그림}
+\renewcommand{\tablename}{표}
+\captionsetup{font=small,labelfont=bf,labelsep=period}
+\linespread{1.25}
+\setlength{\parskip}{3pt}
+
+\begin{document}
+\begin{center}
+{\Large\bfseries 축소되는 서식지에서의 생존: 대규모 배틀로얄 텔레메트리 기반\\ 단계 조건부 탈락 위험 분석\par}
+\vspace{4pt}
+{\small 검토용 한글 초안 (서론–방법론) · 2026년 10월 7일 · \rev{파란 글씨}는 이번에 고친 부분\par}
+\end{center}
+
+\input{../BIGCOMP2027_INTRO_KO_v4_2026-10-07.tex}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{../../../paper/bigcomp2027/figures/fig_pipeline_clean.pdf}
+\caption{데이터 파이프라인(위, \ref{sec:data}장)과 모델링·평가 절차(아래, \ref{sec:method}장).
+예측 시점은 각 단계의 끝($b_k$, 다음 안전구역이 공개되는 시각)이며, 모든 입력은 그보다 10초 앞선 절단 시각($a_k=b_k-10$초) 이전의 기록으로 만든다.
+라벨은 그 팀이 다음 단계 안에 탈락하면 1이다($Y=\mathbb{1}[b_k<T\le b_{k+1}]$).
+각 설계는 자기 학습 방식을 유지하되 같은 경기 분할과 같은 시험 행에서 평가하며, 코호트별 차이는 확률효과 모형으로 통합한다.
+실선은 데이터, 점선은 라벨의 흐름이다.}
+\label{fig:pipeline}
+\end{figure}
+
+\input{../BIGCOMP2027_SEC2_RELATED_KO_v3_2026-10-07.tex}
+\input{../BIGCOMP2027_SEC3_DATA_KO_v2_2026-10-07.tex}
+\input{../BIGCOMP2027_SEC4_METHOD_KO_v2_2026-10-07.tex}
+
+\bibliographystyle{IEEEtran}
+\bibliography{review}
+\end{document}

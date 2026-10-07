@@ -1,0 +1,86 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=17mm,top=15mm,bottom=15mm]{geometry}
+\usepackage{fontspec}
+\usepackage{xetexko}
+\setmainfont{Helvetica Neue}[BoldFont={Helvetica Neue Bold},ItalicFont={Helvetica Neue Italic},BoldItalicFont={Helvetica Neue Bold Italic}]
+\setmainhangulfont{Apple SD Gothic Neo}[BoldFont={Apple SD Gothic Neo Bold}]
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{caption}
+\definecolor{accent}{HTML}{2F5597}
+\setlist{nosep,leftmargin=1.2em,topsep=1pt}
+\titleformat{\section}{\large\bfseries\color{accent}}{\thesection.}{0.4em}{}
+\titlespacing*{\section}{0pt}{7pt}{3pt}
+\captionsetup{font=small,labelfont=bf,labelsep=period,skip=3pt}
+\renewcommand{\figurename}{그림}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{2pt}
+\linespread{1.08}
+\pagestyle{empty}
+
+\begin{document}
+
+{\LARGE\bfseries 축소되는 서식지에서의 생존\par}
+\vspace{2pt}
+{\large 대규모 배틀로얄 텔레메트리 기반 단계 조건부 탈락 위험 분석\par}
+\vspace{2pt}
+{\small\color{gray} Surviving a Shrinking Habitat: Phase-Conditioned Elimination Hazards from Large-Scale Battle Royale Telemetry (가제)\par}
+\vspace{2pt}
+{\small 연구 요약 · 2026년 10월 7일 기준 · 목표 학회: IEEE BigComp 2027 (full paper)\par}
+\vspace{4pt}
+{\color{accent}\rule{\linewidth}{0.8pt}}
+
+\section{연구 개요}
+배틀로얄 경기에서는 안전구역이 단계적으로 줄어들고, 팀들은 그 안에서 이동하고 교전하며 탈락한다.
+본 연구는 각 단계 경계에서 생존한 팀이 이어지는 한 단계 안에 탈락할 조건부 확률, 즉 \textbf{다음 단계 탈락 위험}을 대규모 시공간 텔레메트리로 분석한다.
+생태학의 서식지 손실 관점에서 팀의 상태를 구성하고, 이 위험을 단계 조건부 이산시간 hazard로 정식화한다.
+기존의 두 설계, 즉 Sagong 등(2025)의 활동 점수 기반 생존 예측과 KRAFTON의 공개 우승확률 예측기를 같은 표본과 평가 조건에 적용해 비교하고, 성능 차이를 설계 요인별로 분해한다.
+
+\section{연구 질문}
+\begin{itemize}
+  \item \textbf{RQ1.} 구역 경계에 대한 노출, 이동 부담, 주변 경쟁 밀도, 남은 팀원 수는 다음 단계 탈락 위험과 어떤 방향과 크기로 관련되며, 그 관계는 단계와 코호트에 걸쳐 얼마나 일관되는가?
+  \item \textbf{RQ2.} 단계 조건부 hazard 목적과 서식지 맥락 표현을 결합한 설계는 같은 데이터와 평가 조건에서 기존 설계의 적용판과 어떤 예측 성능 차이를 보이는가?
+  \item \textbf{RQ3.} 입력 표현, 학습 목적, 단계별 기저위험, 모델 구조를 하나씩 바꿀 때 예측 성능은 얼마나 달라지는가?
+\end{itemize}
+
+\section{데이터와 방법}
+\begin{itemize}
+  \item \textbf{데이터.} PUBG 공개 API에서 수집한 스팀 서버 13,948경기를 사용한다. 경기는 맵, 시점, 팀 규모에 따라 12개 코호트로 나뉜다. 텔레메트리는 약 3억 2,240만 건으로, 약 10초 간격의 위치 기록과 교전·아이템·구역 사건을 포함한다. 분석 단위는 위험집합에 속한 팀--단계 표본 817,766개다.
+  \item \textbf{누수 없는 표본 구성.} 모든 기록을 하나의 사건 시계에 정렬한다. 예측 시점은 각 단계의 축소가 끝나 다음 구역이 공개되는 시각이다. 모든 입력(특징, 생존 인원, 팀 간 관계, attention 마스크)은 예측 시점 10초 전까지의 기록만 쓰고, 라벨은 처치 사건으로 정의한다. 204경기의 1,293개 경계에서 이후 기록을 지우고 입력을 다시 만들어, 원래 입력과 완전히 일치함을 확인했다.
+  \item \textbf{모델.} 비교하는 모델은 세 종류다.
+  (i) RQ1용 해석 모델: 단계별 기저위험과 서식지 구성개념으로 이루어진 로지스틱 hazard.
+  (ii) 본 설계: gradient boosting(HGB)과 PTR-Former. PTR-Former는 팀 축·단계 축 attention과 관계 편향을 쓴다.
+  (iii) 기존 설계의 적용판: Sagong(XGBoost/RF/LR)과 KRAFTON(Transformer와 weighted Cox, 단계 기저위험을 결합한 변형 포함).
+  \item \textbf{평가.} 경기 단위 8:1:1 분할에서 AUC, 단계 안 AUC, 경기--단계 내부 AUC, 로그 손실, Brier, 단계별 보정 오차를 구한다. 차이는 경기 단위 쌍대 bootstrap(2,000회)으로 추정하고, 12개 코호트를 확률효과 모형으로 통합한다. 구조에 관한 5개 비교는 사전에 지정했다(Holm 보정).
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{../../../paper/bigcomp2027/figures/fig_pipeline_clean.pdf}
+\caption{데이터 파이프라인(위)과 모델링·평가 절차(아래).}
+\end{figure}
+
+\section{현재 결과 (12개 코호트 통합)}
+\begin{itemize}
+  \item \textbf{RQ1.} 이동 부담(12/12 코호트)과 주변 경쟁 밀도(12/12)는 위험을 높이고, 남은 팀원 수(11/11)는 위험을 낮춘다. 구역 안쪽 깊이의 보호 효과는 중반 이후 모든 코호트에서 나타나며, 경쟁 효과는 단계가 진행될수록 작아진다. 서식지 구성개념만 쓴 해석 모델이 150차원 모델 판별력의 약 79\%를 설명한다.
+  \item \textbf{RQ2.} 본 설계(AUC 0.778--0.779)는 KRAFTON 적용판(0.741, 단계 기저위험을 결합하면 0.763)과 Sagong 적용판(0.686)보다 12개 코호트 모두에서 높다. 단계별 보정 오차는 본 설계가 0.013, KRAFTON 적용판이 0.064다. 상대위험 목적은 단계마다 달라지는 위험 수준을 담지 못한다.
+  \item \textbf{RQ3.} KRAFTON과의 차이(약 0.037)는 대부분 정식화에서 온다. 단계 기저위험이 +0.016, 다음 단계 학습 목적이 +0.018을 설명한다. 입력 교체, 아키텍처, 구조의 기여는 0에 가깝고, 사전 지정한 5개 비교는 모두 실질적 동등으로 판정되었다. Sagong과의 차이(+0.076)는 입력 표현에서 오며, 그중 서식지 맥락이 +0.047이다.
+  \item \textbf{이중 해리.} KRAFTON의 원래 과제(우승 팀 정확도, 탈락 순서 C-index)에서는 KRAFTON 적용판이 가장 높고(0.417, 0.665), 다음 단계 위험 과제에서는 본 설계가 높다. 같은 백본에서 학습 목적만 바꿔도 이 우열이 뒤집힌다. 학습 목적이 추정 대상을 정한다는 증거다.
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{../../../paper/bigcomp2027/figures/fig_contrast.pdf}
+\caption{(a) 단계별 관측 탈락률과 평균 예측확률. (b)(c) 기존 설계에서 본 설계까지의 단계별 AUC 변화. 각 단계는 통합 추정치이며 막대는 95\% 신뢰구간이다.}
+\end{figure}
+
+\section{진행 상황과 계획}
+\begin{itemize}
+  \item \textbf{완료.} 데이터 파이프라인과 누수 검증, 전체 실험(기존 설계 적용 포함), 강건성 점검을 마쳤다. 강건성 점검은 REML+HK 통합, 학습 예산 2배, 적용판의 원래 과제 충실도를 포함한다. 그림과 표 초안도 완성했다.
+  \item \textbf{진행 중.} 원고를 작성하고 있다. 서론, 관련 연구, 데이터, 방법은 초안을 마쳤고, 결과와 논의를 쓰는 중이다. 목표는 IEEE BigComp 2027 투고(마감 2026년 10월 16일)다.
+\end{itemize}
+
+\end{document}

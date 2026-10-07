@@ -1,0 +1,310 @@
+% =====================================================================
+%  Fig. 1 -- end-to-end pipeline of the study (standalone TikZ figure).
+%
+%  Build : tectonic fig_pipeline.tex   (XeTeX; page = 17.8 cm wide, 9.44 cm high)
+%  Fonts : Helvetica (psnfss, [scaled]) + Font Awesome 5 Free icons (SIL OFL).
+%  Colours (Okabe-Ito): blue = data processing, orange = ours / habitat,
+%           gray = adapted prior designs, green = evaluation,
+%           vermilion = training / scoring targets (dashed arrows).
+%  Reading order (Z): Row 1 = data pipeline (top band), elbow connector,
+%           Row 2 = modeling and evaluation (bottom band).  Row 1 starts with a
+%           short serpentine (N0 down to N1, N2 up to N3) so that every node
+%           keeps >= 7 pt text inside 17.8 cm; the rest runs left to right.
+%  Layout: all coordinates are in cm; the bounding box is fixed with
+%           \useasboundingbox so that the page is exactly 17.8 cm wide.
+% =====================================================================
+\documentclass[tikz,border=2pt]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage[scaled]{helvet}
+\renewcommand\familydefault\sfdefault
+\usepackage{fontawesome5}
+\usetikzlibrary{positioning,arrows.meta,shapes.geometric,fit,backgrounds,calc,decorations.pathreplacing}
+
+% ---- type sizes ------------------------------------------------------
+% [scaled] draws Helvetica at 0.95x.  The nominal sizes below are therefore
+% divided by 0.95 so that the RENDERED sizes are 8 pt (\footnotesize: node
+% titles) and 7 pt (\scriptsize: sublabels, edge labels, legend, lane tags);
+% in PDF units (bp) the smallest Helvetica text is 7.00 bp.  Math (Computer
+% Modern) is set at 8 pt, and 9 pt inside titles, scripts at 8 pt, so that even
+% subscripts are >= 7 pt.  Font Awesome icons are set at 8.4 pt.
+\makeatletter
+\renewcommand\footnotesize{\@setfontsize\footnotesize{8.45}{9.0}}
+\renewcommand\scriptsize{\@setfontsize\scriptsize{7.40}{7.8}}
+\makeatother
+\DeclareMathSizes{8.45}{9}{8}{8}
+\DeclareMathSizes{7.40}{8}{8}{8}
+
+% ---- palette (Okabe-Ito) --------------------------------------------
+\definecolor{blueC}{HTML}{0072B2}\definecolor{blueF}{HTML}{E6F0F8}
+\definecolor{oraC}{HTML}{E69F00} \definecolor{oraF}{HTML}{FDF1DC}
+\definecolor{grayC}{HTML}{6E6E6E}\definecolor{grayF}{HTML}{EFEFEF}
+\definecolor{grnC}{HTML}{009E73} \definecolor{grnF}{HTML}{E3F4EE}
+\definecolor{verC}{HTML}{D55E00}
+\definecolor{txt}{HTML}{222222}
+\definecolor{flowC}{HTML}{4A4A4A}
+\definecolor{bandB}{HTML}{F2F7FB}
+\definecolor{bandG}{HTML}{F4F4F4}
+\definecolor{laneC}{HTML}{CFCFCF}
+\colorlet{oraL}{oraC!42!white}
+
+% ---- text helpers ----------------------------------------------------
+\newcommand{\ttl}[1]{{\footnotesize\bfseries #1}}               % node title, 8 pt
+\newcommand{\sub}[1]{{\scriptsize #1}}                           % sublabel, 7 pt
+\newcommand{\elab}[1]{{\scriptsize\itshape #1}}                  % edge label, 7 pt italic
+\newcommand{\mdot}{\textperiodcentered\ }
+\newcommand{\ico}[2]{{\color{#1C}\fontsize{8.4}{8.4}\selectfont #2}} % FA icon (8 pt) in accent colour
+
+\tikzset{
+  >=Stealth,
+  every node/.style={text=txt, inner sep=0pt, outer sep=0pt, font=\scriptsize},
+  box/.style={draw=#1C, fill=#1F, line width=0.6pt, rounded corners=2pt},
+  flow/.style={draw=flowC, line width=0.65pt, -{Stealth[length=4.4pt,width=3.6pt]}},
+  tgt/.style={draw=verC, line width=0.7pt, dash pattern=on 2.4pt off 1.5pt,
+              -{Stealth[length=4.4pt,width=3.6pt]}},
+  % data store: TikZ cylinder (axis vertical, aspect 0.25).  The cap radius of the
+  % shape scales with the natural width of its content; the invisible 1-cm rule
+  % placed in every cylinder node keeps the caps flat (about 0.13 cm).
+  cyl/.style={cylinder, shape border rotate=90, aspect=0.25, draw=#1C, fill=#1F, line width=0.6pt},
+}
+
+% ---- custom icons: centre (#1,#2), accent colour name #3 -------------
+\newcommand{\icoParachute}[3]{\begin{scope}[shift={(#1,#2)},draw=#3C,line width=0.5pt]
+  \draw[fill=#3F] (-0.15,0.035) arc[start angle=180,end angle=0,x radius=0.15,y radius=0.135] -- cycle;
+  \draw (-0.15,0.035)--(-0.035,-0.085) (0,0.035)--(0,-0.085) (0.15,0.035)--(0.035,-0.085);
+  \fill[#3C] (-0.05,-0.085) rectangle (0.05,-0.175);
+\end{scope}}
+\newcommand{\icoHelmet}[3]{\begin{scope}[shift={(#1,#2)},draw=#3C,line width=0.5pt]
+  \draw[fill=#3C] (-0.15,-0.04) arc[start angle=180,end angle=0,x radius=0.15,y radius=0.17] -- cycle;
+  \draw[fill=#3C] (-0.17,-0.095) rectangle (0.17,-0.04);
+  \draw[#3F,line width=0.7pt] (-0.07,0.02)--(0.1,0.02);
+\end{scope}}
+\newcommand{\icoStairs}[3]{\begin{scope}[shift={(#1,#2)}]
+  \fill[#3C] (-0.16,-0.15) rectangle (-0.08,-0.09) (-0.08,-0.15) rectangle (0.0,-0.02)
+             (0.0,-0.15) rectangle (0.08,0.05) (0.08,-0.15) rectangle (0.16,0.12);
+\end{scope}}
+% safe-zone glyph: three nested, off-centre circles + three team dots
+\newcommand{\icoZone}[2]{\begin{scope}[shift={(#1,#2)}]
+  \draw[grayC,fill=grayF,line width=0.5pt] (0,0) circle (0.21);
+  \draw[oraC,fill=oraL,line width=0.5pt] (0.045,0.03) circle (0.135);
+  \draw[oraC,fill=oraC,line width=0.4pt] (0.085,0.055) circle (0.07);
+  \fill[txt] (-0.125,-0.085) circle (0.021) (0.0,0.08) circle (0.021) (0.085,0.055) circle (0.021);
+\end{scope}}
+% zone-edge glyph (edge exposure): zone boundary with a player on the edge
+\newcommand{\icoEdge}[2]{\begin{scope}[shift={(#1,#2)}]
+  \draw[oraC,line width=0.6pt] (0,0) circle (0.15);
+  \fill[oraC] (0.15,0) circle (0.04);
+  \draw[oraC,line width=0.5pt,-{Stealth[length=2.2pt,width=2pt]}] (0.0,0.0) -- (0.095,0);
+\end{scope}}
+
+\begin{document}
+\begin{tikzpicture}
+\useasboundingbox (0,0) rectangle ({17.8cm-4pt},9.300);
+% ============================ BANDS ============================
+\draw[fill=bandB, draw=blueC!35, line width=0.4pt, rounded corners=3pt] (0,5.70) rectangle (17.659,9.30);
+\node[anchor=north west, align=left] (bt1) at (0.120,9.270) {\ttl{Data pipeline}\\\ttl{(Sec. III)}};
+% ============================ ROW 1: data pipeline ============================
+% ---- N0 START pill (parachute icon) and N1 collect
+\node[box=blue, rounded corners=0.575cm, minimum width=2.150 cm, minimum height=1.150 cm] (N0) at (1.135,8.064) {};
+\node[anchor=west, align=left] (N0t) at (0.680,8.064) {\ttl{PUBG}\\\ttl{public API}\\\ttl{(Steam)}};
+\icoParachute{0.40}{8.064}{blue}
+\node[box=blue, minimum width=2.150 cm, minimum height=1.240 cm] (N1) at (1.135,6.609) {};
+\node[anchor=west, align=left] (N1t) at (0.440,6.609) {\ttl{Collect}\\\ttl{matches \&}\\\ttl{telemetry}};
+\node (N1i) at (0.250,6.609) {\ico{blue}{\faDownload}};
+\draw[flow] (0.620,7.489) -- (0.620,7.229);
+\node[anchor=west, align=left] (l_api) at (0.740,7.359) {\elab{API responses}};
+% ---- N3 filter / N2 raw telemetry (cylinder)
+\node[box=blue, minimum width=2.920 cm, minimum height=1.490 cm] (N3) at (3.890,8.495) {};
+\node[anchor=west, align=left] (N3t) at (2.810,8.495) {\ttl{Filter \& form}\\\ttl{12 cohorts}\\\sub{drop tutorial, training,}\\\sub{airoyale, Vikendi}};
+\node (N3i) at (2.620,8.495) {\ico{blue}{\faFilter}};
+\node[cyl=blue, minimum width=2.920 cm, minimum height=1.536 cm, inner sep=0pt] (N2) at (3.890,6.609) {\rule{1cm}{0pt}};
+\node (N2i) at (2.620,6.559) {\ico{blue}{\faDatabase}};
+\node[anchor=west, align=left] (N2tt) at (2.810,7.046) {\ttl{Raw telemetry}};
+\draw[blueC, line width=0.7pt, dotted, line cap=round] plot[smooth] coordinates {(2.81,6.656) (3.0,6.726) (3.2,6.596) (3.42,6.716) (3.66,6.606) (3.9,6.716) (4.1,6.656)};
+\draw[blueC, line width=0.5pt] (2.90,6.546) -- (2.90,6.766);
+\draw[blueC, line width=0.5pt] (3.30,6.546) -- (3.30,6.766);
+\draw[blueC, line width=0.5pt] (3.72,6.546) -- (3.72,6.766);
+\draw[blueC, line width=0.5pt] (4.10,6.546) -- (4.10,6.766);
+\node[anchor=north west, align=left] (N2ts) at (2.810,6.486) {\sub{positions every \textasciitilde10~s \mdot}\\\sub{timestamped events}};
+\draw[flow] (2.210,6.609) -- (2.430,6.609);
+\draw[flow] (2.950,7.450) -- (2.950,7.750);
+\node[anchor=west, align=left] (l_tables) at (3.050,7.600) {\elab{match \& event tables}};
+% ---- N4 align clocks
+\node[box=blue, minimum width=2.100 cm, minimum height=2.24 cm] (N4) at (6.620,8.12) {};
+\node[anchor=north west, align=left] (N4t) at (5.950,9.150) {\ttl{Align clocks}\\\sub{timestamp $\leftrightarrow$}\\\sub{elapsed time}};
+\node[anchor=north west, align=left] (N4u) at (5.950,8.254) {\sub{Phase}\\\sub{boundaries}\\\sub{from phase-}\\\sub{change events}};
+\node (N4i) at (5.760,9.000) {\ico{blue}{\faClock}};
+\draw[flow] (5.350,8.640) -- (5.570,8.640);
+% ---- N5 phase end / feature cut with safe-zone glyph and mini timeline
+\node[box=blue, minimum width=2.650 cm, minimum height=1.24 cm] (N5) at (9.895,8.640) {};
+\icoZone{8.840}{8.640}
+\node[anchor=west, align=left] (N5t) at (9.090,8.640) {\ttl{Prediction time}\\\ttl{$b_k$; feature cut}\\\ttl{$a_k=b_k-10$ s}};
+\draw[flow] (7.670,8.640) -- (8.570,8.640);
+\node[anchor=south, align=center] (l_aligned) at (8.120,8.700) {\elab{aligned}\\\elab{records}};
+\fill[grayC!30] (8.96,6.950) rectangle (9.86,7.090);
+\draw[grayC, line width=0.5pt] (8.71,7.020) -- (11.16,7.020);
+\draw[grayC, line width=0.6pt] (8.96,6.920) -- (8.96,7.120);
+\draw[grayC, line width=0.6pt] (9.86,6.920) -- (9.86,7.120);
+\draw[grayC, line width=0.6pt] (10.91,6.920) -- (10.91,7.120);
+\draw[decorate, decoration={brace, amplitude=3pt, raise=1pt}, grayC, line width=0.5pt] (9.86,7.160) -- (10.91,7.160);
+\node[anchor=south, align=left] (tl_guard) at (9.410,7.150) {\sub{guard}};
+\node[anchor=south, align=left] (tl_win) at (10.385,7.450) {\sub{label window}};
+\node[anchor=north, align=left] (tl_ak) at (8.960,6.880) {\sub{$a_k$}};
+\node[anchor=north, align=left] (tl_bk) at (9.860,6.880) {\sub{$b_k$}};
+\node[anchor=north, align=left] (tl_bk1) at (10.910,6.880) {\sub{$b_{k+1}$}};
+\node[anchor=north east, align=left] (tl_fc) at (9.310,6.520) {\sub{feature cut}};
+\node[anchor=north west, align=left] (tl_pt) at (9.610,6.520) {\sub{prediction time}};
+% ---- N6a inputs / N6b event-based labels (vermilion border) -- fork from N5
+\node[box=blue, minimum width=3.530 cm, minimum height=1.000 cm] (N6a) at (13.205,8.710) {};
+\node[anchor=west, align=left] (N6at) at (11.820,8.710) {\ttl{Inputs before $a_k$}\\\sub{features, alive status,}\\\sub{relations, masks}};
+\node (N6ai) at (11.630,8.710) {\ico{blue}{\faHistory}};
+\node[box=blue, draw=verC, minimum width=3.530 cm, minimum height=2.08 cm] (N6b) at (13.205,7.06) {};
+\node[anchor=north west, align=left] (N6bt) at (11.820,8.060) {\ttl{Event-based labels}};
+\node[anchor=north west, align=left] (N6bs1) at (11.490,7.737) {\sub{risk set: alive at $b_k$;}\\\sub{$Y=\mathbf{1}[b_k<T\le b_{k+1}]$;}\\\sub{knocked $\neq$ eliminated;}\\\sub{winners censored at match end}};
+\node[anchor=north west, align=left] (N6bs2) at (11.490,6.452) {\sub{final phase:\,$b_{k+1}$\,= match end}};
+\node (N6bi) at (11.630,7.890) {\ico{ver}{\faTag}};
+\draw[flow] (11.220,8.640) -- (11.440,8.640);
+\draw[flow] (11.330,8.640) -- (11.330,6.920) -- (11.440,6.920);
+% ---- N7 team-phase samples (cylinder) and merges
+\node[cyl=blue, minimum width=2.350 cm, minimum height=1.686 cm, inner sep=0pt] (N7) at (16.415,7.284) {\rule{1cm}{0pt}};
+\node (N7i) at (15.430,7.234) {\ico{blue}{\faTable}};
+\node[anchor=west, align=left] (N7t) at (15.620,7.264) {\ttl{Team--phase}\\\ttl{samples}\\\sub{13,948 matches \mdot}\\\sub{one row per}\\\sub{(match, team, $k$)}};
+\draw[flow] (14.970,8.640) -- (16.415,8.640) -- (16.415,8.200);
+\node[anchor=south, align=center] (l_inputs) at (15.692,8.690) {\elab{inputs}\\\elab{(past only)}};
+\draw[tgt] (14.970,6.160) -- (16.215,6.160) -- (16.215,6.530);
+\node[anchor=north, align=left] (l_targets) at (15.550,6.110) {\elab{targets $Y$}};
+\draw[fill=bandG, draw=black!18, line width=0.4pt, rounded corners=3pt] (0,0.56) rectangle (17.659,5.64);
+\node[anchor=north west, align=left] (bt2) at (2.120,0.990) {\ttl{Modeling and evaluation (Sec. IV)}};
+% ============================ ROW 2: modeling and evaluation ============================
+% ---- N8 match-level split
+\node[box=blue, minimum width=1.960 cm, minimum height=1.680 cm] (N8) at (1.040,2.670) {};
+\node[anchor=west, align=left] (N8t) at (0.440,2.670) {\ttl{Match-level}\\\ttl{split}\\\ttl{80/10/10}\\\sub{fixed,}\\\sub{per cohort}};
+\node (N8i) at (0.250,2.670) {\ico{blue}{\faColumns}};
+% ---- N9a habitat representation (ours): title, sub-label, mini team graph, four labelled construct icons
+\node[box=ora, minimum width=4.200 cm, minimum height=2.220 cm] (N9a) at (4.440,4.410) {};
+\node[anchor=north west, align=left] (N9at) at (2.440,5.450) {\ttl{Habitat representation (ours)}};
+\node[anchor=north west, align=left] (N9as) at (2.440,5.090) {\sub{4 constructs $z$ \mdot 150-d}\\\sub{features $X$ \mdot team graph $G$}};
+\draw[grayC, line width=0.7pt] (5.590,4.660) -- (6.290,4.660);
+\draw[verC, line width=0.7pt, -{Stealth[length=3pt,width=2.6pt]}] (5.630,4.730) -- (5.880,4.960);
+\draw[oraC, line width=0.8pt, dash pattern=on 2pt off 1.5pt] (6.260,4.730) -- (5.980,4.960);
+\draw[txt, fill=white, line width=0.5pt] (5.590,4.660) circle (0.075);
+\draw[txt, fill=white, line width=0.5pt] (6.290,4.660) circle (0.075);
+\draw[txt, fill=white, line width=0.5pt] (5.930,5.040) circle (0.075);
+\icoEdge{2.610}{4.270}
+\node[anchor=west, align=left] (N9ac0) at (2.800,4.270) {\sub{edge}\\\sub{exposure}};
+\node at (4.560,4.270) {\ico{ora}{\faRunning}};
+\node[anchor=west, align=left] (N9ac1) at (4.750,4.270) {\sub{movement}\\\sub{burden}};
+\node at (2.610,3.650) {\ico{ora}{\faCrosshairs}};
+\node[anchor=west, align=left] (N9ac2) at (2.800,3.650) {\sub{local}\\\sub{competition}};
+\node at (4.560,3.650) {\ico{ora}{\faUserFriends}};
+\node[anchor=west, align=left] (N9ac3) at (4.750,3.650) {\sub{team}\\\sub{members}};
+% ---- N9b Sagong inputs, N9c KRAFTON inputs (adapted prior designs, gray)
+\node[box=gray, minimum width=4.200 cm, minimum height=0.830 cm] (N9b) at (4.440,2.785) {};
+\node[anchor=west, align=left] (N9bt) at (2.720,2.785) {\ttl{Sagong inputs (12)}\\\sub{activity \& fight scores, play types}};
+\node (N9bi) at (2.530,2.785) {\ico{gray}{\faChartBar}};
+\node[box=gray, minimum width=4.200 cm, minimum height=1.080 cm] (N9c) at (4.440,1.760) {};
+\node[anchor=west, align=left] (N9ct) at (2.720,1.760) {\ttl{KRAFTON inputs}\\\ttl{(55 + positions)}\\\sub{actions, equipment, nearby counts}};
+\icoHelmet{2.510}{2.040}{gray}
+% ---- fan-out N8 -> builders, connector N7 -> N8
+\draw[flow] (2.020,2.780) -- (2.340,2.780);
+\draw[flow] (2.180,2.780) -- (2.180,4.000) -- (2.340,4.000);
+\draw[flow] (2.180,2.780) -- (2.180,1.760) -- (2.340,1.760);
+\node[anchor=east, align=right] (l_split) at (2.100,1.500) {\elab{same match}\\\elab{split}};
+\draw[flow] (16.970,6.516) -- (16.970,5.670) -- (1.040,5.670) -- (1.040,3.510);
+\node[anchor=east, align=right] (l_conn) at (0.960,4.500) {\elab{samples}};
+% ---- RQ lanes (white stripes with left-edge tags) and their nodes
+\draw[draw=laneC, fill=white, line width=0.4pt, rounded corners=2pt] (7.050,4.240) rectangle (12.100,5.600);
+\draw[draw=laneC, fill=white, line width=0.4pt, rounded corners=2pt] (7.050,2.690) rectangle (12.100,4.210);
+\draw[draw=laneC, fill=white, line width=0.4pt, rounded corners=2pt] (7.050,0.700) rectangle (12.100,2.660);
+\draw[draw=black!45, fill=black!10, line width=0.4pt, rounded corners=1.5pt] (7.070,4.920) rectangle (7.270,5.480);
+\node[rotate=90] (tag1) at (7.170,5.200) {\scriptsize\bfseries RQ1};
+\draw[draw=black!45, fill=black!10, line width=0.4pt, rounded corners=1.5pt] (7.070,3.600) rectangle (7.270,4.160);
+\node[rotate=90] (tag2) at (7.170,3.880) {\scriptsize\bfseries RQ2};
+\draw[draw=black!45, fill=black!10, line width=0.4pt, rounded corners=1.5pt] (7.070,2.020) rectangle (7.270,2.580);
+\node[rotate=90] (tag3) at (7.170,2.300) {\scriptsize\bfseries RQ3};
+% RQ1: N10 ecological hazard model -> N11 per-cohort beta
+\node[box=ora, minimum width=2.30 cm, minimum height=1.320 cm] (N10) at (8.47,4.920) {};
+\node[anchor=north west, align=left] (N10t) at (7.720,5.530) {\ttl{Ecological}\\\ttl{hazard model}};
+\node[anchor=south west, align=left] (N10s) at (7.720,4.305) {\sub{logit $\lambda$}\\\sub{$=\alpha_k+\beta^{\top}z$}};
+\node (N10i) at (7.530,4.920) {\ico{ora}{\faLeaf}};
+\node[cyl=ora, minimum width=2.160 cm, minimum height=1.286 cm, inner sep=0pt] (N11) at (10.900,4.854) {\rule{1cm}{0pt}};
+\node (N11i) at (10.030,4.834) {\ico{ora}{\faTable}};
+\node[anchor=west, align=left] (N11t) at (10.220,4.834) {\ttl{Per-cohort $\beta$}\\\sub{clustered SE}};
+\draw[flow] (9.620,4.930) -- (9.820,4.930);
+% RQ2: N12 train compared designs (ours chip / adapted chip)
+\node[draw=black!45, fill=white, line width=0.6pt, rounded corners=2pt, minimum width=3.980 cm, minimum height=1.480 cm] (N12) at (9.310,3.450) {};
+\node (N12i) at (7.550,4.000) {\ico{gray}{\faCogs}};
+\node[anchor=west, align=left] (N12t) at (7.770,4.010) {\ttl{Train compared designs}};
+\draw[draw=oraC, fill=oraF, line width=0.4pt, rounded corners=1.5pt] (7.420,3.454) rectangle (11.040,3.830);
+\node[anchor=west, align=left] (N12c1t) at (7.465,3.642) {\sub{Ours: HGB \ico{ora}{\faTree} \mdot PTR-Former \ico{ora}{\faProjectDiagram}}};
+\draw[draw=grayC, fill=grayF, line width=0.4pt, rounded corners=1.5pt] (7.420,2.816) rectangle (11.111,3.404);
+\node[anchor=west, align=left] (N12c2t) at (7.465,3.110) {\sub{Adapted: Sagong (XGB/RF/LR) \mdot}\\\sub{KRAFTON (Transformer, Cox)}};
+% RQ3: N13 single-factor ladder (three chips)
+\node[draw=black!45, fill=white, line width=0.6pt, rounded corners=2pt, minimum width=4.720 cm, minimum height=1.920 cm] (N13) at (9.680,1.680) {};
+\icoStairs{7.530}{2.450}{ora}
+\node[anchor=west, align=left] (N13t) at (7.720,2.450) {\ttl{Single-factor ladder}};
+\draw[draw=oraC, fill=oraF, line width=0.4pt, rounded corners=1.5pt] (7.420,1.682) rectangle (9.550,2.270);
+\node[anchor=west, align=left] (N13c1t) at (7.465,1.976) {\sub{(a)(b)(g) input}\\\sub{swaps \mdot HGB fixed}};
+\draw[draw=oraC, fill=oraF, line width=0.4pt, rounded corners=1.5pt] (7.420,1.040) rectangle (9.550,1.622);
+\node[anchor=west, align=left] (N13c3t) at (7.465,1.331) {\sub{+ rank auxiliary}\\\sub{loss (separate)}};
+\draw[draw=oraC, fill=oraF, line width=0.4pt, rounded corners=1.5pt] (9.620,0.824) rectangle (11.940,2.270);
+\node[anchor=west, align=left] (N13c2t) at (9.665,1.547) {\sub{KR-Cox (+H0) $\to$}\\\sub{KR-Hazard $\to$ +$\alpha_k$}\\\sub{$\to$ PTR-Team}\\\sub{$\to$ PTR-Former}\\\sub{(c)--(f), no rank loss}};
+% ---- z arrow, vertical bus (X by design) to N12 / N13
+\draw[flow] (6.540,4.600) -- (7.320,4.600);
+\node[anchor=south, align=left] (l_z) at (6.930,4.650) {\elab{$z$}};
+\draw[flowC, line width=0.65pt] (6.54,3.65) -- (6.700,3.65);
+\draw[flowC, line width=0.65pt] (6.54,2.78) -- (6.700,2.78);
+\draw[flowC, line width=0.65pt] (6.54,1.76) -- (6.700,1.76);
+\draw[flowC, line width=0.65pt] (6.700,3.65) -- (6.700,1.20);
+\draw[flow] (6.700,3.300) -- (7.320,3.300);
+\draw[flow] (6.700,1.200) -- (7.320,1.200);
+\node[rotate=90] (l_bus) at (6.900,2.250) {\elab{inputs per design}};
+% ---- evaluation block: N16 pooling, N15 metrics, N14 predictions, N17 END; dashed target flow Y (test)
+\node[box=grn, minimum width=4.680 cm, minimum height=0.980 cm] (N16) at (15.260,5.090) {};
+\node[anchor=west, align=left] (N16t) at (13.390,5.090) {\ttl{Random-effects pooling}\\\sub{12 cohorts \mdot DL (REML+HK check) \mdot}\\\sub{gain / equivalent / harm / inconclusive}};
+\node (N16i) at (13.150,5.090) {\ico{grn}{\faBalanceScale}};
+\draw[flow] (11.980,4.930) -- (12.920,4.930);
+\node[anchor=south, align=left] (l_beta) at (12.450,4.990) {\elab{$\beta$, SE}};
+\node[box=grn, minimum width=3.750 cm, minimum height=1.460 cm] (N15) at (14.335,3.490) {};
+\node[anchor=west, align=left] (N15t) at (12.860,3.490) {\ttl{Metrics + paired}\\\ttl{bootstrap $\times$2,000}\\\sub{pooled \mdot within-phase \mdot within}\\\sub{match-phase AUC \mdot log loss \mdot}\\\sub{Brier \mdot calibration}};
+\node (N15i) at (12.670,3.490) {\ico{grn}{\faChartLine}};
+\draw[flow] (14.600,4.220) -- (14.600,4.600);
+\node[anchor=west, align=left] (l_dauc) at (14.700,4.410) {\elab{per-cohort $\Delta$AUC}};
+\node[cyl=grn, minimum width=2.210 cm, minimum height=1.226 cm, inner sep=0pt] (N14) at (13.405,1.314) {\rule{1cm}{0pt}};
+\node (N14i) at (12.510,1.294) {\ico{grn}{\faBullseye}};
+\node[anchor=west, align=left] (N14t) at (12.700,1.294) {\ttl{Predictions $\hat{p}$}\\\sub{identical}\\\sub{test rows}};
+\draw[flow] (12.850,2.059) -- (12.850,2.760);
+\node[anchor=west, align=left] (l_phat) at (12.950,2.410) {\elab{$\hat{p}$ per (match,}\\\elab{team, phase)}};
+\draw[flow] (12.040,1.314) -- (12.300,1.314);
+\draw[flow] (11.300,3.450) -- (12.200,3.450) -- (12.200,1.314);
+\node[box=grn, rounded corners=0.400cm, minimum width=2.840 cm, minimum height=0.800 cm, double=grnF, double distance=0.9pt] (N17) at (16.180,1.200) {};
+\node[anchor=west, align=left] (N17t) at (15.260,1.200) {\ttl{Answers:}\\\ttl{RQ1 \mdot RQ2 \mdot RQ3}};
+\node (N17i) at (15.07,1.20) {\ico{grn}{\faFlagCheckered}};
+\draw[flow] (17.450,4.600) -- (17.450,1.512);
+\node[rotate=90] (l_pooled) at (17.190,3.620) {\elab{pooled estimates}};
+\node[anchor=west, align=left] (n_rq2) at (14.800,2.140) {\elab{each design keeps its}\\\elab{own training sampling;}\\\elab{evaluated on identical}\\\elab{test rows}};
+\draw[tgt] (0.500,1.830) -- (0.500,0.640) -- (14.625,0.640) -- (14.625,2.760);
+\node[anchor=south west, align=left] (l_ytest) at (0.600,0.690) {\elab{$Y$ (test)}};
+% ============================ LEGEND (bottom right) ============================
+\draw[draw=black!55, fill=white, line width=0.6pt, rounded corners=2pt] (8.050,0.295) rectangle (8.430,0.475);
+\node[anchor=west, align=left] (lg1) at (8.500,0.385) {\sub{process}};
+\draw[draw=black!55, fill=white, line width=0.6pt] (9.605,0.455) -- (9.605,0.295) arc[start angle=180,end angle=360,x radius=0.140,y radius=0.040] -- (9.885,0.455) arc[start angle=0,end angle=180,x radius=0.140,y radius=0.040] -- cycle;
+\draw[draw=black!55, line width=0.6pt] (9.605,0.455) arc[start angle=180,end angle=360,x radius=0.140,y radius=0.040];
+\node[anchor=west, align=left] (lg2) at (9.955,0.385) {\sub{data store}};
+\draw[draw=black!55, fill=white, line width=0.6pt, rounded corners=0.09cm] (11.294,0.295) rectangle (11.674,0.475);
+\draw[draw=black!55, fill=white, line width=0.6pt, rounded corners=0.09cm, double=white, double distance=0.9pt] (11.754,0.295) rectangle (12.134,0.475);
+\node[anchor=west, align=left] (lg3) at (12.214,0.385) {\sub{START / END}};
+\draw[flow] (13.954,0.385) -- (14.454,0.385);
+\node[anchor=west, align=left] (lg4) at (14.524,0.385) {\sub{data flow}};
+\draw[tgt] (15.749,0.385) -- (16.249,0.385);
+\node[anchor=west, align=left] (lg5) at (16.319,0.385) {\sub{target flow}};
+\draw[draw=blueC, fill=blueF, line width=0.6pt, rounded corners=1.5pt] (8.050,0.028) rectangle (8.430,0.208);
+\node[anchor=west, align=left] (lgc0) at (8.500,0.118) {\sub{data pipeline}};
+\draw[draw=oraC, fill=oraF, line width=0.6pt, rounded corners=1.5pt] (10.141,0.028) rectangle (10.521,0.208);
+\node[anchor=west, align=left] (lgc1) at (10.591,0.118) {\sub{ours / habitat}};
+\draw[draw=grayC, fill=grayF, line width=0.6pt, rounded corners=1.5pt] (12.259,0.028) rectangle (12.639,0.208);
+\node[anchor=west, align=left] (lgc2) at (12.709,0.118) {\sub{adapted prior designs}};
+\draw[draw=grnC, fill=grnF, line width=0.6pt, rounded corners=1.5pt] (15.329,0.028) rectangle (15.709,0.208);
+\node[anchor=west, align=left] (lgc3) at (15.779,0.118) {\sub{evaluation}};
+
+\end{tikzpicture}
+\end{document}

@@ -1,0 +1,14 @@
+{
+  "device": "CPU",
+  "source": "existing local Python 3.11.5 environment; no installs",
+  "passed": 139,
+  "skipped": 12,
+  "skip_reason": "pyarrow not installed",
+  "warnings": 3,
+  "seconds": 8.36,
+  "new_connection_regression_tests": 6,
+  "database_access": false,
+  "dotenv_reads": "mocked; private .env never loaded by tests",
+  "training_or_final_test_evaluation": false,
+  "command": "env -u PG_PASSWORD -u PGPASSWORD -u DATABASE_URL -u PUBG_DB_PASSWORD OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_legacy_connection_config.py tests/world_model tests/movement_diffusion tests/test_sagong2025.py tests/test_v2_consumers_sagong.py tests/test_sac2027_gatv2.py tests/test_sac2027_history_controls.py tests/test_sac2027_objective_controls.py tests/test_erangel_100m.py tests/corpus_quality -q -rs -p no:cacheprovider"
+}

@@ -46,3 +46,9 @@ data_layer
 ```
 
 Use folder READMEs as public interfaces before opening individual docs.
+
+## Public papers, talks and repository organization
+
+- [Dated paper/talk catalog](PAPERS_AND_TALKS.md) retained from the previous main branch.
+- [Repository management](repository/README.md): versions, cleanup evidence and outstanding modularization.
+- [Previous main README snapshots](archive/main_before_cleanup_merge_2026-10-26/README.md).

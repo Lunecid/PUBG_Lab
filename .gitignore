@@ -227,6 +227,14 @@ prev_pptx_png/
 /pubg_survival - pubg_survival - pubg.png
 *.tsbuildinfo
 
+
+# Retain main-branch collector dump and public presentation policy.
+*.csv
+*.sql
+!docs/papers/*.pdf
+!docs/talks/*.pptx
+*.mp4
+
 # Keep small Battle Royale experiment evidence in git while excluding heavy
 # model checkpoints and raw prediction CSVs.
 !model_stgcn/

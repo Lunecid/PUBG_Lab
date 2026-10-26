@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "repository_release": "2026.10.26-r2",
+  "repository_release": "2026.10.26-r3",
   "current_research_goal": "course paper -> FDG 2027; ToG is later extension",
   "version_axes": [
     "repository release",

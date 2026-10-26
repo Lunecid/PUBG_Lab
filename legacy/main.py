@@ -21,8 +21,8 @@ V2 피처 설계 (생태학 5축, ~39d agent 노드 피처):
 - 자기장: game_states의 safe_zone(목표) + poison_zone(현재 경계) 이중 시계열
 
 사용법:
-  1. DB_CONFIG를 본인 환경에 맞게 수정
-  2. python3 main.py
+  1. 환경변수 또는 .env에 DB 접속 정보를 지정 (PG_* / PUBG_DB_*)
+  2. python3 legacy/main.py
   3. 출력되는 진단 정보로 그래프 품질 확인
 """
 
@@ -51,10 +51,10 @@ DB_CONFIG = {
 
 
 def _require_pg_password() -> str:
-    pw = os.environ.get("PG_PASSWORD")
+    pw = os.environ.get("PG_PASSWORD") or os.environ.get("PUBG_DB_PASSWORD")
     if not pw:
         raise RuntimeError(
-            "PG_PASSWORD 환경변수가 설정되지 않았습니다. "
+            "PG_PASSWORD 또는 PUBG_DB_PASSWORD 환경변수가 설정되지 않았습니다. "
             "DB 접속 전 export PG_PASSWORD='<비밀번호>' 를 실행하세요 (.env.example 참조)."
         )
     return pw
@@ -69,6 +69,19 @@ CM_TO_M = 100.0           # 좌표 cm → m 변환
 import decimal
 
 def get_conn():
+    # Load private settings only when an explicitly requested connection is opened.
+    from dotenv import load_dotenv
+    load_dotenv()
+    config = dict(DB_CONFIG)
+    for key, primary, alias in (
+        ("host", "PG_HOST", "PUBG_DB_HOST"),
+        ("port", "PG_PORT", "PUBG_DB_PORT"),
+        ("dbname", "PG_DB", "PUBG_DB_NAME"),
+        ("user", "PG_USER", "PUBG_DB_USER"),
+    ):
+        value = os.environ.get(primary) or os.environ.get(alias)
+        if value:
+            config[key] = value
     # Decimal → float 자동 변환 등록
     DEC2FLOAT = psycopg2.extensions.new_type(
         psycopg2.extensions.DECIMAL.values,
@@ -76,7 +89,7 @@ def get_conn():
         lambda value, curs: float(value) if value is not None else None
     )
     psycopg2.extensions.register_type(DEC2FLOAT)
-    return psycopg2.connect(password=_require_pg_password(), **DB_CONFIG)
+    return psycopg2.connect(password=_require_pg_password(), **config)
 
 
 # ============================================================

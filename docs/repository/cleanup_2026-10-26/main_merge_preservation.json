@@ -1,0 +1,21 @@
+{
+  "previous_release_files": 3603,
+  "planned_changed_paths": [
+    ".gitignore",
+    "CHANGELOG.md",
+    "README.md",
+    "VERSION",
+    "docs/README.md",
+    "docs/guidelines/PUBG_APPLICATION.md",
+    "docs/guidelines/WORKING_RULES.md",
+    "legacy/main.py",
+    "requirements.txt",
+    "versions/README.md",
+    "versions/registry.json"
+  ],
+  "unchanged_files": 3592,
+  "unexpected_changes": [],
+  "prior_audit_seals_valid": true,
+  "local_row_files_preserved_and_ignored": 161,
+  "private_split_ignored": true
+}

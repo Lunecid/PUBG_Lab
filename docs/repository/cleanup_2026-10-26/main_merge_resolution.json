@@ -1,0 +1,21 @@
+{
+  "main_before": "eae79539031657ab290e697d52a290250a24867e",
+  "cleanup_before": "2c62414a741c6a79a7cd4c23982eff6ce9dabf5c",
+  "conflict_files": [
+    ".env.example",
+    ".gitignore",
+    "README.md",
+    "docs/README.md",
+    "legacy/main.py",
+    "requirements.txt"
+  ],
+  "legacy_changed_functions": [
+    "_require_pg_password",
+    "get_conn"
+  ],
+  "legacy_graph_model_transform_functions_unchanged": true,
+  "credential_templates_not_displayed": true,
+  "settings_loaded_only_inside_get_conn": true,
+  "package_installation": false,
+  "module_regrouping_performed": false
+}

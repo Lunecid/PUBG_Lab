@@ -1,0 +1,50 @@
+{
+  "assets": [
+    {
+      "path": "docs/papers/PUBG_Spatio_Temporal.pdf",
+      "git_blob": "6e9405613fe833d7416240e868c494487e710731",
+      "unchanged_from_main": true
+    },
+    {
+      "path": "docs/talks/PUBG_Graph_Survival_Deck.pptx",
+      "git_blob": "b00bffff95e62d7517f944a516d1e61fb617f29b",
+      "unchanged_from_main": true
+    },
+    {
+      "path": "docs/talks/PUBG_Network_Analysis.pptx",
+      "git_blob": "400ea8e32fc4a6b920a7201da522145dc05f3698",
+      "unchanged_from_main": true
+    },
+    {
+      "path": "docs/talks/PUBG_STDB_STGNN.pptx",
+      "git_blob": "b37507fca7b84de7b4b8424552563876c371614d",
+      "unchanged_from_main": true
+    },
+    {
+      "path": "tools/pubg_collector/01_fetch_match_ids.py",
+      "git_blob": "9fa5f3e655ce48c8de1d9ace9d1e758a82f7d0af",
+      "unchanged_from_main": true
+    },
+    {
+      "path": "tools/pubg_collector/02_fetch_matches.py",
+      "git_blob": "581ad1981c000bcdb8b472fe3e5ebc7b1a31d8e7",
+      "unchanged_from_main": true
+    },
+    {
+      "path": "tools/pubg_collector/03_fetch_telemetry.py",
+      "git_blob": "fd4ab3ac0d350bc82df7b40924660268b4e7b401",
+      "unchanged_from_main": true
+    },
+    {
+      "path": "tools/pubg_collector/config.py",
+      "git_blob": "8e550e2b0b481549e3e06d1ff4d9104e167ce07c",
+      "unchanged_from_main": true
+    },
+    {
+      "path": "tools/pubg_collector/requirements.txt",
+      "git_blob": "b66dc4ab08665ac209a76ce9e9f3e5188cf94750",
+      "unchanged_from_main": true
+    }
+  ],
+  "credential_template_body_access": false
+}

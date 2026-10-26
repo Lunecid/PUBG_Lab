@@ -5,6 +5,8 @@
 
 # DB
 psycopg2-binary==2.9.11
+# Added during main integration; matches the existing local package, no install performed.
+python-dotenv==1.2.2
 
 # 수치 계산
 numpy==1.26.1

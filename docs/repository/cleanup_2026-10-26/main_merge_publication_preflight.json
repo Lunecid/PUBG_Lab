@@ -1,0 +1,12 @@
+{
+  "unresolved_conflicts": false,
+  "new_secret_shape_flags": [],
+  "private_data_paths_changed": [],
+  "expected_inherited_whitespace_warning": "tools/pubg_collector/03_fetch_telemetry.py",
+  "inherited_main_blob_unchanged": true,
+  "edited_merge_surfaces_diff_check_passed": true,
+  "source_inventory_verified_files": 3618,
+  "test_passed": 139,
+  "test_skipped": 12,
+  "skip_reason": "missing pyarrow"
+}

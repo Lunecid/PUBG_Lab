@@ -90,6 +90,15 @@ def test_other_teams_phase_one():
     assert c.density == 0 and c.attack == 0 and c.kill == 0  # c1's only kill is a suicide / outside the windows
 
 
+def test_assist_proxy_excludes_damage_by_other_teams_and_solo_helpers():
+    raw = make_raw(extra_dmg=[("c1", "b1", 90.0, 190)])
+    df = feats(raw)
+    assert row(df, 1, 1).assist == 1  # a2 helps teammate a1
+    assert row(df, 3, 1).assist == 0  # c1 is on a different team
+    raw.team_of["a2"] = 4  # every player now has a distinct team
+    assert (feats(raw)["assist"] == 0).all()
+
+
 def test_steps_belong_to_the_window_of_their_end_sample():
     df = feats()
     # sample W=295 lies in no window: the 910 m step 130 -> 295 is nowhere; the step 295 -> 320 (40 m... x 1000 -> 1040) is phase 2's

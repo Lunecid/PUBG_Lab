@@ -1,0 +1,22 @@
+\begin{table}[t]
+\centering\footnotesize
+\caption{Conditional reference-path changes in AUC, pooled across 11 cohorts.}
+\label{tab:steps}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrrr}
+\toprule
+Step & Overall & Within phase & Within match \\
+\midrule
+(a) Sagong inputs $\to$ ours & \textbf{+0.075} & \textbf{+0.106} & \textbf{+0.101} \\
+(b) KRAFTON inputs $\to$ ours & -0.003 & \textbf{-0.007} & \textbf{-0.012} \\
+(c1) + phase baseline & \textbf{+0.020} & $0^{\dagger}$ & $0^{\dagger}$ \\
+(c2) $\to$ next-phase BCE recipe & \textbf{+0.016} & \textbf{+0.021} & \textbf{+0.009} \\
+(d) + explicit phase intercepts & -0.0003 & +0.0001 & +0.0004 \\
+(e) $\to$ team-axis PTR & +0.004 & +0.005 & +0.004 \\
+(f) + phase axis, relation bias & -0.002 & -0.002 & -0.002 \\
+(g) + KRAFTON inputs (union) & \textbf{+0.017} & \textbf{+0.019} & \textbf{+0.020} \\
+\bottomrule
+\end{tabular}
+\smallskip
+\parbox{\columnwidth}{\scriptsize Random-effects pooled estimates. Bold: 95\% CI excludes 0 and $|\Delta|\geq0.005$. $\dagger$Zero by monotonicity within a phase. Steps (a), (b), (g) use GBDT. Other steps change reference recipes and may bundle stopping, initialization, or baseline-fit split; matched controls follow.}
+\end{table}

@@ -1,0 +1,180 @@
+{
+  "checks": {
+    "all_experiments_verified": {
+      "passed": true,
+      "detail": null
+    },
+    "no_pending_result_marker": {
+      "passed": true,
+      "detail": null
+    },
+    "unique_labels": {
+      "passed": true,
+      "detail": null
+    },
+    "crossrefs_resolve": {
+      "passed": true,
+      "detail": null
+    },
+    "abstract_100_to_200_words": {
+      "passed": true,
+      "detail": 173
+    },
+    "at_most_five_keywords": {
+      "passed": true,
+      "detail": 5
+    },
+    "first_citation_order": {
+      "passed": true,
+      "detail": {
+        "first_appearance": [
+          "PUBGBlueZone2026",
+          "Zheng15",
+          "PUBGAPI",
+          "Sagong25a",
+          "Sagong25b",
+          "KRAFTON",
+          "Fahrig03",
+          "Nathan08",
+          "KagglePUBG",
+          "LeeLee25",
+          "Hodge21",
+          "Katona19",
+          "Marshall22",
+          "Cervone16",
+          "Cox72",
+          "SingerWillett93",
+          "Gensheimer19",
+          "vanHouwelingen07",
+          "DeepHit18",
+          "DynamicDeepHit20",
+          "PrenticeGloeckler78",
+          "Ngiam22",
+          "Ying21",
+          "Xenopoulos21",
+          "PUBGPatchNotes2026",
+          "Kaufman12",
+          "DerSimonian86",
+          "Friedman01",
+          "Vaswani17",
+          "HeagertyZheng05",
+          "Naeini15",
+          "HartungKnapp01",
+          "Schuirmann87",
+          "Holm79",
+          "Bergstra12",
+          "Cawley10",
+          "Shorrocks13",
+          "Brody22",
+          "Ries04"
+        ],
+        "bibliography": [
+          "PUBGBlueZone2026",
+          "Zheng15",
+          "PUBGAPI",
+          "Sagong25a",
+          "Sagong25b",
+          "KRAFTON",
+          "Fahrig03",
+          "Nathan08",
+          "KagglePUBG",
+          "LeeLee25",
+          "Hodge21",
+          "Katona19",
+          "Marshall22",
+          "Cervone16",
+          "Cox72",
+          "SingerWillett93",
+          "Gensheimer19",
+          "vanHouwelingen07",
+          "DeepHit18",
+          "DynamicDeepHit20",
+          "PrenticeGloeckler78",
+          "Ngiam22",
+          "Ying21",
+          "Xenopoulos21",
+          "PUBGPatchNotes2026",
+          "Kaufman12",
+          "DerSimonian86",
+          "Friedman01",
+          "Vaswani17",
+          "HeagertyZheng05",
+          "Naeini15",
+          "HartungKnapp01",
+          "Schuirmann87",
+          "Holm79",
+          "Bergstra12",
+          "Cawley10",
+          "Shorrocks13",
+          "Brody22",
+          "Ries04"
+        ]
+      }
+    },
+    "original_references_retained": {
+      "passed": true,
+      "detail": null
+    },
+    "original_v13_preserved_main.tex": {
+      "passed": true,
+      "detail": null
+    },
+    "original_v13_preserved_refs.bib": {
+      "passed": true,
+      "detail": null
+    },
+    "no_undefined_or_duplicate_refs": {
+      "passed": true,
+      "detail": null
+    },
+    "no_horizontal_overflow": {
+      "passed": true,
+      "detail": null
+    },
+    "page_limit": {
+      "passed": true,
+      "detail": 10
+    },
+    "no_replacement_glyph": {
+      "passed": true,
+      "detail": null
+    },
+    "anonymous_pdf": {
+      "passed": true,
+      "detail": null
+    },
+    "anonymous_metadata": {
+      "passed": true,
+      "detail": null
+    },
+    "pdf_internal_links": {
+      "passed": true,
+      "detail": {
+        "count": 82,
+        "missing": []
+      }
+    },
+    "visual_review_all_pages": {
+      "passed": true,
+      "detail": "All 10 rendered pages inspected; after the final table and accessibility-text edit, page 8 was inspected again and the other 9 PNGs were byte-identical."
+    }
+  },
+  "pages": 10,
+  "references": 39,
+  "tables": 7,
+  "figures": 3,
+  "pdf_sha256": "16bb09e72822d67b64bc11073e1e61622277678c78f6082a9724b72be94b9799",
+  "vertical_warnings": [],
+  "rendered_page_sha256": {
+    "final-page-01.png": "8ffa0130d52a4a6d4bb2baa64d92ebf7c5ac99f3f0e0ed8f2058a44d04acdd9a",
+    "final-page-02.png": "c6b4f5089c4100b5d593a38117ab5c3d9e650e4fb498c0ac2dacf0ed9eebdc88",
+    "final-page-03.png": "65c1499f81078f2a592394d2b3f9ee76df9a1b0f35bfcd4bd9aa8677888c58d1",
+    "final-page-04.png": "4683dd27b9eb8565df160c4a60744e2acf64e88b176f1ce7ee46dc13a3c12765",
+    "final-page-05.png": "2c3d0768acfed97fb401ffa8151b699377e33f0ba1cb21316b770b62d567a33f",
+    "final-page-06.png": "6cc56e9196435ce19a1ecd6d009b1a59128fc67e8944a6d9c38acb5deebff23b",
+    "final-page-07.png": "cf9c3a4de9999197271a13fa5a37a042fd2fa024c27b594ec33ff0c8afda02ae",
+    "final-page-08.png": "ff39b241be927af252f90cf0ee76d93ac6eac7697cf39847912acae5c40c7ff0",
+    "final-page-09.png": "ce0893df7d50128ea8ad0158cd820d65ad5f2c39eb446cb8d8d7d90ee735a5a7",
+    "final-page-10.png": "59fcdfba1b1897a52334e034188078ce5896cda74d003e70587e56e7cde09878"
+  }
+}

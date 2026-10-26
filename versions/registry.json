@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "repository_release": "2026.10.26-r1",
+  "current_research_goal": "course paper -> FDG 2027; ToG is later extension",
+  "version_axes": [
+    "repository release",
+    "research/model family",
+    "preprocessing contract",
+    "run/stage",
+    "manuscript"
+  ],
+  "classification_only": true,
+  "families": [
+    {
+      "id": "snapshot-legacy",
+      "versions": [
+        "snapshot-2026-04"
+      ],
+      "status": "historical-demo",
+      "paths": [
+        "legacy/"
+      ],
+      "entry": "legacy/README.md"
+    },
+    {
+      "id": "br-ptr",
+      "versions": [
+        "STDB",
+        "DynamicSTGNN",
+        "PTR"
+      ],
+      "status": "preserved-research",
+      "paths": [
+        "model_stgcn/",
+        "stdb/",
+        "network_analysis/"
+      ],
+      "entry": "docs/model_design/README.md"
+    },
+    {
+      "id": "movement-v1-v2",
+      "versions": [
+        "dataset-v1",
+        "model-v2"
+      ],
+      "status": "superseded-preserved",
+      "paths": [
+        "movement_diffusion/bank.py",
+        "movement_diffusion/dataset.py",
+        "movement_diffusion/model.py"
+      ],
+      "entry": "movement_diffusion/README.md"
+    },
+    {
+      "id": "movement-v3",
+      "versions": [
+        "V3"
+      ],
+      "status": "completed-development-experiment-preserved",
+      "paths": [
+        "movement_diffusion/bank_v3.py",
+        "movement_diffusion/dataset_v3.py",
+        "movement_diffusion/model_v3.py"
+      ],
+      "entry": "docs/experiment_design/HETEROGRAPH_DIFFUSION_V3_REENTRY_ZONE_COMPARISON_2026-10-15.md"
+    },
+    {
+      "id": "movement-v4",
+      "versions": [
+        "V4"
+      ],
+      "status": "development-result-not-adopted-as-final-improvement",
+      "paths": [
+        "movement_diffusion/model_v4.py"
+      ],
+      "entry": "docs/experiment_design/HETEROGRAPH_DIFFUSION_V4_FORMATION_AUDIT_2026-10-15.md"
+    },
+    {
+      "id": "world-model",
+      "versions": [
+        "preprocessing-v3",
+        "G1",
+        "G2",
+        "G3",
+        "G4-v2"
+      ],
+      "status": "current-research-line-limited-experiments",
+      "paths": [
+        "world_model/",
+        "tests/world_model/"
+      ],
+      "entry": "docs/experiment_design/PUBG_WORLD_MODEL_ARCHITECTURE_V3_2026-10-20.md"
+    },
+    {
+      "id": "bigcomp2027",
+      "versions": [
+        "en_v12",
+        "overleaf"
+      ],
+      "status": "manuscript-history",
+      "paths": [
+        "paper/bigcomp2027/"
+      ],
+      "entry": "docs/paper_writing/BIGCOMP2027_REVIEW_v11_2026-10-07.md"
+    },
+    {
+      "id": "sac2027",
+      "versions": [
+        "v13_v12_science_widom",
+        "v14_review",
+        "v15_feedback",
+        "v16_revision",
+        "v17_revision",
+        "v18_revision",
+        "v19_revision",
+        "v20_submission"
+      ],
+      "status": "manuscript-history",
+      "paths": [
+        "paper/sac2027/"
+      ],
+      "entry": "paper/sac2027/v20_submission/README_KO.md"
+    }
+  ],
+  "private_split_modules": [
+    "model_stgcn/splits.py",
+    "tools/movement_diffusion/split_v3.py"
+  ]
+}

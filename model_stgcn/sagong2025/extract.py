@@ -16,6 +16,7 @@ v2 plan (``windows.parquet`` has the column ``A`` = the producer's exact cut ``a
 from __future__ import annotations
 
 import json
+import hashlib
 import multiprocessing as mp
 import subprocess
 import time
@@ -83,7 +84,8 @@ def _plan_info(base: Path, wins: pd.DataFrame) -> dict:
 
     audit = base / "plan_audit.json"
     version = json.loads(audit.read_text()).get("version", "v1") if audit.is_file() else "v1"
-    return {"version": version, "windows_sha1": windows_sha1(wins), "clock": "w (database)" if "A" in wins.columns else "epoch - started_at",
+    feature_source = Path(__file__).with_name("features.py").read_bytes()
+    return {"version": version, "windows_sha1": windows_sha1(wins), "feature_source_sha256": hashlib.sha256(feature_source).hexdigest(), "clock": "w (database)" if "A" in wins.columns else "epoch - started_at",
             "window": "[S, A) strictly before the cut a_k" if "A" in wins.columns else "[S, E - GUARD_S]"}
 
 
@@ -96,6 +98,8 @@ def check_features_meta(base: Path, plan_info: dict) -> None:
     check_same_version(str(have.get("version", "v1")), str(plan_info["version"]), what=f"the Sagong features under {base}", against="the plan")
     if have.get("windows_sha1") not in (None, plan_info["windows_sha1"]):
         raise ValueError(f"{base}: features.parquet was extracted for other windows than windows.parquet (re-run extract with --force)")
+    if plan_info.get("feature_source_sha256") and have.get("feature_source_sha256") != plan_info["feature_source_sha256"]:
+        raise ValueError(f"{base}: features.parquet has a stale or missing feature source fingerprint (re-run extract with --force)")
 
 
 def run_extract(plan_dir, cohort: str, workers: int = 2, batch: int = 6, limit: int | None = None,

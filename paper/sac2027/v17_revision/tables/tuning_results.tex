@@ -1,0 +1,23 @@
+\begin{table}[t]
+\centering\footnotesize
+\caption{Matched-input, equal-trial tuning. Each value averages three selected-model seeds; all use the BCE target.}
+\label{tab:tuning}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrrrr}
+\toprule
+Model & All AUC & Human & Within & Log loss \\
+ & & AUC & match & \\
+\midrule
+\multicolumn{5}{l}{\emph{Erangel TPP squad}} \\
+GBDT & 0.803 & 0.804 & 0.783 & 0.452 \\
+KRAFTON-derived & 0.803 & 0.803 & 0.779 & 0.453 \\
+PTR (no rank loss) & 0.801 & 0.802 & 0.777 & 0.454 \\
+\multicolumn{5}{l}{\emph{Taego TPP squad}} \\
+GBDT & 0.805 & 0.805 & 0.789 & 0.443 \\
+KRAFTON-derived & 0.808 & 0.808 & 0.789 & 0.442 \\
+PTR (no rank loss) & 0.809 & 0.808 & 0.791 & 0.442 \\
+\bottomrule
+\end{tabular}
+\smallskip
+\parbox{\columnwidth}{\scriptsize Reference recipes (Table~\ref{tab:main}; 151 inputs, PTR-Former with ranking loss) reach all-team AUC 0.803/0.803 (GBDT), 0.799/0.807 (PTR-Former), and 0.800/0.801 (KRAFTON backbone, cross-entropy) in Erangel/Taego.}
+\end{table}

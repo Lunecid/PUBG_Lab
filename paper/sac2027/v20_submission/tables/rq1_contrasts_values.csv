@@ -1,0 +1,33 @@
+label,cohort,contrast,metric,kind,estimate,ci_low,ci_high,source
+" & Cox$_{\mathrm{next}}-$Cox$_{\mathrm{full}}$, match",erangel_tpp_squad,cox_truncated_minus_cox_full,within_match,diff,0.0122746182607759,0.0088240668736485,0.015959556525714,om
+" & Cox$_{\mathrm{next}}-$Cox$_{\mathrm{full}}$, match",taego_tpp_squad,cox_truncated_minus_cox_full,within_match,diff,0.014657530808423,0.0111751642914143,0.0180173398392103,om
+ & phase,erangel_tpp_squad,bce_minus_cox_truncated,original_within_phase,diff,0.0060260353571804,0.003793140270842,0.0082088070453193,om
+ & phase,taego_tpp_squad,bce_minus_cox_truncated,original_within_phase,diff,0.0075953914559366,0.0054816505560854,0.0097396941485926,om
+ & match,erangel_tpp_squad,bce_minus_cox_truncated,within_match,diff,0.0007814949483604,-0.0012692146365159,0.0027808431555581,om
+ & match,taego_tpp_squad,bce_minus_cox_truncated,within_match,diff,-0.0007780538614059,-0.0027920956337065,0.0012021572413471,om
+ & phase $-$ match$^{a}$,erangel_tpp_squad,bce_minus_cox_truncated,phase_minus_match,diff,0.0052014251384474,0.0022933795977682,0.0081071449922289,cl
+ & phase $-$ match$^{a}$,taego_tpp_squad,bce_minus_cox_truncated,phase_minus_match,diff,0.0076162162674274,0.0048859410756461,0.0105040677609313,cl
+" & centered, phase",erangel_tpp_squad,bce_minus_cox_truncated,centred_within_phase,diff,0.0015299124901763,-0.0003191025003009,0.003287436571452,om
+" & centered, phase",taego_tpp_squad,bce_minus_cox_truncated,centred_within_phase,diff,0.0007992659553641,-0.0008774148307231,0.002388660608006,om
+" & CLogit$-$Cox, phase",erangel_tpp_squad,cond_logit_minus_cox_truncated,original_within_phase,diff,-0.0009828054374296,-0.0024014571253155,0.0003453734268143,cl
+" & CLogit$-$Cox, phase",taego_tpp_squad,cond_logit_minus_cox_truncated,original_within_phase,diff,-0.0003061238019261,-0.0016765858588595,0.0010650492078873,cl
+" & CLogit$-$Cox, match",erangel_tpp_squad,cond_logit_minus_cox_truncated,within_match,diff,-0.00168933937939,-0.0034570637401687,4.723042218326976e-06,cl
+" & CLogit$-$Cox, match",taego_tpp_squad,cond_logit_minus_cox_truncated,within_match,diff,0.0010248558927122,-0.0007423736753786,0.0028487213438265,cl
+" & BCE$-$CLogit, phase",erangel_tpp_squad,bce_minus_cond_logit,original_within_phase,diff,0.0070088407946101,0.0046801916120367,0.0092660487198165,cl
+" & BCE$-$CLogit, phase",taego_tpp_squad,bce_minus_cond_logit,original_within_phase,diff,0.0079015152578628,0.0058799370035479,0.0098006757272648,cl
+" & BCE$-$CLogit, match",erangel_tpp_squad,bce_minus_cond_logit,within_match,diff,0.0024708343277505,0.0007081378798691,0.0042594254110281,cl
+" & BCE$-$CLogit, match",taego_tpp_squad,bce_minus_cond_logit,within_match,diff,-0.0018029097541182,-0.0037496854691409,0.0001028396842454,cl
+"H4a & $w{=}1$ $-$ Cox, phase",erangel_tpp_squad,cox_truncated_bce_minus_cox_truncated,original_within_phase,diff,0.0035160531120069,0.0014565265498739,0.0055712244977662,om
+"H4a & $w{=}1$ $-$ Cox, phase",taego_tpp_squad,cox_truncated_bce_minus_cox_truncated,original_within_phase,diff,0.0053693403359513,0.0040090310784922,0.0068316749892201,om
+"H4a & $w{=}1$ $-$ Cox, match",erangel_tpp_squad,cox_truncated_bce_minus_cox_truncated,within_match,diff,0.0014600384663979,-0.0004538052979961,0.0031717184916225,om
+"H4a & $w{=}1$ $-$ Cox, match",taego_tpp_squad,cox_truncated_bce_minus_cox_truncated,within_match,diff,0.0007194906675368,-0.0006626461136867,0.0022468115170532,om
+"H4a & BCE $-$ $w{=}1$, phase",erangel_tpp_squad,bce_minus_cox_truncated_bce,original_within_phase,diff,0.0025099822451735,0.0008334686975558,0.0042661387420774,om
+"H4a & BCE $-$ $w{=}1$, phase",taego_tpp_squad,bce_minus_cox_truncated_bce,original_within_phase,diff,0.0022260511199853,0.0004739906935669,0.0039767219865632,om
+" & gap closed, $w{=}1$ (\%)",erangel_tpp_squad,closure_share_cox_truncated_bce,original_within_phase,share,0.5834770132600244,0.2984698732663653,0.8416273463020284,om
+" & gap closed, $w{=}1$ (\%)",taego_tpp_squad,closure_share_cox_truncated_bce,original_within_phase,share,0.7069208173272771,0.552443671386834,0.9216301311978222,om
+" & gap closed, $w{=}4$ (\%)",erangel_tpp_squad,closure_share:cox_truncated_bce_w4,original_within_phase,share,0.8714626331670048,0.6779925773949781,1.0819416867411442,cl
+" & gap closed, $w{=}4$ (\%)",taego_tpp_squad,closure_share:cox_truncated_bce_w4,original_within_phase,share,0.9279633241497192,0.784540276987104,1.1160075177130566,cl
+" & $w{=}4$ $-$ Cox, match",erangel_tpp_squad,cox_truncated_bce_w4_minus_cox_truncated,within_match,diff,0.0001310290931382,-0.0018838361403564,0.0020926161387656,cl
+" & $w{=}4$ $-$ Cox, match",taego_tpp_squad,cox_truncated_bce_w4_minus_cox_truncated,within_match,diff,0.0012423763270836,-0.0002513901057414,0.0027972339042139,cl
+" & BCE $-$ $w{=}4$, phase",erangel_tpp_squad,bce_minus_cox_truncated_bce_w4,original_within_phase,diff,0.0007745707172545,-0.0004073426400961,0.0019760998791817,cl
+" & BCE $-$ $w{=}4$, phase",taego_tpp_squad,bce_minus_cox_truncated_bce_w4,original_within_phase,diff,0.0005471467522673,-0.000700241732647,0.0017860775622043,cl

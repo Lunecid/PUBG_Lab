@@ -1,0 +1,41 @@
+group,row,unit,estimate,ci_low,ci_high,source
+top,Erangel,Within phase,0.0060260353571804,0.003793140270842,0.0082088070453193,objective_match_offset/contrasts.csv
+top,Erangel,Within match,0.0007814949483604,-0.0012692146365159,0.0027808431555581,objective_match_offset/contrasts.csv
+top,Erangel,"Within match, equal phase weights",0.000824610218733,-0.0018614800123013,0.0035289110155391,objective_match_offset/contrasts.csv
+top,Erangel,"Within phase, centered",0.0015299124901763,-0.0003191025003009,0.003287436571452,objective_match_offset/contrasts.csv
+top,Taego,Within phase,0.0075953914559366,0.0054816505560854,0.0097396941485926,objective_match_offset/contrasts.csv
+top,Taego,Within match,-0.0007780538614059,-0.0027920956337065,0.0012021572413471,objective_match_offset/contrasts.csv
+top,Taego,"Within match, equal phase weights",-2.082481149079385e-05,-0.0025539504983096,0.0026179443494708,objective_match_offset/contrasts.csv
+top,Taego,"Within phase, centered",0.0007992659553641,-0.0008774148307231,0.002388660608006,objective_match_offset/contrasts.csv
+top,Other nine (pooled),Within phase,0.0085659243289841,0.005637308861082336,0.011494539796885873,objective_all_cohorts/pooled.csv
+top,Other nine (pooled),Within match,0.0014638305830873,-0.0006270851956151659,0.0035547463617899002,objective_all_cohorts/pooled.csv
+top,Other nine (pooled),"Within match, equal phase weights",0.001452221655049,-0.001772942790287972,0.004677386100386031,objective_all_cohorts/pooled.csv
+top,Other nine (pooled),"Within phase, centered",0.0016818516241047,0.00015286648208006444,0.003210836766129524,objective_all_cohorts/pooled.csv
+mid,Erangel,Within phase,0.0070088407946101,0.0046801916120367,0.0092660487198165,condlogit/contrasts_per_cohort.csv
+mid,Erangel,Within match,0.0024708343277505,0.0007081378798691,0.0042594254110281,condlogit/contrasts_per_cohort.csv
+mid,Erangel,"Within match, equal phase weights",0.0020953374052542,-0.0008805322877481,0.0051516547281398,condlogit/contrasts_per_cohort.csv
+mid,Erangel,"Within phase, centered",0.0018070632618424,-1.4193367232515052e-05,0.0035812595783288,condlogit/contrasts_per_cohort.csv
+mid,Taego,Within phase,0.0079015152578628,0.0058799370035479,0.0098006757272648,condlogit/contrasts_per_cohort.csv
+mid,Taego,Within match,-0.0018029097541182,-0.0037496854691409,0.0001028396842454,condlogit/contrasts_per_cohort.csv
+mid,Taego,"Within match, equal phase weights",-0.000575461956178,-0.0031317625418399,0.0019144285808851,condlogit/contrasts_per_cohort.csv
+mid,Taego,"Within phase, centered",0.001917548122291,0.0002133334155566,0.0034316989630734,condlogit/contrasts_per_cohort.csv
+mid,Other nine (pooled),Within phase,0.0097450062702568,0.006291760206482875,0.013198252334030812,condlogit/pooled.csv
+mid,Other nine (pooled),Within match,0.0026154447010208,0.0002561821412730182,0.004974707260768738,condlogit/pooled.csv
+mid,Other nine (pooled),"Within match, equal phase weights",0.0019635003439023,-0.0014848944805233833,0.0054118951683280285,condlogit/pooled.csv
+mid,Other nine (pooled),"Within phase, centered",0.0031247071629725,0.0010858964027303224,0.005163517923214826,condlogit/pooled.csv
+rq2,Habitat block (GBDT),Within phase,0.0150134182998076,0.01188120785455897,0.01814562874505635,rq2_match_offset/pooled.csv
+rq2,Habitat block (GBDT),Within match,0.0158535265322116,0.012576705535776014,0.01913034752864725,rq2_match_offset/pooled.csv
+rq2,Habitat block (GBDT),"Within match, equal phase weights",0.015473691312923,0.01021006467987223,0.020737317945973853,rq2_match_offset/pooled.csv
+rq2,Habitat block (GBDT),"Within phase, centered",0.0148655232755087,0.011066162079468426,0.018664884471549077,rq2_match_offset/pooled.csv
+rq2,Team attention (PTR),Within phase,0.0108537860039552,0.008563953587171765,0.013143618420738662,rq2_match_offset/pooled.csv
+rq2,Team attention (PTR),Within match,0.0011195615927451,-0.0006659627491212557,0.0029050859346115817,rq2_match_offset/pooled.csv
+rq2,Team attention (PTR),"Within match, equal phase weights",0.0026115779976884,-0.0002834936335819843,0.005506649628958802,rq2_match_offset/pooled.csv
+rq2,Team attention (PTR),"Within phase, centered",0.0043510887983579,0.00204932005187598,0.006652857544839961,rq2_match_offset/pooled.csv
+bottom,PTR-Former,Within phase,0.02706359867253781,0.018030011479959224,0.0360971858651164,main_population/pooled.json
+bottom,PTR-Former,Within match,0.007138468580271433,0.0030164013996329137,0.011260535760909952,main_population/pooled.json
+bottom,PTR-Former,"Within match, equal phase weights",0.0030667941290809,-0.0020244865235542592,0.0081580747817162,rq2_match_offset/pooled.csv
+bottom,PTR-Former,"Within phase, centered",0.0073519257153479,0.002273694826752778,0.012430156603943105,rq2_match_offset/pooled.csv
+bottom,GBDT,Within phase,0.018738045283491114,0.009869822566178079,0.02760626800080415,main_population/pooled.json
+bottom,GBDT,Within match,0.009969910514202195,0.007103531338891711,0.012836289689512679,main_population/pooled.json
+bottom,GBDT,"Within match, equal phase weights",0.0027250709185397,-0.002948764834675667,0.008398906671755227,rq2_match_offset/pooled.csv
+bottom,GBDT,"Within phase, centered",0.0052413987817101,-0.0002001918653233908,0.01068298942874378,rq2_match_offset/pooled.csv

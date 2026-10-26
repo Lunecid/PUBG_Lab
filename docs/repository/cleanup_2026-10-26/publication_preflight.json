@@ -1,0 +1,11 @@
+{
+  "public_repository": "Lunecid/PUBG_Lab",
+  "manifest_files": 3603,
+  "scanned_files": 1376,
+  "credential_flags": [],
+  "new_raw_rows_exported": false,
+  "files_over_50MiB": [],
+  "version_entries_checked": 8,
+  "deleted_files_verified": 377,
+  "caveat": "credential-shaped scans do not prove historical secret removal; private split bodies not read"
+}

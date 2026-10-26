@@ -1,0 +1,346 @@
+{
+  "manifest_format_version": "1.0",
+  "base_draft_hash": "5d6c7b724af9",
+  "blocks": [
+    {
+      "block_id": "B0001",
+      "old_hash": "74f64814a4e1",
+      "first_line_excerpt": "% !TEX program = xelatex"
+    },
+    {
+      "block_id": "B0002",
+      "old_hash": "4d67cef56669",
+      "first_line_excerpt": "We study retrospective match review from spectator-view telemetry: an analyst c…"
+    },
+    {
+      "block_id": "B0003",
+      "old_hash": "e2dbd7ae2dc9",
+      "first_line_excerpt": "Risk depends on shrinking geometry and opponents, while its level changes acros…"
+    },
+    {
+      "block_id": "B0004",
+      "old_hash": "b2e26fa2d35a",
+      "first_line_excerpt": "Sagong et al.\\ classify individual survival from activity scores~\\cite{Sagong25…"
+    },
+    {
+      "block_id": "B0005",
+      "old_hash": "9630f18beaec",
+      "first_line_excerpt": "We compare these designs on a common landmark discrete-time task. A habitat-los…"
+    },
+    {
+      "block_id": "B0006",
+      "old_hash": "68cf7f96d5b3",
+      "first_line_excerpt": "\\paragraph{Research questions.}"
+    },
+    {
+      "block_id": "B0007",
+      "old_hash": "c4d6dbc7b27f",
+      "first_line_excerpt": "\\paragraph{Contributions.}"
+    },
+    {
+      "block_id": "B0008",
+      "old_hash": "d89fcdace9b6",
+      "first_line_excerpt": "\\section{Related Work}"
+    },
+    {
+      "block_id": "B0009",
+      "old_hash": "dd8cc4fc9574",
+      "first_line_excerpt": "\\subsection{In-Game Outcome and Risk Prediction}"
+    },
+    {
+      "block_id": "B0010",
+      "old_hash": "c745364c3c6c",
+      "first_line_excerpt": "Ecology studies how the amount and arrangement of habitat relate to population …"
+    },
+    {
+      "block_id": "B0011",
+      "old_hash": "32146f2b599c",
+      "first_line_excerpt": "%======================================================================"
+    },
+    {
+      "block_id": "B0012",
+      "old_hash": "1a712e1fc8af",
+      "first_line_excerpt": "We construct one sample per team alive at a phase boundary and predict eliminat…"
+    },
+    {
+      "block_id": "B0013",
+      "old_hash": "e445cdf2279a",
+      "first_line_excerpt": "\\begin{figure*}[t]"
+    },
+    {
+      "block_id": "B0014",
+      "old_hash": "1fa69ccfcde0",
+      "first_line_excerpt": "\\subsection{Data Collection}"
+    },
+    {
+      "block_id": "B0015",
+      "old_hash": "2881fa68b3bb",
+      "first_line_excerpt": "\\subsection{Cohorts and Match-Level Split}"
+    },
+    {
+      "block_id": "B0016",
+      "old_hash": "d3a4807dce54",
+      "first_line_excerpt": "These matches appeared in earlier analyses: the split is a retrospective tempor…"
+    },
+    {
+      "block_id": "B0017",
+      "old_hash": "13cdcbfe8475",
+      "first_line_excerpt": "\\begin{table}[t]"
+    },
+    {
+      "block_id": "B0018",
+      "old_hash": "5d97ec1d9e88",
+      "first_line_excerpt": "\\subsection{Prediction-Time Example}"
+    },
+    {
+      "block_id": "B0019",
+      "old_hash": "e25aad611ee6",
+      "first_line_excerpt": "\\subsection{Time Axis and Information Cutoff}"
+    },
+    {
+      "block_id": "B0020",
+      "old_hash": "907deee1360f",
+      "first_line_excerpt": "\\subsection{Event-Based Labels and Estimand}"
+    },
+    {
+      "block_id": "B0021",
+      "old_hash": "ac13ac5e656d",
+      "first_line_excerpt": "\\section{Habitat Representation and Model Designs}"
+    },
+    {
+      "block_id": "B0022",
+      "old_hash": "60ef1098faf8",
+      "first_line_excerpt": "\\subsection{Habitat Context and Other Inputs}"
+    },
+    {
+      "block_id": "B0023",
+      "old_hash": "b4a399201661",
+      "first_line_excerpt": "\\begin{table}[t]"
+    },
+    {
+      "block_id": "B0024",
+      "old_hash": "2c91d70c925e",
+      "first_line_excerpt": "\\subsection{RQ1: Interpretable Hazard Model}"
+    },
+    {
+      "block_id": "B0025",
+      "old_hash": "56bc7ff816bd",
+      "first_line_excerpt": "\\subsection{RQ2: Prediction Designs}"
+    },
+    {
+      "block_id": "B0026",
+      "old_hash": "b8709a240c13",
+      "first_line_excerpt": "KRAFTON's predictor instead learns elimination ordering: its public weighted su…"
+    },
+    {
+      "block_id": "B0027",
+      "old_hash": "c00b460eb813",
+      "first_line_excerpt": "These are task adaptations (Table~\\ref{tab:compare}). KRAFTON uses commit 99ed9…"
+    },
+    {
+      "block_id": "B0028",
+      "old_hash": "fd9ed747fbd8",
+      "first_line_excerpt": "\\begin{table*}[t]"
+    },
+    {
+      "block_id": "B0029",
+      "old_hash": "5e7038548342",
+      "first_line_excerpt": "\\subsection{RQ3: Conditional Design Decomposition}"
+    },
+    {
+      "block_id": "B0030",
+      "old_hash": "74aeb7bbcd29",
+      "first_line_excerpt": "\\section{Evaluation Protocol}"
+    },
+    {
+      "block_id": "B0031",
+      "old_hash": "d5cb6e0a69f0",
+      "first_line_excerpt": "\\subsection{Discrimination and Probability Accuracy}"
+    },
+    {
+      "block_id": "B0032",
+      "old_hash": "abfbb3a3f2bc",
+      "first_line_excerpt": "\\subsection{Statistical Comparisons}"
+    },
+    {
+      "block_id": "B0033",
+      "old_hash": "7796651e446d",
+      "first_line_excerpt": "Equal-trial tuning~\\cite{Bergstra12,Cawley10} compares GBDT, a KRAFTON-derived …"
+    },
+    {
+      "block_id": "B0034",
+      "old_hash": "bef01369d20f",
+      "first_line_excerpt": "Additional controls hold observations, node inputs, and the backbone fixed to c…"
+    },
+    {
+      "block_id": "B0035",
+      "old_hash": "2beb6fa3b45c",
+      "first_line_excerpt": "Human-team evaluations retain opponents as observed context. Retraining control…"
+    },
+    {
+      "block_id": "B0036",
+      "old_hash": "47bc1b7bf686",
+      "first_line_excerpt": "Exploratory GATv2~\\cite{Brody22} uses the official PyG 2.7.0 operator, four con…"
+    },
+    {
+      "block_id": "B0037",
+      "old_hash": "73be52daa621",
+      "first_line_excerpt": "%======================================================================"
+    },
+    {
+      "block_id": "B0038",
+      "old_hash": "71eba543e6a0",
+      "first_line_excerpt": "Rebuilding inputs after truncating telemetry produced no mismatches at 453 cuto…"
+    },
+    {
+      "block_id": "B0039",
+      "old_hash": "368c68c877bd",
+      "first_line_excerpt": "\\subsection{RQ1: Habitat Context and Next-Phase Risk}"
+    },
+    {
+      "block_id": "B0040",
+      "old_hash": "e10c19e60c9e",
+      "first_line_excerpt": "\\paragraph{Movement interpretation depends on population and specification.}"
+    },
+    {
+      "block_id": "B0041",
+      "old_hash": "207223a34920",
+      "first_line_excerpt": "\\paragraph{Associations vary across phases.}"
+    },
+    {
+      "block_id": "B0042",
+      "old_hash": "6b92cd84f1cc",
+      "first_line_excerpt": "\\paragraph{A small model retains much of the discrimination.}"
+    },
+    {
+      "block_id": "B0043",
+      "old_hash": "5f886c7c3467",
+      "first_line_excerpt": "\\subsection{RQ2: Comparison with Prior Designs}"
+    },
+    {
+      "block_id": "B0044",
+      "old_hash": "edde93d8de66",
+      "first_line_excerpt": "Fig.~\\ref{fig:contrast}(a) compares observed and predicted elimination rates by…"
+    },
+    {
+      "block_id": "B0045",
+      "old_hash": "e46c7b4f8a40",
+      "first_line_excerpt": "The advantage persists among human teams (Table~\\ref{tab:main}): the pooled PTR…"
+    },
+    {
+      "block_id": "B0046",
+      "old_hash": "298e0c7b6632",
+      "first_line_excerpt": "The survival recipe better predicts winners: KRAFTON exceeds PTR by $0.0175$ $[…"
+    },
+    {
+      "block_id": "B0047",
+      "old_hash": "a36f85909845",
+      "first_line_excerpt": "\\subsection{RQ3: Decomposing Design Factors}"
+    },
+    {
+      "block_id": "B0048",
+      "old_hash": "0e51226634a6",
+      "first_line_excerpt": "\\input{tables/step_results}"
+    },
+    {
+      "block_id": "B0049",
+      "old_hash": "a103ef09e199",
+      "first_line_excerpt": "The KRAFTON path adds 0.0105 mean AUC through input/row alignment, 0.0209 throu…"
+    },
+    {
+      "block_id": "B0050",
+      "old_hash": "af50cff5b103",
+      "first_line_excerpt": "\\paragraph{Horizon alignment explains the within-match advantage.}"
+    },
+    {
+      "block_id": "B0051",
+      "old_hash": "787e0948d67d",
+      "first_line_excerpt": "\\paragraph{A two-factor attribution, averaged over orders.}"
+    },
+    {
+      "block_id": "B0052",
+      "old_hash": "22cb8adc602e",
+      "first_line_excerpt": "\\paragraph{Structural effects depend on metric and threshold.}"
+    },
+    {
+      "block_id": "B0053",
+      "old_hash": "8e14179b5ff7",
+      "first_line_excerpt": "Team attention improves within-phase AUC by $+0.0108$ $[0.0086,\\allowbreak 0.01…"
+    },
+    {
+      "block_id": "B0054",
+      "old_hash": "3f6068e38082",
+      "first_line_excerpt": "\\paragraph{The input sets are complementary.}"
+    },
+    {
+      "block_id": "B0055",
+      "old_hash": "328fbd216e05",
+      "first_line_excerpt": "\\paragraph{Equal-trial tuning narrows architecture differences.}"
+    },
+    {
+      "block_id": "B0056",
+      "old_hash": "f7b4e5a496c2",
+      "first_line_excerpt": "\\paragraph{Population restrictions have model-dependent effects.}"
+    },
+    {
+      "block_id": "B0057",
+      "old_hash": "a93ad0735e9c",
+      "first_line_excerpt": "\\paragraph{Additional history has limited incremental value.}"
+    },
+    {
+      "block_id": "B0058",
+      "old_hash": "b49b046689d0",
+      "first_line_excerpt": "\\paragraph{Graph attention detects a small relation-alignment effect.}"
+    },
+    {
+      "block_id": "B0059",
+      "old_hash": "b842d37a1568",
+      "first_line_excerpt": "%======================================================================"
+    },
+    {
+      "block_id": "B0060",
+      "old_hash": "827cea26ca58",
+      "first_line_excerpt": "Removing habitat inputs worsens prediction. KRAFTON inputs outperform ours with…"
+    },
+    {
+      "block_id": "B0061",
+      "old_hash": "91a335c87a6a",
+      "first_line_excerpt": "Team attention improves within-phase AUC but remains inconclusive on primary ov…"
+    },
+    {
+      "block_id": "B0062",
+      "old_hash": "f0ec87d322ec",
+      "first_line_excerpt": "\\subsection{Interpreting Habitat Associations}"
+    },
+    {
+      "block_id": "B0063",
+      "old_hash": "21ced32e0c94",
+      "first_line_excerpt": "\\subsection{Uses and Limitations}"
+    },
+    {
+      "block_id": "B0064",
+      "old_hash": "b0ef5365db36",
+      "first_line_excerpt": "Further limits are spectator-view rather than private inputs; ten weeks, three …"
+    },
+    {
+      "block_id": "B0068",
+      "old_hash": "0c8ce4ece8aa",
+      "first_line_excerpt": "\\paragraph{Artifacts and availability.}"
+    },
+    {
+      "block_id": "B0065",
+      "old_hash": "cd9b151257c6",
+      "first_line_excerpt": "\\section{Conclusion}"
+    },
+    {
+      "block_id": "B0066",
+      "old_hash": "e3c154460929",
+      "first_line_excerpt": "\\section*{AI Assistance Disclosure}"
+    },
+    {
+      "block_id": "B0067",
+      "old_hash": "ed10532c3a79",
+      "first_line_excerpt": "\\bibliographystyle{ACM-Reference-Format-citation-order}"
+    }
+  ]
+}

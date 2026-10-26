@@ -1,0 +1,163 @@
+{
+  "schema_version": "proposal_1",
+  "date": "2026-10-20",
+  "status": "superseded_initial_pilot_design_untrained",
+  "training_execution_authorized": false,
+  "claim": "observation-conditioned predictive state representation under logged behavior",
+  "not_claimed": [
+    "action-interventional simulator",
+    "40.2 collision map",
+    "optimal winning policy",
+    "validated causal tactical effect"
+  ],
+  "source_dataset": "data/processed/heterograph_diffusion_v3",
+  "source_audit": "../../reports/world_model_pretraining_research_2026-10-20/data_contract_audit.json",
+  "partition": {
+    "train_matches": 657,
+    "development_matches": 188,
+    "locked_matches": 94,
+    "locked_historically_exposed": true,
+    "pristine_final_test": "new unused matches required",
+    "self_supervised_fit": "inner-fit matches only during tuning; all 657 only after configuration freeze",
+    "all_learned_assets_fit_scope": "same inner-fit scope as encoder"
+  },
+  "proposed_encoder": {
+    "node_types": [
+      "cell",
+      "region",
+      "player",
+      "team",
+      "vehicle_evidence",
+      "contact_evidence",
+      "zone",
+      "game",
+      "equipment"
+    ],
+    "history_seconds": 120,
+    "step_seconds": 10,
+    "history_frames": 13,
+    "history_control_frames": 4,
+    "latent_dim": 128,
+    "relation_layers": 2,
+    "causal_temporal_blocks": 2,
+    "attention_heads": 4,
+    "spatial_cells": 6724,
+    "coarse_regions": 441,
+    "current_numeric_adapter_width": 32,
+    "dimensions_are_runtime_verified": false,
+    "crop": "union of current own-team 5x5 neighborhoods; same in paired views",
+    "unknown_edges": "not negative traversability labels"
+  },
+  "tasks": {
+    "P1_masked_past_observations": "initial",
+    "P2_future_region_and_mode": "initial",
+    "P3_team_occupancy_and_pair_distances": "initial",
+    "P4_future_damage_and_current_life_hazard": "requires raw event label builder and audit",
+    "P5_future_latent_teacher": "optional ablation; same-view teacher by default",
+    "P6_terminal_win_rank_team_elimination": "disabled until authoritative outcome join is verified"
+  },
+  "proposed_loss_weights": {
+    "masked_features": 1.0,
+    "future_region": 1.0,
+    "future_mode": 0.5,
+    "team_occupancy": 0.5,
+    "pair_distance": 0.5,
+    "future_damage_optional": 0.25,
+    "current_life_hazard_optional": 0.25
+  },
+  "output": {
+    "future_seconds": [
+      10,
+      20,
+      30,
+      40,
+      50,
+      60
+    ],
+    "target_team_max_slots": 4,
+    "joint_trajectory_shape": [
+      "B",
+      "K",
+      4,
+      6,
+      2
+    ],
+    "region_logits_shape": [
+      "B",
+      4,
+      6,
+      441
+    ],
+    "target_team_occupancy_shape": [
+      "B",
+      6,
+      441
+    ],
+    "pair_distance_shape": [
+      "B",
+      6,
+      6
+    ],
+    "same_episode_coordinate_mask": true,
+    "future_mask_never_used_as_input": true
+  },
+  "views": {
+    "observer": "telemetry-based observer proxy; mask before team aggregation",
+    "server": "as-of full telemetry; future excluded",
+    "shared": [
+      "anchors",
+      "targets",
+      "crop",
+      "evaluation masks",
+      "sampling seeds"
+    ],
+    "privileged_teacher_in_main_observer": false,
+    "human_bot_type_input_in_main_model": false
+  },
+  "evaluation": {
+    "training_seeds_minimum": 3,
+    "joint_samples_K": 20,
+    "uncertainty_unit": "paired match-level resampling, not overlapping windows",
+    "baselines": [
+      "persistence",
+      "constant_velocity",
+      "transition_frequency",
+      "tabular_GBDT",
+      "same_encoder_regression",
+      "same_encoder_joint_GMM_or_CVAE",
+      "same_encoder_diffusion"
+    ],
+    "controls": [
+      "L4_vs_L13",
+      "scratch_vs_frozen_pretrained_vs_finetuned",
+      "equal_total_compute",
+      "player_only_vs_player_team",
+      "spatial_evidence_ablations",
+      "observer_vs_server"
+    ],
+    "metrics": [
+      "region_NLL",
+      "mode_macro_F1",
+      "team_occupancy_CE_JS",
+      "pair_distance_MAE",
+      "damage_AUPRC_Brier",
+      "current_life_hazard_Brier_NLL",
+      "meanpath_ADE_FDE",
+      "team_center_ADE",
+      "joint_energy_score",
+      "coverage_and_width",
+      "joint_oracle_minADE_K_secondary"
+    ]
+  },
+  "required_pretraining_checks": [
+    "future_suffix_invariance_of_encoder_input",
+    "observer_invariance_to_server_private_fields",
+    "mask_derived_relations_and_team_statistics",
+    "no_future_node_birth_or_roster_leak",
+    "episode_boundary_and_censoring_tests",
+    "permutation_equivariance",
+    "fold_provenance_and_no_dev_test_pretraining",
+    "runtime_tensor_shape_and_memory_check"
+  ],
+  "superseded_by": "pubg_world_model_full_corpus_contract_v2_2026-10-20.json"
+}

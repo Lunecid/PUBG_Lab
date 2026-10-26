@@ -1,0 +1,12 @@
+{
+  "ephemeral_git_fixture": true,
+  "checks_passed": [
+    "valid snapshot verifies",
+    "existing release overwrite rejected",
+    "settings and protected split bodies excluded",
+    "changed content rejected",
+    "unlisted source file rejected",
+    "release path traversal rejected"
+  ],
+  "models_services_or_DB_called": false
+}

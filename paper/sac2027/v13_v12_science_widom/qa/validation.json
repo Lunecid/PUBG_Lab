@@ -1,0 +1,300 @@
+{
+  "scope": "Manuscript/source/PDF preservation and rendering validation only; no experiment reruns or independent validation of original results.",
+  "checks": {
+    "original_inputs_unchanged": {
+      "passed": true,
+      "details": null
+    },
+    "bibliography_source_identical": {
+      "passed": true,
+      "details": null
+    },
+    "figure_identical_fig_pipeline_clean": {
+      "passed": true,
+      "details": null
+    },
+    "figure_identical_fig_rq1_effects": {
+      "passed": true,
+      "details": null
+    },
+    "figure_identical_fig_contrast": {
+      "passed": true,
+      "details": null
+    },
+    "three_equations_exact": {
+      "passed": true,
+      "details": null
+    },
+    "all_32_citation_keys_preserved": {
+      "passed": true,
+      "details": null
+    },
+    "five_tables_preserved": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:cohorts_Map": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:cohorts_Erangel": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:cohorts_Taego": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:cohorts_Karakin": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:cohorts_Miramar": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:cohorts_Paramo": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:cohorts_Rondo": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:cohorts_Sanhok": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:cohorts_Total": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:blocks_Block": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:blocks_\\textbf{Habitat context}": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:blocks_Match context": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:blocks_Team status": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:blocks_Movement": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:blocks_Combat": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:blocks_Resources": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:blocks_Spatial/elev.": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:blocks_Relation sum.": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:blocks_Relation graph": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:blocks_Sagong et al.": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:blocks_KRAFTON": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:compare_Unit": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:compare_Target": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:compare_Prediction time": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:compare_Phase risk level": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:compare_Team interaction": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:compare_Objective": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:compare_Our adaptation": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:main_Ours, GBDT": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:main_Ours, PTR-Former": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:main_KRAFTON adaptation": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:main_KRAFTON + phase baseline": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:main_Sagong adaptation (XGBoost)": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:main_Cox objective": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:main_Next-phase cross-entropy": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:main_GBDT, ours + KRAFTON inputs": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:steps_Step": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:steps_(a) Sagong inputs $\\to$ ours": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:steps_(b) KRAFTON inputs $\\to$ ours": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:steps_(c1) + phase baseline": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:steps_(c2) Cox $\\to$ next-phase loss": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:steps_(d) + explicit phase intercepts": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:steps_(e) $\\to$ team-axis PTR-Former": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:steps_(f) + phase axis, relation bias": {
+      "passed": true,
+      "details": null
+    },
+    "row_tab:steps_(g) + KRAFTON inputs (union)": {
+      "passed": true,
+      "details": null
+    },
+    "result_decimal_values_preserved": {
+      "passed": true,
+      "details": null
+    },
+    "all_result_inline_math_occurrences_preserved": {
+      "passed": true,
+      "details": null
+    },
+    "unique_labels": {
+      "passed": true,
+      "details": null
+    },
+    "all_crossrefs_resolve": {
+      "passed": true,
+      "details": null
+    },
+    "cutoff_score_at_a": {
+      "passed": true,
+      "details": null
+    },
+    "three_relation_definitions_preserved": {
+      "passed": true,
+      "details": null
+    },
+    "ai_team_robustness": {
+      "passed": true,
+      "details": null
+    },
+    "reverse_order_check": {
+      "passed": true,
+      "details": null
+    },
+    "patch_holdout": {
+      "passed": true,
+      "details": null
+    },
+    "within_phase_patch_holdout": {
+      "passed": true,
+      "details": null
+    },
+    "original_task_check": {
+      "passed": true,
+      "details": null
+    },
+    "no_undefined_citations_or_refs": {
+      "passed": true,
+      "details": null
+    },
+    "no_horizontal_overflow": {
+      "passed": true,
+      "details": null
+    },
+    "pdf_page_count": {
+      "passed": true,
+      "details": null
+    },
+    "no_replacement_glyphs": {
+      "passed": true,
+      "details": null
+    },
+    "pdf_reference_count": {
+      "passed": true,
+      "details": null
+    },
+    "internal_pdf_links_resolve": {
+      "passed": true,
+      "details": {
+        "checked": 84,
+        "missing": []
+      }
+    }
+  },
+  "summary": {
+    "passed": 70,
+    "failed": 0,
+    "pages": 9,
+    "tables": 5,
+    "figures": 3,
+    "equations": 3,
+    "cited_references": 32
+  },
+  "warnings": [
+    "Overfull \\vbox (1.13799pt too high) has occurred while \\output is active []"
+  ]
+}

@@ -1,0 +1,102 @@
+%%% -*-BibTeX-*-
+%%% Do NOT edit. File created by BibTeX with style
+%%% ACM-Reference-Format-Journals [18-Jan-2012].
+
+\begin{thebibliography}{5}
+
+%%% ====================================================================
+%%% NOTE TO THE USER: you can override these defaults by providing
+%%% customized versions of any of these macros before the \bibliography
+%%% command.  Each of them MUST provide its own final punctuation,
+%%% except for \shownote{} and \showURL{}.  The latter two
+%%% do not use final punctuation, in order to avoid confusing it with
+%%% the Web address.
+%%%
+%%% To suppress output of a particular field, define its macro to expand
+%%% to an empty string, or better, \unskip, like this:
+%%%
+%%% \newcommand{\showURL}[1]{\unskip}   % LaTeX syntax
+%%%
+%%% \def \showURL #1{\unskip}           % plain TeX syntax
+%%%
+%%% ====================================================================
+
+\ifx \showCODEN    \undefined \def \showCODEN     #1{\unskip}     \fi
+\ifx \showISBNx    \undefined \def \showISBNx     #1{\unskip}     \fi
+\ifx \showISBNxiii \undefined \def \showISBNxiii  #1{\unskip}     \fi
+\ifx \showISSN     \undefined \def \showISSN      #1{\unskip}     \fi
+\ifx \showLCCN     \undefined \def \showLCCN      #1{\unskip}     \fi
+\ifx \shownote     \undefined \def \shownote      #1{#1}          \fi
+\ifx \showarticletitle \undefined \def \showarticletitle #1{#1}   \fi
+\ifx \showURL      \undefined \def \showURL       {\relax}        \fi
+% The following commands are used for tagged output and should be
+% invisible to TeX
+\providecommand\bibfield[2]{#2}
+\providecommand\bibinfo[2]{#2}
+\providecommand\natexlab[1]{#1}
+\providecommand\showeprint[2][]{arXiv:#2}
+
+\bibitem[DerSimonian and Laird(1986)]%
+        {DerSimonian86}
+\bibfield{author}{\bibinfo{person}{Rebecca DerSimonian} {and}
+  \bibinfo{person}{Nan Laird}.} \bibinfo{year}{1986}\natexlab{}.
+\newblock \showarticletitle{{Meta-analysis in clinical trials}}.
+\newblock \bibinfo{journal}{\emph{Control. Clin. Trials}} \bibinfo{volume}{7},
+  \bibinfo{number}{3} (\bibinfo{year}{1986}), \bibinfo{pages}{177--188}.
+\newblock
+\href{https://doi.org/10.1016/0197-2456(86)90046-2}{doi:\nolinkurl{10.1016/0197-2456(86)90046-2}}
+
+
+\bibitem[Higgins et~al\mbox{.}(2009)]%
+        {Higgins09}
+\bibfield{author}{\bibinfo{person}{Julian P.~T. Higgins},
+  \bibinfo{person}{Simon~G. Thompson}, {and} \bibinfo{person}{David~J.
+  Spiegelhalter}.} \bibinfo{year}{2009}\natexlab{}.
+\newblock \showarticletitle{A Re-Evaluation of Random-Effects Meta-Analysis}.
+\newblock \bibinfo{journal}{\emph{J. R. Stat. Soc. A}} \bibinfo{volume}{172},
+  \bibinfo{number}{1} (\bibinfo{year}{2009}), \bibinfo{pages}{137--159}.
+\newblock
+\href{https://doi.org/10.1111/j.1467-985X.2008.00552.x}{doi:\nolinkurl{10.1111/j.1467-985X.2008.00552.x}}
+
+
+\bibitem[Ries et~al\mbox{.}(2004)]%
+        {Ries04}
+\bibfield{author}{\bibinfo{person}{Leslie Ries}, \bibinfo{person}{Robert~J.
+  Fletcher}, \bibinfo{person}{James Battin}, {and} \bibinfo{person}{Thomas~D.
+  Sisk}.} \bibinfo{year}{2004}\natexlab{}.
+\newblock \showarticletitle{Ecological Responses to Habitat Edges: Mechanisms,
+  Models, and Variability Explained}.
+\newblock \bibinfo{journal}{\emph{Annu. Rev. Ecol. Evol. Syst.}}
+  \bibinfo{volume}{35} (\bibinfo{year}{2004}), \bibinfo{pages}{491--522}.
+\newblock
+\href{https://doi.org/10.1146/annurev.ecolsys.35.112202.130148}{doi:\nolinkurl{10.1146/annurev.ecolsys.35.112202.130148}}
+
+
+\bibitem[Shorrocks(2013)]%
+        {Shorrocks13}
+\bibfield{author}{\bibinfo{person}{Anthony~F. Shorrocks}.}
+  \bibinfo{year}{2013}\natexlab{}.
+\newblock \showarticletitle{Decomposition Procedures for Distributional
+  Analysis: A Unified Framework Based on the {Shapley} Value}.
+\newblock \bibinfo{journal}{\emph{The Journal of Economic Inequality}}
+  \bibinfo{volume}{11}, \bibinfo{number}{1} (\bibinfo{year}{2013}),
+  \bibinfo{pages}{99--126}.
+\newblock
+\href{https://doi.org/10.1007/s10888-011-9214-z}{doi:\nolinkurl{10.1007/s10888-011-9214-z}}
+
+
+\bibitem[Brody et~al\mbox{.}(2022)]%
+        {Brody22}
+\bibfield{author}{\bibinfo{person}{Shaked Brody}, \bibinfo{person}{Uri Alon},
+  {and} \bibinfo{person}{Eran Yahav}.} \bibinfo{year}{2022}\natexlab{}.
+\newblock \showarticletitle{How Attentive are Graph Attention Networks?}. In
+  \bibinfo{booktitle}{\emph{International Conference on Learning
+  Representations}}.
+\newblock
+\urldef\tempurl%
+\url{https://arxiv.org/abs/2105.14491}
+\showURL{%
+\tempurl}
+
+
+\end{thebibliography}

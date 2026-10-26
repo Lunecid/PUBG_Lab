@@ -1,0 +1,21 @@
+\begin{table}[t]
+\centering\footnotesize
+\caption{Matched objective and horizon controls. AUCs average three seeds after a common phase-aware validation mapping.}
+\label{tab:objective}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrrrr}
+\toprule
+ & \multicolumn{2}{c}{Erangel} & \multicolumn{2}{c}{Taego} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Loss and horizon & Within & Within & Within & Within \\
+ & phase & match & phase & match \\
+\midrule
+Weighted, full & 0.766 & 0.769 & 0.767 & 0.776 \\
+Weighted, next phase & 0.772 & 0.778 & 0.773 & 0.789 \\
+Cox, full & 0.764 & 0.766 & 0.762 & 0.772 \\
+Cox, next phase & 0.773 & 0.778 & 0.775 & 0.787 \\
+BCE, next phase & 0.779 & 0.779 & 0.782 & 0.786 \\
+Cox + BCE, next phase & 0.776 & 0.780 & 0.780 & 0.788 \\
+\bottomrule
+\end{tabular}
+\end{table}

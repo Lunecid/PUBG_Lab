@@ -16,6 +16,8 @@
 %  Panel B (v12): time is drawn as an axis between the two data boxes, never as boxes joined by arrows.
 %          Raw telemetry splits into the inputs (records before the cut, above the axis) and the labels
 %          (kill events in the label window, below the axis); dotted lines tie each box to its window.
+%  Labels (2026-10-08): every term matches the section that defines it (cutoff, habitat context with its four
+%          constructs, our design, adapted designs); panels A-D follow Secs. III-A to III-D.
 %  Panel C (v12): each input set points only at the design that uses it (habitat block -> RQ1 model and,
 %          with the other team features, our design; Sagong and KRAFTON inputs -> adapted designs);
 %          the stepwise decomposition hangs from a bracket under the RQ2 pair it decomposes.
@@ -120,19 +122,19 @@
 \cyl{box}{14.629}{5.48}{17.579}{6.62}
 % ============================ BOTTOM ZONE BOXES ============================
 % C1 (ours)
-\draw[ours] (0.34,3.25) rectangle (4.40,4.36);
+\draw[ours] (0.34,3.25) rectangle (4.80,4.36);
 % C2 (box)
-\draw[box] (0.34,2.25) rectangle (4.40,3.07);
+\draw[box] (0.34,2.25) rectangle (4.80,3.07);
 % C3 (box)
-\draw[box] (0.34,1.18) rectangle (4.40,2);
+\draw[box] (0.34,1.18) rectangle (4.80,2);
 % M1 (ours)
-\draw[ours] (5.1,3.58) rectangle (10.72,4.30);
+\draw[ours] (5.45,3.58) rectangle (10.72,4.30);
 % M2A: adapted designs (left of the RQ2 pair)
-\draw[box] (5.1,2.29) rectangle (7.65,3.07);
+\draw[box] (5.45,2.29) rectangle (7.75,3.07);
 % M2O: our designs (right of the RQ2 pair)
-\draw[ours] (8.12,2.29) rectangle (10.72,3.07);
+\draw[ours] (8.15,2.29) rectangle (10.72,3.07);
 % M3 (box)
-\draw[box] (5.1,1.18) rectangle (10.72,1.88);
+\draw[box] (5.45,1.18) rectangle (10.72,1.88);
 % D1 (cyl)
 \cyl{box}{11.149}{2.16}{13.689}{3.48}
 % D2 (box)
@@ -141,9 +143,9 @@
 \draw[box] (13.989,1.18) rectangle (17.219,1.91);
 % END (endpill)
 \draw[box,double=white,double distance=0.7pt,rounded corners=0.365cm] (11.149,1.18) rectangle (13.689,1.91);
-\fill[blueC,rounded corners=1.5pt] (5.1,4.25) rectangle (5.76,4.47);
-\fill[blueC,rounded corners=1.5pt] (5.1,3.02) rectangle (5.76,3.24);
-\fill[blueC,rounded corners=1.5pt] (5.1,1.83) rectangle (5.76,2.05);
+\fill[blueC,rounded corners=1.5pt] (5.45,4.25) rectangle (6.11,4.47);
+\fill[blueC,rounded corners=1.5pt] (5.45,3.02) rectangle (6.11,3.24);
+\fill[blueC,rounded corners=1.5pt] (5.45,1.83) rectangle (6.11,2.05);
 % ============================ TIME AXIS (panel B, between the inputs and the labels) ============================
 % windows on the axis: inputs (axis start .. cut, grey) and label window (prediction time .. next phase end, blue)
 \fill[greyD] (5.35,6.90) rectangle (9.15,6.96);
@@ -185,18 +187,18 @@
 % edge DASH: label flow B4 -> D2, straight down ("test labels")
 \draw[dedge] (15.604,5.485) -- (15.604,3.66);
 % edge C1M1: habitat block -> RQ1 model
-\draw[edge] (4.40,3.94) -- (5.1,3.94);
+\draw[edge] (4.80,3.94) -- (5.45,3.94);
 % edge C1M2O: habitat block (+ other team features) -> our designs, below M1, interrupted by its label
-\draw[lineplain] (4.40,3.38) -- (6.42,3.38);
-\draw[edge] (8.80,3.38) -- (9.42,3.38) -- (9.42,3.07);
+\draw[lineplain] (4.80,3.38) -- (6.55,3.38);
+\draw[edge] (8.95,3.38) -- (9.435,3.38) -- (9.435,3.07);
 % edge C2M2A: Sagong inputs -> adapted designs
-\draw[edge] (4.40,2.66) -- (5.1,2.66);
+\draw[edge] (4.80,2.66) -- (5.45,2.66);
 % edge C3M2A: KRAFTON inputs -> joins C2 -> adapted designs
-\draw[lineplain] (4.40,1.59) -- (4.75,1.59) -- (4.75,2.66);
-\fill[ink] (4.75,2.66) circle (0.028);
+\draw[lineplain] (4.80,1.59) -- (5.12,1.59) -- (5.12,2.66);
+\fill[ink] (5.12,2.66) circle (0.028);
 % edge M2M3: bracket under the RQ2 pair -> stepwise decomposition
-\draw[lineplain] (6.375,2.29) -- (6.375,2.12) -- (9.42,2.12) -- (9.42,2.29);
-\draw[edge] (7.885,2.12) -- (7.885,1.88);
+\draw[lineplain] (6.60,2.29) -- (6.60,2.12) -- (9.435,2.12) -- (9.435,2.29);
+\draw[edge] (8.02,2.12) -- (8.02,1.88);
 % edge M2D1: our designs -> D1 (merged arrowhead)
 \draw[edge] (10.72,2.66) -- (11.149,2.66);
 % edge M3D1: M3 -> joins M2 -> D1
@@ -235,34 +237,34 @@
 \node[font=\fSmallI,anchor=base,align=center,text=greyT] (tstripD) at (14.344,0.805) {paired match bootstrap $\times$2,000\md{}DerSimonian--Laird};
 \node[font=\fBox,align=center] (tA1) at (2.37,7.93) {\rule{0pt}{0.205cm}\icoParachute{}\bT{txtC}{PUBG public API}\rule[-0.095cm]{0pt}{0.095cm}};
 \node[font=\fBox,align=center] (tA2) at (2.37,6.549) {\rule{0pt}{0.205cm}\bT{txtC}{Raw telemetry}\\\bD{detC}{positions every \textasciitilde10\,s}\\\bD{detC}{timestamped events}\rule[-0.095cm]{0pt}{0.095cm}};
-\node[font=\fBox,align=center] (tBI) at (7.25,7.86) {\rule{0pt}{0.205cm}\bT{txtC}{Inputs before the \textcolor{verC}{cut}}\\\bD{detC}{features\md{}alive status}\\\bD{detC}{relations\md{}masks}\rule[-0.095cm]{0pt}{0.095cm}};
+\node[font=\fBox,align=center] (tBI) at (7.25,7.86) {\rule{0pt}{0.205cm}\bT{txtC}{Inputs before the \textcolor{verC}{cutoff}}\\\bD{detC}{features\md{}alive status}\\\bD{detC}{team relations}\rule[-0.095cm]{0pt}{0.095cm}};
 \node[font=\fBox,align=center] (tBL) at (11.925,5.98) {\rule{0pt}{0.205cm}\icoCrosshairs{}\bT{txtC}{Event-based labels}\\\bD{detC}{teams alive at prediction time}\\\bD{detC}{1 = eliminated in next phase}\rule[-0.095cm]{0pt}{0.095cm}};
 \node[font=\fBox,align=center] (tB4) at (16.104,6.02) {\rule{0pt}{0.205cm}\bT{txtC}{Team--phase samples}\\\bD{detC}{one row per}\\\bD{detC}{match\md{}team\md{}phase}\rule[-0.095cm]{0pt}{0.095cm}};
 % time-axis labels: instants above the axis, windows and phase source below
 \node[font=\fSmallI,anchor=base west,align=left,text=greyT] (tax0) at (5.45,7.05) {time since match start};
-\node[font=\fSmall,anchor=base east,align=right] (taxcut) at (9.10,7.05) {\textbf{\textcolor{verC}{cut}}};
+\node[font=\fSmall,anchor=base east,align=right] (taxcut) at (9.10,7.05) {\textbf{\textcolor{verC}{cutoff}}};
 \node[font=\fBox,anchor=south west,align=left] (taxpt) at (10.08,6.99) {\bT{txtC}{Prediction time}\\\bD{detC}{phase end\md{}next zone revealed}};
 \node[font=\fSmallI,anchor=base west,align=left,text=greyT] (tax1) at (5.45,6.68) {phases from zone events};
 \node[font=\fSmallI,anchor=base,align=center,text=greyT] (taxgap) at (9.575,6.68) {10\,s};
 \node[font=\fSmall,anchor=base,align=center] (taxwin) at (11.05,6.68) {\textbf{\textcolor{blueC}{label window}}};
 \node[font=\fSmallI,anchor=base east,align=right,text=greyT] (taxnext) at (13.74,6.68) {next phase end};
 \node[font=\fSmallI,align=center,text=greyT] (tkill) at (7.50,5.98) {kill events};
-\node[font=\fBox,align=center] (tC1) at (2.37,3.805) {\rule{0pt}{0.205cm}\icoLeaf{}\bT{oursT}{Habitat representation}\\\bD{detC}{edge exposure\md{}movement burden}\\\bD{detC}{competition\md{}team members}\rule[-0.095cm]{0pt}{0.095cm}};
-\node[font=\fBox,align=center] (tC2) at (2.37,2.66) {\rule{0pt}{0.205cm}\bT{greyT}{Sagong inputs}\\\bD{greyD}{activity \& fight scores}\rule[-0.095cm]{0pt}{0.095cm}};
-\node[font=\fBox,align=center] (tC3) at (2.37,1.59) {\rule{0pt}{0.205cm}\icoHelmet{}\bT{greyT}{KRAFTON inputs}\\\bD{greyD}{team actions \& states}\rule[-0.095cm]{0pt}{0.095cm}};
-\node[font=\fBox,align=center] (tM1) at (7.91,3.94) {\rule{0pt}{0.205cm}\bT{oursT}{Ecological hazard model}\\\bD{detC}{phase baseline + 4 habitat constructs}\rule[-0.095cm]{0pt}{0.095cm}};
-\node[font=\fBox,align=center] (tM2A) at (6.375,2.68) {\rule{0pt}{0.205cm}\bT{greyT}{Adapted}\\\bD{greyD}{Sagong\md{}KRAFTON}\rule[-0.095cm]{0pt}{0.095cm}};
-\node[font=\fBox,align=center] (tM2O) at (9.42,2.68) {\rule{0pt}{0.205cm}\bT{oursT}{Hazard objective}\\\bD{detC}{GBDT\md{}PTR-Former}\rule[-0.095cm]{0pt}{0.095cm}};
-\node[font=\fSmall,align=center] (tvs) at (7.885,2.68) {vs};
-\node[font=\fBox,align=center] (tM3) at (7.91,1.53) {\rule{0pt}{0.205cm}\icoStairs{}\bT{txtC}{Stepwise decomposition}\\\bD{detC}{input\md{}phase baseline\md{}objective\md{}structure}\rule[-0.095cm]{0pt}{0.095cm}};
-\node[font=\fSmallI,align=center,text=greyT] (tC1M2O) at (7.61,3.38) {+ other team features};
+\node[font=\fBox,align=center] (tC1) at (2.57,3.805) {\rule{0pt}{0.205cm}\icoLeaf{}\bT{oursT}{Habitat context}\\\bD{detC}{boundary exposure\md{}movement burden}\\\bD{detC}{local competition\md{}remaining members}\rule[-0.095cm]{0pt}{0.095cm}};
+\node[font=\fBox,align=center] (tC2) at (2.57,2.66) {\rule{0pt}{0.205cm}\bT{greyT}{Sagong inputs}\\\bD{greyD}{activity \& fight scores}\rule[-0.095cm]{0pt}{0.095cm}};
+\node[font=\fBox,align=center] (tC3) at (2.57,1.59) {\rule{0pt}{0.205cm}\icoHelmet{}\bT{greyT}{KRAFTON inputs}\\\bD{greyD}{team actions \& states}\rule[-0.095cm]{0pt}{0.095cm}};
+\node[font=\fBox,align=center] (tM1) at (8.085,3.94) {\rule{0pt}{0.205cm}\bT{oursT}{Ecological hazard model}\\\bD{detC}{phase baseline + 4 habitat constructs}\rule[-0.095cm]{0pt}{0.095cm}};
+\node[font=\fBox,align=center] (tM2A) at (6.60,2.68) {\rule{0pt}{0.205cm}\bT{greyT}{Adapted designs}\\\bD{greyD}{Sagong\md{}KRAFTON}\rule[-0.095cm]{0pt}{0.095cm}};
+\node[font=\fBox,align=center] (tM2O) at (9.435,2.68) {\rule{0pt}{0.205cm}\bT{oursT}{Our design}\\\bD{detC}{GBDT\md{}PTR-Former}\rule[-0.095cm]{0pt}{0.095cm}};
+\node[font=\fSmall,align=center] (tvs) at (7.95,2.68) {vs};
+\node[font=\fBox,align=center] (tM3) at (8.085,1.53) {\rule{0pt}{0.205cm}\icoStairs{}\bT{txtC}{Stepwise decomposition}\\\bD{detC}{inputs\md{}phase baseline\md{}objective\md{}structure}\rule[-0.095cm]{0pt}{0.095cm}};
+\node[font=\fSmallI,align=center,text=greyT] (tC1M2O) at (7.75,3.38) {+ other team features};
 \node[font=\fBox,align=center] (tD1) at (12.419,2.789) {\rule{0pt}{0.205cm}\bT{txtC}{Predicted risk}\\\bD{detC}{identical test rows}\rule[-0.095cm]{0pt}{0.095cm}};
 \node[font=\fBox,align=center] (tD2) at (15.604,2.845) {\rule{0pt}{0.205cm}\bT{txtC}{Metrics}\\\bD{detC}{AUC\md{}within-phase AUC}\\\bD{detC}{within-match AUC}\\\bD{detC}{log loss\md{}Brier}\\\bD{detC}{{\bfseries\color{oursT}per-phase calibration}}\rule[-0.095cm]{0pt}{0.095cm}};
 \node[font=\fBox,align=center] (tD3) at (15.604,1.545) {\rule{0pt}{0.205cm}\bT{txtC}{Random-effects pooling}\\\bD{detC}{12 cohorts}\rule[-0.095cm]{0pt}{0.095cm}};
 \node[font=\fBox,align=center] (tEND) at (12.419,1.545) {\rule{0pt}{0.205cm}\bT{txtC}{Answers}\\\bD{detC}{RQ1\md{}RQ2\md{}RQ3}\rule[-0.095cm]{0pt}{0.095cm}};
-\node[font=\fRQ,align=center,text=white] (trq1) at (5.43,4.36) {RQ1};
-\node[font=\fRQ,align=center,text=white] (trq2) at (5.43,3.13) {RQ2};
-\node[font=\fRQ,align=center,text=white] (trq3) at (5.43,1.94) {RQ3};
+\node[font=\fRQ,align=center,text=white] (trq1) at (5.78,4.36) {RQ1};
+\node[font=\fRQ,align=center,text=white] (trq2) at (5.78,3.13) {RQ2};
+\node[font=\fRQ,align=center,text=white] (trq3) at (5.78,1.94) {RQ3};
 \node[font=\fSmallI,align=center,text=greyT] (tret) at (9.2,4.93) {12 cohorts\md{}match-level split $\approx$8:1:1};
 \node[font=\fSmallI,anchor=west,align=left,text=greyT] (tdash) at (15.724,4.93) {test labels};
 \node[font=\fSmallI,anchor=south,align=center,text=greyT] (tbeta) at (13.6,4.0) {coefficients};

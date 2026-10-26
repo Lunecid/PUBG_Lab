@@ -1,0 +1,26 @@
+\begin{table*}[t]
+\centering\footnotesize
+\caption{Patch-41.2 performance: arithmetic means over 11 eligible cohorts. Human AUC restricts evaluation to human teams; other columns use all teams.}
+\label{tab:main}
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrrrrrrr@{}}
+\toprule
+ & \multicolumn{4}{c}{Discrimination $\uparrow$} & \multicolumn{3}{c}{Probability accuracy $\downarrow$} & \multicolumn{2}{c}{Complementary task $\uparrow$} \\
+\cmidrule(lr){2-5}\cmidrule(lr){6-8}\cmidrule(lr){9-10}
+Design & Within & Within & All & Human & Log loss & Brier & Phase & Winner & C-index \\
+ & phase & match & AUC & AUC &  &  & cal. error & accuracy &  \\
+\midrule
+Reference GBDT & 0.742 & \textbf{0.747} & 0.768 & 0.762 & 0.498 & \textbf{0.163} & 0.020 & 0.347 & 0.647 \\
+Reference PTR-Former & \textbf{0.751} & \textbf{0.747} & \textbf{0.769} & \textbf{0.763} & \textbf{0.496} & \textbf{0.163} & 0.025 & 0.374 & 0.654 \\
+Reference regularized logistic & 0.737 & 0.729 & 0.759 & 0.752 & 0.504 & 0.166 & 0.019 & 0.366 & 0.646 \\
+KRAFTON adaptation & 0.722 & 0.738 & 0.720 & 0.714 & 0.529 & 0.176 & 0.068 & \textbf{0.392} & \textbf{0.657} \\
+Phase-adjusted KRAFTON & 0.722 & 0.738 & 0.747 & 0.740 & 0.513 & 0.169 & \textbf{0.012} & \textbf{0.392} & \textbf{0.657} \\
+Sagong adaptation (XGBoost) & 0.620 & 0.627 & 0.675 & 0.669 & 0.575 & 0.193 & 0.018 & --- & --- \\
+\midrule
+\multicolumn{10}{l}{\emph{Both input sets combined (more information)}} \\
+GBDT, ours + KRAFTON inputs & 0.762 & 0.768 & 0.786 & 0.783 & 0.482 & 0.157 & 0.020 & 0.358 & 0.659 \\
+\bottomrule
+\end{tabular*}
+\smallskip
+\parbox{\textwidth}{\scriptsize Bold: best rounded value per block; within columns are AUCs. Differences in the text are random-effects estimates, not differences of these means. Winner accuracy and C-index use the ranking output (PTR: placement-ranking head).}
+\end{table*}

@@ -1,0 +1,130 @@
+[
+  {
+    "old": "\\section{Methodology}",
+    "new": "\\section{Data and Prediction Task}"
+  },
+  {
+    "old": "This section follows Fig.~\\ref{fig:pipeline}: sample construction (A, B), models for the three RQs (C), and comparison (D).",
+    "new": "We construct one sample per team alive at a phase boundary and predict elimination before the next phase ends. Figure~\\ref{fig:pipeline} connects data collection and sample construction to the three analyses and their evaluation."
+  },
+  {
+    "old": "Data pipeline and modeling--evaluation procedure; panels A--D follow Secs.~\\ref{sec:method:data}--\\ref{sec:method:evaluation}.",
+    "new": "Data collection, prediction-time sample construction, model comparisons, and evaluation. Panels A--B define the data and task; panels C--D organize the three research questions and their evaluation."
+  },
+  {
+    "old": "\\subsubsection{Time Axis, Prediction Time, and Input Cutoff}",
+    "new": "\\subsection{Time Axis and Information Cutoff}"
+  },
+  {
+    "old": "\\subsubsection{Event-Based Labels and Estimand}",
+    "new": "\\subsection{Event-Based Labels and Estimand}"
+  },
+  {
+    "old": "\\subsection{Designs and Analyses}",
+    "new": "\\section{Habitat Representation and Model Designs}"
+  },
+  {
+    "old": "We first define the habitat-context representation and then the three analyses in RQ order (C in Fig.~\\ref{fig:pipeline}).",
+    "new": "The four habitat constructs organize the inputs. RQ1 estimates their associations, RQ2 compares prediction designs, and RQ3 decomposes their differences (Figure~\\ref{fig:pipeline}C)."
+  },
+  {
+    "old": "\\subsubsection{Habitat Context}",
+    "new": "\\subsection{Habitat Context and Other Inputs}"
+  },
+  {
+    "old": "\\subsubsection{RQ1: Ecological Hazard Model}",
+    "new": "\\subsection{RQ1: Interpretable Hazard Model}"
+  },
+  {
+    "old": "\\subsubsection{RQ2: Our Design and Prior Designs}",
+    "new": "\\subsection{RQ2: Prediction Designs}"
+  },
+  {
+    "old": "\\subsubsection{RQ3: Stepwise Decomposition}",
+    "new": "\\subsection{RQ3: Conditional Design Decomposition}"
+  },
+  {
+    "old": "where $\\mathrm{logit}\\,p=\\log\\{p/(1-p)\\}$ and $\\alpha_k$ is the baseline hazard of phase $k$, the risk level shared by all its teams (intercept).",
+    "new": "where $\\mathrm{logit}\\,p=\\log\\{p/(1-p)\\}$ and $\\alpha_k$ is the phase intercept, representing the risk level shared by its teams on the log-odds scale."
+  },
+  {
+    "old": "\\subsection{Evaluation}",
+    "new": "\\section{Evaluation Protocol}"
+  },
+  {
+    "old": "All designs are scored on the same test samples and metrics, and cohort-level differences are pooled as in Fig.~\\ref{fig:pipeline}D.",
+    "new": "All designs are scored on identical test samples (Figure~\\ref{fig:pipeline}D). The following procedures compare prediction performance; RQ1 coefficient inference instead uses the clustered standard errors and Wald tests in Section~\\ref{sec:method:rq1}."
+  },
+  {
+    "old": "\\subsubsection{Metrics}",
+    "new": "\\subsection{Discrimination and Probability Accuracy}"
+  },
+  {
+    "old": "\\subsubsection{Statistical Comparison}",
+    "new": "\\subsection{Statistical Comparisons}"
+  },
+  {
+    "old": "\\footnote{GBDT: 200 trees, learning rate 0.06. PTR-Former: width 128, 4 heads, 2 blocks, dropout 0.1, AdamW (learning rate $10^{-3}$) with cosine decay, $\\le$12 epochs, early stopping on validation log loss; one initialization per cohort.}",
+    "new": ""
+  },
+  {
+    "old": "Robustness checks in the two largest cohorts vary the seed and epoch cap.",
+    "new": "\\subsection{Training and Robustness Checks}\nGBDT uses 200 trees and learning rate 0.06. PTR-Former uses width 128, four heads, two blocks, and dropout 0.1. AdamW starts at learning rate $10^{-3}$ with cosine decay, for at most 12 epochs and early stopping on validation log loss. Main runs use one initialization per cohort. Additional runs in the two largest cohorts vary the seed and epoch cap. A GBDT patch holdout trains on updates 40.2--41.1 and tests on 41.2, with an equal-training-size random split for comparison (Section~\\ref{sec:results:rq3})."
+  },
+  {
+    "old": "Coefficients (Fig.~\\ref{fig:rq1}) are changes in elimination log-odds per SD; exponentiating gives the odds multiplier.",
+    "new": "Competition and remaining members have the most consistent associations after robustness checks. Coefficients (Figure~\\ref{fig:rq1}) are changes in elimination log-odds per SD; exponentiation gives the odds multiplier."
+  },
+  {
+    "old": "Competition and remaining members kept their signs in every cohort with an AI-team indicator",
+    "new": "\n\\paragraph{Movement burden is sensitive to AI teams.}\nCompetition and remaining members kept their signs in every cohort with an AI-team indicator"
+  },
+  {
+    "old": "The associations varied with phase (within-band SD units in Fig.~\\ref{fig:rq1}).",
+    "new": "\\paragraph{Associations vary with phase.}\nThe phase-band coefficients use within-band SD units (Figure~\\ref{fig:rq1})."
+  },
+  {
+    "old": "A few variables explain much of the risk.",
+    "new": "\\paragraph{A small model retains much of the discrimination.}\nThe lite model includes required speed, competition density, log alive teams, and remaining members, with phase intercepts."
+  },
+  {
+    "old": "the lite model still reproduced 70.6\\% $[68.1, 73.5]$.",
+    "new": "the lite model still reproduced 70.6\\% $[68.1, 73.5]$. These percentages refer to retained $\\mathrm{AUC}-0.5$, not to AUC itself or explained variance."
+  },
+  {
+    "old": "Its per-phase calibration error was 0.064 (6.4\\,pp), against 0.013 for our GBDT and 0.017 with a phase baseline; as this metric compares only phase means, any design with phase intercepts scores low (Sagong: 0.016).",
+    "new": "Its per-phase calibration error was 0.064 (6.4\\,pp), against 0.013 for our GBDT and 0.017 with a phase baseline. Because this metric compares phase means, a model can score well despite weaker discrimination (Sagong: 0.016)."
+  },
+  {
+    "old": "Both adaptations thus work on their original tasks.",
+    "new": "This retrospective contrast demonstrates sensitivity to sample construction, rather than establishing leakage in the original study. Both adaptations retain predictive value on their original tasks."
+  },
+  {
+    "old": "Fig.~\\ref{fig:contrast}(b), (c) shows 12-cohort mean changes, which add up to the endpoint; Table~\\ref{tab:steps} gives pooled changes.",
+    "new": "Figure~\\ref{fig:contrast}(b), (c) shows arithmetic mean changes over 12 cohorts, while Table~\\ref{tab:steps} reports random-effects pooled changes. These aggregation rules differ, so their displayed numbers need not coincide. Rounded figure increments may not sum exactly to the displayed endpoint."
+  },
+  {
+    "old": "so about 65\\% of the gap came from it; removing it from our inputs cost 0.012 pooled AUC (0.013 within phase, both 12/12).",
+    "new": "so about 65\\% of this path's gap came from that step. The starting AUC 0.699 uses GBDT, whereas the Sagong adaptation in Table~\\ref{tab:main} uses XGBoost (0.686). Removing the habitat block from our inputs cost 0.012 pooled AUC (0.013 within phase, both 12/12)."
+  },
+  {
+    "old": "The effect of structure depended on the metric.",
+    "new": "\\paragraph{Structural effects depend on metric and threshold.}"
+  },
+  {
+    "old": "With a SESOI below 0.0036 this verdict would be inconclusive, and at 0.0026 or below a gain.",
+    "new": "Using the reported rounded cutoffs, a SESOI between 0.0026 and 0.0036 would make the verdict inconclusive, whereas a threshold of 0.0026 or below would classify the effect as a gain."
+  },
+  {
+    "old": "Trained on patches 40.2--41.1",
+    "new": "\n\\paragraph{Temporal holdout under the same zone rules.}\nTrained on patches 40.2--41.1"
+  },
+  {
+    "old": "Finally, our inputs and the reconstructed KRAFTON inputs",
+    "new": "\\paragraph{The input sets are complementary.}\nOur inputs and the reconstructed KRAFTON inputs"
+  },
+  {
+    "old": "\\begin{table*}[t]\n\\centering\n\\caption{Performance by Design on Our Task and on KRAFTON's Original Task}\n\\label{tab:main}\n\\footnotesize\n\\setlength{\\tabcolsep}{4pt}\n\\begin{tabular}{lcccccccc}\n\\hline\n & \\multicolumn{6}{c}{Our task: next-phase elimination} & \\multicolumn{2}{c}{KRAFTON's original task} \\\\\n\\cline{2-7}\\cline{8-9}\nDesign & AUC & Within-phase AUC & Within-match AUC & Log loss & Brier & Per-phase cal.\\ error & Winner acc. & C-index \\\\\n\\hline\nOurs, GBDT & 0.778 & 0.752 & \\textbf{0.757} & \\textbf{0.489} & \\textbf{0.160} & \\textbf{0.013} & 0.351 & 0.654 \\\\\nOurs, PTR-Former & \\textbf{0.779} & \\textbf{0.757} & \\textbf{0.757} & 0.490 & \\textbf{0.160} & 0.017 & 0.386 & 0.663 \\\\\nKRAFTON adaptation & 0.741 & 0.741 & 0.748 & 0.518 & 0.171 & 0.064 & \\textbf{0.417} & \\textbf{0.665} \\\\\nKRAFTON + phase baseline & 0.763 & 0.741 & 0.748 & 0.504 & 0.165 & 0.017 & \\textbf{0.417} & \\textbf{0.665} \\\\\nSagong adaptation (XGBoost) & 0.686 & 0.632 & 0.645 & 0.562 & 0.188 & 0.016 & --- & --- \\\\\n\\hline\n\\multicolumn{9}{l}{\\emph{Same KRAFTON architecture, objective changed only}} \\\\\nCox objective & 0.742 & 0.731 & 0.745 & 0.517 & 0.171 & 0.056 & \\textbf{0.387} & \\textbf{0.661} \\\\\nNext-phase cross-entropy & \\textbf{0.776} & \\textbf{0.755} & \\textbf{0.753} & \\textbf{0.491} & \\textbf{0.161} & \\textbf{0.016} & 0.362 & 0.653 \\\\\n\\hline\n\\multicolumn{9}{l}{\\emph{Both input sets combined}} \\\\\nGBDT, ours + KRAFTON inputs & 0.793 & 0.769 & 0.774 & 0.475 & 0.155 & 0.013 & 0.369 & 0.662 \\\\\n\\hline\n\\end{tabular}\n\\\\[2pt]\n\\parbox{\\textwidth}{\\scriptsize Means over 12 cohorts (differences in the text are random-effects pooled estimates and may differ slightly from mean differences). Bold: best in each block. Higher is better for AUC, accuracy, and C-index; lower for log loss, Brier, and calibration error. Winner accuracy and C-index follow KRAFTON's implementation (PTR-Former: ranking output).}\n\\end{table*}",
+    "new": "\\begin{table*}[t]\n\\centering\n\\caption{Performance on next-phase elimination and KRAFTON's original task. Values are arithmetic means over 12 cohorts.}\n\\label{tab:main}\n\\small\n\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}}lccc@{}}\n\\toprule\n\\multicolumn{4}{l}{\\textbf{Discrimination}} \\\\\n\\midrule\nDesign & AUC & Within-phase AUC & Within-match AUC \\\\\n\\midrule\nOurs, GBDT & 0.778 & 0.752 & \\textbf{0.757} \\\\\nOurs, PTR-Former & \\textbf{0.779} & \\textbf{0.757} & \\textbf{0.757} \\\\\nKRAFTON adaptation & 0.741 & 0.741 & 0.748 \\\\\nKRAFTON + phase baseline & 0.763 & 0.741 & 0.748 \\\\\nSagong adaptation (XGBoost) & 0.686 & 0.632 & 0.645 \\\\\n\\midrule\n\\multicolumn{4}{l}{\\emph{Same KRAFTON architecture, objective changed only}} \\\\\nCox objective & 0.742 & 0.731 & 0.745 \\\\\nNext-phase cross-entropy & \\textbf{0.776} & \\textbf{0.755} & \\textbf{0.753} \\\\\n\\midrule\n\\multicolumn{4}{l}{\\emph{Both input sets combined}} \\\\\nGBDT, ours + KRAFTON inputs & 0.793 & 0.769 & 0.774 \\\\\n\\bottomrule\n\\end{tabular*}\n\\smallskip\n\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}}lccc@{}}\n\\toprule\n\\multicolumn{4}{l}{\\textbf{Probability accuracy}} \\\\\n\\midrule\nDesign & Log loss & Brier & Per-phase cal. error \\\\\n\\midrule\nOurs, GBDT & \\textbf{0.489} & \\textbf{0.160} & \\textbf{0.013} \\\\\nOurs, PTR-Former & 0.490 & \\textbf{0.160} & 0.017 \\\\\nKRAFTON adaptation & 0.518 & 0.171 & 0.064 \\\\\nKRAFTON + phase baseline & 0.504 & 0.165 & 0.017 \\\\\nSagong adaptation (XGBoost) & 0.562 & 0.188 & 0.016 \\\\\n\\midrule\n\\multicolumn{4}{l}{\\emph{Same KRAFTON architecture, objective changed only}} \\\\\nCox objective & 0.517 & 0.171 & 0.056 \\\\\nNext-phase cross-entropy & \\textbf{0.491} & \\textbf{0.161} & \\textbf{0.016} \\\\\n\\midrule\n\\multicolumn{4}{l}{\\emph{Both input sets combined}} \\\\\nGBDT, ours + KRAFTON inputs & 0.475 & 0.155 & 0.013 \\\\\n\\bottomrule\n\\end{tabular*}\n\\smallskip\n\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}}lcc@{}}\n\\toprule\n\\multicolumn{3}{l}{\\textbf{Original-task performance}} \\\\\n\\midrule\nDesign & Winner accuracy & C-index \\\\\n\\midrule\nOurs, GBDT & 0.351 & 0.654 \\\\\nOurs, PTR-Former & 0.386 & 0.663 \\\\\nKRAFTON adaptation & \\textbf{0.417} & \\textbf{0.665} \\\\\nKRAFTON + phase baseline & \\textbf{0.417} & \\textbf{0.665} \\\\\nSagong adaptation (XGBoost) & --- & --- \\\\\n\\midrule\n\\multicolumn{3}{l}{\\emph{Same KRAFTON architecture, objective changed only}} \\\\\nCox objective & \\textbf{0.387} & \\textbf{0.661} \\\\\nNext-phase cross-entropy & 0.362 & 0.653 \\\\\n\\midrule\n\\multicolumn{3}{l}{\\emph{Both input sets combined}} \\\\\nGBDT, ours + KRAFTON inputs & 0.369 & 0.662 \\\\\n\\bottomrule\n\\end{tabular*}\n\\smallskip\n\\begin{minipage}{\\textwidth}\\footnotesize\nDifferences in the text are random-effects pooled estimates. Bold identifies the best value within each comparison block. Higher is better for AUC, winner accuracy, and C-index; lower is better for log loss, Brier, and calibration error. Winner accuracy and C-index follow KRAFTON's implementation (PTR-Former: ranking output).\n\\end{minipage}\n\\end{table*}"
+  }
+]

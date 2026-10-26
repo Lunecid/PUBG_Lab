@@ -1,0 +1,64 @@
+{
+  "version": "v15",
+  "base": "v14_patch_retraining",
+  "new_training": false,
+  "new_riskset_audit": false,
+  "checked_sources": {
+    "reports/sac2027_patch_v14/protocol.json": "ac0e79174bb0d4c66278033dc9dde37f7cb389e1d62ebd73d7e1006640b12f18",
+    "reports/sac2027_patch_v14/split_manifest.csv": "596143b3c0050a5b462ada223d346ca8ccddd5943b7726eb925cdb3f5551447e",
+    "reports/sac2027_patch_v14/final_verification.json": "4c37c951cfb7bb3c4aebbb2332482f2e4459ce1b2abbb775f65880c89353f6ce",
+    "reports/sac2027_patch_v14/primary_results_v2/contrasts_pooled.csv": "df85f4b4fe0547f4e63736477d095ea71740bef42fdbce79d534601c1a3d49f9",
+    "reports/sac2027_patch_v14/results_v2/ecological_model/auc_comparison.csv": "dca4b143f3e30ce3f37a8e2118a4a02c3029e49926fd7c3fd506102d4a791231",
+    "model_stgcn/phase_v2/features.py": "7751b8f1b0886052d2cd7ac8966b085d6785a9a7cf510e05663412aac5b50205",
+    "model_stgcn/phase_v2/grid.py": "e0e4e2cafdda08bfb664805a13c5c2dcb82d4acbda5bb09d83602ec413feeac5",
+    "model_stgcn/phase_v2/alive.py": "a7188271514fbcefad981ee4aaed40bfcd7745e4271106813ae1820e263dc98a",
+    "model_stgcn/phase_v2/labels.py": "9d499f88d909e8b5f84e19012418162082e84229620245ac6c65e6c036506214",
+    "model_stgcn/phase_v2/replay.py": "ad840eb216f8909606345b2127413520c24c85dc371028f60600519c0e464b56",
+    "model_stgcn/ptr/aggregate.py": "efdd375042062ee053e477240afae4250223028d7ae8c0bd2beacacec4c802fb",
+    "third_party/krafton_pubg_winprob/adaptation/train.py": "e0eca5965c9b9bb777da2991520d8251c3595878a2c509c9314a4a0eeb764178",
+    "third_party/krafton_pubg_winprob/adaptation/h0_fit.py": "387c8cb4eee8a7b5fdd903344bcdfb9d4553e668fc24fb43c36894af2a8eed4f",
+    "third_party/krafton_pubg_winprob/src/training/losses.py": "aca27b57f167a8c4283cb3b54cd54741b95694a49dcf1eb1db5e2ea2c9d347e6"
+  },
+  "v14_all_files_preserved": true,
+  "existing_tables_figures_and_results_preserved": true,
+  "primary_decisions_from_csv": true,
+  "lite_absolute_means": {
+    "PHASE-only": {
+      "auc": 0.6152995701474911,
+      "auc_within_phase": 0.5,
+      "nll": 0.5748104554502134,
+      "brier": 0.1941977649964647
+    },
+    "EHM-lite": {
+      "auc": 0.719111441314072,
+      "auc_within_phase": 0.6773889747033132,
+      "nll": 0.5321368568440605,
+      "brier": 0.1776158744386959
+    },
+    "HGB-cut": {
+      "auc": 0.7676971282414542,
+      "auc_within_phase": 0.741916443608037,
+      "nll": 0.4981007695936819,
+      "brier": 0.16345883662925684
+    }
+  },
+  "external_source": {
+    "url": "https://pubg.com/en/news/9926",
+    "checked": "2026-10-08",
+    "supported_claim": "Update 41.1 bot behavior/positioning and Jammer Pack tiers changed"
+  },
+  "patch_protocol": {
+    "format": "ARS block patch",
+    "xml_adapter": "escape line-initial CCSXML tags in working Markdown; losslessly restore in final TeX",
+    "base_roundtrip_verified": true,
+    "apply_report": "revision/revised_deliverable.md.apply-report.json"
+  },
+  "remaining": [
+    "all-candidate online eligibility audit",
+    "redeploy event completeness",
+    "full-feature logistic and standalone MLP fits",
+    "all-cohort multiseed tuning",
+    "normal/ranked stratification",
+    "controlled latency/memory and top-k or user utility"
+  ]
+}

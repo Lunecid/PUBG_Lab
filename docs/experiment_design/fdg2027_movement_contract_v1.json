@@ -1,0 +1,379 @@
+{
+  "schema_version": "movement_contract_v1",
+  "status": "PROPOSED_NOT_IMPLEMENTED",
+  "date": "2026-10-15",
+  "batch_symbol": "B",
+  "candidate_symbol": "K",
+  "default_K": 20,
+  "cohort": {
+    "map_name": "Baltic_Main",
+    "game_mode": "squad",
+    "perspective": "TPP",
+    "match_type": "official",
+    "is_custom": false
+  },
+  "clock": "event_time minus pubg.telem_match_start.event_time, seconds",
+  "coordinates": {
+    "raw": "centimeters",
+    "canonical": "meters",
+    "frame": "translation by anchor ego position; no rotation",
+    "map_extent": "verified map-specific metadata, not max training position"
+  },
+  "history_offsets_s": [
+    -30,
+    -20,
+    -10,
+    0
+  ],
+  "future_offsets_s": [
+    10,
+    20,
+    30,
+    40,
+    50,
+    60
+  ],
+  "history_lookup": {
+    "direction": "backward_asof",
+    "max_age_s": 11,
+    "distinct_source_observations": 4,
+    "max_adjacent_observation_gap_s": 15,
+    "velocity_rule": "finite difference between selected actual timestamps; first-point vx/vy/dt masked"
+  },
+  "zone_lookup": {
+    "direction": "backward_asof",
+    "max_age_s": 15,
+    "future_zone_fill": false
+  },
+  "target_lookup": {
+    "method": "nearest actual observation",
+    "max_abs_time_error_s": 2,
+    "distinct_source_observations": 6,
+    "interpolation": false,
+    "preserve_actual_timestamps": true
+  },
+  "train_class": "human",
+  "classification": {
+    "human": "account. prefix",
+    "bot": "ai. prefix",
+    "other": "other known nonempty prefix",
+    "unknown": "missing or empty ID"
+  },
+  "inputs": {
+    "ego_hist": {
+      "shape": [
+        "B",
+        4,
+        8
+      ],
+      "dtype": "float32",
+      "features": [
+        {
+          "name": "rel_x",
+          "divide_by": 100,
+          "raw_unit": "m"
+        },
+        {
+          "name": "rel_y",
+          "divide_by": 100,
+          "raw_unit": "m"
+        },
+        {
+          "name": "vx",
+          "divide_by": 10,
+          "raw_unit": "m/s"
+        },
+        {
+          "name": "vy",
+          "divide_by": 10,
+          "raw_unit": "m/s"
+        },
+        {
+          "name": "health",
+          "divide_by": 100,
+          "raw_unit": "health"
+        },
+        {
+          "name": "damage_taken_previous_10s",
+          "divide_by": 100,
+          "raw_unit": "health"
+        },
+        {
+          "name": "observation_age",
+          "divide_by": 10,
+          "raw_unit": "s"
+        },
+        {
+          "name": "previous_observation_dt",
+          "divide_by": 10,
+          "raw_unit": "s"
+        }
+      ]
+    },
+    "zone_hist": {
+      "shape": [
+        "B",
+        4,
+        10
+      ],
+      "dtype": "float32",
+      "features": [
+        {
+          "name": "blue_rel_cx",
+          "divide_by": 100,
+          "raw_unit": "m"
+        },
+        {
+          "name": "blue_rel_cy",
+          "divide_by": 100,
+          "raw_unit": "m"
+        },
+        {
+          "name": "blue_radius",
+          "divide_by": 100,
+          "raw_unit": "m"
+        },
+        {
+          "name": "white_rel_cx",
+          "divide_by": 100,
+          "raw_unit": "m"
+        },
+        {
+          "name": "white_rel_cy",
+          "divide_by": 100,
+          "raw_unit": "m"
+        },
+        {
+          "name": "white_radius",
+          "divide_by": 100,
+          "raw_unit": "m"
+        },
+        {
+          "name": "phase_index",
+          "divide_by": 10,
+          "raw_unit": "1"
+        },
+        {
+          "name": "shrinking",
+          "divide_by": 1,
+          "raw_unit": "1"
+        },
+        {
+          "name": "observed_state_age",
+          "divide_by": 600,
+          "raw_unit": "s"
+        },
+        {
+          "name": "zone_observation_age",
+          "divide_by": 10,
+          "raw_unit": "s"
+        }
+      ]
+    },
+    "team_hist": {
+      "shape": [
+        "B",
+        4,
+        3,
+        6
+      ],
+      "dtype": "float32",
+      "features": [
+        {
+          "name": "rel_x",
+          "divide_by": 100,
+          "raw_unit": "m"
+        },
+        {
+          "name": "rel_y",
+          "divide_by": 100,
+          "raw_unit": "m"
+        },
+        {
+          "name": "vx",
+          "divide_by": 10,
+          "raw_unit": "m/s"
+        },
+        {
+          "name": "vy",
+          "divide_by": 10,
+          "raw_unit": "m/s"
+        },
+        {
+          "name": "health",
+          "divide_by": 100,
+          "raw_unit": "health"
+        },
+        {
+          "name": "observation_age",
+          "divide_by": 10,
+          "raw_unit": "s"
+        }
+      ]
+    },
+    "context": {
+      "shape": [
+        "B",
+        4
+      ],
+      "dtype": "float32",
+      "features": [
+        {
+          "name": "absolute_x_over_map_extent",
+          "divide_by": 1,
+          "raw_unit": "1"
+        },
+        {
+          "name": "absolute_y_over_map_extent",
+          "divide_by": 1,
+          "raw_unit": "1"
+        },
+        {
+          "name": "num_alive_players",
+          "divide_by": 100,
+          "raw_unit": "1"
+        },
+        {
+          "name": "match_start_elapsed",
+          "divide_by": 1800,
+          "raw_unit": "s"
+        }
+      ]
+    },
+    "ego_valid": {
+      "shape": [
+        "B",
+        4,
+        8
+      ],
+      "dtype": "bool"
+    },
+    "zone_valid": {
+      "shape": [
+        "B",
+        4,
+        10
+      ],
+      "dtype": "bool"
+    },
+    "team_valid": {
+      "shape": [
+        "B",
+        4,
+        3,
+        6
+      ],
+      "dtype": "bool"
+    },
+    "context_valid": {
+      "shape": [
+        "B",
+        4
+      ],
+      "dtype": "bool"
+    },
+    "team_present": {
+      "shape": [
+        "B",
+        4,
+        3
+      ],
+      "dtype": "bool"
+    }
+  },
+  "targets": {
+    "target_delta": {
+      "shape": [
+        "B",
+        6,
+        2
+      ],
+      "dtype": "float32",
+      "features": [
+        {
+          "name": "dx",
+          "divide_by": 100,
+          "raw_unit": "m"
+        },
+        {
+          "name": "dy",
+          "divide_by": 100,
+          "raw_unit": "m"
+        }
+      ]
+    },
+    "target_valid": {
+      "shape": [
+        "B",
+        6
+      ],
+      "dtype": "bool",
+      "MVP": "all true"
+    },
+    "target_time_offset_s": {
+      "shape": [
+        "B",
+        6
+      ],
+      "dtype": "float64",
+      "usage": "labels and diagnostics only"
+    }
+  },
+  "outputs": {
+    "samples_delta": {
+      "shape": [
+        "B",
+        "K",
+        6,
+        2
+      ],
+      "dtype": "float32"
+    },
+    "selected_xy_m": {
+      "shape": [
+        "B",
+        6,
+        2
+      ],
+      "dtype": "float32"
+    },
+    "selected_index": {
+      "shape": [
+        "B"
+      ],
+      "dtype": "int64"
+    }
+  },
+  "missing_policy": "fill zero after scaling, pass feature validity masks; missing is not zero observation",
+  "forbidden_inputs": [
+    "account_id",
+    "actor_class",
+    "player_name",
+    "match_id",
+    "win_place",
+    "final_rank",
+    "time_survived",
+    "future_others",
+    "unannounced_zones",
+    "actual_future_phase_boundary"
+  ],
+  "no_valid_candidate": "record failure and use declared fixed fallback; preserve raw samples",
+  "validation_status": {
+    "feature_list_lengths": "checked statically",
+    "actual_dataloader_shapes": "not_checked",
+    "trained_model": "not_implemented"
+  },
+  "source_schema_audit": "docs/data_layer/PUBG_OFFICIAL_API_SCHEMA_AUDIT_2026-10-15.md",
+  "official_schema_status": {
+    "paths_and_declared_types": "checked against official HTML and OpenAPI YAML, 2026-10-15",
+    "raw_position_elapsedTime_type": "number; canonical float64; existing DB integer precision provenance required",
+    "actor_class_rule": "project prefix heuristic, not an official isBot field",
+    "sampling_period_s": "local observation, not official 10-second guarantee",
+    "zone_alias_semantics": "local code interpretation, raw transition validation pending",
+    "radius_units": "local ETL divides by 100; official object page does not explicitly state radius units; raw geometry validation pending",
+    "phase_index": "mask before isGame >= 1; transition-event pre/post meaning requires trace validation",
+    "mobility_events": "officially defined; local normalized tables absent; check raw JSON for reconstruction",
+    "enum_handling": "preserve unknown values; static official enum lists do not cover all local values",
+    "training_gate": "resolve zone semantics, radius units, source parsing and prefix replay before zone-conditioned training"
+  }
+}

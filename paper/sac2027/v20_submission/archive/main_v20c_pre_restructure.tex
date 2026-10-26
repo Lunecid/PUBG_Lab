@@ -1,0 +1,395 @@
+% !TEX program = xelatex
+%%
+%% Built on the official ACM SAC 2027 article template
+%% (ACM_SAC_2027_Article_Template.zip from https://www.sigapp.org/sac/sac2027/authorkit.php;
+%% acmart.cls 2026/06/27 v2.19 and ACM-Reference-Format.bst are unmodified copies from that zip).
+%%
+%% Review version: the template's \documentclass[sigconf,natbib=false]{acmart} plus
+%% "anonymous" for SAC's double-blind review. The template's generic "manuscript, review"
+%% advice is not used because SAC reviews papers in the two-column page limit.
+%% Camera-ready: remove "anonymous", enter the real authors and ORCIDs, and replace the
+%% rights-management values below with those from the ACM rights form.
+%%
+%% Citations use the BibTeX route that the template allows (ACM-Reference-Format.bst),
+%% so natbib stays on and biblatex is not loaded.
+%%
+\documentclass[sigconf,anonymous]{acmart}
+%%
+%% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    Bib\TeX}}}
+
+%% Rights management information.  These commands have SAMPLE values from the
+%% SAC 2027 template; replace them with the values provided by the ACM rights form.
+\setcopyright{acmlicensed}
+\copyrightyear{2027}
+\acmYear{2027}
+\acmDOI{XXXXXXX.XXXXXXX}
+\acmConference[SAC'27]{The 42nd ACM/SIGAPP Symposium on Applied Computing}{April 5--9, 2027}{Gwangju, South Korea}
+\acmISBN{979-X-XXXX-XXXX-X/27/04}
+
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs,tabularx}
+\graphicspath{{figures/}}
+\hypersetup{hidelinks}
+\setlength{\emergencystretch}{1.5em}
+\newcommand{\artifacturl}{\url{https://anonymous.4open.science/r/nextphase-elimination-code-D1D9/}}
+\raggedbottom
+
+%%
+%% end of the preamble, start of the body of the document source.
+\begin{document}
+
+%%
+%% The "title" command has an optional parameter,
+%% allowing the author to define a "short title" to be used in page headers.
+\title{Evaluation Units for Next-Phase Elimination Risk Prediction in Battle-Royale Games}
+% Please make sure that the short title does not exceed the width of one column
+\renewcommand{\shorttitle}{Evaluation Units for Next-Phase Elimination Prediction}
+
+%%
+%% Authors are hidden by the "anonymous" option for double-blind review.
+%% Camera-ready: replace this block with the real authors, emails, ORCIDs, and
+%% affiliations, and set \shortauthors as the template describes.
+\author{Anonymous Author(s)}
+\affiliation{%
+  \institution{Anonymous Institution}
+  \country{Anonymous Country}}
+
+\begin{abstract}
+Battle-royale match review asks which teams alive at a phase boundary will be eliminated before the next phase ends. Models are compared by AUC pooled across matches, yet under 3\% of within-phase pairs in our PUBG data share a match, so the AUC mixes separating matches with ranking teams within one match. Cox-type survival losses compare each eliminated team only with survivors of its match and get no direct training signal for a match's overall risk level; cross-entropy does. With inputs, network, and horizon matched, Cox ranks teams within matches as well as cross-entropy but loses within phases. Subtracting each match--phase's mean score removes most of that difference; adding a cross-entropy term to Cox recovers most of it with within-match AUC practically equivalent. Averaged over nine further match groups from the held-out game version, results supported predictions recorded before training. Inputs on zone position, movement, and nearby competition keep their gain within matches; the gain from attention across teams falls from 0.011 to 0.001. GBDT and PTR-Former place 0.4--0.6 percentage points more eliminations among their three riskiest teams than a phase-adjusted survival design (PTR-Former's interval includes zero). Grouped risk predictors should be evaluated within groups as well as within strata.
+\end{abstract}
+\begin{CCSXML}
+<ccs2012>
+<concept><concept_id>10010147.10010257</concept_id><concept_desc>Computing methodologies~Machine learning</concept_desc><concept_significance>500</concept_significance></concept>
+<concept><concept_id>10002951.10003227.10003351</concept_id><concept_desc>Information systems~Data mining</concept_desc><concept_significance>300</concept_significance></concept>
+</ccs2012>
+\end{CCSXML}
+\ccsdesc[500]{Computing methodologies~Machine learning}
+\ccsdesc[300]{Information systems~Data mining}
+\keywords{landmark prediction, evaluation metrics, survival analysis, spatio-temporal telemetry, esports analytics}
+\maketitle
+\section{Introduction}
+\label{sec:introduction}
+At each phase boundary of a battle-royale match, which of the teams still alive will be eliminated before the next phase ends? In PUBG: BATTLEGROUNDS (PUBG), up to 100 players compete alone or in teams of two or four while a safe zone shrinks in scheduled phases; players outside it take continuous damage, and a new zone is revealed at each boundary. We study this \emph{next-phase elimination risk} for retrospective match review: from spectator-view telemetry, which records every player's position and actions~\cite{PUBGAPI}, an analyst compares the teams alive at one boundary of one match.
+
+Even at the same phase, risk differs between matches: the zone schedule is fixed, but the number of surviving teams, their crowding, ongoing fights, and the randomly placed zones vary. Evaluation nevertheless usually pools matches: esports win and death predictors are scored on in-game snapshots pooled over matches~\cite{Hodge21,Katona19,Marshall22}, and KRAFTON reports elimination-order concordance over the full horizon~\cite{KRAFTON}. We call the set of team pairs an AUC compares its \emph{evaluation unit}. Within-phase AUC, the mean of AUCs computed separately for each phase, removes differences in phase elimination rates, but each phase still pools matches: with $M$ test matches, only about $1/M$ of its pairs share a match. It therefore mixes how well a model ranks the teams of one match with how well it ranks matches by risk, whereas \emph{within-match AUC} compares only teams alive at the same boundary of the same match, as a review does.
+
+This matters when training objectives are compared, because they differ in two ways. The first is the horizon: KRAFTON's survival design~\cite{KRAFTON}, like the Cox model~\cite{Cox72}, learns the whole remaining elimination order, whereas binary cross-entropy (BCE) on next-phase labels learns elimination within the next phase only. The second is the learning signal: these survival losses compare each eliminated team only with the teams of its match still alive (its \emph{risk set}), so adding one constant to every score of a match leaves them unchanged. They therefore receive no direct training signal for this \emph{match-common term}, a match's overall risk level, whereas BCE does. The horizon must be aligned before the second difference can be examined.
+
+Prior PUBG designs also differ in target, inputs, prediction unit, and metric~\cite{Sagong25a,KRAFTON}, so their reported gaps do not identify the responsible design choice. We adapt them to one task: at each boundary, we predict for every surviving team the probability of elimination before the next boundary from telemetry up to a cutoff 10\,s earlier, and we train, select, and test on successive game versions (patches). With samples, inputs, and network fixed, we align the horizon by truncating Cox at the next boundary (next-phase Cox) and test in three ways whether the remaining gap to BCE comes from the match-common term. \emph{Centering} subtracts the mean score of each match--phase, one phase of one match, leaving only the order of teams within it; if the gap disappears, it is tied to the match level. A \emph{combined loss} of Cox plus BCE gives Cox the signal it lacks; if the gap closes while within-match AUC stays practically equivalent, the missing signal can account for it. An \emph{offset-only calibration} refits only a per-match--phase shift of fixed Cox scores; if that alone closes the gap, a match-level term suffices.
+
+We then ask on which evaluation unit gains from inputs and structure appear. Two reference designs learn next-phase risk directly: gradient-boosted trees (GBDT) and PTR-Former, a Transformer that attends over a team's earlier phases and over the other teams of a phase (team attention). They and the objective controls share, alongside team state, a block of inputs describing each team's position relative to the zone, its movement, and the opponents nearby, which we call habitat context. We compare them with the adapted prior designs, including KRAFTON's design with a per-phase baseline risk (phase-adjusted KRAFTON), within cohorts: groups of matches with the same map, view, and team size.
+
+\paragraph{Research questions.} Both questions ask what changes when models are evaluated within matches rather than within phases.
+\begin{itemize}
+\item \textbf{RQ1:} With inputs and backbone fixed and the horizon aligned, how does the difference between risk-set objectives and BCE depend on the evaluation unit, and how much of it does the match-common term explain?
+\item \textbf{RQ2:} Do gains from changing inputs, structure, or complete designs persist under within-match evaluation, and how large are they in match-review terms?
+\end{itemize}
+
+\paragraph{Contributions.}
+\begin{itemize}
+\item \emph{When the evaluation unit decides the objective comparison.} Survival losses that compare teams within a match get no direct training signal for a match's overall risk level, and within-match AUC cannot reward that level, whereas BCE can learn it and within-phase AUC rewards it. Combining these known facts predicts on which evaluation unit the two objectives should differ (Section~\ref{sec:account}).
+\item \emph{A controlled test of this explanation.} With the same inputs and network, BCE ranks the teams of a match no better than next-phase Cox but wins within phases by 0.006--0.008 AUC. All three tests point to the match level: centering removes most of the gap, Cox plus BCE recovers 58--71\% of it while keeping within-match AUC, and a match-level shift of fixed Cox scores built from cutoff information recovers 34--58\% (uncertain in one cohort). Predictions recorded before training were supported when averaged over nine further cohorts (Section~\ref{sec:results:rq1}).
+\item \emph{Which gains survive within a match.} Changing the habitat-context inputs moves within-match AUC as much as within-phase AUC, whereas the within-phase gains of team attention, and of PTR-Former over GBDT, shrink to near zero within matches. In review terms, GBDT and PTR-Former catch 0.4--0.6 percentage points more eliminations among the three teams they rank riskiest than phase-adjusted KRAFTON (uncertain for PTR-Former), under a tenth of their gain over a rule that picks the teams with the fewest living members (Sections~\ref{sec:results:inputs}--\ref{sec:results:designs}).
+\end{itemize}
+In short, in these data, aligning the prediction horizon and changing the input set moved within-match AUC by 0.01 or more, whereas BCE versus next-phase Cox, attention across teams, and PTR-Former versus GBDT differed within matches by about 0.001, with intervals that include zero.
+Section~\ref{sec:related} reviews related work, Section~\ref{sec:account} states the properties and hypotheses, Sections~\ref{sec:method}--\ref{sec:method:evaluation} define the data, designs, and protocol, Section~\ref{sec:results} reports the results, and Sections~\ref{sec:discussion}--\ref{sec:conclusion} discuss implications, limitations (one game, one held-out version, one network for the objective controls), and conclusions. We release the analysis code.
+
+%======================================================================
+\section{Related Work}
+\label{sec:related}
+\emph{Esports and battle-royale prediction.} PUBG work predicts final placement from post-match statistics~\cite{KagglePUBG,LeeLee25}; esports models predict wins or short-horizon deaths from in-game snapshots~\cite{Hodge21,Katona19,Marshall22}, and graph representations of game state predict outcomes~\cite{Xenopoulos21}. The two designs closest to ours score phase-wise activity~\cite{Sagong25a} and learn survival order with attention across squads~\cite{KRAFTON}. These studies report metrics pooled over matches or over the full horizon, and their targets differ; we adapt both designs to one task rather than reproduce their original settings (Section~\ref{sec:method:rq2}).
+
+\emph{Survival prediction and evaluation within groups.} Landmarking~\cite{vanHouwelingen07} and discrete-time models~\cite{SingerWillett93,Gensheimer19} estimate interval risks for those alive at a prediction time, whereas the Cox model~\cite{Cox72} and deep variants~\cite{DeepHit18,DynamicDeepHit20} learn relative risks. Evaluation within groups is established elsewhere: time-dependent ROC analysis compares subjects within risk sets~\cite{HeagertyZheng05}, studies of clustered clinical data assess discrimination within clusters~\cite{vanKlaveren14}, and recommender systems average AUC within users~\cite{Zhou18}. Section~\ref{sec:account} adds the matching properties of training losses; we test how the metric side and the loss side interlock when objectives are compared.
+
+%======================================================================
+\section{Evaluation Units and Learning Signals}
+\label{sec:account}
+An evaluation unit is the set of pairs an AUC compares. Below, $\mathcal{R}_{m,k}$ holds the teams alive in match $m$ when phase $k$ ends (Section~\ref{sec:method:labels}), with scores $s_{m,i,k}$ and next-phase labels $Y_{m,i,k}$. Within one phase, a pair of an eliminated and a surviving team either shares a match or comes from two matches, so each per-phase AUC is $\pi A_W+(1-\pi)A_B$, where $A_W$ and $A_B$ are the AUCs over same-match and different-match pairs and $\pi$ is the share of same-match pairs; with $M$ matches of similar size, $\pi\approx1/M$. For example, a model that scores every team of a match with many teams crowded together above every team of a match with a few teams spread out wins most different-match pairs without telling apart the teams that meet. Within-match AUC uses same-match pairs only, like the within-group evaluations of Section~\ref{sec:related}.
+
+\paragraph{Metrics.}
+Add a constant $c_{m,k}$ to every score in $\mathcal{R}_{m,k}$. Same-match pairs keep their order, so within-match AUC is unchanged; different-match pairs can change order, so within-phase AUC rewards constants that track each match--phase's elimination rate (Table~\ref{tab:account}). Centering, which subtracts each match--phase's mean score, removes any additive constant.
+
+\paragraph{Losses.}
+A risk-set loss depends on scores only through ratios $e^{s_{m,i,k}}/\sum_{j}e^{s_{m,j,k}}$ within a risk set of one match, so adding $c_{m,k}$ leaves it unchanged and $\partial\ell/\partial c_{m,k}=0$: it gives no direct training signal for a match-common term, although its scores can still carry match information through team inputs. For BCE with $\hat\lambda_{m,i,k}=\sigma(s_{m,i,k})$, $\partial\ell/\partial c_{m,k}=\sum_{i\in\mathcal{R}_{m,k}}(\hat\lambda_{m,i,k}-Y_{m,i,k})$, the gap between expected and observed eliminations, and adding a BCE term to a risk-set loss supplies the same gradient. These properties are known: group-level effects drop out of conditional likelihoods~\cite{Chamberlain80}, the Cox partial likelihood without ties is the Plackett--Luce likelihood of ListMLE~\cite{Xia08}, and adding a pointwise sigmoid cross-entropy to a listwise loss is one remedy for miscalibration across queries~\cite{Bai23}.
+
+\paragraph{Horizon.}
+Fit with full follow-up, the Cox model ranks the whole remaining elimination order~\cite{Cox72}, whereas a discrete-time model estimates the probability of elimination before the next phase ends~\cite{SingerWillett93,Gensheimer19}; to separate horizon from learning signal, we first truncate Cox at the next boundary.
+
+\begin{table}[t]
+\centering\footnotesize
+\caption{Effect of adding a constant $c_{m,k}$ to every score of one match--phase.}
+\label{tab:account}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{ll}
+\toprule
+Quantity & Effect of $c_{m,k}$ \\
+\midrule
+Within-match AUC & none (same-match order kept) \\
+Within-phase AUC & can change (different-match pairs) \\
+Centered within-phase AUC & none (mean removed) \\
+Risk-set loss (Cox, KRAFTON) & none; $\partial\ell/\partial c_{m,k}=0$ \\
+Cross-entropy & $\partial\ell/\partial c_{m,k}=\sum_{i}(\hat\lambda_{m,i,k}-Y_{m,i,k})$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Hypotheses.}
+These properties do not by themselves fix the sign of any AUC difference, which depends on what the inputs carry and how well each model fits. For objectives with shared inputs, they suggest five hypotheses. Truncating Cox at the next boundary raises its within-match AUC (H0). With horizons aligned, BCE and next-phase Cox are practically equivalent within matches (H1), BCE is higher within phases (H2), and after centering the two are practically equivalent within phases (H3). Adding a BCE term to next-phase Cox (H4a), or fitting a match-common term to fixed Cox scores (H4b), raises within-phase AUC to practical equivalence with BCE while within-match AUC stays practically equivalent to next-phase Cox's. H3 asks whether the gap goes with the match level of the scores, H4a whether giving Cox the missing signal closes it, and H4b whether a match-level shift alone, added after training, closes it. We formed these hypotheses after observing H0--H3 in the two largest cohorts. The H4a and H4b predictions there, and the predictions for H0--H3 and H4a in nine further cohorts, were recorded before those runs (Table~\ref{tab:predictions}). RQ2 is asked without a predicted direction.
+
+%======================================================================
+\section{Data and Prediction Task}
+\label{sec:method}
+
+We construct one sample per team alive at a phase boundary and predict elimination before the next phase ends. Figure~\ref{fig:pipeline} connects data collection and sample construction to the two research questions and their evaluation units.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_pipeline_clean.pdf}
+\caption{Data and task (panels A--B) and the two research questions with their evaluation units (panels C--D).}
+\label{fig:pipeline}
+\Description{Telemetry is converted to samples using a common cutoff, then used for matched objective controls, input and structure contrasts, and design comparisons, evaluated within phases, within matches, and after match-phase centering.}
+\end{figure*}
+
+\subsection{Data Collection}
+\label{sec:method:data}
+PUBG's public telemetry records every player's position about every 10\,s, together with timestamped events such as damage, knock-downs, kills, items, safe-zone states, and phase changes~\cite{PUBGAPI}. We queried the public API's list of sample matches 35 times between March 27 and June 2, 2026 (UTC), collecting Steam matches created from March 25 to June 1 in PC game versions (patches) 40.2--41.2~\cite{PUBGPatchNotes2026}, before the zone revamp~\cite{PUBGBlueZone2026}. Update 41.1 changed bot behavior and Blue Zone protection, so the prediction environment is not stationary across patches. Prior processed data are unavailable~\cite{Sagong25a,KRAFTON}. We used only public match records and identified no individuals.
+
+\subsection{Cohorts and Match-Level Split}
+\label{sec:method:cohort}
+Matches with the same map, perspective (FPP/TPP), and team size form a cohort, since these change travel distances and fighting. We keep normal and ranked matches, excluding tutorial and training matches, casual matches populated mostly by AI accounts, and the Vikendi map with many non-player combat accounts. Because the game still adds AI accounts to normal matches, each team's AI-account share is an input; teams are never mixed, so it acts as an AI-team indicator, and AI teams are eliminated more often than human teams (Table~\ref{tab:cohorts}), which motivates human-only evaluation. Complete matches are split chronologically by patch: 40.2 for training, 41.1 for validation, and 41.2 for testing. Scheduled phase lengths and all preprocessing statistics are estimated on patch 40.2 alone, and features are rebuilt from raw telemetry under them~\cite{Kaufman12}. Before training, we required at least 50 training matches for primary cohort synthesis: 11 of the 12 cohorts qualify, and Karakin, with six training matches, is reported separately.
+
+\begin{table}[t]
+\centering
+\caption{Matches, team--phase samples, and next-phase elimination rate by cohort.}
+\label{tab:cohorts}
+\footnotesize
+\setlength{\tabcolsep}{2.7pt}
+\begin{tabular}{lccrrrr}
+\hline
+Map & View & Size & Matches & Train/val/test & Samples & Elim.\ (\%) \\
+\hline
+Erangel & TPP & 1 & 224 & 86/100/38 & 31,740 & 35.1 \\
+Erangel & TPP & 2 & 656 & 238/308/110 & 59,170 & 29.5 \\
+Taego & TPP & 2 & 573 & 214/246/113 & 47,223 & 29.2 \\
+Erangel & FPP & 4 & 430 & 118/209/103 & 21,849 & 27.8 \\
+Erangel & TPP & 4 & 3,283 & 1,094/1,627/562 & 196,442 & 25.7 \\
+Karakin & TPP & 4 & 333 & 6/212/115 & 12,669 & 32.1 \\
+Miramar & TPP & 4 & 1,543 & 521/733/289 & 92,279 & 24.6 \\
+Paramo & TPP & 4 & 333 & 198/72/63 & 9,963 & 30.5 \\
+Rondo & TPP & 4 & 1,039 & 306/613/120 & 53,683 & 25.2 \\
+Sanhok & TPP & 4 & 940 & 222/564/154 & 48,793 & 27.6 \\
+Taego & FPP & 4 & 435 & 118/226/91 & 23,390 & 30.0 \\
+Taego & TPP & 4 & 4,159 & 1,318/2,061/780 & 220,565 & 24.9 \\
+\hline
+Total & & & 13,948 & 4,439/6,971/2,538 & 817,766 & 26.6 \\
+\hline
+\end{tabular}
+\smallskip
+\parbox{\columnwidth}{\scriptsize AI teams are 13.6\% of the 145,019 primary test rows; their next-phase elimination rate is 37.9\%, against 25.1\% for human teams.}
+\end{table}
+
+\subsection{Time Axis and Information Cutoff}
+\label{sec:method:samples}
+Times are seconds since match start; phase $k$ of match $m$ runs from the reveal of the $k$-th safe zone to the end of the shrink to that zone. The prediction time $b_{m,k}$ is the moment the shrink ends and the next safe zone is revealed, and inputs use only records before the feature cutoff $a_{m,k}=b_{m,k}-\Delta$ with $\Delta=10$\,s (Fig.~\ref{fig:pipeline}B): if the fourth zone is revealed at 1,200\,s, the cutoff is 1,190\,s and a fight at 1,195\,s is excluded. Inputs, relations, attention keys, and the 10\,s position grid use records strictly before $a_{m,k}$: a grid time $t$ takes each player's nearest record within $\pm5$\,s and is admitted only if $t+5<a_{m,k}$. A killed player counts as alive again only if a healthy position record appears at least 20\,s after the kill and before $a_{m,k}$ (observed revives come at least 34\,s after it). We check the cutoff by rebuilding the inputs of sampled boundaries after deleting all records after $a_{m,k}$; a builder without the cutoff tests that the check detects leakage.
+
+\subsection{Event-Based Labels and Prediction Target}
+\label{sec:method:labels}
+Knocked players can be revived and are not counted as eliminated; the elimination time $T_{m,i}$ of team $i$ in match $m$ is the kill time of its last member who did not return ($T_{m,i}=\infty$ for the winner, observed until the match end $C_m$). The retrospective risk set is $\mathcal{R}_{m,k}=\{i:T_{m,i}>b_{m,k}\}$, so teams finally eliminated between the cutoff and the boundary are excluded, and retained rows are checked against alive status observed before the cutoff. The label is $Y_{m,i,k}=\mathbb{I}[T_{m,i}\le b_{m,k+1}]$, where $\mathbb{I}[\cdot]$ is 1 if its argument is true and 0 otherwise, and $b_{m,k+1}=C_m$ if phase $k+1$ is the last. Samples $(m,i,k)$ are built at boundaries $k=1,\dots,7$ (in solo matches a team is a player), and the prediction target is the next-phase elimination risk
+\begin{equation}
+\lambda_{m,i,k}=\Pr\!\left(Y_{m,i,k}=1 \mid i\in\mathcal{R}_{m,k},\,\mathcal{H}_{m}(a_{m,k})\right),
+\label{eq:hazard}
+\end{equation}
+where $\mathcal{H}_{m}(t)$ is all telemetry of match $m$ recorded before time $t$. This is an interval event probability at landmark times, the fixed prediction times at which surviving teams are scored again~\cite{vanHouwelingen07}, not a per-second rate. Boundaries are excluded if the match end is missing or a gap exceeding 60\,s in the pooled position stream overlaps the outcome window.
+
+%======================================================================
+\section{Input Representations and Reference Designs}
+\label{sec:method:design}
+\subsection{Domain-Informed Input Representations}
+\label{sec:method:representation}
+Next-phase elimination depends on more than how much a team has fought and how healthy it is: two teams with the same members, health, and damage history can differ in where they stand relative to the zone, how they have moved, and how many opponents are near. We therefore organize such state into a habitat-context block of three dimensions: boundary exposure, movement context, and local competition. Prior inputs also contain zone distances and nearby enemies (Table~\ref{tab:blocks}); the block organizes this kind of state by team over the current phase, relative to the zone known at the cutoff.
+
+The name comes from habitat-loss ecology, which relates persistence to the amount and arrangement of habitat~\cite{Fahrig03}; the analogy only organizes the variables, each defined from telemetry, and we test no ecological mechanism. Boundary exposure is how far the team centroid is outside the current zone (outside depth) or inside it (inside depth). Movement context includes the required speed $d/\tau_k$ and the movement residual $(d-\ell)/\tau_k$~\cite{Nathan08}, where $d$ is the distance from the last observed team centroid to the boundary of the target zone already visible at the cutoff, $\ell$ sums horizontal centroid displacements from phase start to the cutoff, and $\tau_k$ is the scheduled phase duration estimated on training matches. The residual is a retrospective proxy, not a feasibility calculation: $\tau_k$ is not the remaining time, $\ell$ includes detours, and $d=0$ inside the target zone. Local competition counts other teams within 100, 200, and 500\,m (3-D centroid distance) at the team's last alive grid point. Alive members and health belong to the team-status block, not to the 44 habitat variables.
+
+The block carries both team-specific state, such as depth and local competition, and match-environment information, such as zone size and shrink rate. RQ1 gives the same inputs to every loss; RQ2 adds or removes the block with GBDT fixed (Section~\ref{sec:method:decomposition}). Removing the block removes these 44 variables, not all spatial information: other blocks keep enemy density, movement summaries, and shared-pressure relations. PTR-Former's inputs add the team centroid and three same-phase relations: proximity (dropped for pairs that fought), combat, and shared zone pressure (two teams within 200\,m, both outside or within 150\,m of the zone edge).
+
+\begin{table}[t]
+\centering
+\caption{Input blocks and representative features.}
+\label{tab:blocks}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{>{\raggedright\arraybackslash}p{1.45cm}p{5.8cm}r}
+\hline
+Block & Representative features & \# \\
+\hline
+\multicolumn{3}{l}{\emph{Our inputs}} \\
+Habitat context & exposure: outside/inside depth, boundary distance; movement: required speed, residual; competition: enemy teams within 100--500\,m, entry congestion (teams in the target zone at entry); zone size, shrink rate & 44 \\
+Match context & phase index, scheduled phase length, team size, alive teams & 6 \\
+Team status & alive members, mean/min health, member spread & 9 \\
+Movement, space & path length, speed, tortuosity~\cite{Zheng15}, zone-entry time; nearest-enemy distance, enemy density, elevation & 19 \\
+Combat, items & damage dealt/taken, kills/knocks, opponents engaged; item use, healing, vehicles & 29 \\
+Relations & degree/strength summaries; for PTR-Former, proximity, combat, and shared-pressure graph weights & 43 \\
+AI indicator & AI-account share (0 or 1), added to our inputs & 1 \\
+\hline
+\multicolumn{3}{l}{\emph{Prior designs}} \\
+Sagong et al. & phase-wise combat, distance, density, item counts; fight/activity scores; play type & 12 \\
+KRAFTON & kills/knocks, damage, healing, equipment, nearby allies/enemies, zone distances, health, members, positions & 55+ \\
+\hline
+\end{tabular}
+\smallskip
+\parbox{\columnwidth}{\scriptsize Our numeric blocks hold 150 features; reference GBDT adds the AI indicator (151), and matched tuning adds the two centroid coordinates (153).}
+\end{table}
+
+\subsection{Reference and Adapted Designs}
+\label{sec:method:rq2}
+The reference designs serve as instruments for the input and structure contrasts. They learn the next-phase elimination probability directly, per phase:
+\begin{equation}
+\mathrm{logit}\,\lambda_{m,i,k}=\alpha_k+f(\mathbf{x}_{m,i,k},\mathcal{G}_{m,k}),
+\label{eq:logit}
+\end{equation}
+where $\mathbf{x}_{m,i,k}$ is team $i$'s input feature vector including habitat context, $\mathcal{G}_{m,k}$ is the graph of the three relations among teams alive at $a_{m,k}$, a graph representation of game state~\cite{Xenopoulos21}, and $f$ is a function learned with BCE over all training team--phase samples. The designs are gradient-boosted decision trees (GBDT)~\cite{Friedman01} and PTR-Former (phase--team--relation Transformer); Equation~\eqref{eq:logit} is conceptual, as both take the phase index as an input in place of a separate per-phase intercept $\alpha_k$. PTR-Former alternates attention over the same team's earlier phases (phase axis) and over other teams alive in the same phase (team axis)~\cite{Vaswani17,Ngiam22}, adds learned relation-type biases to team-axis attention~\cite{Ying21}, and adds a ranking loss on final placement (weight 0.1). As a same-target linear baseline, L2-regularized logistic regression uses phase indicators and the GBDT's 151 standardized inputs, with the penalty chosen by validation log loss.
+
+KRAFTON's predictor instead learns elimination ordering with a weighted survival objective of time-gap weights, eliminated-team log probabilities, and survivor-complement terms. It is not standard Cox partial likelihood, but both terms depend on team scores $s_i$ only through risk-set ratios and the weights depend on outcomes, so it is invariant to a common shift within each risk set (Section~\ref{sec:account}) and identifies neither an absolute phase nor a match risk level. The KRAFTON adaptation maps scores to probabilities with a logistic function $p=\sigma(A s+B)$ fit on validation data (Platt scaling); phase-adjusted KRAFTON instead uses $1-\exp\{-\exp(\gamma_k+s_{m,i,k})\}$, which attaches a baseline hazard $\gamma_k$, the risk level of phase $k$~\cite{PrenticeGloeckler78}, fit on validation risk sets for the original inputs and on training risk sets for ours.
+
+These are task adaptations: Sagong targets next half-phase player survival, and KRAFTON targets elimination order at many in-match time points without a phase risk level. KRAFTON uses public commit 99ed9d1 with integration fixes; its 55 features include 32 definition-matched reconstructions, 22 proxies, and one zero-filled feature. Sagong is a paper-based reimplementation with attack/assist proxies, aggregated from its solo, half-phase task to teams and full phases. Neither reproduces original empirical performance; we also report KRAFTON's winner accuracy (the top-ranked team wins) and C-index (concordance with final elimination order).
+
+%======================================================================
+\section{Experimental Design and Evaluation Protocol}
+\label{sec:method:evaluation}
+\subsection{Matched Comparisons}
+\label{sec:method:decomposition}
+\emph{Objective controls (RQ1)} vary only the loss and keep the observations, our inputs, the backbone derived from KRAFTON, and a configuration fixed before tuning. The losses are KRAFTON's weighted survival objective and standard Cox partial likelihood (Breslow ties), each either with full follow-up or truncated at the next-phase boundary; BCE on next-phase labels; and next-phase Cox plus that BCE. Truncation drops events beyond the boundary from the weighted loss and censors teams there for Cox. Risk sets are formed within each match--phase; on a batch of eight matches the combined loss is
+\begin{equation}
+\mathcal{L}=\frac{1}{|E|}\sum_{i\in E}\Big[\log\sum_{j\in\mathcal{R}_i}e^{s_j}-s_i\Big]+\frac{1}{N}\sum_{n}\ell^{\mathrm{BCE}}_n,
+\label{eq:combined}
+\end{equation}
+where $E$ holds the batch's next-phase eliminations and $N$ its team--phase rows. Its weight of one and three predictions were recorded before training: higher within-phase AUC than next-phase Cox, within-phase AUC practically equivalent to BCE's, and within-match AUC practically equivalent to next-phase Cox's. All conditions use three seeds and a common validation logistic calibration with phase indicators. The six losses were designed in the two largest cohorts and repeated in the other nine with seven predictions recorded before training (Table~\ref{tab:predictions}).
+
+\emph{Offset-only calibration (RQ1)} keeps next-phase Cox scores $s$ fixed and was run in the two largest cohorts only. It keeps the Cox order of teams inside each match--phase and refits only the level of each match--phase, fitting on validation data
+\begin{equation}
+\mathrm{logit}\,p=a(s-\bar s_{m,k})+\beta_k+\gamma^{\top}z_{m,k},
+\label{eq:offset}
+\end{equation}
+where $z_{m,k}$ holds the match--phase mean score $\bar s_{m,k}$, the log number of teams at risk, and match--phase input means, all over the rows of $\mathcal{R}_{m,k}$. The slope $a$ is not constrained, but the code checks $a>0$, so within-match rankings are exactly those of Cox; its two predictions, recorded before running, were a positive within-phase improvement over Cox and practical equivalence to BCE. Post hoc, a variant restricted to information available at $a_{m,k}$ uses the raw score $s$ without a separate mean-score term (scores of teams eliminated between $a_{m,k}$ and $b_{m,k}$ are not stored) and the log number and input means of the teams observed alive at the cutoff; a second variant keeps the risk-set summaries in this form, separating information from form. The same check applies to them.
+
+\emph{Input and structure contrasts (RQ2)} hold the learner fixed. Input contrasts use GBDT: we add habitat context to Sagong's inputs and then replace the rest with ours, replace KRAFTON's inputs with ours, add KRAFTON's inputs to ours, and remove the habitat block from ours. Five primary comparisons, fixed before the patch-split models were trained, are a 2$\times$2 on/off design of PTR-Former's phase and team axes (AUC for both axes and, for the team axis, Spearman rank correlation within matches), a relation-alignment control that shuffles relations within matches, and a zone token (the safe zone as an extra attention token) tested without habitat and zone features. Equal-trial tuning~\cite{Bergstra12,Cawley10} gives GBDT, the KRAFTON-derived backbone, and PTR without ranking loss the same 153 inputs, BCE, and 16 configurations from a shared list, selected by validation log loss in the two largest cohorts.
+
+\subsection{Metrics, Aggregation, and Diagnostics}
+\label{sec:method:units}
+All designs are scored on identical patch-41.2 test samples (Figure~\ref{fig:pipeline}D). Within-phase AUC is the unweighted mean of per-phase AUCs over phases with at least 30 rows and both outcome classes; overall AUC also pools phases, so predicting each phase's elimination rate raises it. Within-match AUC compares only teams alive at the same boundary of one match. Its primary aggregation pools pairs over risk sets with both classes, so boundaries with more teams, which pose more comparisons for a reviewer, weigh more; as aggregation checks we average AUCs per boundary and, with equal phase weights as in within-phase AUC, per phase.
+
+Centering is a diagnostic, not a way to split AUC into match-level and team-level parts: it recomputes within-phase AUC after subtracting each model's mean score per match--phase. We also compute the \emph{mean-score AUC}, the different-match AUC of the match--phase mean scores alone, and, as a check on spread, divide centered scores by their match--phase SD. Scores are logits, but phase-adjusted KRAFTON is centered on its Cox score $s$, the scale on which its loss is shift-invariant; for the matched controls the common logistic mapping is linear in the score, so both choices coincide. In the two largest cohorts, centering was added after the objective results were examined.
+
+For review use, recall@3 is the share of next-phase eliminations among the three teams a design ranks riskiest at each boundary, pooled over boundaries $g$ with at least one elimination,
+\[
+\mathrm{recall@3}=\sum_g\sum_{i\in K_g}Y_{gi}\Big/\sum_g\sum_{i\in\mathcal{R}_g}Y_{gi},
+\]
+where $K_g$ holds those three teams (ties split at random in expectation; all teams if $|\mathcal{R}_g|\le3$). The three are ranked by predicted risk, not by final placement. We compare recall@3 with random selection and with a rule that flags the teams with the fewest living members, in percentage points (pp). Probability accuracy uses log loss, Brier score, phase calibration error $\sum_k(n_k/n)|\bar p_k-\bar y_k|$, and calibration slope~\cite{VanCalster16}.
+
+\subsection{Statistical Decisions and Model Selection}
+Per-cohort confidence intervals come from a paired bootstrap that resamples test matches (2,000 resamples). Cohort estimates are then averaged with a random-effects model, which lets the true effect differ between cohorts (DerSimonian--Laird~\cite{DerSimonian86}; checked with REML and Hartung--Knapp intervals~\cite{HartungKnapp01}); we call the result the pooled estimate. Decision rules, the smallest difference we treat as meaningful (the SESOI), and the five primary comparisons were fixed before the patch-split models were trained. A difference is a practical gain if its one-sided $p<0.05$ and its estimate is at least the SESOI, 0.005 AUC (0.01 for rank correlation), practically equivalent if its 90\% CI lies within $\pm$SESOI~\cite{Schuirmann87}, and inconclusive otherwise; a recorded prediction of a positive improvement requires only a 95\% CI above zero. Holm correction applies to the five one-sided tests against zero~\cite{Holm79}; equivalence intervals are unadjusted. Validation data select settings, checkpoints, and mappings; test data select none of them. Objective-control checkpoints are selected by validation within-phase AUC and, as a check, by each objective's own validation loss. Reference GBDT is scikit-learn's histogram gradient boosting with 200 trees (learning rate 0.06, 31 leaves); PTR (width 128, four heads, two blocks) and KRAFTON (width 64, eight heads/layers) use AdamW ($10^{-3}$/$10^{-4}$) with validation stopping, and the artifact lists all settings. Human-team evaluations retain opponents as observed context.
+
+%======================================================================
+\section{Results}
+\label{sec:results}
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_eval_units.pdf}
+\caption{AUC differences on the two evaluation units (first column: within phase, where most pairs come from different matches; third: within match), after centering (second; a diagnostic that removes each match--phase mean), and with equal phase weights (fourth; an aggregation check). Points are estimates, bars 95\% CIs, and the gray band the SESOI ($\pm0.005$); pooled rows use random effects, and column differences alone do not identify a cause. Top: BCE minus next-phase Cox in the two cohorts where the explanation was formed and pooled over the other nine. Bottom: reference designs minus phase-adjusted KRAFTON (KRAFTON+phase) over 11 cohorts, with KRAFTON centered on its native Cox scores.}
+\label{fig:contrast}
+\Description{Four panels share one AUC-difference axis: within-phase AUC, within-phase AUC after match-phase centering, within-match AUC, and within-match AUC with equal phase weights. Cross-entropy minus next-phase Cox lies outside the gray SESOI band only within phases; reference designs minus phase-adjusted KRAFTON lie far outside it within phases and move into it under centering and equal phase weights.}
+\end{figure*}
+Rebuilding inputs from telemetry truncated at the cutoff reproduced all 453 sampled cutoffs (72 matches), whereas disabling truncation changed 450 of them, and only two of the 817,766 retained rows, both in training, lacked an observed living member at the cutoff. Same-match pairs make up 0.15--2.8\% of within-phase AUC pairs across cohorts (0.15\% and 0.20\% in the two largest). Unless stated otherwise, differences are pooled over the 11 cohorts with at least 50 training matches and given with 95\% CIs, and counts in parentheses give the number of cohorts whose sign agrees with the pooled estimate. Matched controls are reported for the two largest cohorts (Erangel and Taego TPP squad) and pooled over the other nine.
+
+\subsection{Horizon and Objective Comparisons (RQ1)}
+\label{sec:results:rq1}
+\input{tables/objective_results}
+Aligning the horizon comes first (H0). With everything else matched, truncating standard Cox at the next-phase boundary improves within-match AUC by $+0.0123$ $[0.0088,\allowbreak 0.0160]$ in Erangel and $+0.0147$ $[0.0112,\allowbreak 0.0180]$ in Taego (Table~\ref{tab:objective}).
+
+Once horizons are aligned, BCE and Cox rank the teams of a match equally well, but BCE still wins within phases. Within matches, BCE minus next-phase Cox is $+0.0008$ and $-0.0008$ (90\% CIs within $\pm0.003$; H1), also with equal phase weights (Fig.~\ref{fig:contrast}, top). Within phases, BCE keeps $+0.0060$ $[0.0038,\allowbreak 0.0082]$ and $+0.0076$ $[0.0055,\allowbreak 0.0097]$, positive in every seed (H2). These two-cohort results came before the explanation of Section~\ref{sec:account}.
+
+BCE's within-phase advantage depends on the match--phase score levels. Removing each match--phase mean (centering, a diagnostic) shrinks it to $+0.0015$ and $+0.0008$ (90\% CIs within $\pm0.003$; H3), whereas the mean scores alone rank matches better under BCE, by $+0.016$ $[0.013,\allowbreak 0.020]$ and $+0.019$ $[0.015,\allowbreak 0.022]$ mean-score AUC. Next-phase Cox still reaches mean-score AUCs of 0.586 and 0.597, about 84\% of BCE's above-chance value, because team inputs carry match state. Centering alone does not establish the cause of the advantage.
+
+Two manipulations then test the explanation. Giving Cox the missing signal recovers most of the gap: the combined objective (H4a), which changes the whole training, met all three predictions recorded before training. Adding the BCE term to next-phase Cox raises within-phase AUC by $+0.0035$ $[0.0015,\allowbreak 0.0056]$ in Erangel and $+0.0054$ $[0.0040,\allowbreak 0.0068]$ in Taego (a positive improvement in both, a practical gain only in Taego), closing 58\% $[30,\allowbreak 84]$ and 71\% $[55,\allowbreak 92]$ of the gap to BCE. The remaining differences from BCE ($+0.0025$, $+0.0022$) are practically equivalent (90\% CI upper limits 0.0040, 0.0037), although their 95\% CIs exclude zero, and within-match AUC stays practically equivalent to next-phase Cox's ($+0.0015$ and $+0.0007$; 90\% CIs within $[-0.0005,\allowbreak 0.0030]$). The gain appears in mean-score AUC ($+0.011$ $[0.008,\allowbreak 0.014]$, $+0.012$ $[0.010,\allowbreak 0.015]$), not in centered within-phase AUC ($+0.0009$, $+0.0010$).
+
+A match-level shift added after training (H4b) recovers part of the gap, with weaker support. The offset-only calibration keeps the fixed Cox scores and refits only a term per match--phase, which preserves within-match rankings (all fitted slopes positive, 0.98--1.16). It raises within-phase AUC by $+0.0027$ $[0.0001,\allowbreak 0.0050]$ and $+0.0053$ $[0.0039,\allowbreak 0.0068]$, closing 45\% $[2,\allowbreak 86]$ and 70\% $[52,\allowbreak 95]$ of the gap. Of its two recorded predictions, a positive improvement over Cox held in both cohorts (below the practical-gain threshold in Erangel), and practical equivalence to BCE held in Taego (90\% CI upper limit 0.0039) but not in Erangel (0.0056), so H4b holds in Taego only. Its summaries over $\mathcal{R}_{m,k}$, however, use which teams were eliminated in the 10\,s after the cutoff, information outside the conditioning set of Eq.~\eqref{eq:hazard} that no other condition in Table~\ref{tab:objective} receives. With only information available at $a_{m,k}$, the term closes 34\% and 58\% of the gap ($+0.0021$ $[-0.0004,\allowbreak 0.0043]$, $+0.0044$ $[0.0031,\allowbreak 0.0059]$): the Erangel interval includes zero, so the positive-improvement rule fails there, and practical equivalence to BCE again holds in Taego only (90\% CI upper limits 0.0061 and 0.0048). Keeping the risk-set summaries in this reduced form closes 40\% and 60\%, so by point estimates the information restriction costs 6 and 2 points and dropping the mean-score term 5 and 10.
+
+\input{tables/prediction_results}
+The pattern holds when pooled over the nine cohorts not used to form the explanation: the estimates support all seven predictions recorded before training (Table~\ref{tab:predictions}; Fig.~\ref{fig:contrast}, top), and the combined objective closes about 72\% of BCE's within-phase advantage. Selecting checkpoints by each objective's own validation loss instead of within-phase AUC leaves the pattern intact over all 11 cohorts (BCE minus next-phase Cox: $-0.0002$ within matches, $+0.0090$ within phases; Cox+BCE adds $+0.0067$ within phases).
+
+\subsection{Input and Structure Contrasts (RQ2)}
+\label{sec:results:inputs}
+\begin{table}[t]
+\centering\scriptsize
+\caption{Input and structure contrasts on the two evaluation units: AUC differences pooled over 11 cohorts with 95\% CIs.}
+\label{tab:contrasts}
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{lll}
+\toprule
+Contrast & Within phase & Within match \\
+\midrule
+\multicolumn{3}{l}{\emph{Inputs, GBDT fixed}} \\
+Habitat block, with $-$ without & $+0.015$ $[0.012, 0.018]$ & $+0.016$ $[0.013, 0.019]$ \\
+Sagong inputs $\to$ ours & $+0.106$ $[0.099, 0.114]$ & $+0.101$ $[0.085, 0.118]$ \\
+KRAFTON inputs $\to$ ours & $-0.007$ $[-0.011, -0.003]$ & $-0.012$ $[-0.017, -0.008]$ \\
+Ours $\to$ ours + KRAFTON inputs & $+0.019$ $[0.017, 0.022]$ & $+0.020$ $[0.016, 0.025]$ \\
+\midrule
+\multicolumn{3}{l}{\emph{Structure and learner}} \\
+Team attention, on $-$ off & $+0.011$ $[0.009, 0.013]$ & $+0.001$ $[-0.001, 0.003]$ \\
+PTR-Former $-$ GBDT & $+0.006$ $[0.004, 0.008]$ & $-0.001$ $[-0.006, 0.004]$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+Changing the inputs moves within-match AUC as much as within-phase AUC, or more (Table~\ref{tab:contrasts}). With GBDT and the other inputs fixed, removing the 44 habitat-context variables lowers within-phase AUC by 0.015 and within-match AUC by 0.016 (11/11 each), so the block adds predictive value within matches under the current inputs and training; added to Sagong's inputs alone, it raises overall AUC by $+0.046$ $[0.041,\allowbreak 0.052]$ (11/11). Our inputs are not better than the reconstructed KRAFTON inputs, which exceed them by 0.007 within phases and 0.012 within matches, but combining both sets adds about 0.02 on both units, so the two sets carry complementary information.
+
+Changing the structure behaves differently. Attention across the teams of a phase raises within-phase AUC by $+0.0108$ (11/11) but within-match AUC by only $+0.0011$; after centering its within-phase advantage is $+0.0043$ $[0.0020,\allowbreak 0.0067]$, and the mean scores alone rank matches better with it by $+0.0049$ $[0.0022,\allowbreak 0.0076]$. PTR-Former exceeds GBDT by $+0.0058$ within phases, a practical gain by our rule, but their within-match difference is uncertain ($-0.0009$ $[-0.0057,\allowbreak 0.0039]$), and centering leaves $+0.0011$ $[-0.0022,\allowbreak 0.0044]$.
+
+\input{tables/primary_decisions}
+By the pre-specified rules, none of the five primary structure comparisons is a practical gain on overall AUC or rank correlation (Table~\ref{tab:primary}): three are practically equivalent and both team-axis comparisons are inconclusive, also under the alternative random-effects estimator; team-axis AUC is positive (adjusted $p<0.001$), but its 90\% interval crosses 0.005. In a separate, later analysis, the five comparisons move within-match AUC by at most 0.0018, or 0.0034 with equal phase weights. Under equal-trial tuning in the two largest cohorts, no architecture dominates: PTR minus GBDT within matches is $-0.0062$ and $+0.0026$, intervals for PTR minus the KRAFTON backbone include zero, and tuning moves reference GBDT and PTR AUC by at most 0.002. Removing the AI input, training on human teams only, adding earlier-phase summaries, or shuffling past prefixes moves AUC by at most 0.0033.
+
+\subsection{Complete Designs and Review Utility (RQ2)}
+\label{sec:results:designs}
+\input{tables/main_results}
+Complete designs differ in inputs, objective, and probability mapping at once, and on overall AUC both reference designs beat the adapted prior designs (Table~\ref{tab:main}). The largest gap is to the Sagong adaptation (PTR-Former exceeds it by $+0.092$); the advantage over phase-adjusted KRAFTON is smaller, $+0.0197$ $[0.0143,\allowbreak 0.0250]$ for PTR-Former (effects vary between cohorts, $I^2=0.85$) and $+0.0191$ $[0.0138,\allowbreak 0.0244]$ for GBDT. Even the regularized logistic baseline exceeds phase-adjusted KRAFTON overall ($+0.0103$ $[0.0009,\allowbreak 0.0196]$), though not within matches.
+
+Within matches, the gains over phase-adjusted KRAFTON shrink by half to three quarters (Fig.~\ref{fig:contrast}, bottom). Relative to phase-adjusted KRAFTON, within-phase AUC is higher by $+0.0271$ for PTR-Former and $+0.0187$ for GBDT, but within-match AUC only by $+0.0071$ $[0.0030,\allowbreak 0.0113]$ and $+0.0100$ $[0.0071,\allowbreak 0.0128]$; restricting evaluation to human teams changes these little ($+0.0077$, $+0.0105$), so they do not come only from separating AI teams from human teams. Centering removes most of the within-phase gain, cutting it to $+0.0074$ and $+0.0052$, whereas the mean scores alone favor PTR-Former and GBDT by $+0.051$ $[0.038,\allowbreak 0.063]$ and $+0.046$ $[0.035,\allowbreak 0.058]$; dividing also by the match--phase SD leaves $+0.0028$ and $+0.0023$, close to the inconclusive within-match gains under equal phase weights ($+0.0031$, $+0.0027$). The primary within-match gains meet our practical-gain rule, although PTR-Former's lower 95\% limit (0.0030) is below the SESOI, and they concentrate in early phases with many teams.
+
+For a reviewer, the reference designs and phase-adjusted KRAFTON differ little. The three highest-risk teams at a boundary (recall@3) include 51.7\% of next-phase eliminations under GBDT, 51.6\% under PTR-Former, and 51.1\% under phase-adjusted KRAFTON, versus 34.7\% at random and 45.1\% for the fewest-remaining-members rule (GBDT exceeds the rule by $+6.8$ $[6.2,\allowbreak 7.3]$\,pp, 11/11). GBDT exceeds phase-adjusted KRAFTON by $0.57$ $[0.01,\allowbreak 1.13]$\,pp, barely above zero, and PTR-Former by $0.40$ $[-0.09,\allowbreak 0.89]$\,pp, an interval that includes zero; PTR-Former minus GBDT is $-0.18$ $[-0.61,\allowbreak 0.26]$\,pp. These differences are under a tenth of the gain over the rule. Adding information helped more than changing structure here: adding KRAFTON's inputs to GBDT raises recall@3 to 53.3\%, $+1.46$ $[0.92,\allowbreak 2.00]$\,pp over the reference GBDT (10/11), whereas on shared inputs the primary structure contrasts change recall@3 by at most 0.36\,pp. A within-match difference of 0.005 AUC corresponds to about 0.33\,pp of recall@3 (descriptive slope 0.66 $[0.54,\allowbreak 0.78]$ over nine design contrasts).
+
+Which design is best also depends on the target. Adding a per-phase baseline lets KRAFTON's probabilities follow each phase's elimination rate, lowering its phase calibration error from 0.068 to 0.012 without changing rankings within phases (calibration slopes 0.86, 0.95, and 0.95 for GBDT, PTR-Former, and phase-adjusted KRAFTON). The survival designs predict winners better: KRAFTON exceeds PTR-Former by $0.0175$ $[0.0020,\allowbreak 0.0324]$ in winner accuracy, and with our inputs and backbone fixed, weighted survival exceeds BCE by $0.0252$ in winner accuracy and $0.0065$ in C-index (both intervals exclude zero).
+
+%======================================================================
+\section{Implications and Limitations}
+\label{sec:discussion}
+\subsection{Implications for Evaluation}
+\label{sec:discussion:implications}
+Which unit to report depends on the use. Reviewing one match needs within-match ranking, where horizon-aligned Cox, BCE, and the reference designs differ little. Comparing risk across matches needs match-level information, which within-phase AUC rewards and for which risk-set objectives receive no direct training signal. Within-phase AUC alone mixes the two: the reference designs' within-phase gains of 0.019--0.027 over phase-adjusted KRAFTON are 0.007--0.010 within matches, and whether attention across teams, or PTR-Former's edge over GBDT, counts as a practical gain depends on the unit. Attention across the teams of one match--phase gives a model a direct route to a match-common term, and the shrinking of its gain within matches fits that route, although we did not predict it. Input changes, which mostly add team-specific state, keep their gains on both units. Gains from components that pool across a group should therefore be checked within groups.
+
+The same mix of pairs arises whenever risk at a prediction time varies across many groups, such as hospital wards or traffic scenes, where AUC pooled within a time stratum mostly compares members of different groups; whether objective comparisons change there is untested. We recommend reporting within-group next to within-stratum AUC; when probabilities must be compared across groups, a pointwise term~\cite{Bai23} or post hoc group-aware calibration is a candidate to be assessed with probability-accuracy and calibration metrics.
+
+\subsection{Uses and Limitations}
+\label{sec:discussion:limits}
+The supported application is retrospective spectator-view match review: recall@3 is only a proxy, analyst benefit and latency are unmeasured, and live use would require an online eligibility audit and real-time feeds. On shared inputs the reference designs differ little in recall@3, so the study informs evaluation practice more than the choice of a review system.
+
+Eligibility uses final elimination times, which later returns can affect, so online risk-set validity is unverified, and inputs stop 10\,s before the next zone is revealed, so offsets and within-match differences are conditional on this information set. The data span ten weeks and three patches of one game, cohorts share players and a collection window, and there is no prospective or new-rule test; bootstrap intervals condition on fitted models. In the two largest cohorts the explanation and the centering diagnostic followed the objective results, all tests share one test patch, and the objective controls use one backbone and one untuned combined weight. Baselines use proxy inputs and change Sagong's unit and interval, so adaptation quality can affect their comparisons, and without redistributed telemetry third parties can inspect the code but not rerun the exact samples. Tuning covers two cohorts and three seeds without equalizing computation, and a standalone MLP baseline remains untested.
+
+\paragraph{Code availability.}
+Anonymized training, evaluation, and figure-generation code, feature definitions, configurations, and verification notes are available at \artifacturl{}; raw and processed telemetry are not redistributed.
+
+\section{Conclusion}
+\label{sec:conclusion}
+Within-phase AUC on samples pooled over matches mixes how well a model ranks the teams of one match with how well it ranks matches. In patch-separated next-phase elimination prediction, aligning the Cox horizon removes cross-entropy's within-match advantage, and adding a cross-entropy term to next-phase Cox then closes 58--71\% of the remaining within-phase gap with within-match AUC practically unchanged, as predicted before training and supported by pooled estimates over nine further cohorts of the same test patch; separately, in the two largest cohorts, a match-common term fit to fixed Cox scores from cutoff information closes an estimated 34--58\%, supported in Taego but uncertain in Erangel. Together these results support a role for match-common score information, for which risk-set losses receive no direct training signal. Within matches, habitat-context input gains persist, whereas gains from team attention and from PTR-Former over GBDT shrink to about 0.001 AUC, and the reference GBDT and PTR-Former place 0.4--0.6\,pp more eliminations among their three riskiest teams than phase-adjusted KRAFTON, with a 95\% interval for PTR-Former that includes zero. In these data, aligning the prediction horizon and changing the input set thus moved within-match AUC by 0.01 or more; BCE versus next-phase Cox, team attention, and PTR-Former versus GBDT differed by about 0.001, with intervals that include zero. Landmark predictors with group-level risk should be evaluated within groups as well as within strata, especially when a component pools across a group. Future work should test other backbones and weights, newly collected patches including the zone-rule revamp~\cite{PUBGBlueZone2026}, and other grouped landmark settings.
+
+\section*{AI Assistance Disclosure}
+Anthropic's Claude and OpenAI Codex assisted with writing and revising the analysis and figure-generation code; the authors reviewed all code, numbers, and text and take responsibility for the content.
+
+%%
+%% The next two lines define the bibliography style to be used, and
+%% the bibliography file.
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{refs}
+\end{document}

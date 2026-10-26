@@ -1,0 +1,442 @@
+{
+  "version": "player_team_heterograph_v3",
+  "status": "DESIGN_WITH_IMPLEMENTED_V1_SUBSET",
+  "supersedes": "erangel_graph_diffusion_contract_v2.json",
+  "user_revision": "Separate player and team node types; condition movement on terrain, own equipment/mobility, accessible threats, team configuration, and public game structure.",
+  "node_types": [
+    "cell",
+    "region",
+    "player",
+    "team",
+    "vehicle_evidence",
+    "contact_evidence",
+    "zone",
+    "game"
+  ],
+  "node_count": {
+    "cell": 6724,
+    "region": 441,
+    "player": "P <= 4",
+    "team": 1,
+    "vehicle_evidence": "V observed/evidenced only",
+    "contact_evidence": "E past accessible evidence tokens",
+    "zone": "up to 2 valid announced/current circles",
+    "game": 1
+  },
+  "numeric_feature_contracts": {
+    "player": {
+      "features": [
+        "relative_x",
+        "relative_y",
+        "vx",
+        "vy",
+        "health",
+        "position_age",
+        "position_dt",
+        "known_alive",
+        "knock_evidence",
+        "damage_received_3s",
+        "damage_received_10s",
+        "damage_received_30s",
+        "environment_damage_10s",
+        "combat_evidence_age",
+        "equipment_state_age",
+        "vehicle_state_age"
+      ],
+      "declared_width": 16,
+      "shape": [
+        "B",
+        "T",
+        "PLAYER_N",
+        16
+      ],
+      "runtime_verified": false
+    },
+    "team": {
+      "features": [
+        "center_x",
+        "center_y",
+        "medoid_x",
+        "medoid_y",
+        "observed_members",
+        "unknown_members",
+        "known_alive_members",
+        "knock_evidence_members",
+        "radius",
+        "pair_distance_max",
+        "pair_distance_median",
+        "cov_xx",
+        "cov_xy",
+        "cov_yy",
+        "separated_components",
+        "isolated_members",
+        "known_onboard_members",
+        "unknown_mobility_members",
+        "members_inside_announced_zone",
+        "max_member_zone_distance",
+        "mean_member_observation_age"
+      ],
+      "declared_width": 21,
+      "shape": [
+        "B",
+        "T",
+        "TEAM_N",
+        21
+      ],
+      "runtime_verified": false
+    },
+    "game": {
+      "features": [
+        "elapsed_s",
+        "phase",
+        "shrinking",
+        "public_alive_players",
+        "state_age"
+      ],
+      "declared_width": 5,
+      "shape": [
+        "B",
+        "T",
+        "GAME_N",
+        5
+      ],
+      "runtime_verified": false
+    },
+    "zone": {
+      "features": [
+        "center_x",
+        "center_y",
+        "radius",
+        "announcement_age",
+        "observation_age"
+      ],
+      "declared_width": 5,
+      "shape": [
+        "B",
+        "T",
+        "ZONE_N",
+        5
+      ],
+      "runtime_verified": false
+    },
+    "contact_evidence": {
+      "features": [
+        "age",
+        "self_health_loss",
+        "event_count",
+        "source_valid",
+        "location_known"
+      ],
+      "declared_width": 5,
+      "shape": [
+        "B",
+        "T",
+        "CONTACT_EVIDENCE_N",
+        5
+      ],
+      "runtime_verified": false
+    },
+    "vehicle_evidence": {
+      "features": [
+        "observation_age",
+        "recorded_velocity",
+        "velocity_unit_valid",
+        "instance_identity_known",
+        "seat_known",
+        "fuel_known"
+      ],
+      "declared_width": 6,
+      "shape": [
+        "B",
+        "T",
+        "VEHICLE_EVIDENCE_N",
+        6
+      ],
+      "runtime_verified": false
+    }
+  },
+  "categorical_features": {
+    "player": [
+      "ego_or_teammate",
+      "equipment_state_known_unknown_unarmed",
+      "mobility_nonvehicle_onboard_unknown",
+      "recorded_weapon_class_set",
+      "recorded_armor_class_set"
+    ],
+    "team": [
+      "public_or_observer_belief_view"
+    ],
+    "vehicle_evidence": [
+      "recorded_type",
+      "recorded_asset_id"
+    ],
+    "contact_evidence": [
+      "none_recorded_incoming_outgoing_proxy_reciprocal_proxy",
+      "environment_opponent_friendly_self_unknown",
+      "source_provenance"
+    ],
+    "zone": [
+      "current_or_announced"
+    ],
+    "game": [
+      "game_mode",
+      "perspective"
+    ]
+  },
+  "feature_metadata": [
+    "event_time",
+    "available_time_or_event_time_proxy",
+    "source",
+    "observer_scope",
+    "valid",
+    "age",
+    "is_proxy"
+  ],
+  "relations": [
+    {
+      "source": "player",
+      "relation": "member_of",
+      "target": "team"
+    },
+    {
+      "source": "team",
+      "relation": "context_for",
+      "target": "player"
+    },
+    {
+      "source": "player",
+      "relation": "located_in",
+      "target": "cell"
+    },
+    {
+      "source": "team",
+      "relation": "covers",
+      "target": "cell"
+    },
+    {
+      "source": "team",
+      "relation": "covers",
+      "target": "region"
+    },
+    {
+      "source": "cell",
+      "relation": "observed_nonvehicle",
+      "target": "cell"
+    },
+    {
+      "source": "cell",
+      "relation": "observed_vehicle",
+      "target": "cell"
+    },
+    {
+      "source": "cell",
+      "relation": "inferred",
+      "target": "cell"
+    },
+    {
+      "source": "cell",
+      "relation": "belongs_to",
+      "target": "region"
+    },
+    {
+      "source": "region",
+      "relation": "adjacent",
+      "target": "region"
+    },
+    {
+      "source": "vehicle_evidence",
+      "relation": "onboard_evidence_for",
+      "target": "player"
+    },
+    {
+      "source": "contact_evidence",
+      "relation": "received_by",
+      "target": "player"
+    },
+    {
+      "source": "zone",
+      "relation": "conditions",
+      "target": "player"
+    },
+    {
+      "source": "zone",
+      "relation": "conditions",
+      "target": "team"
+    },
+    {
+      "source": "zone",
+      "relation": "conditions",
+      "target": "cell"
+    },
+    {
+      "source": "zone",
+      "relation": "conditions",
+      "target": "region"
+    },
+    {
+      "source": "game",
+      "relation": "conditions",
+      "target": "team"
+    },
+    {
+      "source": "game",
+      "relation": "conditions",
+      "target": "player"
+    }
+  ],
+  "ownership": {
+    "equipment": "private self state; teammates unknown unless sharing evidence exists",
+    "vehicle_id": "asset/type, not unique vehicle instance",
+    "team_id": "join key only, not learned embedding",
+    "actor_class": "analysis/sampling only, not input"
+  },
+  "views": {
+    "primary": "strict_view_plus_declared_self_damage_proxy",
+    "team_public": "only visible/shareable member fields; no implicit private inventory or enemy coordinate pooling",
+    "team_observer_belief": "same team represented under observer p information",
+    "comparators": [
+      "communication_assumed",
+      "oracle_all_telemetry"
+    ]
+  },
+  "perception": {
+    "damage_is_enemy_visible_label": false,
+    "no_damage_means_no_enemy": false,
+    "incoming_attacker_exact_xy_in_primary": false,
+    "outgoing_exact_damage_in_primary": false,
+    "contact_location_without_perception_source": "unknown",
+    "required_damage_separation": [
+      "opponent",
+      "friendly",
+      "self",
+      "blue_zone",
+      "fall",
+      "collision",
+      "other_environment",
+      "unknown"
+    ],
+    "zero_damage": "separate event evidence; not automatically a missed shot"
+  },
+  "equipment_reconstruction": {
+    "event_types": [
+      "equip",
+      "unequip",
+      "pickup",
+      "drop",
+      "pickup_carepackage",
+      "pickup_vehicle_trunk",
+      "use"
+    ],
+    "state_scope": "per-player category/slot state; distinguish recorded equipped, active hand weapon, and carried inventory",
+    "missing_pickup": "not unarmed",
+    "ammo_use_semantics": "audit required; no exact ammo count claim",
+    "ties_and_incomplete_episodes": "ambiguity masks; no future backfill"
+  },
+  "team_position": {
+    "not_a_single_point": true,
+    "representations": [
+      "member_position_set_with_age_and_validity",
+      "weighted_center",
+      "medoid_actual_member",
+      "dispersion",
+      "pairwise_distances",
+      "components",
+      "multi_cell_occupancy"
+    ],
+    "future_position": "derive from predicted member positions; no true future center as condition",
+    "future_team_label": "only fixed t0 member set with all required labels valid; mask is loss-only"
+  },
+  "architecture": {
+    "static_spatial_encoder": "cell-region multiscale; observed nonvehicle, observed vehicle and inferred relations separate",
+    "dynamic_encoder": "event/time and type-specific features; relation attention with access masks",
+    "hidden_initial": 128,
+    "heterogeneous_layers_initial": [
+      2,
+      3
+    ],
+    "team_latent": "sampled future group configuration/region plan",
+    "personal_decoder": "continuous route diffusion plus predicted mode; own private state and observer-accessible team state",
+    "global_region_tokens_always_available": true,
+    "fine_crop_uses_future_route": false,
+    "future_teammate_routes": "forecasts under observer information, not commanded teammate behavior"
+  },
+  "history_offsets_s": [
+    -30,
+    -20,
+    -10,
+    0
+  ],
+  "future_offsets_s": [
+    10,
+    20,
+    30,
+    40,
+    50,
+    60
+  ],
+  "outputs": {
+    "joint_route_scenarios": [
+      "B",
+      20,
+      "P",
+      6,
+      2
+    ],
+    "ego_route_samples": [
+      "B",
+      20,
+      6,
+      2
+    ],
+    "future_team_position": "derived from joint route scenarios",
+    "future_mode_logits": [
+      "B",
+      "P",
+      6,
+      "MODE_CLASSES"
+    ],
+    "uncertainty": "separate spatial, observation, identity and predictive uncertainty"
+  },
+  "loss_mask_policy": "known current presence is input; future validity/death is target-only; no forced compact formation",
+  "forbidden_primary": [
+    "all_opponents_positions",
+    "all_opponents_loadouts",
+    "server_attacker_exact_xy",
+    "unshared_teammate_private_loadout",
+    "global_enemy_density",
+    "future_zone",
+    "future_mode_ground_truth",
+    "future_team_center_ground_truth",
+    "future_validity_mask_as_input",
+    "final_rank"
+  ],
+  "audit": "reports/decision_state_audit_2026-10-15/audit.json",
+  "audit_scope": "12 deterministic training-only official TPP squad matches, event existence not state reconstruction accuracy",
+  "prior_invariants": [
+    "fit-only spatial graph/height calibration",
+    "same-patch geometry ground truth unknown",
+    "coverage is not accuracy",
+    "match-level split and evaluation",
+    "model performance not yet measured"
+  ],
+  "next_artifacts": [
+    "player_state_asof",
+    "team_state_asof",
+    "equipment_state_asof",
+    "vehicle_evidence_asof",
+    "combat_evidence_asof",
+    "public_game_state_asof",
+    "heterograph_edges_asof"
+  ],
+  "implementation": {
+    "dataset_contract": "data/processed/heterograph_diffusion_v1/contract.json",
+    "readme": "movement_diffusion/README.md",
+    "implemented": "939 official TPP squad matches, paired observer/server loaders, masked joint targets, integration diffusion and matched evaluation harness",
+    "limitations": [
+      "first-death censoring",
+      "observer HUD/zone proxies not actual perception",
+      "mode prediction head and research-scale training not implemented"
+    ],
+    "runtime_features": "Use graph_schema.json; original proposal widths below are not runtime dimensions."
+  }
+}

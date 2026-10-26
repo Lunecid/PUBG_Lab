@@ -11,6 +11,8 @@ with ``/usr/local/bin/python3``).
 from __future__ import annotations
 
 import json
+import hashlib
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -171,7 +173,26 @@ def _fake_features(plan_dir, cohort="c", version="v2", sha=None):
     feats["n_obs"] = 4.0
     feats.to_parquet(plan_dir / cohort / "features.parquet", index=False)
     audit = json.loads((plan_dir / cohort / "plan_audit.json").read_text())
-    (plan_dir / cohort / "features_meta.json").write_text(json.dumps({"version": version, "windows_sha1": sha or audit["windows_sha1"]}))
+    (plan_dir / cohort / "features_meta.json").write_text(json.dumps({"version": version, "windows_sha1": sha or audit["windows_sha1"],
+        "feature_source_sha256": hashlib.sha256(Path(F.__file__).read_bytes()).hexdigest()}))
+
+
+def test_stale_feature_source_is_refused_by_extract_and_fit(v2_plan):
+    from model_stgcn.sagong2025 import extract as X
+    tmp, _, _ = v2_plan
+    base = tmp / "plan" / "c"
+    _fake_features(tmp / "plan")
+    meta = base / "features_meta.json"
+    record = json.loads(meta.read_text())
+    wins = pd.read_parquet(base / "windows.parquet")
+    X.check_features_meta(base, X._plan_info(base, wins))
+    for bad in ("obsolete-code", None):
+        record["feature_source_sha256"] = bad
+        meta.write_text(json.dumps(record))
+        with pytest.raises(ValueError, match="feature source fingerprint"):
+            X.check_features_meta(base, X._plan_info(base, wins))
+        with pytest.raises(ValueError, match="feature source fingerprint"):
+            T.prepare(tmp / "plan", "c")
 
 
 def test_prepare_fits_on_train_with_the_causal_alive_column(v2_plan):

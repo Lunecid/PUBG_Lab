@@ -1,0 +1,32 @@
+{
+  "mode": "full_reemission_escalated",
+  "authorization": "User explicitly requested v12 scientific content with Widom explanation structure on 2026-10-08. No new permission needed for authorized restructuring.",
+  "scientific_source": "Current v12 source and matching PDF reviewed in this conversation",
+  "new_experiments": false,
+  "inputs": [
+    {
+      "path": "/Users/lunecid/project/PUBG/paper/bigcomp2027/en_v12/BIGCOMP2027_EN_v12_2026-10-07.tex",
+      "sha256": "0227fb2b1145926e46b57125977c27b9b6e30b6a7b2984a11a648058eb01a029"
+    },
+    {
+      "path": "/Users/lunecid/project/PUBG/paper/bigcomp2027/en_v12/BIGCOMP2027_EN_v12_2026-10-07.pdf",
+      "sha256": "ce73ac5b760e20149ac0c75d949ee8ccf540f38edf05792aecdbbb946c52a2cc"
+    },
+    {
+      "path": "/Users/lunecid/project/PUBG/docs/paper_writing/BIGCOMP2027_REFS_2026-10-07.bib",
+      "sha256": "6f820114ef327d3bd5aff76511b8d2579a1af21c5bee416a279e968bbacd2704"
+    },
+    {
+      "path": "/Users/lunecid/project/PUBG/paper/bigcomp2027/figures/fig_pipeline_clean.pdf",
+      "sha256": "7b540666cb810cfd9e3683c5ad48ac6cdcace79e577425c9892681f6b452fc8f"
+    },
+    {
+      "path": "/Users/lunecid/project/PUBG/paper/bigcomp2027/figures/fig_rq1_effects.pdf",
+      "sha256": "6f11c52d823e6940fbefe15e1d32398469a34f815196f8996054af572dd5a418"
+    },
+    {
+      "path": "/Users/lunecid/project/PUBG/paper/bigcomp2027/figures/fig_contrast.pdf",
+      "sha256": "0db46e6d236c444ca4e68d3faadfa285621daf41afa197eb5d1846108275f6a1"
+    }
+  ]
+}

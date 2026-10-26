@@ -17,7 +17,7 @@ attack        number of damage events dealt to an enemy player (``telem_damage``
 kill          kills credited to the player (``telem_kills.killer_id``) on an enemy victim, not a suicide.
               Over a whole match this reproduces ``participants.kills`` exactly (all 12 cohorts, every match).
 damage        sum of those damage events (reproduces ``participants.damage_dealt`` to rounding, same check).
-assist        proxy: for every enemy kill by someone else inside the phase window, each distinct other player who
+assist        proxy: for every enemy kill by someone else inside the phase window, each distinct teammate of the killer who
               damaged that victim during the preceding ASSIST_LOOKBACK_S seconds (inside the window) gets +1.
               (The game's own ``assists`` is 0 in every solo match.  In squads ``telem_kills.assists_cnt`` agrees
               best with the killer's teammates that damaged the victim in the previous ~60 s: 81 % of enemy kills at
@@ -214,7 +214,10 @@ def compute_match_features(
                 a1 = lo + np.searchsorted(seg_t, t, side="right")
                 if a1 > a0:
                     helpers = np.unique(sda[a0:a1])
-                    helpers = helpers[helpers != killer]
+                    # Damage by an opposing team is not a teammate assist.
+                    # This also keeps solo assists at zero. The event identities
+                    # are unavailable, so this remains a damage-based proxy.
+                    helpers = helpers[(helpers != killer) & (a_tj[helpers] == a_tj[killer])]
                     ast[helpers] += 1.0
             mk = (pkw >= s) & upto(pkw)
             itm = np.bincount(pi[mk], minlength=n_acc).astype(np.float64)

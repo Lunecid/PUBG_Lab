@@ -1,0 +1,1196 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-26",
+  "newly_excluded_rows": [
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/erangel_fpp_squad/A_none_observed/pred_test.csv",
+      "bytes": 139686,
+      "sha256": "67578bdbbb0d6f707ae37737b7422a8e263347fe45abc26487517de8f8b1590a",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/erangel_fpp_squad/B_knn_observed/pred_test.csv",
+      "bytes": 139808,
+      "sha256": "8fa97121b658faebd9402a89722923a5ee0ccafce9628ea2f3f2b36bc27d910d",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/erangel_fpp_squad/C_knn_edge_shuffle/pred_test.csv",
+      "bytes": 139815,
+      "sha256": "763b2a2dab1a78208780171669bcaab477227d9c5c4fd8713b209da3f0a61fbd",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/erangel_tpp_duo/A_none_observed/pred_test.csv",
+      "bytes": 269031,
+      "sha256": "97a74248e50a5ba3edafac3d7b8bd1f3ed2b0a7a6dd5f03d985ba60eb5297cb7",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/erangel_tpp_duo/B_knn_observed/pred_test.csv",
+      "bytes": 269026,
+      "sha256": "4313933dbe47f7ae99bc9b4960a7f66c6d2b8b8eef9b4dec8af170ce46b1f902",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/erangel_tpp_duo/C_knn_edge_shuffle/pred_test.csv",
+      "bytes": 268949,
+      "sha256": "4ef706620187042ddab3db550638ce84b4da3a2a2b8a8969d44163187746d97b",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/erangel_tpp_solo/A_none_observed/pred_test.csv",
+      "bytes": 212537,
+      "sha256": "1a127159ee810edfa5e21395a2236bef37a91fe2ed09c7f6e77119e80113da1a",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/erangel_tpp_solo/B_knn_observed/pred_test.csv",
+      "bytes": 212612,
+      "sha256": "6551d9647380b50cd8dee585027a4ccb08f664c6761a29d79534fe10208204c1",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/erangel_tpp_solo/C_knn_edge_shuffle/pred_test.csv",
+      "bytes": 212645,
+      "sha256": "574452c5540a5069cd28d333077b77f7825d521a4ecccd318e37e0561292dd60",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/erangel_tpp_squad/A_none_observed/pred_test.csv",
+      "bytes": 2010407,
+      "sha256": "406cb57e0ff9b1d233e4ef70befe0bc848c7a8ca4b374d8958efbde27052f8bb",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/erangel_tpp_squad/B_knn_observed/pred_test.csv",
+      "bytes": 2011298,
+      "sha256": "ed73d32f0c192483d1bc8e79fd20e5fd518d210bde92d1697331aa1007d52046",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/erangel_tpp_squad/C_knn_edge_shuffle/pred_test.csv",
+      "bytes": 2013136,
+      "sha256": "d9e5cedb347d77ce23e4cf1559c2a5736ba86d10852a037e51285875aa67439d",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/karakin_tpp_squad/A_none_observed/pred_test.csv",
+      "bytes": 73959,
+      "sha256": "89a7f0132b5fc5be08196edcc804ff09c5ad79555478d08d2f8935748bc538bd",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/karakin_tpp_squad/B_knn_observed/pred_test.csv",
+      "bytes": 73860,
+      "sha256": "44c080d96ee60b7b2f4544c145f2241935a7e91d2fdee37718076cad75e227fa",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/karakin_tpp_squad/C_knn_edge_shuffle/pred_test.csv",
+      "bytes": 73870,
+      "sha256": "60a85e2f6e03787667dafe012feb393b26631870b3b3213f7fcc1959dbe09f2b",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/miramar_desert_tpp_squad/A_none_observed/pred_test.csv",
+      "bytes": 579068,
+      "sha256": "ced961d1b9a09271edb7ed51a7845bb52b2f146829d58f3ac7b0931c8ae95386",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/miramar_desert_tpp_squad/B_knn_observed/pred_test.csv",
+      "bytes": 579187,
+      "sha256": "bfa845586aa6192502a21bfa2ad8f9294616f0e1eee635b35051390d736bc8d9",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/miramar_desert_tpp_squad/C_knn_edge_shuffle/pred_test.csv",
+      "bytes": 578800,
+      "sha256": "564f7ae163d028be592b296d01242ee9df1d0439e380f76eba9c52e49fdc8a83",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/paramo_tpp_squad/A_none_observed/pred_test.csv",
+      "bytes": 60420,
+      "sha256": "542faf53b47248dfa5cb5d77f2eda845f1e0136bbea0b91d1dd7b0aae7f3f2f0",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/paramo_tpp_squad/B_knn_observed/pred_test.csv",
+      "bytes": 60387,
+      "sha256": "18f252a81fefccc25b9240b9373a644f5b687bf244e73b3604f6beb3612e6164",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/paramo_tpp_squad/C_knn_edge_shuffle/pred_test.csv",
+      "bytes": 60283,
+      "sha256": "7d46841275cf923936dd198ea520c6a6f5d267d5fc0e792d2f0725f41c6cc732",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/rondo_tpp_squad/A_none_observed/pred_test.csv",
+      "bytes": 332958,
+      "sha256": "772215044592a024d14fdc8e03dea7b5f469075f3b89cb1b2c1500b8ffe3b98e",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/rondo_tpp_squad/B_knn_observed/pred_test.csv",
+      "bytes": 332781,
+      "sha256": "41a93c9a413074d7517c5dcdd49e09e765919826b57a0000a439695bd573e6d5",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/rondo_tpp_squad/C_knn_edge_shuffle/pred_test.csv",
+      "bytes": 332631,
+      "sha256": "1cc45764596df5832ce1d53943ff1324bfd188020db3f5bc158f6f52772d04d3",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/sanhok_tpp_squad/A_none_observed/pred_test.csv",
+      "bytes": 297134,
+      "sha256": "fdbedfac00442f4f0bcdfe512592580e98250e8b44e77855b563412a14ed53d0",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/sanhok_tpp_squad/B_knn_observed/pred_test.csv",
+      "bytes": 297251,
+      "sha256": "fe7def216afc623263ac83b66b72dac1e95b084cc9acdaf52c68d3a45b213d28",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/sanhok_tpp_squad/C_knn_edge_shuffle/pred_test.csv",
+      "bytes": 297217,
+      "sha256": "e20b893650bdabad2138c7f3be21c99784434935bee1d8565d103e995e20f476",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/taego_fpp_squad/A_none_observed/pred_test.csv",
+      "bytes": 121110,
+      "sha256": "1a93abefbaf5c86885e6820d26ad8ca71a2ed4ea06dbffe8395496e08b8c7eb2",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/taego_fpp_squad/B_knn_observed/pred_test.csv",
+      "bytes": 121201,
+      "sha256": "f196e32943d3355b3328259c49bb0341544be9224903f96458de46d3549de845",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/taego_fpp_squad/C_knn_edge_shuffle/pred_test.csv",
+      "bytes": 121247,
+      "sha256": "bbcff96ad4c288eb3d0ad2b82342c95e1e6d3ad2ff6c6d8cf49632e8e0f5a4d5",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/taego_tpp_duo/A_none_observed/pred_test.csv",
+      "bytes": 203548,
+      "sha256": "d1823e8bfd708f484967ce23c1fc4f151a19689a8c6a1c8b162a5ee542c1dc0a",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/taego_tpp_duo/B_knn_observed/pred_test.csv",
+      "bytes": 203559,
+      "sha256": "57a0ea5eaae512e3fa680a21fdca2345d1916f52e8808c7f8efd5ca4e3e3760f",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/taego_tpp_duo/C_knn_edge_shuffle/pred_test.csv",
+      "bytes": 203549,
+      "sha256": "22136d31b10c70df1e62320acf614289549c630ebbd0e8b011c73dc1b70876b0",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/taego_tpp_squad/A_none_observed/pred_test.csv",
+      "bytes": 1349123,
+      "sha256": "c05db3b05d5b1a819e07c3912bcb3a1451031b96446d2c5b9e73cbf74ddb0f06",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/taego_tpp_squad/B_knn_observed/pred_test.csv",
+      "bytes": 1350610,
+      "sha256": "eb15cc7da63e22414318a6a2c3faf2706f728dc7bf87640a00f3f16927d247b0",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/taego_tpp_squad/C_knn_edge_shuffle/pred_test.csv",
+      "bytes": 1349646,
+      "sha256": "019dedca0567fc9bfae90ae34a1fe44a5033002deec88ad099fe924c714dbb1e",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/vikendi_tpp_squad/A_none_observed/pred_test.csv",
+      "bytes": 177976,
+      "sha256": "9f03057665dd6c6cb09360ba3af3e2204a8ebf28a4c7dbffe5900e162c6ff347",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/vikendi_tpp_squad/B_knn_observed/pred_test.csv",
+      "bytes": 177897,
+      "sha256": "6e1bd188383ba8c1938fec8e0a39bb81976376716f14ddc3845d7ffc8a3523d0",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_o7_advantage_edge_required_v1/vikendi_tpp_squad/C_knn_edge_shuffle/pred_test.csv",
+      "bytes": 177856,
+      "sha256": "da439651df87479e587b8da3c28626edeb134764c02ed2ee27ad6aeb02cdba84",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_baseline_required_v1/erangel_fpp_squad/feature_ablation_predictions.csv",
+      "bytes": 5387446,
+      "sha256": "683eba64d0caf1dc807d1ec513e37e723854cd6003cfb70054dfd99a7e25aef6",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_baseline_required_v1/erangel_tpp_duo/feature_ablation_predictions.csv",
+      "bytes": 14111091,
+      "sha256": "1ae96af7e1df670c52c79039b61deba3b3157d8a4d6ef8299eaf9b75bf47f711",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_baseline_required_v1/erangel_tpp_solo/feature_ablation_predictions.csv",
+      "bytes": 30179234,
+      "sha256": "b3d4dae833a7047d37922302f88bf3f112a8596bbfd564656ae021343bf11347",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_baseline_required_v1/erangel_tpp_squad/feature_ablation_predictions.csv",
+      "bytes": 77454833,
+      "sha256": "c218b32aa1404765bc50045d660a9d70ea55c2337a6ea7e37809b4ef0de630c7",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_baseline_required_v1/karakin_tpp_squad/feature_ablation_predictions.csv",
+      "bytes": 2823054,
+      "sha256": "4a2c1be8176ce965effce2efda1533908548868db2c6a8a48093c88b1abcd165",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_baseline_required_v1/miramar_desert_tpp_squad/feature_ablation_predictions.csv",
+      "bytes": 22188267,
+      "sha256": "16a78e22e5c60cad8025a0127ec1bc024a570b1d1cb58f036cf8d8eb6f9bbbf0",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_baseline_required_v1/paramo_tpp_squad/feature_ablation_predictions.csv",
+      "bytes": 2304224,
+      "sha256": "d5fd4932311f7fbf0ebb744f183d88c80597668729c76961675ced599c67193a",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_baseline_required_v1/rondo_tpp_squad/feature_ablation_predictions.csv",
+      "bytes": 12742429,
+      "sha256": "2a38417259748332f12074d62657a996bf13d09c03fc9b5ba7758f36d2188160",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_baseline_required_v1/sanhok_tpp_squad/feature_ablation_predictions.csv",
+      "bytes": 11325855,
+      "sha256": "80eb2001209747556903ee45db290e6236f947285cff05090882db55db7fff95",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_baseline_required_v1/taego_fpp_squad/feature_ablation_predictions.csv",
+      "bytes": 4875446,
+      "sha256": "ae31f7a710449625778371bad2c2cb0bc10abaa50802c1b8724b7799ce27f5ff",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_baseline_required_v1/taego_tpp_duo/feature_ablation_predictions.csv",
+      "bytes": 11297630,
+      "sha256": "6655be0ce9814b374fed5178c8dbc9cf9b04ce97b418f62140228fe21d7ee1a8",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_baseline_required_v1/taego_tpp_squad/feature_ablation_predictions.csv",
+      "bytes": 53336078,
+      "sha256": "3964257d8729eb5eb276893169791b9f1789c853eb51924a92b46ac509c44d45",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_baseline_required_v1/vikendi_tpp_squad/feature_ablation_predictions.csv",
+      "bytes": 6765546,
+      "sha256": "d7bc08bec11900927e548eb3f98cb9e87d8a905760d2ffc6f5618e3da172c5c3",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_model_zoo_required_v1/erangel_fpp_squad/feature_ablation_predictions.csv",
+      "bytes": 6850908,
+      "sha256": "dfabfc8921cc72032d6dcefe8cdebcd0522222cf2e9e557dbd9d28ef65a1c1e3",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_model_zoo_required_v1/erangel_tpp_duo/feature_ablation_predictions.csv",
+      "bytes": 17942810,
+      "sha256": "5fe713df1bcf906b706887dcb5372970e2bc872537dbff6e4e476aa28f9dd1d3",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_model_zoo_required_v1/erangel_tpp_solo/feature_ablation_predictions.csv",
+      "bytes": 38353175,
+      "sha256": "45ded9271360b7e15e4141c5488374ec0ee062ff2e744f759e972adc8ff41194",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_model_zoo_required_v1/erangel_tpp_squad/feature_ablation_predictions.csv",
+      "bytes": 98454120,
+      "sha256": "d1d0c831205a956702581ca14987b99846c837339b255d628943288842023880",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_model_zoo_required_v1/karakin_tpp_squad/feature_ablation_predictions.csv",
+      "bytes": 3589730,
+      "sha256": "1b0c79051c72e536ae2d0fd006b16f799f2c38022f05d3584ae1e54cfcdb9625",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_model_zoo_required_v1/miramar_desert_tpp_squad/feature_ablation_predictions.csv",
+      "bytes": 28208749,
+      "sha256": "bf0e449a78138529e38f671e7af96b027bf9719706a0cbee281f88fbb34c3085",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_model_zoo_required_v1/paramo_tpp_squad/feature_ablation_predictions.csv",
+      "bytes": 2930235,
+      "sha256": "2a1499b28194657ab630acf79effe935e038401ecf22bbd3729dbed102e43c55",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_model_zoo_required_v1/rondo_tpp_squad/feature_ablation_predictions.csv",
+      "bytes": 16200849,
+      "sha256": "08e728c70b5bea2c69ad94f36824731908a08be9af3771d1436e9865832426bc",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_model_zoo_required_v1/sanhok_tpp_squad/feature_ablation_predictions.csv",
+      "bytes": 14397913,
+      "sha256": "e42e03e9350113003a321d961aff81c21c5b1bd032e68abda165b0a800e8c589",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_model_zoo_required_v1/taego_fpp_squad/feature_ablation_predictions.csv",
+      "bytes": 6199074,
+      "sha256": "b7ccfdd25608e9bd0426e78ac83de2152fac57ef69a1d7c97931ab610d1d9145",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_model_zoo_required_v1/taego_tpp_duo/feature_ablation_predictions.csv",
+      "bytes": 14361792,
+      "sha256": "9129c777044ab9c981061f376746fe871a5cbe36c4f87612522144a566537a35",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_model_zoo_required_v1/taego_tpp_squad/feature_ablation_predictions.csv",
+      "bytes": 67789750,
+      "sha256": "38d20fa98289870aba50c7b43f6130e4afa6347ac946a98b4aa2d22d96c8592d",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_prior_model_zoo_required_v1/vikendi_tpp_squad/feature_ablation_predictions.csv",
+      "bytes": 8602282,
+      "sha256": "342be06cd674e1d1f721d415db891fd3c22a6ebb3c36db153cb3b22b434b0296",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/erangel_fpp_squad/snapshot_gru_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 430306,
+      "sha256": "974a96c2aaa60e101480c065531cee6b588035749dbc961e7f5827728e4ddbcb",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/erangel_fpp_squad/snapshot_last_only/survival_bridge_test.pred.csv",
+      "bytes": 423898,
+      "sha256": "7cb5ef068a4588bc51c9ad74332920fafef0ac69f30666e1eca1c52ec66bb6cf",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/erangel_fpp_squad/snapshot_tabular_hgb/snapshot_tabular_predictions.csv",
+      "bytes": 446057,
+      "sha256": "1c66be84b2cc36f82654f5a25d9ff08e8a9cd2134b368d7d3e837629db7f3abe",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/erangel_fpp_squad/snapshot_tcn_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 430505,
+      "sha256": "a150499c9febf0726e4f3f6828c14126edef4aade597e3599d85d8efd115bff1",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/erangel_tpp_duo/snapshot_gru_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 1131149,
+      "sha256": "10977b2d3be9769a37f656f76015ec0fa9d15005cd794313be4384378ca32890",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/erangel_tpp_duo/snapshot_last_only/survival_bridge_test.pred.csv",
+      "bytes": 1113969,
+      "sha256": "1a0ffc476820fdd39673cb27ce5aa323bb543c22b38bc655837b791b9dfe69f7",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/erangel_tpp_duo/snapshot_tabular_hgb/snapshot_tabular_predictions.csv",
+      "bytes": 1167607,
+      "sha256": "b70942227da0a234f2e8b11c7a2a227f4ea173d5c109f168c3a6bf8a754fb855",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/erangel_tpp_duo/snapshot_tcn_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 1132201,
+      "sha256": "66d0677e60f31eede2b93cfa65c88d4284f323b799f9729c68c317e360c89f87",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/erangel_tpp_solo/snapshot_gru_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 2397254,
+      "sha256": "799bfe40d3a340fe1bdb3fef6be63db757939f9b06333f095ed857445ffef22d",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/erangel_tpp_solo/snapshot_last_only/survival_bridge_test.pred.csv",
+      "bytes": 2361544,
+      "sha256": "fb7080d3733f5cd6133f8e2c361176d75cddffa463996beed00e3cb3e68900b3",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/erangel_tpp_solo/snapshot_tabular_hgb/snapshot_tabular_predictions.csv",
+      "bytes": 2426289,
+      "sha256": "c4b21d4990f8e39848ac9188ee4df9fe2c3621639b6929e14e0f682254a8b979",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/erangel_tpp_solo/snapshot_tcn_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 2399702,
+      "sha256": "64da1870669befaccac678133052195ed2b06c8101e9fb1486e59627be609a2d",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/erangel_tpp_squad/snapshot_gru_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 6186359,
+      "sha256": "daa80493fb73f61774bbe367e668194d877d9f77f84339295ba26406ec3cb646",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/erangel_tpp_squad/snapshot_last_only/survival_bridge_test.pred.csv",
+      "bytes": 6094082,
+      "sha256": "f54c217846e0f7bab2882f2ea9c2fad5e2408b240fd4c743e014a9fa91d928aa",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/erangel_tpp_squad/snapshot_tabular_hgb/snapshot_tabular_predictions.csv",
+      "bytes": 6403304,
+      "sha256": "6a1b2c726ef5f6ce2f4e926536f5a8f0422e6477ee0b250e5cda8c656490f40b",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/erangel_tpp_squad/snapshot_tcn_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 6192096,
+      "sha256": "d419e9d18e14f185a7d1b4ea76d0583773336d7cd8c9add7c82a5c305f0ae823",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/karakin_tpp_squad/snapshot_gru_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 225412,
+      "sha256": "158fe72b1376ecc66bddb023751a75b920097768754e319f5960710ad5c4c61e",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/karakin_tpp_squad/snapshot_last_only/survival_bridge_test.pred.csv",
+      "bytes": 222040,
+      "sha256": "d6a778b1381b8cecf729abfe37dff206cc3c20bce9c080dee6f792f2d952f490",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/karakin_tpp_squad/snapshot_tabular_hgb/snapshot_tabular_predictions.csv",
+      "bytes": 233807,
+      "sha256": "34ff341a7ef10d70719eb328520f678c2597aac203c35087a4709029e6ce6779",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/karakin_tpp_squad/snapshot_tcn_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 225630,
+      "sha256": "ee92c85dbbcdffd9d83fafdaec843e229d7b5f7dfff9d365ffe0982a2c3847f6",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/miramar_desert_tpp_squad/snapshot_gru_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 1764986,
+      "sha256": "594c654cda45ed52d9bdca3c9d87f92d7c61dbcd374a79f7aec3ba904000e65e",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/miramar_desert_tpp_squad/snapshot_last_only/survival_bridge_test.pred.csv",
+      "bytes": 1737801,
+      "sha256": "5f6ab72cc32859345359a7430e9c95303a47ba286aa016f25aff90c738b0fbac",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/miramar_desert_tpp_squad/snapshot_tabular_hgb/snapshot_tabular_predictions.csv",
+      "bytes": 1833227,
+      "sha256": "503443fbf10a0d9e9019ffaf2990401b5160064929e41aa963f008f1055b74f0",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/miramar_desert_tpp_squad/snapshot_tcn_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 1766600,
+      "sha256": "e30436b502633292f19b6caa9582f806dbc6bbbda96c00628933d0b7824adcd6",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/paramo_tpp_squad/snapshot_gru_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 184530,
+      "sha256": "45da9a662346125009d3d7a3b359eca59eb8264ebd9c4dd4e8374b35aa5390b9",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/paramo_tpp_squad/snapshot_last_only/survival_bridge_test.pred.csv",
+      "bytes": 181725,
+      "sha256": "cda7c6bece4eadba2211e3343aa22e6efb5480e0f6c7dbcddfb65f5897384df4",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/paramo_tpp_squad/snapshot_tabular_hgb/snapshot_tabular_predictions.csv",
+      "bytes": 190388,
+      "sha256": "27455f6d37e80c6b1039f8f9cef971952f0c32299893fb2ec4a52643b850dae1",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/paramo_tpp_squad/snapshot_tcn_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 184745,
+      "sha256": "935bac8e4c5d5ee9578830a1a3020a67fb8093ca7fa18ac0a136ee3e555172a1",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/rondo_tpp_squad/snapshot_gru_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 1004591,
+      "sha256": "5e042d33b8e59b2cf85cb6b039d46040edc75531151b284193ff6f140fabf594",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/rondo_tpp_squad/snapshot_last_only/survival_bridge_test.pred.csv",
+      "bytes": 989743,
+      "sha256": "7a0448abac5105cff7e024983fac6f60242a12ecba3ad76c5b7be4e3f4097846",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/rondo_tpp_squad/snapshot_tabular_hgb/snapshot_tabular_predictions.csv",
+      "bytes": 1044166,
+      "sha256": "4e8807cc6824b315473f33d8ff8ea015571157e556aff60e3861c6d918d80645",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/rondo_tpp_squad/snapshot_tcn_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 1005706,
+      "sha256": "09043fc62276fcf375e8a270dac1521e196384968bc29239be435a2f6fc6c66e",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/sanhok_tpp_squad/snapshot_gru_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 906901,
+      "sha256": "679e40428825d5dbac24ffc9ad4fb229509555dd8987eda74c5b2d31c3ce2a75",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/sanhok_tpp_squad/snapshot_last_only/survival_bridge_test.pred.csv",
+      "bytes": 893894,
+      "sha256": "59929357eaf15c8d46e94814cf2ffa94b6dda5e55e3a3adbd91a1909f39de092",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/sanhok_tpp_squad/snapshot_tabular_hgb/snapshot_tabular_predictions.csv",
+      "bytes": 941443,
+      "sha256": "5cf678992b986a94cd7981351ab67e1f919d2cb2cbdb3be0b22e863fdb84ddd9",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/sanhok_tpp_squad/snapshot_tcn_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 908514,
+      "sha256": "a88464492b5a38e824ab54eb613c624c2e2dfe5e94241bbf1ef34c9c458750c1",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/taego_fpp_squad/snapshot_gru_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 389541,
+      "sha256": "43cf51de15bb196fd85b08b4f84dffe3a57a952725ba4263d35bc9ee7695d7cb",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/taego_fpp_squad/snapshot_last_only/survival_bridge_test.pred.csv",
+      "bytes": 383703,
+      "sha256": "3a2583edf4f252a0360a3a7cc7cfc47e6c0be5ad57271567093aad4fcae9a98d",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/taego_fpp_squad/snapshot_tabular_hgb/snapshot_tabular_predictions.csv",
+      "bytes": 404467,
+      "sha256": "65c772da191782f090075c33ca0185b228c6b83b61babf623ca085549257c5b2",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/taego_fpp_squad/snapshot_tcn_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 389933,
+      "sha256": "c654fd11dbbc18aa5068826e31f4221f5ece205bf2dc8d6d980bcbf8d3a714dc",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/taego_tpp_duo/snapshot_gru_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 904391,
+      "sha256": "cdebb54461178d7b40b8e5b955c9c5206f89e6d6d281d5678fe74d7fe6d62445",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/taego_tpp_duo/snapshot_last_only/survival_bridge_test.pred.csv",
+      "bytes": 890797,
+      "sha256": "5b48df260f086f8776518679b2213448ce7f9a5abe6545af50376bf81ede30c6",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/taego_tpp_duo/snapshot_tabular_hgb/snapshot_tabular_predictions.csv",
+      "bytes": 932701,
+      "sha256": "623e5bb815b66d0b4cfb1bf9842c0f3e43b28c725ad9b73065348f9b1fb0a995",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/taego_tpp_duo/snapshot_tcn_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 905258,
+      "sha256": "4e6d6a23839e6bbdaf1b09e7e9346b14f3f4314107216eb6e7bd6e2447b1c13c",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/taego_tpp_squad/snapshot_gru_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 4259221,
+      "sha256": "09c087bc6097c10419a4599165889fd9439771f6a249edf66bd6762d241a8189",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/taego_tpp_squad/snapshot_last_only/survival_bridge_test.pred.csv",
+      "bytes": 4196967,
+      "sha256": "e00c7c488080a9aeb4168a72d65064bac98a3194d74963cac27939ffc46b3ab3",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/taego_tpp_squad/snapshot_tabular_hgb/snapshot_tabular_predictions.csv",
+      "bytes": 4416927,
+      "sha256": "0694924d36e9181daead7081ac7e244e59f1dbc67dff0f807550343fe5157f85",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/taego_tpp_squad/snapshot_tcn_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 4262912,
+      "sha256": "9b027c67b9b7d24a0b6bd8bda6578b5724f0d0c3386d2dd10167f8cff1d0e1fb",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/vikendi_tpp_squad/snapshot_gru_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 542053,
+      "sha256": "940339ae82c413f41953e37c8b4696f065a5d41adbf6432440865ac583b304b9",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/vikendi_tpp_squad/snapshot_last_only/survival_bridge_test.pred.csv",
+      "bytes": 533810,
+      "sha256": "9a4ea1faa1dfa3014aeb15905a145e9014dd089b81330326c7b2ac5f703d17a2",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/vikendi_tpp_squad/snapshot_tabular_hgb/snapshot_tabular_predictions.csv",
+      "bytes": 561453,
+      "sha256": "ba371928edb58402cab08c4ac9b9c6cd983af39f77d5ddb5737fb2fe617fd42b",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_same_condition_snapshot_required_v2/vikendi_tpp_squad/snapshot_tcn_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 542683,
+      "sha256": "f0410373566e53562e37dbd46f99693b0cd0500a33dd5e70be46ee6c18bd4dd3",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/erangel_fpp_squad/snapshot_lstm_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 432481,
+      "sha256": "64beec2cc4b1f6297543bd1053448a97fbb48fe71e423806dd983fab5384f343",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/erangel_fpp_squad/snapshot_tabular_zoo/snapshot_tabular_predictions.csv",
+      "bytes": 2212344,
+      "sha256": "9a977db1694fbff1aeaf5ab0f4e6360b05304c83bfaa3e96225d06c2d112ad01",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/erangel_fpp_squad/snapshot_transformer_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 448250,
+      "sha256": "d3ad2921cb5281e5c5b816b12b1bf02e25fcf4033949b92bcad38891ee972d07",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/erangel_tpp_duo/snapshot_lstm_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 1137219,
+      "sha256": "75e55b5cc9f621cc56582df899eee39b929540bd896022f2e0d7b41e4c410333",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/erangel_tpp_duo/snapshot_tabular_zoo/snapshot_tabular_predictions.csv",
+      "bytes": 5792953,
+      "sha256": "ab056ee7236516499d3eb024f367be167602c1c4daa9f616a4b0e1b55577c001",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/erangel_tpp_duo/snapshot_transformer_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 1177004,
+      "sha256": "4ddae4539a5b80463eccb9f7dd85813027bd0e1900614103e3b55c2b447e0cdb",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/erangel_tpp_solo/snapshot_lstm_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 2410369,
+      "sha256": "1bd23b81ce44ca2d161f00ef1a07ea25c7acb9d3f9149a1b9985375460987fee",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/erangel_tpp_solo/snapshot_tabular_zoo/snapshot_tabular_predictions.csv",
+      "bytes": 12047341,
+      "sha256": "36bd4bb7b86ef148c1403baf691bca4e743c049c9e6258c830d8a98a7e57fa46",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/erangel_tpp_solo/snapshot_transformer_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 2494348,
+      "sha256": "b4f0f8c55381cf823d98dd853cc2d29f7b0c680cde547d9b785f8a7668f0ba6f",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/erangel_tpp_squad/snapshot_lstm_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 6223003,
+      "sha256": "fe73dabb97a9e574cdf3d9427d1bf0ab8567f68eb4dab416809cede175945aa7",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/erangel_tpp_squad/snapshot_tabular_zoo/snapshot_tabular_predictions.csv",
+      "bytes": 31784372,
+      "sha256": "1ba9cc14f024bdd576dfb9fbc9385ae2a64c518bbc25c5c689ba855ddf39582a",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/erangel_tpp_squad/snapshot_transformer_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 6444563,
+      "sha256": "2a038e7abf475e84e9a257fd99816987ebc75f342f731f87b1c6ecf131c12fde",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/karakin_tpp_squad/snapshot_lstm_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 226704,
+      "sha256": "71bd03b1f0848fde0e36e9838880994713b248654e569683af12a1518a99a4d2",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/karakin_tpp_squad/snapshot_tabular_zoo/snapshot_tabular_predictions.csv",
+      "bytes": 1159956,
+      "sha256": "af80a0783043081f3f78ad572cd78e7aeee0f993785be6fa6332d29f54307e45",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/karakin_tpp_squad/snapshot_transformer_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 234785,
+      "sha256": "3ff1b7fef2271ea474f138eca6ce6e60438a5bfc715f8f1a169ae5ee45ddc4f0",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/miramar_desert_tpp_squad/snapshot_lstm_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 1774440,
+      "sha256": "ccde5bf96533001402f5c03f067139045031cc69ef77f8ffeb1f251a2a93e204",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/miramar_desert_tpp_squad/snapshot_tabular_zoo/snapshot_tabular_predictions.csv",
+      "bytes": 9093977,
+      "sha256": "7de228309f03dae2dc59d31a5eeef6208d8aea7987290720712e519eb42b30b2",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/miramar_desert_tpp_squad/snapshot_transformer_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 1837868,
+      "sha256": "b807bb69d058b35eedcbbf30503fb24313b659b98b7b6daaf177e15d9041bd16",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/paramo_tpp_squad/snapshot_lstm_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 185465,
+      "sha256": "6d205cc0226b66bffbb05d703c817f324fd984504cf89572c7b98c964ce70f9f",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/paramo_tpp_squad/snapshot_tabular_zoo/snapshot_tabular_predictions.csv",
+      "bytes": 944048,
+      "sha256": "a25810834e9abef698809fad66374c9ac3e26e0f7b87268d52c1ae9999e92165",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/paramo_tpp_squad/snapshot_transformer_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 192179,
+      "sha256": "7db473b660807534045691a5d6cb61828ca66e673c0ab8022c70e00cc204bcde",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/rondo_tpp_squad/snapshot_lstm_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 1010086,
+      "sha256": "851ca2e632b7fe58fa120329fa0314cee90bf6f2370c528c246359200aee2a15",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/rondo_tpp_squad/snapshot_tabular_zoo/snapshot_tabular_predictions.csv",
+      "bytes": 5179756,
+      "sha256": "8118148c01f35baebc035fce8a499b097a75c10b921b517be0293ddfe62c27d6",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/rondo_tpp_squad/snapshot_transformer_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 1046339,
+      "sha256": "ceb382c7bba7a7079e7c52ad67ff6ff9dfa85680fa5c94336433272c2fb39c8b",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/sanhok_tpp_squad/snapshot_lstm_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 912193,
+      "sha256": "a54e7ee9e6ad51d935e965b1bc448c8fce8bfccb734b9cce31e8f3ea988f1cc1",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/sanhok_tpp_squad/snapshot_tabular_zoo/snapshot_tabular_predictions.csv",
+      "bytes": 4669442,
+      "sha256": "4e3e0b419aa98ad211daf96844d5b010302a46f2be0324cb52d22ecc9fb70d9a",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/sanhok_tpp_squad/snapshot_transformer_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 944734,
+      "sha256": "bd7f65fcebaede89977db83fe422bfd296a441b2c0fbede605bd647f0bea1daa",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/taego_fpp_squad/snapshot_lstm_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 391815,
+      "sha256": "dcb7a4a2ce72f89ce2a6ceb3895632fa1c482f7d9b322510ae564540761d3473",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/taego_fpp_squad/snapshot_tabular_zoo/snapshot_tabular_predictions.csv",
+      "bytes": 2006245,
+      "sha256": "4b094c2ef76e178a88503f7bf61f63260be7dd5c648c9b592eeba5553f8035f5",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/taego_fpp_squad/snapshot_transformer_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 405577,
+      "sha256": "41857c96a2be2277fe423e25161e975a4255d67430cfdab230858caf6fc2694d",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/taego_tpp_duo/snapshot_lstm_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 909300,
+      "sha256": "173056826d7c38e46a8501150f38808c801157f4d01f6648950dbb9e36bba85b",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/taego_tpp_duo/snapshot_tabular_zoo/snapshot_tabular_predictions.csv",
+      "bytes": 4626183,
+      "sha256": "f794afe9abc45b46073f60f3663dea06dbfe35e7d2787e503d2b4c4efb60f35c",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/taego_tpp_duo/snapshot_transformer_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 940743,
+      "sha256": "b3d953742877edb2a100f67be1cb38e5249fbdfe57df0f16c0bc51ddf432de08",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/taego_tpp_squad/snapshot_lstm_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 4281968,
+      "sha256": "572b21ad67b0e9dfee7c63a0103a935d3a3d2db9d69aae064da14e5709266425",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/taego_tpp_squad/snapshot_tabular_zoo/snapshot_tabular_predictions.csv",
+      "bytes": 21911336,
+      "sha256": "be5ba49e32f3494e84b19a60b0cfd7e624e169003b657f25f0a3c1c7c95300c1",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/taego_tpp_squad/snapshot_transformer_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 4435380,
+      "sha256": "24b83fd38683e574186e26b2c80567b9c28ede80e7a2c45231fd95668b2acbaa",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/vikendi_tpp_squad/snapshot_lstm_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 544682,
+      "sha256": "f1b325e88a6cd2afb3b2b9824a9a2bc6e29026730c1943ed002872168600c8c3",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/vikendi_tpp_squad/snapshot_tabular_zoo/snapshot_tabular_predictions.csv",
+      "bytes": 2785077,
+      "sha256": "0c33b605182693801f16af53e6184857244d5983b3c7cb7e382180d5be801f63",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "model_stgcn/checkpoints/br_rq4_sequence_model_zoo_required_v1/vikendi_tpp_squad/snapshot_transformer_no_graph/survival_bridge_test.pred.csv",
+      "bytes": 564527,
+      "sha256": "694088737d8ec337b0a28348b98cfaff28b3ed4f7b85346492363e2020aceeb6",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "reports/rq4_board_baseline_comparison/board_baseline_feature_rows.csv",
+      "bytes": 14759685,
+      "sha256": "ceefb4369bf0380889b9c69c7711a29d7c6efbed315feabd35e792c9fca6b346",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "reports/rq4_board_baseline_comparison/rq4_board_baseline_board_rows.csv",
+      "bytes": 18577593,
+      "sha256": "d6d0e958045b068946638f9431ab0db6c2007164d367b0de3e047e5eef129cc3",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "reports/rq4_board_baseline_comparison/rq4_board_baseline_score_rows.csv",
+      "bytes": 105327211,
+      "sha256": "777e3c3034c7cdb405beaa1ba208301f5cab0337387da5878010bb2b22b96add",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "reports/rq4_dynamic_probability_fluctuation/dynamic_probability_team_summary.csv",
+      "bytes": 10194308,
+      "sha256": "c3388956a49e24fc05d76a294fbca0eac2e2898c60ac285fe7f3df479295a59b",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    },
+    {
+      "path": "reports/rq4_dynamic_probability_fluctuation/dynamic_probability_trajectories.csv",
+      "bytes": 53579104,
+      "sha256": "bacc1dfe6c32cd238e26f01c2845d07a1d4eda8a494a386c21098279b61885b2",
+      "disposition": "preserved locally; not added to public Git",
+      "reason": "individual prediction/diagnostic rows; aggregate tracked evidence remains"
+    }
+  ],
+  "preserved_directories": [
+    {
+      "path": "data",
+      "files": 67875,
+      "bytes": 8215339927,
+      "disposition": "preserved at original location",
+      "hash_status": "directory metadata only; raw/protected content not opened"
+    },
+    {
+      "path": "reports",
+      "files": 16616,
+      "bytes": 18775658406,
+      "disposition": "preserved at original location",
+      "hash_status": "directory metadata only; raw/protected content not opened"
+    },
+    {
+      "path": "model_stgcn/checkpoints",
+      "files": 8693,
+      "bytes": 11656713823,
+      "disposition": "preserved at original location",
+      "hash_status": "directory metadata only; raw/protected content not opened"
+    },
+    {
+      "path": "output",
+      "files": 6,
+      "bytes": 2185758,
+      "disposition": "preserved at original location",
+      "hash_status": "directory metadata only; raw/protected content not opened"
+    },
+    {
+      "path": "tmp",
+      "files": 28,
+      "bytes": 7402116,
+      "disposition": "preserved at original location",
+      "hash_status": "directory metadata only; raw/protected content not opened"
+    },
+    {
+      "path": "tmp_ch4",
+      "files": 1,
+      "bytes": 10405,
+      "disposition": "preserved at original location",
+      "hash_status": "directory metadata only; raw/protected content not opened"
+    },
+    {
+      "path": "/Users/lunecid/PUBG_Data/runs",
+      "files": 87915,
+      "bytes": 22341627227,
+      "disposition": "preserved at original location",
+      "hash_status": "directory metadata only; raw/protected content not opened"
+    }
+  ],
+  "access_restricted": [
+    {
+      "path": "model_stgcn/splits.py",
+      "disposition": "local only or pre-existing tracking unchanged",
+      "content_access": "not read or hashed"
+    },
+    {
+      "path": "tools/movement_diffusion/split_v3.py",
+      "disposition": "local only or pre-existing tracking unchanged",
+      "content_access": "not read or hashed"
+    }
+  ]
+}

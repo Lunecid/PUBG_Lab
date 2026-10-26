@@ -1,0 +1,18 @@
+{
+  "zip_crc_valid": true,
+  "extracted_package_compiles": true,
+  "pages": 9,
+  "page_text_identical": true,
+  "all_9_page_renders_identical": true,
+  "visual_review": "All 9 pages inspected; no clipping, overlap, or missing content observed. Minor final bibliography balance-box warning does not overflow the page.",
+  "artifacts": {
+    "output/SAC2027_MLA_v13_2026-10-08_LaTeX.zip": {
+      "bytes": 447069,
+      "sha256": "312b1afff9f5b90b5f896011e33f69c44c533f867b9940c525ef22b68a755558"
+    },
+    "output/pdf/SAC2027_MLA_v13_2026-10-08.pdf": {
+      "bytes": 258445,
+      "sha256": "40cf9af0cfb1c7f60486d34fc19c6dac9e75f3cea3ce87486e6471ab79a79740"
+    }
+  }
+}

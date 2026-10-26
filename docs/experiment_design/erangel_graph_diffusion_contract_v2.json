@@ -1,0 +1,500 @@
+{
+  "version": "graph_zone_diffusion_design_v2",
+  "date": "2026-10-15",
+  "status": "SUPERSEDED_DESIGN_NOT_IMPLEMENTED",
+  "base_contract": "fdg2027_movement_contract_v1.json",
+  "current_graph_snapshot": "reports/erangel_100m_40_2_2026-10-15/graph.json",
+  "snapshot_sha256": "d88312037c861d6610dab0309d86722733e0c6f5fc151696eab62c19bcfc4167",
+  "snapshot_reuse_warning": "rebuild graph, height offset and scalers for every actual fit split; current 2141-match graph is not valid for a smaller internal fit split",
+  "graph_inputs": {
+    "node_geom": {
+      "shape": [
+        "N",
+        10
+      ],
+      "features": [
+        "x_over_extent",
+        "y_over_extent",
+        "cell_width_over_100m",
+        "cell_height_over_100m",
+        "historical_height_proxy_over_100m",
+        "historical_land_fraction",
+        "rgb_water_fraction",
+        "observed_player_z_summary_over_100m",
+        "height_residual_summary_over_10m",
+        "vertical_spread_summary_over_10m"
+      ]
+    },
+    "node_geom_valid": {
+      "shape": [
+        "N",
+        10
+      ],
+      "dtype": "bool"
+    },
+    "node_support": {
+      "shape": [
+        "N",
+        2
+      ],
+      "features": [
+        "log1p_match_support",
+        "log1p_nonvehicle_points"
+      ]
+    },
+    "node_uncertainty": {
+      "shape": [
+        "N",
+        8
+      ],
+      "features": [
+        "unobserved",
+        "low_match_support",
+        "height_disagreement",
+        "vertical_variability",
+        "known_change_buffer",
+        "land_water_disagreement",
+        "coastal_mixed_cell",
+        "observed_over_water_prior"
+      ]
+    },
+    "edge_index_obs": {
+      "shape": [
+        2,
+        "Eo"
+      ]
+    },
+    "edge_index_inf": {
+      "shape": [
+        2,
+        "Ei"
+      ]
+    },
+    "edge_obs_features": [
+      "log1p_match_support",
+      "log1p_transition_count",
+      "mean_dt_s",
+      "mean_displacement_m",
+      "center_dx_m",
+      "center_dy_m"
+    ],
+    "edge_inf_features": [
+      "historical_grade_proxy",
+      "center_dx_m",
+      "center_dy_m"
+    ],
+    "excluded_class_features": [
+      "human_points",
+      "bot_points",
+      "human_match_support",
+      "bot_match_support",
+      "official_match_support",
+      "competitive_match_support",
+      "airoyale_match_support"
+    ],
+    "self_message": "residual computation; not evidence of observed stationary transitions",
+    "reverse_message": "separate incoming/outgoing weights; not a fabricated observed reverse transition"
+  },
+  "history_inputs": {
+    "ego_hist": {
+      "shape": [
+        "B",
+        4,
+        8
+      ],
+      "dtype": "float32",
+      "features": [
+        {
+          "name": "rel_x",
+          "divide_by": 100,
+          "raw_unit": "m"
+        },
+        {
+          "name": "rel_y",
+          "divide_by": 100,
+          "raw_unit": "m"
+        },
+        {
+          "name": "vx",
+          "divide_by": 10,
+          "raw_unit": "m/s"
+        },
+        {
+          "name": "vy",
+          "divide_by": 10,
+          "raw_unit": "m/s"
+        },
+        {
+          "name": "health",
+          "divide_by": 100,
+          "raw_unit": "health"
+        },
+        {
+          "name": "damage_taken_previous_10s",
+          "divide_by": 100,
+          "raw_unit": "health"
+        },
+        {
+          "name": "observation_age",
+          "divide_by": 10,
+          "raw_unit": "s"
+        },
+        {
+          "name": "previous_observation_dt",
+          "divide_by": 10,
+          "raw_unit": "s"
+        }
+      ]
+    },
+    "zone_hist": {
+      "shape": [
+        "B",
+        4,
+        10
+      ],
+      "dtype": "float32",
+      "features": [
+        {
+          "name": "blue_rel_cx",
+          "divide_by": 100,
+          "raw_unit": "m"
+        },
+        {
+          "name": "blue_rel_cy",
+          "divide_by": 100,
+          "raw_unit": "m"
+        },
+        {
+          "name": "blue_radius",
+          "divide_by": 100,
+          "raw_unit": "m"
+        },
+        {
+          "name": "white_rel_cx",
+          "divide_by": 100,
+          "raw_unit": "m"
+        },
+        {
+          "name": "white_rel_cy",
+          "divide_by": 100,
+          "raw_unit": "m"
+        },
+        {
+          "name": "white_radius",
+          "divide_by": 100,
+          "raw_unit": "m"
+        },
+        {
+          "name": "phase_index",
+          "divide_by": 10,
+          "raw_unit": "1"
+        },
+        {
+          "name": "shrinking",
+          "divide_by": 1,
+          "raw_unit": "1"
+        },
+        {
+          "name": "observed_state_age",
+          "divide_by": 600,
+          "raw_unit": "s"
+        },
+        {
+          "name": "zone_observation_age",
+          "divide_by": 10,
+          "raw_unit": "s"
+        }
+      ]
+    },
+    "team_hist": {
+      "shape": [
+        "B",
+        4,
+        3,
+        6
+      ],
+      "dtype": "float32",
+      "features": [
+        {
+          "name": "rel_x",
+          "divide_by": 100,
+          "raw_unit": "m"
+        },
+        {
+          "name": "rel_y",
+          "divide_by": 100,
+          "raw_unit": "m"
+        },
+        {
+          "name": "vx",
+          "divide_by": 10,
+          "raw_unit": "m/s"
+        },
+        {
+          "name": "vy",
+          "divide_by": 10,
+          "raw_unit": "m/s"
+        },
+        {
+          "name": "health",
+          "divide_by": 100,
+          "raw_unit": "health"
+        },
+        {
+          "name": "observation_age",
+          "divide_by": 10,
+          "raw_unit": "s"
+        }
+      ]
+    },
+    "context": {
+      "shape": [
+        "B",
+        4
+      ],
+      "dtype": "float32",
+      "features": [
+        {
+          "name": "absolute_x_over_map_extent",
+          "divide_by": 1,
+          "raw_unit": "1"
+        },
+        {
+          "name": "absolute_y_over_map_extent",
+          "divide_by": 1,
+          "raw_unit": "1"
+        },
+        {
+          "name": "num_alive_players",
+          "divide_by": 100,
+          "raw_unit": "1"
+        },
+        {
+          "name": "match_start_elapsed",
+          "divide_by": 1800,
+          "raw_unit": "s"
+        }
+      ]
+    },
+    "ego_valid": {
+      "shape": [
+        "B",
+        4,
+        8
+      ],
+      "dtype": "bool"
+    },
+    "zone_valid": {
+      "shape": [
+        "B",
+        4,
+        10
+      ],
+      "dtype": "bool"
+    },
+    "team_valid": {
+      "shape": [
+        "B",
+        4,
+        3,
+        6
+      ],
+      "dtype": "bool"
+    },
+    "context_valid": {
+      "shape": [
+        "B",
+        4
+      ],
+      "dtype": "bool"
+    },
+    "team_present": {
+      "shape": [
+        "B",
+        4,
+        3
+      ],
+      "dtype": "bool"
+    }
+  },
+  "history_offsets_s": [
+    -30,
+    -20,
+    -10,
+    0
+  ],
+  "future_offsets_s": [
+    10,
+    20,
+    30,
+    40,
+    50,
+    60
+  ],
+  "history_lookup": {
+    "direction": "backward_asof",
+    "max_age_s": 11,
+    "distinct_source_observations": 4,
+    "max_adjacent_observation_gap_s": 15,
+    "velocity_rule": "finite difference between selected actual timestamps; first-point vx/vy/dt masked"
+  },
+  "target_lookup": {
+    "method": "nearest actual observation",
+    "max_abs_time_error_s": 2,
+    "distinct_source_observations": 6,
+    "interpolation": false,
+    "preserve_actual_timestamps": true
+  },
+  "zone_lookup": {
+    "direction": "backward_asof",
+    "max_age_s": 15,
+    "future_zone_fill": false
+  },
+  "cohort": {
+    "map_name": "Baltic_Main",
+    "game_mode": "squad",
+    "perspective": "TPP",
+    "match_type": "official",
+    "is_custom": false,
+    "inferred_patch": "40.2",
+    "shard": "steam",
+    "is_event_mode": false
+  },
+  "class_training": {
+    "main_generator": "human",
+    "comparison_generator": "bot",
+    "shared_spatial_encoder": true,
+    "actor_type_model_input": false,
+    "spatial_pretrain_sampler": "match -> actor -> window; human/bot balanced; labels sampler-only"
+  },
+  "spatial_encoder": {
+    "hidden": 128,
+    "layers": 3,
+    "normalization": "per-relation fixed-degree average; preserve gate amplitude",
+    "inferred_gate_cap": 0.2,
+    "inferred_gate_cap_grid": [
+      0,
+      0.1,
+      0.2,
+      0.5
+    ],
+    "observed_support_scale": 30,
+    "inferred_edge_dropout": 0.5,
+    "weak_observed_edge_dropout": 0.1,
+    "pretrain_crossfit_match_folds": 3,
+    "task": "next-cell distribution including stay and OTHER; optional observed-feature reconstruction",
+    "negative_label_policy": "unobserved does not mean impassable; inferred adjacency is not a positive traversal label"
+  },
+  "spatial_condition": {
+    "map_embedding": [
+      "N",
+      128
+    ],
+    "crop_side_cells": 21,
+    "local_map_tokens": [
+      "B",
+      441,
+      128
+    ],
+    "local_map_valid": [
+      "B",
+      441
+    ],
+    "local_node_zone": [
+      "B",
+      441,
+      4
+    ],
+    "local_node_zone_features": [
+      "signed_distance_current_boundary",
+      "signed_distance_announced_circle",
+      "inside_current_boundary",
+      "inside_announced_circle"
+    ],
+    "zone_valid": [
+      "B",
+      441,
+      4
+    ],
+    "crop_uses_future_target": false
+  },
+  "diffusion": {
+    "output": "successive XY displacements / 100m",
+    "target_shape": [
+      "B",
+      6,
+      2
+    ],
+    "sample_shape": [
+      "B",
+      20,
+      6,
+      2
+    ],
+    "cell_logits_shape": [
+      "B",
+      6,
+      442
+    ],
+    "K": 20,
+    "hidden": 128,
+    "layers": 4,
+    "heads": 4,
+    "training_noise_steps": 100,
+    "sampling_steps": 20,
+    "loss": "epsilon MSE + 0.1 auxiliary cell CE",
+    "hard_graph_mask": false,
+    "encoder_initially_frozen": true,
+    "hyperparameters_status": "initial proposed settings, tune on internal development only"
+  },
+  "evaluation": {
+    "primary": "human trajectory energy score; paired comparisons D4 vs D0 and D4 vs D1",
+    "secondary": [
+      "selected ADE/FDE",
+      "oracle minADE@20 and minFDE@20",
+      "diversity",
+      "kinematic filter violation",
+      "observed/inferred/unsupported transition share",
+      "public-zone progress",
+      "uncertainty strata"
+    ],
+    "no_claims": [
+      "collision accuracy",
+      "terrain ground truth",
+      "causal actor-type effect",
+      "win/survival improvement"
+    ],
+    "cluster": "match",
+    "bootstrap_repetitions": 2000,
+    "seeds": 3,
+    "old_validation_status": "already inspected for map coverage; not a pristine test",
+    "fdg_protocol": "retrospective nested match CV, outer 5 folds, inner development 20%; rebuild all fit-derived artifacts"
+  },
+  "forbidden_inputs": [
+    "account_id",
+    "actor_class",
+    "player_name",
+    "match_id",
+    "win_place",
+    "final_rank",
+    "time_survived",
+    "future_others",
+    "unannounced_zones",
+    "actual_future_phase_boundary"
+  ],
+  "readiness_gates": [
+    "actual trajectory-window counts and attrition",
+    "zone semantics and radius unit raw-trace audit",
+    "as-of anti-leakage tests",
+    "fit-only graph and crossfit provenance",
+    "actual loader and forward/backward shape checks"
+  ],
+  "validation_status": {
+    "feature_list_lengths": "checked statically",
+    "actual_dataloader_shapes": "not_checked",
+    "trained_model": "not_implemented"
+  },
+  "window_anchor_stride_s": 30,
+  "nonoverlap_sensitivity_stride_s": 90,
+  "superseded_by": "player_team_heterograph_contract_v3.json"
+}

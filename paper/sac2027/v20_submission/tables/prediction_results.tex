@@ -1,0 +1,27 @@
+\begin{table}[b]
+\centering\footnotesize
+\caption{Predictions recorded before training, checked on random-effects estimates pooled over the nine further cohorts (AUC differences; H: hypotheses of Section~\ref{sec:account}; C: conditional-logistic (CLogit) and weight-sweep predictions, also recorded for each of the two largest cohorts).}
+\label{tab:predictions}
+\setlength{\tabcolsep}{2.1pt}
+\begin{tabular}{llcrcc}
+\toprule
+H & Contrast and unit & Rule & Estimate & 90\% CI & Held \\
+\midrule
+H0 & Cox$_{\mathrm{next}}$ $-$ Cox$_{\mathrm{full}}$, within match & $>0$ & $+$0.0120 & [$+$0.0079, $+$0.0161] & yes \\
+H1 & BCE $-$ Cox$_{\mathrm{next}}$, within match & $\approx0$ & $+$0.0015 & [$-$0.0003, $+$0.0032] & yes \\
+H2 & BCE $-$ Cox$_{\mathrm{next}}$, within phase & $>0$ & $+$0.0086 & [$+$0.0061, $+$0.0110] & yes \\
+H3 & BCE $-$ Cox$_{\mathrm{next}}$, centered & $\approx0$ & $+$0.0017 & [$+$0.0004, $+$0.0030] & yes$^\dagger$ \\
+H4a & Cox+BCE $-$ Cox$_{\mathrm{next}}$, within phase & $>0$ & $+$0.0062 & [$+$0.0046, $+$0.0079] & yes \\
+H4a & BCE $-$ Cox+BCE, within phase & $\approx0$ & $+$0.0022 & [$+$0.0008, $+$0.0036] & yes$^\dagger$ \\
+H4a & Cox+BCE $-$ Cox$_{\mathrm{next}}$, within match & $\approx0$ & $+$0.0005 & [$-$0.0007, $+$0.0018] & yes \\
+\midrule
+C1 & BCE $-$ CLogit, within phase & $>0$ & $+$0.0097 & [$+$0.0068, $+$0.0126] & yes \\
+C2 & BCE $-$ CLogit, within match & $\approx0$ & $+$0.0026 & [$+$0.0006, $+$0.0046] & yes$^\dagger$ \\
+C3 & CLogit $-$ Cox$_{\mathrm{next}}$, within phase & $\approx0$ & $-$0.0017 & [$-$0.0034, $+$0.0001] & yes \\
+C4 & CLogit $-$ Cox$_{\mathrm{next}}$, within match & $\approx0$ & $-$0.0014 & [$-$0.0023, $-$0.0006] & yes$^\dagger$ \\
+C5 & BCE $-$ Cox+4BCE, within phase & $\ni0$ & $-$0.0003 & [$-$0.0011, $+$0.0005] & yes$^\ddagger$ \\
+\bottomrule
+\end{tabular}
+\smallskip
+\parbox{\columnwidth}{\scriptsize $>0$: 95\% CI above zero (in row order, $[0.0071, 0.0169]$, $[0.0056, 0.0115]$, $[0.0042, 0.0082]$, $[0.0063, 0.0132]$); $\approx0$: 90\% CI within $\pm0.005$; $\ni0$: 95\% CI $[-0.0013, 0.0006]$ includes zero. $^\dagger$Within the margin; 90\% CI excludes zero. $^\ddagger$90\% CI also within $\pm0.005$. No family-wise control across rows.}
+\end{table}

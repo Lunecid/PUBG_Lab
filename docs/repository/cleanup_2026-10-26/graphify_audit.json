@@ -1,0 +1,14 @@
+{
+  "tool": "graphifyy",
+  "version": "0.9.95",
+  "mode": "local AST only",
+  "code_files": 389,
+  "excluded": "split modules, credentials, raw data, frozen outputs, reference clones, worktrees",
+  "nodes": 5568,
+  "edges": 17440,
+  "seconds": 6.854561833999924,
+  "llm_input_tokens": 0,
+  "llm_output_tokens": 0,
+  "independent_review": false,
+  "full_dead_code_proof": false
+}

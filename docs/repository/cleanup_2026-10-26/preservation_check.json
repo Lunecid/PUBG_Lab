@@ -1,0 +1,12 @@
+{
+  "baseline_files": 1512,
+  "unchanged": 1507,
+  "expected_policy_edits": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/guidelines/PUBG_APPLICATION.md",
+    "docs/guidelines/WORKING_RULES.md",
+    ".gitignore"
+  ],
+  "unexpected": []
+}

@@ -1,0 +1,17 @@
+\begin{table}[t]
+\centering\footnotesize
+\caption{Input contrasts with GBDT fixed: AUC changes pooled across 11 cohorts.}
+\label{tab:inputs}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrrr}
+\toprule
+Input change & Overall & Within phase & Within match \\
+\midrule
+Sagong inputs $\to$ ours & \textbf{+0.075} & \textbf{+0.106} & \textbf{+0.101} \\
+KRAFTON inputs $\to$ ours & -0.003 & \textbf{-0.007} & \textbf{-0.012} \\
+Ours $\to$ ours + KRAFTON inputs & \textbf{+0.017} & \textbf{+0.019} & \textbf{+0.020} \\
+\bottomrule
+\end{tabular}
+\smallskip
+\parbox{\columnwidth}{\scriptsize Random-effects pooled estimates. Bold: 95\% CI excludes 0 and $|\Delta|\geq0.005$.}
+\end{table}

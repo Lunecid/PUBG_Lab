@@ -1,0 +1,13 @@
+{
+  "pages": 10,
+  "references": 39,
+  "tables": 8,
+  "figures": 3,
+  "standalone_build": true,
+  "text_identical": true,
+  "page_content_identical": true,
+  "pdf_sha256": "91df4919e129bc039da159459b1091283091b7e494c02a63270e40a456f0f60d",
+  "zip_sha256": "50eb01410a95be7f43be314c8548f6af80eabd616d4ad1b531fc00d63f97a518",
+  "source_files": 36,
+  "v14_preserved": true
+}

@@ -1,0 +1,540 @@
+%%% -*-BibTeX-*-
+%%% Do NOT edit. File created by BibTeX with style
+%%% ACM-Reference-Format-Journals [18-Jan-2012].
+
+\begin{thebibliography}{40}
+
+%%% ====================================================================
+%%% NOTE TO THE USER: you can override these defaults by providing
+%%% customized versions of any of these macros before the \bibliography
+%%% command.  Each of them MUST provide its own final punctuation,
+%%% except for \shownote{} and \showURL{}.  The latter two
+%%% do not use final punctuation, in order to avoid confusing it with
+%%% the Web address.
+%%%
+%%% To suppress output of a particular field, define its macro to expand
+%%% to an empty string, or better, \unskip, like this:
+%%%
+%%% \newcommand{\showURL}[1]{\unskip}   % LaTeX syntax
+%%%
+%%% \def \showURL #1{\unskip}           % plain TeX syntax
+%%%
+%%% ====================================================================
+
+\ifx \showCODEN    \undefined \def \showCODEN     #1{\unskip}     \fi
+\ifx \showISBNx    \undefined \def \showISBNx     #1{\unskip}     \fi
+\ifx \showISBNxiii \undefined \def \showISBNxiii  #1{\unskip}     \fi
+\ifx \showISSN     \undefined \def \showISSN      #1{\unskip}     \fi
+\ifx \showLCCN     \undefined \def \showLCCN      #1{\unskip}     \fi
+\ifx \shownote     \undefined \def \shownote      #1{#1}          \fi
+\ifx \showarticletitle \undefined \def \showarticletitle #1{#1}   \fi
+\ifx \showURL      \undefined \def \showURL       {\relax}        \fi
+% The following commands are used for tagged output and should be
+% invisible to TeX
+\providecommand\bibfield[2]{#2}
+\providecommand\bibinfo[2]{#2}
+\providecommand\natexlab[1]{#1}
+\providecommand\showeprint[2][]{arXiv:#2}
+
+\bibitem[{KRAFTON, Inc.}({[n.\,d.]})]%
+        {PUBGAPI}
+\bibfield{author}{\bibinfo{person}{{KRAFTON, Inc.}}}
+  \bibinfo{year}{[n.\,d.]}\natexlab{}.
+\newblock \bibinfo{title}{{PUBG} Developer {API} Documentation}.
+\newblock \bibinfo{howpublished}{\url{https://documentation.pubg.com}}.
+\newblock
+\shownote{Accessed Oct. 2026}.
+\newblock
+
+
+\bibitem[Zheng(2015)]%
+        {Zheng15}
+\bibfield{author}{\bibinfo{person}{Yu Zheng}.} \bibinfo{year}{2015}\natexlab{}.
+\newblock \showarticletitle{Trajectory Data Mining: An Overview}.
+\newblock \bibinfo{journal}{\emph{ACM Trans. Intell. Syst. Technol.}}
+  \bibinfo{volume}{6}, \bibinfo{number}{3} (\bibinfo{date}{May}
+  \bibinfo{year}{2015}), \bibinfo{pages}{1--41}.
+\newblock
+\shownote{Art. no. 29}.
+\newblock
+\href{https://doi.org/10.1145/2743025}{doi:\nolinkurl{10.1145/2743025}}
+
+
+\bibitem[Hodge et~al\mbox{.}(2021)]%
+        {Hodge21}
+\bibfield{author}{\bibinfo{person}{Victoria~J. Hodge}, \bibinfo{person}{Sam
+  Devlin}, \bibinfo{person}{Nick Sephton}, \bibinfo{person}{Florian Block},
+  \bibinfo{person}{Peter~I. Cowling}, {and} \bibinfo{person}{Anders Drachen}.}
+  \bibinfo{year}{2021}\natexlab{}.
+\newblock \showarticletitle{Win Prediction in Multiplayer Esports: Live
+  Professional Match Prediction}.
+\newblock \bibinfo{journal}{\emph{IEEE Trans. Games}} \bibinfo{volume}{13},
+  \bibinfo{number}{4} (\bibinfo{year}{2021}), \bibinfo{pages}{368--379}.
+\newblock
+\href{https://doi.org/10.1109/TG.2019.2948469}{doi:\nolinkurl{10.1109/TG.2019.2948469}}
+
+
+\bibitem[Katona et~al\mbox{.}(2019)]%
+        {Katona19}
+\bibfield{author}{\bibinfo{person}{Adam Katona}, \bibinfo{person}{Ryan Spick},
+  \bibinfo{person}{Victoria~J. Hodge}, \bibinfo{person}{Simon Demediuk},
+  \bibinfo{person}{Florian Block}, \bibinfo{person}{Anders Drachen}, {and}
+  \bibinfo{person}{James~Alfred Walker}.} \bibinfo{year}{2019}\natexlab{}.
+\newblock \showarticletitle{Time to Die: Death Prediction in {Dota 2} Using
+  Deep Learning}. In \bibinfo{booktitle}{\emph{Proc. IEEE CoG}}.
+  \bibinfo{pages}{1--8}.
+\newblock
+\href{https://doi.org/10.1109/CIG.2019.8847997}{doi:\nolinkurl{10.1109/CIG.2019.8847997}}
+
+
+\bibitem[Marshall et~al\mbox{.}(2022)]%
+        {Marshall22}
+\bibfield{author}{\bibinfo{person}{Stefan Marshall}, \bibinfo{person}{Paris
+  Mavromoustakos~Blom}, {and} \bibinfo{person}{Pieter Spronck}.}
+  \bibinfo{year}{2022}\natexlab{}.
+\newblock \showarticletitle{Enabling Real-Time Prediction of In-game Deaths
+  through Telemetry in {Counter-Strike: Global Offensive}}. In
+  \bibinfo{booktitle}{\emph{Proc. FDG}}. \bibinfo{pages}{1--11}.
+\newblock
+\href{https://doi.org/10.1145/3555858.3555859}{doi:\nolinkurl{10.1145/3555858.3555859}}
+
+
+\bibitem[{KRAFTON AI}(2026)]%
+        {KRAFTON}
+\bibfield{author}{\bibinfo{person}{{KRAFTON AI}}.}
+  \bibinfo{year}{2026}\natexlab{}.
+\newblock \bibinfo{title}{Real-Time Win Probability Prediction in Battle Royale
+  Games via Survival Analysis}.
+\newblock
+  \bibinfo{howpublished}{\url{https://github.com/krafton-ai/pubg-winprob}}.
+\newblock
+\shownote{Code repository, commit 99ed9d1}.
+\newblock
+
+
+\bibitem[Cox(1972)]%
+        {Cox72}
+\bibfield{author}{\bibinfo{person}{D.~R. Cox}.}
+  \bibinfo{year}{1972}\natexlab{}.
+\newblock \showarticletitle{Regression Models and Life-Tables}.
+\newblock \bibinfo{journal}{\emph{J. Roy. Statist. Soc. B}}
+  \bibinfo{volume}{34}, \bibinfo{number}{2} (\bibinfo{year}{1972}),
+  \bibinfo{pages}{187--220}.
+\newblock
+
+
+\bibitem[Sagong et~al\mbox{.}(2025)]%
+        {Sagong25a}
+\bibfield{author}{\bibinfo{person}{Chaeyeon Sagong}, \bibinfo{person}{Ji~Young
+  Woo}, {and} \bibinfo{person}{Huy~Kang Kim}.} \bibinfo{year}{2025}\natexlab{}.
+\newblock \showarticletitle{Are You a Hunter or Camper? A Phase-Based Framework
+  for Real-Time Survival Prediction in Battle Royale Using FightScore and
+  ActiveScore}.
+\newblock \bibinfo{journal}{\emph{Entertain. Comput.}}  \bibinfo{volume}{55}
+  (\bibinfo{year}{2025}), \bibinfo{pages}{101040}.
+\newblock
+\href{https://doi.org/10.1016/j.entcom.2025.101040}{doi:\nolinkurl{10.1016/j.entcom.2025.101040}}
+
+
+\bibitem[Fahrig(2003)]%
+        {Fahrig03}
+\bibfield{author}{\bibinfo{person}{Lenore Fahrig}.}
+  \bibinfo{year}{2003}\natexlab{}.
+\newblock \showarticletitle{Effects of Habitat Fragmentation on Biodiversity}.
+\newblock \bibinfo{journal}{\emph{Annu. Rev. Ecol. Evol. Syst.}}
+  \bibinfo{volume}{34} (\bibinfo{year}{2003}), \bibinfo{pages}{487--515}.
+\newblock
+\href{https://doi.org/10.1146/annurev.ecolsys.34.011802.132419}{doi:\nolinkurl{10.1146/annurev.ecolsys.34.011802.132419}}
+
+
+\bibitem[{Kaggle}(2018)]%
+        {KagglePUBG}
+\bibfield{author}{\bibinfo{person}{{Kaggle}}.} \bibinfo{year}{2018}\natexlab{}.
+\newblock \bibinfo{title}{{PUBG Finish Placement Prediction}}.
+\newblock
+  \bibinfo{howpublished}{\url{https://www.kaggle.com/c/pubg-finish-placement-prediction}}.
+\newblock
+
+
+\bibitem[Lee and Lee(2025)]%
+        {LeeLee25}
+\bibfield{author}{\bibinfo{person}{Ji-Na Lee} {and} \bibinfo{person}{Ji-Yeoun
+  Lee}.} \bibinfo{year}{2025}\natexlab{}.
+\newblock \showarticletitle{{A Study on the Factors Influencing Rank Prediction
+  in PlayerUnknown's Battlegrounds}}.
+\newblock \bibinfo{journal}{\emph{Electronics}} \bibinfo{volume}{14},
+  \bibinfo{number}{3} (\bibinfo{year}{2025}), \bibinfo{pages}{626}.
+\newblock
+\href{https://doi.org/10.3390/electronics14030626}{doi:\nolinkurl{10.3390/electronics14030626}}
+
+
+\bibitem[Singer and Willett(1993)]%
+        {SingerWillett93}
+\bibfield{author}{\bibinfo{person}{Judith~D. Singer} {and}
+  \bibinfo{person}{John~B. Willett}.} \bibinfo{year}{1993}\natexlab{}.
+\newblock \showarticletitle{{It's About Time: Using Discrete-Time Survival
+  Analysis to Study Duration and the Timing of Events}}.
+\newblock \bibinfo{journal}{\emph{J. Educ. Statist.}} \bibinfo{volume}{18},
+  \bibinfo{number}{2} (\bibinfo{year}{1993}), \bibinfo{pages}{155--195}.
+\newblock
+
+
+\bibitem[Gensheimer and Narasimhan(2019)]%
+        {Gensheimer19}
+\bibfield{author}{\bibinfo{person}{Michael~F. Gensheimer} {and}
+  \bibinfo{person}{Balasubramanian Narasimhan}.}
+  \bibinfo{year}{2019}\natexlab{}.
+\newblock \showarticletitle{{A scalable discrete-time survival model for neural
+  networks}}.
+\newblock \bibinfo{journal}{\emph{PeerJ}}  \bibinfo{volume}{7}
+  (\bibinfo{year}{2019}), \bibinfo{pages}{e6257}.
+\newblock
+\href{https://doi.org/10.7717/peerj.6257}{doi:\nolinkurl{10.7717/peerj.6257}}
+
+
+\bibitem[van Houwelingen(2007)]%
+        {vanHouwelingen07}
+\bibfield{author}{\bibinfo{person}{Hans~C. van Houwelingen}.}
+  \bibinfo{year}{2007}\natexlab{}.
+\newblock \showarticletitle{Dynamic Prediction by Landmarking in Event History
+  Analysis}.
+\newblock \bibinfo{journal}{\emph{Scand. J. Statist.}} \bibinfo{volume}{34},
+  \bibinfo{number}{1} (\bibinfo{year}{2007}), \bibinfo{pages}{70--85}.
+\newblock
+
+
+\bibitem[Lee et~al\mbox{.}(2018)]%
+        {DeepHit18}
+\bibfield{author}{\bibinfo{person}{Changhee Lee}, \bibinfo{person}{William~R.
+  Zame}, \bibinfo{person}{Jinsung Yoon}, {and} \bibinfo{person}{Mihaela van~der
+  Schaar}.} \bibinfo{year}{2018}\natexlab{}.
+\newblock \showarticletitle{{DeepHit}: A Deep Learning Approach to Survival
+  Analysis with Competing Risks}. In \bibinfo{booktitle}{\emph{Proceedings of
+  the AAAI Conference on Artificial Intelligence}}, Vol.~\bibinfo{volume}{32}.
+\newblock
+\href{https://doi.org/10.1609/aaai.v32i1.11842}{doi:\nolinkurl{10.1609/aaai.v32i1.11842}}
+
+
+\bibitem[Lee et~al\mbox{.}(2020)]%
+        {DynamicDeepHit20}
+\bibfield{author}{\bibinfo{person}{Changhee Lee}, \bibinfo{person}{Jinsung
+  Yoon}, {and} \bibinfo{person}{Mihaela van~der Schaar}.}
+  \bibinfo{year}{2020}\natexlab{}.
+\newblock \showarticletitle{{Dynamic-DeepHit}: A Deep Learning Approach for
+  Dynamic Survival Analysis with Competing Risks Based on Longitudinal Data}.
+\newblock \bibinfo{journal}{\emph{IEEE Transactions on Biomedical Engineering}}
+  \bibinfo{volume}{67}, \bibinfo{number}{1} (\bibinfo{year}{2020}),
+  \bibinfo{pages}{122--133}.
+\newblock
+\href{https://doi.org/10.1109/TBME.2019.2909027}{doi:\nolinkurl{10.1109/TBME.2019.2909027}}
+
+
+\bibitem[Prentice and Gloeckler(1978)]%
+        {PrenticeGloeckler78}
+\bibfield{author}{\bibinfo{person}{Ross~L. Prentice} {and}
+  \bibinfo{person}{Lynn~A. Gloeckler}.} \bibinfo{year}{1978}\natexlab{}.
+\newblock \showarticletitle{Regression Analysis of Grouped Survival Data with
+  Application to Breast Cancer Data}.
+\newblock \bibinfo{journal}{\emph{Biometrics}} \bibinfo{volume}{34},
+  \bibinfo{number}{1} (\bibinfo{year}{1978}), \bibinfo{pages}{57--67}.
+\newblock
+\href{https://doi.org/10.2307/2529588}{doi:\nolinkurl{10.2307/2529588}}
+
+
+\bibitem[Heagerty and Zheng(2005)]%
+        {HeagertyZheng05}
+\bibfield{author}{\bibinfo{person}{Patrick~J. Heagerty} {and}
+  \bibinfo{person}{Yingye Zheng}.} \bibinfo{year}{2005}\natexlab{}.
+\newblock \showarticletitle{Survival Model Predictive Accuracy and {ROC}
+  Curves}.
+\newblock \bibinfo{journal}{\emph{Biometrics}} \bibinfo{volume}{61},
+  \bibinfo{number}{1} (\bibinfo{year}{2005}), \bibinfo{pages}{92--105}.
+\newblock
+
+
+\bibitem[van Klaveren et~al\mbox{.}(2014)]%
+        {vanKlaveren14}
+\bibfield{author}{\bibinfo{person}{David van Klaveren},
+  \bibinfo{person}{Ewout~W. Steyerberg}, \bibinfo{person}{Pablo Perel}, {and}
+  \bibinfo{person}{Yvonne Vergouwe}.} \bibinfo{year}{2014}\natexlab{}.
+\newblock \showarticletitle{Assessing Discriminative Ability of Risk Models in
+  Clustered Data}.
+\newblock \bibinfo{journal}{\emph{BMC Med. Res. Methodol.}}
+  \bibinfo{volume}{14} (\bibinfo{year}{2014}), \bibinfo{pages}{5}.
+\newblock
+\href{https://doi.org/10.1186/1471-2288-14-5}{doi:\nolinkurl{10.1186/1471-2288-14-5}}
+
+
+\bibitem[Zhou et~al\mbox{.}(2018)]%
+        {Zhou18}
+\bibfield{author}{\bibinfo{person}{Guorui Zhou}, \bibinfo{person}{Xiaoqiang
+  Zhu}, \bibinfo{person}{Chenru Song}, \bibinfo{person}{Ying Fan},
+  \bibinfo{person}{Han Zhu}, \bibinfo{person}{Xiao Ma},
+  \bibinfo{person}{Yanghui Yan}, \bibinfo{person}{Junqi Jin},
+  \bibinfo{person}{Han Li}, {and} \bibinfo{person}{Kun Gai}.}
+  \bibinfo{year}{2018}\natexlab{}.
+\newblock \showarticletitle{Deep Interest Network for Click-Through Rate
+  Prediction}. In \bibinfo{booktitle}{\emph{Proc. 24th ACM SIGKDD Int. Conf.
+  Knowledge Discovery \& Data Mining (KDD)}}. \bibinfo{pages}{1059--1068}.
+\newblock
+\href{https://doi.org/10.1145/3219819.3219823}{doi:\nolinkurl{10.1145/3219819.3219823}}
+
+
+\bibitem[Ngiam et~al\mbox{.}(2022)]%
+        {Ngiam22}
+\bibfield{author}{\bibinfo{person}{Jiquan Ngiam}, \bibinfo{person}{Benjamin
+  Caine}, \bibinfo{person}{Vijay Vasudevan}, \bibinfo{person}{Zhengdong Zhang},
+  \bibinfo{person}{Hao-Tien~Lewis Chiang}, \bibinfo{person}{Jeffrey Ling},
+  \bibinfo{person}{Rebecca Roelofs}, \bibinfo{person}{Alex Bewley},
+  \bibinfo{person}{Chenxi Liu}, \bibinfo{person}{Ashish Venugopal},
+  \bibinfo{person}{David Weiss}, \bibinfo{person}{Ben Sapp},
+  \bibinfo{person}{Zhifeng Chen}, {and} \bibinfo{person}{Jonathon Shlens}.}
+  \bibinfo{year}{2022}\natexlab{}.
+\newblock \showarticletitle{{Scene Transformer}: A Unified Architecture for
+  Predicting Future Trajectories of Multiple Agents}. In
+  \bibinfo{booktitle}{\emph{Proc. ICLR}}.
+\newblock
+
+
+\bibitem[Ying et~al\mbox{.}(2021)]%
+        {Ying21}
+\bibfield{author}{\bibinfo{person}{Chengxuan Ying}, \bibinfo{person}{Tianle
+  Cai}, \bibinfo{person}{Shengjie Luo}, \bibinfo{person}{Shuxin Zheng},
+  \bibinfo{person}{Guolin Ke}, \bibinfo{person}{Di He},
+  \bibinfo{person}{Yanming Shen}, {and} \bibinfo{person}{Tie-Yan Liu}.}
+  \bibinfo{year}{2021}\natexlab{}.
+\newblock \showarticletitle{Do Transformers Really Perform Badly for Graph
+  Representation?}. In \bibinfo{booktitle}{\emph{Proc. NeurIPS}},
+  Vol.~\bibinfo{volume}{34}. \bibinfo{pages}{28877--28888}.
+\newblock
+
+
+\bibitem[Xenopoulos and Silva(2021)]%
+        {Xenopoulos21}
+\bibfield{author}{\bibinfo{person}{Peter Xenopoulos} {and}
+  \bibinfo{person}{Claudio Silva}.} \bibinfo{year}{2021}\natexlab{}.
+\newblock \showarticletitle{{Graph Neural Networks to Predict Sports
+  Outcomes}}. In \bibinfo{booktitle}{\emph{Proc. IEEE Int. Conf. Big Data}}.
+  \bibinfo{pages}{1757--1763}.
+\newblock
+\href{https://doi.org/10.1109/BigData52589.2021.9671833}{doi:\nolinkurl{10.1109/BigData52589.2021.9671833}}
+
+
+\bibitem[{PUBG Studios}(2026b)]%
+        {PUBGPatchNotes2026}
+\bibfield{author}{\bibinfo{person}{{PUBG Studios}}.}
+  \bibinfo{year}{2026}\natexlab{b}.
+\newblock \bibinfo{title}{{PC} Patch Notes, Updates 40.2, 41.1, and 41.2}.
+\newblock \bibinfo{howpublished}{\url{https://pubg.com/en/news/9809},
+  \url{https://pubg.com/en/news/9926}, \url{https://pubg.com/en/news/10080}}.
+\newblock
+\shownote{{Mar.}~10, {Apr.}~8, and {May}~12, 2026}.
+\newblock
+
+
+\bibitem[{PUBG Studios}(2026a)]%
+        {PUBGBlueZone2026}
+\bibfield{author}{\bibinfo{person}{{PUBG Studios}}.}
+  \bibinfo{year}{2026}\natexlab{a}.
+\newblock \bibinfo{title}{Blue Zone Revamp: Dev Letter and Update 42.1 Patch
+  Notes}.
+\newblock \bibinfo{howpublished}{\url{https://pubg.com/news/10280}}.
+\newblock
+\shownote{{Jun.}~16, 2026}.
+\newblock
+
+
+\bibitem[Kaufman et~al\mbox{.}(2012)]%
+        {Kaufman12}
+\bibfield{author}{\bibinfo{person}{Shachar Kaufman}, \bibinfo{person}{Saharon
+  Rosset}, \bibinfo{person}{Claudia Perlich}, {and} \bibinfo{person}{Ori
+  Stitelman}.} \bibinfo{year}{2012}\natexlab{}.
+\newblock \showarticletitle{Leakage in Data Mining: Formulation, Detection, and
+  Avoidance}.
+\newblock \bibinfo{journal}{\emph{ACM Transactions on Knowledge Discovery from
+  Data}} \bibinfo{volume}{6}, \bibinfo{number}{4}, Article
+  \bibinfo{articleno}{15} (\bibinfo{year}{2012}), \bibinfo{numpages}{21}~pages.
+\newblock
+\href{https://doi.org/10.1145/2382577.2382579}{doi:\nolinkurl{10.1145/2382577.2382579}}
+
+
+\bibitem[Nathan et~al\mbox{.}(2008)]%
+        {Nathan08}
+\bibfield{author}{\bibinfo{person}{Ran Nathan}, \bibinfo{person}{Wayne~M.
+  Getz}, \bibinfo{person}{Eloy Revilla}, \bibinfo{person}{Marcel Holyoak},
+  \bibinfo{person}{Ronen Kadmon}, \bibinfo{person}{David Saltz}, {and}
+  \bibinfo{person}{Peter~E. Smouse}.} \bibinfo{year}{2008}\natexlab{}.
+\newblock \showarticletitle{A Movement Ecology Paradigm for Unifying Organismal
+  Movement Research}.
+\newblock \bibinfo{journal}{\emph{Proc. Natl. Acad. Sci. USA}}
+  \bibinfo{volume}{105}, \bibinfo{number}{49} (\bibinfo{year}{2008}),
+  \bibinfo{pages}{19052--19059}.
+\newblock
+\href{https://doi.org/10.1073/pnas.0800375105}{doi:\nolinkurl{10.1073/pnas.0800375105}}
+
+
+\bibitem[DerSimonian and Laird(1986)]%
+        {DerSimonian86}
+\bibfield{author}{\bibinfo{person}{Rebecca DerSimonian} {and}
+  \bibinfo{person}{Nan Laird}.} \bibinfo{year}{1986}\natexlab{}.
+\newblock \showarticletitle{{Meta-analysis in clinical trials}}.
+\newblock \bibinfo{journal}{\emph{Control. Clin. Trials}} \bibinfo{volume}{7},
+  \bibinfo{number}{3} (\bibinfo{year}{1986}), \bibinfo{pages}{177--188}.
+\newblock
+\href{https://doi.org/10.1016/0197-2456(86)90046-2}{doi:\nolinkurl{10.1016/0197-2456(86)90046-2}}
+
+
+\bibitem[Higgins et~al\mbox{.}(2009)]%
+        {Higgins09}
+\bibfield{author}{\bibinfo{person}{Julian P.~T. Higgins},
+  \bibinfo{person}{Simon~G. Thompson}, {and} \bibinfo{person}{David~J.
+  Spiegelhalter}.} \bibinfo{year}{2009}\natexlab{}.
+\newblock \showarticletitle{A Re-Evaluation of Random-Effects Meta-Analysis}.
+\newblock \bibinfo{journal}{\emph{J. R. Stat. Soc. A}} \bibinfo{volume}{172},
+  \bibinfo{number}{1} (\bibinfo{year}{2009}), \bibinfo{pages}{137--159}.
+\newblock
+\href{https://doi.org/10.1111/j.1467-985X.2008.00552.x}{doi:\nolinkurl{10.1111/j.1467-985X.2008.00552.x}}
+
+
+\bibitem[Friedman(2001)]%
+        {Friedman01}
+\bibfield{author}{\bibinfo{person}{Jerome~H. Friedman}.}
+  \bibinfo{year}{2001}\natexlab{}.
+\newblock \showarticletitle{{Greedy Function Approximation: A Gradient Boosting
+  Machine}}.
+\newblock \bibinfo{journal}{\emph{Ann. Statist.}} \bibinfo{volume}{29},
+  \bibinfo{number}{5} (\bibinfo{year}{2001}), \bibinfo{pages}{1189--1232}.
+\newblock
+
+
+\bibitem[Vaswani et~al\mbox{.}(2017)]%
+        {Vaswani17}
+\bibfield{author}{\bibinfo{person}{Ashish Vaswani}, \bibinfo{person}{Noam
+  Shazeer}, \bibinfo{person}{Niki Parmar}, \bibinfo{person}{Jakob Uszkoreit},
+  \bibinfo{person}{Llion Jones}, \bibinfo{person}{Aidan~N. Gomez},
+  \bibinfo{person}{{\L}ukasz Kaiser}, {and} \bibinfo{person}{Illia
+  Polosukhin}.} \bibinfo{year}{2017}\natexlab{}.
+\newblock \showarticletitle{{Attention Is All You Need}}. In
+  \bibinfo{booktitle}{\emph{Proc. NeurIPS}}. \bibinfo{pages}{5998--6008}.
+\newblock
+
+
+\bibitem[Bergstra and Bengio(2012)]%
+        {Bergstra12}
+\bibfield{author}{\bibinfo{person}{James Bergstra} {and}
+  \bibinfo{person}{Yoshua Bengio}.} \bibinfo{year}{2012}\natexlab{}.
+\newblock \showarticletitle{Random Search for Hyper-Parameter Optimization}.
+\newblock \bibinfo{journal}{\emph{Journal of Machine Learning Research}}
+  \bibinfo{volume}{13}, \bibinfo{number}{10} (\bibinfo{year}{2012}),
+  \bibinfo{pages}{281--305}.
+\newblock
+\urldef\tempurl%
+\url{https://www.jmlr.org/papers/v13/bergstra12a.html}
+\showURL{%
+\tempurl}
+
+
+\bibitem[Cawley and Talbot(2010)]%
+        {Cawley10}
+\bibfield{author}{\bibinfo{person}{Gavin~C. Cawley} {and}
+  \bibinfo{person}{Nicola L.~C. Talbot}.} \bibinfo{year}{2010}\natexlab{}.
+\newblock \showarticletitle{On Over-fitting in Model Selection and Subsequent
+  Selection Bias in Performance Evaluation}.
+\newblock \bibinfo{journal}{\emph{Journal of Machine Learning Research}}
+  \bibinfo{volume}{11}, \bibinfo{number}{70} (\bibinfo{year}{2010}),
+  \bibinfo{pages}{2079--2107}.
+\newblock
+\urldef\tempurl%
+\url{https://www.jmlr.org/papers/v11/cawley10a.html}
+\showURL{%
+\tempurl}
+
+
+\bibitem[Van~Calster et~al\mbox{.}(2016)]%
+        {VanCalster16}
+\bibfield{author}{\bibinfo{person}{Ben Van~Calster}, \bibinfo{person}{Daan
+  Nieboer}, \bibinfo{person}{Yvonne Vergouwe}, \bibinfo{person}{Bavo De~Cock},
+  \bibinfo{person}{Michael~J. Pencina}, {and} \bibinfo{person}{Ewout~W.
+  Steyerberg}.} \bibinfo{year}{2016}\natexlab{}.
+\newblock \showarticletitle{A Calibration Hierarchy for Risk Models Was
+  Defined: From Utopia to Empirical Data}.
+\newblock \bibinfo{journal}{\emph{J. Clin. Epidemiol.}}  \bibinfo{volume}{74}
+  (\bibinfo{year}{2016}), \bibinfo{pages}{167--176}.
+\newblock
+\href{https://doi.org/10.1016/j.jclinepi.2015.12.005}{doi:\nolinkurl{10.1016/j.jclinepi.2015.12.005}}
+
+
+\bibitem[Hartung and Knapp(2001)]%
+        {HartungKnapp01}
+\bibfield{author}{\bibinfo{person}{Joachim Hartung} {and}
+  \bibinfo{person}{Guido Knapp}.} \bibinfo{year}{2001}\natexlab{}.
+\newblock \showarticletitle{On Tests of the Overall Treatment Effect in
+  Meta-Analysis with Normally Distributed Responses}.
+\newblock \bibinfo{journal}{\emph{Stat. Med.}} \bibinfo{volume}{20},
+  \bibinfo{number}{12} (\bibinfo{year}{2001}), \bibinfo{pages}{1771--1782}.
+\newblock
+\href{https://doi.org/10.1002/sim.791}{doi:\nolinkurl{10.1002/sim.791}}
+
+
+\bibitem[Schuirmann(1987)]%
+        {Schuirmann87}
+\bibfield{author}{\bibinfo{person}{Donald~J. Schuirmann}.}
+  \bibinfo{year}{1987}\natexlab{}.
+\newblock \showarticletitle{A Comparison of the Two One-Sided Tests Procedure
+  and the Power Approach for Assessing the Equivalence of Average
+  Bioavailability}.
+\newblock \bibinfo{journal}{\emph{J. Pharmacokinet. Biopharm.}}
+  \bibinfo{volume}{15}, \bibinfo{number}{6} (\bibinfo{year}{1987}),
+  \bibinfo{pages}{657--680}.
+\newblock
+
+
+\bibitem[Holm(1979)]%
+        {Holm79}
+\bibfield{author}{\bibinfo{person}{Sture Holm}.}
+  \bibinfo{year}{1979}\natexlab{}.
+\newblock \showarticletitle{{A Simple Sequentially Rejective Multiple Test
+  Procedure}}.
+\newblock \bibinfo{journal}{\emph{Scand. J. Statist.}} \bibinfo{volume}{6},
+  \bibinfo{number}{2} (\bibinfo{year}{1979}), \bibinfo{pages}{65--70}.
+\newblock
+
+
+\bibitem[Chamberlain(1980)]%
+        {Chamberlain80}
+\bibfield{author}{\bibinfo{person}{Gary Chamberlain}.}
+  \bibinfo{year}{1980}\natexlab{}.
+\newblock \showarticletitle{Analysis of Covariance with Qualitative Data}.
+\newblock \bibinfo{journal}{\emph{Rev. Econ. Stud.}} \bibinfo{volume}{47},
+  \bibinfo{number}{1} (\bibinfo{year}{1980}), \bibinfo{pages}{225--238}.
+\newblock
+
+
+\bibitem[Xia et~al\mbox{.}(2008)]%
+        {Xia08}
+\bibfield{author}{\bibinfo{person}{Fen Xia}, \bibinfo{person}{Tie-Yan Liu},
+  \bibinfo{person}{Jue Wang}, \bibinfo{person}{Wensheng Zhang}, {and}
+  \bibinfo{person}{Hang Li}.} \bibinfo{year}{2008}\natexlab{}.
+\newblock \showarticletitle{Listwise Approach to Learning to Rank: Theory and
+  Algorithm}. In \bibinfo{booktitle}{\emph{Proc. 25th Int. Conf. Machine
+  Learning (ICML)}}. \bibinfo{pages}{1192--1199}.
+\newblock
+\href{https://doi.org/10.1145/1390156.1390306}{doi:\nolinkurl{10.1145/1390156.1390306}}
+
+
+\bibitem[Bai et~al\mbox{.}(2023)]%
+        {Bai23}
+\bibfield{author}{\bibinfo{person}{Aijun Bai}, \bibinfo{person}{Rolf Jagerman},
+  \bibinfo{person}{Zhen Qin}, \bibinfo{person}{Le Yan},
+  \bibinfo{person}{Pratyush Kar}, \bibinfo{person}{Bing-Rong Lin},
+  \bibinfo{person}{Xuanhui Wang}, \bibinfo{person}{Michael Bendersky}, {and}
+  \bibinfo{person}{Marc Najork}.} \bibinfo{year}{2023}\natexlab{}.
+\newblock \showarticletitle{Regression Compatible Listwise Objectives for
+  Calibrated Ranking with Binary Relevance}. In \bibinfo{booktitle}{\emph{Proc.
+  32nd ACM Int. Conf. Information and Knowledge Management (CIKM)}}.
+  \bibinfo{pages}{4502--4508}.
+\newblock
+\href{https://doi.org/10.1145/3583780.3614712}{doi:\nolinkurl{10.1145/3583780.3614712}}
+
+
+\end{thebibliography}

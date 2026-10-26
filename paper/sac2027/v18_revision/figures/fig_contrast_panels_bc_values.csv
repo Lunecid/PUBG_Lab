@@ -1,0 +1,24 @@
+panel,row,series,estimate,ci_low,ci_high,source
+b,"Erangel, full Cox",within match,0.0130561132091363,0.0098093398344193,0.0164077887216136,objective_match_offset/contrasts.csv
+b,"Erangel, full Cox",within phase,0.0151189893488156,0.0118141809723974,0.0183725565162575,objective_match_offset/contrasts.csv
+b,"Erangel, next-phase Cox",within match,0.0007814949483604,-0.0012692146365159,0.0027808431555581,objective_match_offset/contrasts.csv
+b,"Erangel, next-phase Cox",within phase,0.0060260353571804,0.003793140270842,0.0082088070453193,objective_match_offset/contrasts.csv
+b,"Taego, full Cox",within match,0.013879476947017,0.0100791193271956,0.0177376094983797,objective_match_offset/contrasts.csv
+b,"Taego, full Cox",within phase,0.019638700375624,0.016785196131463,0.0223691525238461,objective_match_offset/contrasts.csv
+b,"Taego, next-phase Cox",within match,-0.0007780538614059,-0.0027920956337065,0.0012021572413471,objective_match_offset/contrasts.csv
+b,"Taego, next-phase Cox",within phase,0.0075953914559366,0.0054816505560854,0.0097396941485926,objective_match_offset/contrasts.csv
+c,"BCE − next-phase Cox, Erangel",within phase,0.0060260353571804,0.003793140270842,0.0082088070453193,objective_match_offset/contrasts.csv
+c,"BCE − next-phase Cox, Erangel","within phase, centered",0.0015299124901763,-0.0003191025003009,0.003287436571452,objective_match_offset/contrasts.csv
+c,"BCE − next-phase Cox, Erangel",within match,0.0007814949483604,-0.0012692146365159,0.0027808431555581,objective_match_offset/contrasts.csv
+c,"BCE − next-phase Cox, Taego",within phase,0.0075953914559366,0.0054816505560854,0.0097396941485926,objective_match_offset/contrasts.csv
+c,"BCE − next-phase Cox, Taego","within phase, centered",0.0007992659553641,-0.0008774148307231,0.002388660608006,objective_match_offset/contrasts.csv
+c,"BCE − next-phase Cox, Taego",within match,-0.0007780538614059,-0.0027920956337065,0.0012021572413471,objective_match_offset/contrasts.csv
+c,Team axis: on − off (pooled),within phase,0.0108550202490533,0.008560583001448869,0.013149457496657774,structure_match_offset/pooled.csv
+c,Team axis: on − off (pooled),"within phase, centered",0.0043468548737639,0.0020403084875734055,0.006653401259954545,structure_match_offset/pooled.csv
+c,Team axis: on − off (pooled),within match,0.0011442348420311,-0.000635634827936081,0.0029241045119984084,structure_match_offset/pooled.csv
+c,PTR − GBDT (pooled),within phase,0.0057866369067345,0.0035374919773164606,0.00803578183615271,structure_match_offset/pooled.csv
+c,PTR − GBDT (pooled),"within phase, centered",0.0011011841702338,-0.0021727291930043434,0.004375097533472042,structure_match_offset/pooled.csv
+c,PTR − GBDT (pooled),within match,-0.0009151186370227,-0.0057135638456654435,0.0038833265716198585,structure_match_offset/pooled.csv
+c,PTR − KRAFTON+phase (pooled),within phase,0.02706359867253781,0.018030011479959224,0.0360971858651164,main_population/pooled.json
+c,PTR − KRAFTON+phase (pooled),"within phase, centered",0.0093211757698605,0.004389112045307931,0.01425323949441324,rq2_match_offset/pooled.csv
+c,PTR − KRAFTON+phase (pooled),within match,0.007138468580271433,0.0030164013996329137,0.011260535760909952,main_population/pooled.json

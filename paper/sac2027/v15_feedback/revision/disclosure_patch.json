@@ -1,0 +1,17 @@
+{
+  "patch_format_version": "1.0",
+  "revision_round": 2,
+  "base_draft_hash": "5d6c7b724af9",
+  "ops": [
+    {
+      "op": "replace_block",
+      "block_id": "B0066",
+      "old_hash": "e3c154460929",
+      "new_text": "\\section*{AI Assistance Disclosure}\nAnthropic's Claude and OpenAI Codex assisted with writing and revising the analysis and figure-generation code.\n\n",
+      "roadmap_item_ids": [
+        "USER-DISCLOSURE-ONLY"
+      ]
+    }
+  ],
+  "emitted_by": "inline_revision"
+}

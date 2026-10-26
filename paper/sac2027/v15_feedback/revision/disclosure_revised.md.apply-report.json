@@ -1,0 +1,36 @@
+{
+  "report_format_version": "1.0",
+  "mode": "patch",
+  "base_path": "paper/sac2027/v15_feedback/revision/disclosure_base.md",
+  "output_path": "paper/sac2027/v15_feedback/revision/disclosure_revised.md",
+  "base_draft_hash": "5d6c7b724af9",
+  "revision_round": 2,
+  "ops_applied": [
+    {
+      "op_index": 0,
+      "op": "replace_block",
+      "block_id": "B0066",
+      "roadmap_item_ids": [
+        "USER-DISCLOSURE-ONLY"
+      ],
+      "new_block_ids": []
+    }
+  ],
+  "fresh_block_ids": [],
+  "pure_move_pairs": [],
+  "structural_flags": {
+    "heading_op_indexes": [],
+    "section_count_delta": 0,
+    "touched_ratio": 0.0147,
+    "touched_ratio_threshold": 0.6,
+    "touched_ratio_exceeded": false,
+    "any": false,
+    "acknowledged": false
+  },
+  "counters": {
+    "blocks_total": 68,
+    "blocks_touched": 1,
+    "blocks_preserved_byte_identical": 67,
+    "preserved_ratio": 0.9853
+  }
+}

@@ -1,0 +1,229 @@
+{
+  "schema_version": "proposal_2_full_corpus",
+  "date": "2026-10-20",
+  "status": "design_only_unimplemented_untrained",
+  "training_execution_authorized": false,
+  "claim": "observation-conditioned predictive state representation under logged behavior",
+  "not_claimed": [
+    "action-interventional simulator",
+    "40.2 collision map",
+    "optimal winning policy",
+    "validated causal tactical effect"
+  ],
+  "source_dataset": "full collected telemetry corpus; task-specific validity masks; raw inventory required",
+  "source_audit": "../../reports/world_model_pretraining_research_2026-10-20/data_contract_audit.json",
+  "partition": {
+    "scope": "all collected domains before task-specific quality masks",
+    "minimum_domain_matches": null,
+    "historical_pilot_counts": {
+      "train": 657,
+      "development": 188,
+      "locked": 94
+    },
+    "locked_historically_exposed": true,
+    "global_counts": "not yet assigned",
+    "protected_old_splits": "preserve; never silently move old dev/test into train",
+    "strict_domain_holdout": "remove held-out domain from pretraining, priors, normalization and tuning",
+    "pristine_final_test": "new unused matches required"
+  },
+  "proposed_encoder": {
+    "node_types": [
+      "cell",
+      "region",
+      "player",
+      "team",
+      "vehicle_evidence",
+      "contact_evidence",
+      "zone",
+      "game",
+      "equipment"
+    ],
+    "history_seconds": 120,
+    "step_seconds": 10,
+    "history_frames": 13,
+    "history_control_frames": 4,
+    "latent_dim": 128,
+    "relation_layers": 2,
+    "causal_temporal_blocks": 2,
+    "attention_heads": 4,
+    "current_numeric_adapter_width": 32,
+    "dimensions_are_runtime_verified": false,
+    "crop": "union of as-of own-team neighborhoods; variable team size; paired views share crop",
+    "unknown_edges": "not negative traversability labels",
+    "spatial_cells": "map/version-specific verified extent at 100m resolution",
+    "coarse_regions": "R_map, padded with mask",
+    "map_cell_key": [
+      "map_id",
+      "geometry_version",
+      "ix",
+      "iy"
+    ],
+    "condition_fields": [
+      "map",
+      "perspective",
+      "nominal_team_size",
+      "rule_set",
+      "patch_or_geometry_version"
+    ]
+  },
+  "tasks": {
+    "P1_masked_past_observations": "initial",
+    "P2_future_region_and_mode": "initial",
+    "P3_team_occupancy_and_pair_distances": "initial",
+    "P4_future_damage_and_current_life_hazard": "requires raw event label builder and audit",
+    "P5_future_latent_teacher": "optional ablation; same-view teacher by default",
+    "P6_terminal_win_rank_team_elimination": "core objective: join existing official outcomes and cross-check final elimination order; task-specific QA masks required"
+  },
+  "proposed_loss_weights": {
+    "masked_features": 1.0,
+    "future_region": 1.0,
+    "future_mode": 0.5,
+    "team_occupancy": 0.5,
+    "pair_distance": 0.5,
+    "future_damage_optional": 0.25,
+    "current_life_hazard_optional": 0.25,
+    "final_rank": 0.25,
+    "winner": 0.25,
+    "pairwise_rank_optional": 0.1
+  },
+  "output": {
+    "future_seconds": [
+      10,
+      20,
+      30,
+      40,
+      50,
+      60
+    ],
+    "target_team_max_slots": "variable M_batch; solo/duo/squad and other modes not silently truncated",
+    "joint_trajectory_shape": [
+      "B",
+      "K",
+      "M_batch",
+      6,
+      2
+    ],
+    "region_logits_shape": [
+      "B",
+      "M_batch",
+      6,
+      "R_batch"
+    ],
+    "target_team_occupancy_shape": [
+      "B",
+      6,
+      "R_batch"
+    ],
+    "pair_distance_shape": [
+      "B",
+      6,
+      "M_batch*(M_batch-1)/2"
+    ],
+    "same_episode_coordinate_mask": true,
+    "future_mask_never_used_as_input": true
+  },
+  "views": {
+    "observer": "telemetry-based observer proxy; mask before team aggregation",
+    "server": "as-of full telemetry; future excluded",
+    "shared": [
+      "anchors",
+      "targets",
+      "crop",
+      "evaluation masks",
+      "sampling seeds"
+    ],
+    "privileged_teacher_in_main_observer": false,
+    "human_bot_type_input_in_main_model": false
+  },
+  "evaluation": {
+    "training_seeds_minimum": 3,
+    "joint_samples_K": 20,
+    "uncertainty_unit": "paired match-level resampling, not overlapping windows",
+    "baselines": [
+      "persistence",
+      "constant_velocity",
+      "transition_frequency",
+      "tabular_GBDT",
+      "same_encoder_regression",
+      "same_encoder_joint_GMM_or_CVAE",
+      "same_encoder_diffusion"
+    ],
+    "controls": [
+      "L4_vs_L13",
+      "scratch_vs_frozen_pretrained_vs_finetuned",
+      "equal_total_compute",
+      "player_only_vs_player_team",
+      "spatial_evidence_ablations",
+      "observer_vs_server"
+    ],
+    "metrics": [
+      "region_NLL",
+      "mode_macro_F1",
+      "team_occupancy_CE_JS",
+      "pair_distance_MAE",
+      "damage_AUPRC_Brier",
+      "current_life_hazard_Brier_NLL",
+      "meanpath_ADE_FDE",
+      "team_center_ADE",
+      "joint_energy_score",
+      "coverage_and_width",
+      "joint_oracle_minADE_K_secondary",
+      "normalized_rank_MAE",
+      "ordinal_score",
+      "within_match_order_agreement",
+      "winner_NLL_Brier_reliability"
+    ],
+    "domain_ablations": [
+      "all_maps_vs_single_map",
+      "leave_one_map_out",
+      "FPP_TPP_pooled_vs_single",
+      "all_team_sizes_vs_single",
+      "leave_one_team_size_out",
+      "remove_each_domain_condition",
+      "patch_time_holdout",
+      "non_BR_auxiliary_include_exclude",
+      "P6_include_exclude"
+    ]
+  },
+  "required_pretraining_checks": [
+    "future_suffix_invariance_of_encoder_input",
+    "observer_invariance_to_server_private_fields",
+    "mask_derived_relations_and_team_statistics",
+    "no_future_node_birth_or_roster_leak",
+    "episode_boundary_and_censoring_tests",
+    "permutation_equivariance",
+    "fold_provenance_and_no_dev_test_pretraining",
+    "runtime_tensor_shape_and_memory_check"
+  ],
+  "authoritative_design": "PUBG_WORLD_MODEL_FULL_CORPUS_V2_2026-10-20.md",
+  "historical_pilot_dataset": "data/processed/heterograph_diffusion_v3",
+  "outcomes": {
+    "rank_formula_no_ties_complete_match": "rank = N - elimination_index + 1; winner = 1",
+    "primary_fields": [
+      "pubg.rosters.rank",
+      "pubg.rosters.won",
+      "pubg.participants.win_place"
+    ],
+    "secondary_evidence": [
+      "pubg.telem_kills.victim_rank",
+      "final-life death/reentry evidence",
+      "pubg.telem_match_end"
+    ],
+    "tie_handling": "official consistent rank; otherwise interval/partial order; never arbitrary ID sorting",
+    "masks": [
+      "rank_mask",
+      "winner_mask",
+      "terminal_time_mask"
+    ],
+    "rank_utility": "(N-rank)/(N-1), only N>1 with verified N",
+    "outcomes_input_allowed": false,
+    "live_label_coverage_audited_this_turn": false
+  },
+  "corpus_task_masks": {
+    "battle_royale": "all valid tasks",
+    "tutorial_training_other": "valid spatial/state tasks; BR objectives only if meaningful",
+    "missing_outcomes": "keep valid SSL prefixes",
+    "missing_telemetry": "inventory only; no fabricated trajectories",
+    "NPCs": "separate from roster-confirmed humans/bots"
+  }
+}

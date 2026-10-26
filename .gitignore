@@ -294,3 +294,29 @@ model_stgcn/dumps/
 model_stgcn/etl_runs/
 tmp/
 tmp_ch4/
+
+# Repository organization release 2026.10.26-r1: reproducible build intermediates.
+*.aux
+*.blg
+*.fls
+*.fdb_latexmk
+*.out
+*.toc
+*.synctex.gz
+graphify-out/
+
+# Keep individual prediction/diagnostic rows locally; retain tracked evidence.
+model_stgcn/checkpoints/**/*.pred.csv
+model_stgcn/checkpoints/**/feature_ablation_predictions.csv
+model_stgcn/checkpoints/**/snapshot_tabular_predictions.csv
+model_stgcn/checkpoints/**/pred_test.csv
+reports/rq4_board_baseline_comparison/*_rows.csv
+reports/rq4_dynamic_probability_fluctuation/dynamic_probability_trajectories.csv
+reports/rq4_dynamic_probability_fluctuation/dynamic_probability_team_summary.csv
+
+# Private split implementation: import locally, never publish its body.
+tools/movement_diffusion/split_v3.py
+.env.*
+!.env.example
+*.pem
+*.key

@@ -1,0 +1,34 @@
+\begin{table}[t]
+\centering\footnotesize
+\caption{Matched objective controls in the two largest cohorts: AUC differences (three-seed means) with 95\% match-bootstrap intervals, and the share of BCE's within-phase advantage over next-phase Cox that a condition closes (phase, match: within-phase and within-match AUC). H4a: hypothesis of Section~\ref{sec:account}, with predictions recorded before these runs.}
+\label{tab:objective}
+\setlength{\tabcolsep}{1.6pt}
+\begin{tabular}{@{}llrr@{}}
+\toprule
+ & Contrast and unit & Erangel & Taego \\
+\midrule
+\multicolumn{4}{l}{\emph{Horizon}} \\
+ & Cox$_{\mathrm{next}}-$Cox$_{\mathrm{full}}$, match & $+$0.0123 {\scriptsize[0.0088, 0.0160]} & $+$0.0147 {\scriptsize[0.0112, 0.0180]} \\
+\multicolumn{4}{l}{\emph{BCE versus next-phase Cox}} \\
+ & phase & $+$0.0060 {\scriptsize[0.0038, 0.0082]} & $+$0.0076 {\scriptsize[0.0055, 0.0097]} \\
+ & match & $+$0.0008 {\scriptsize[$-$0.0013, 0.0028]} & $-$0.0008 {\scriptsize[$-$0.0028, 0.0012]} \\
+ & phase $-$ match$^{a}$ & $+$0.0052 {\scriptsize[0.0023, 0.0081]} & $+$0.0076 {\scriptsize[0.0049, 0.0105]} \\
+ & centered, phase & $+$0.0015 {\scriptsize[$-$0.0003, 0.0033]} & $+$0.0008 {\scriptsize[$-$0.0009, 0.0024]} \\
+\multicolumn{4}{l}{\emph{Conditional logistic (CLogit)$^{b}$}} \\
+ & CLogit$-$Cox, phase & $-$0.0010 {\scriptsize[$-$0.0024, 0.0003]} & $-$0.0003 {\scriptsize[$-$0.0017, 0.0011]} \\
+ & CLogit$-$Cox, match & $-$0.0017 {\scriptsize[$-$0.0035, 0.0000]} & $+$0.0010 {\scriptsize[$-$0.0007, 0.0028]} \\
+ & BCE$-$CLogit, phase & $+$0.0070 {\scriptsize[0.0047, 0.0093]} & $+$0.0079 {\scriptsize[0.0059, 0.0098]} \\
+ & BCE$-$CLogit, match & $+$0.0025 {\scriptsize[0.0007, 0.0043]} & $-$0.0018 {\scriptsize[$-$0.0037, 0.0001]} \\
+\multicolumn{4}{l}{\emph{Combined loss Cox + $w$BCE ($w{=}4$ rows$^{b}$)}} \\
+H4a & $w{=}1$ $-$ Cox, phase & $+$0.0035 {\scriptsize[0.0015, 0.0056]} & $+$0.0054 {\scriptsize[0.0040, 0.0068]} \\
+H4a & $w{=}1$ $-$ Cox, match & $+$0.0015 {\scriptsize[$-$0.0005, 0.0032]} & $+$0.0007 {\scriptsize[$-$0.0007, 0.0022]} \\
+H4a & BCE $-$ $w{=}1$, phase & $+$0.0025 {\scriptsize[0.0008, 0.0043]} & $+$0.0022 {\scriptsize[0.0005, 0.0040]} \\
+ & gap closed, $w{=}1$ (\%) & 58 {\scriptsize[30, 84]} & 71 {\scriptsize[55, 92]} \\
+ & gap closed, $w{=}4$ (\%) & 87 {\scriptsize[68, 108]} & 93 {\scriptsize[78, 112]} \\
+ & $w{=}4$ $-$ Cox, match & $+$0.0001 {\scriptsize[$-$0.0019, 0.0021]} & $+$0.0012 {\scriptsize[$-$0.0003, 0.0028]} \\
+ & BCE $-$ $w{=}4$, phase & $+$0.0008 {\scriptsize[$-$0.0004, 0.0020]} & $+$0.0005 {\scriptsize[$-$0.0007, 0.0018]} \\
+\bottomrule
+\end{tabular}
+\smallskip
+\parbox{\columnwidth}{\scriptsize $^{a}$Within-phase difference minus the within-match difference with equal phase weights (Section~\ref{sec:method:evaluation}). $^{b}$Predictions recorded before running.}
+\end{table}

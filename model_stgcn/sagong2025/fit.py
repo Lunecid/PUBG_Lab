@@ -268,6 +268,10 @@ def _check_cache_versions(base: Path) -> tuple[str, dict]:
     check_same_version(str(fmeta.get("version", "v1")), version, what=f"the Sagong features under {base}", against="the plan (units.parquet)")
     if fmeta.get("windows_sha1") not in (None, audit.get("windows_sha1")) and audit.get("windows_sha1") is not None:
         raise ValueError(f"{base}: features.parquet was extracted for other windows than the plan's (re-run plan and extract --force)")
+    if version == "v2":
+        expected = hashlib.sha256(Path(__file__).with_name("features.py").read_bytes()).hexdigest()
+        if fmeta.get("feature_source_sha256") != expected:
+            raise ValueError(f"{base}: stale or missing feature source fingerprint (re-run extract --force)")
     return version, audit
 
 

@@ -1,0 +1,182 @@
+% !TEX program = xelatex
+\documentclass[sigconf,anonymous,nonacm]{acmart}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs,tabularx}
+\graphicspath{{figures/}}
+\settopmatter{printacmref=false,printfolios=true}
+\setcopyright{none}
+\acmConference[SAC '27]{The 42nd ACM/SIGAPP Symposium on Applied Computing}{April 5--9, 2027}{Gwangju, South Korea}
+\acmDOI{}
+\acmISBN{}
+\hypersetup{hidelinks}
+\setlength{\emergencystretch}{1.5em}
+\raggedbottom
+\begin{document}
+\title[Supplementary Notes]{Supplementary Notes: Ranking Teams or Matches? Evaluation Units for Next-Phase Elimination Prediction in Battle Royale}
+\maketitle
+These notes hold analyses summarized in the main paper. Section and table numbers without a prefix refer to these notes; ``main paper'' marks references to the submission.
+
+\section{Combined-Objective Test}
+Before training the combined objective, we recorded its definition and decision rule in a dated plan. The loss is next-phase Cox (Breslow ties, administrative censoring at the next-phase boundary) plus the next-phase BCE with weight one, fixed in advance and not tuned; everything else matches the objective controls (backbone, configuration, seeds 42/13/2026, 12-epoch cap, patience three, stopping on validation within-phase AUC, common validation calibration with phase indicators). If match-level offsets explain BCE's within-phase advantage, then in both cohorts (1) the combined objective's within-phase AUC exceeds next-phase Cox's (95\% CI above zero), (2) its within-phase AUC is practically equivalent to BCE's (90\% CI within $\pm0.005$), and (3) its within-match AUC is practically equivalent to next-phase Cox's (90\% CI within $\pm0.005$). All three held (Table~\ref{tab:coxbce}). The combined objective closes 58\% (Erangel) and 71\% (Taego) of the within-phase gap; the remaining difference from BCE is small but its 95\% CI excludes zero in both cohorts. The recovered gain lies in the match--phase means, as the explanation predicts, and the combined objective also improves log loss over next-phase Cox by 0.0031 and 0.0034.
+\begin{table*}[t]
+\centering\footnotesize
+\caption{Combined-objective test: AUC differences with 90\% intervals (equivalence bounds $\pm0.005$), three seeds, two cohorts.}
+\label{tab:coxbce}
+\begin{tabular}{lll}
+\toprule
+Contrast and evaluation unit & Erangel TPP squad & Taego TPP squad \\
+\midrule
+\multicolumn{3}{l}{\emph{(Cox+BCE) $-$ next-phase Cox}} \\
+\quad Within phase & +0.0035 [+0.0018, +0.0052] & +0.0054 [+0.0042, +0.0066] \\
+\quad Within phase, centered & +0.0009 [-0.0006, +0.0023] & +0.0010 [+0.0001, +0.0018] \\
+\quad Match--phase means only & +0.0107 [+0.0081, +0.0133] & +0.0123 [+0.0103, +0.0143] \\
+\quad Within match & +0.0015 [-0.0002, +0.0030] & +0.0007 [-0.0005, +0.0020] \\
+\multicolumn{3}{l}{\emph{BCE $-$ (Cox+BCE)}} \\
+\quad Within phase & +0.0025 [+0.0011, +0.0040] & +0.0022 [+0.0007, +0.0037] \\
+\quad Within phase, centered & +0.0006 [-0.0008, +0.0020] & -0.0002 [-0.0015, +0.0011] \\
+\quad Match--phase means only & +0.0054 [+0.0036, +0.0070] & +0.0064 [+0.0045, +0.0083] \\
+\quad Within match & -0.0007 [-0.0022, +0.0008] & -0.0015 [-0.0030, -0.0001] \\
+\multicolumn{3}{l}{\emph{BCE $-$ next-phase Cox}} \\
+\quad Within phase & +0.0060 [+0.0041, +0.0078] & +0.0076 [+0.0058, +0.0094] \\
+\quad Within phase, centered & +0.0015 [-0.0001, +0.0030] & +0.0008 [-0.0006, +0.0021] \\
+\quad Match--phase means only & +0.0161 [+0.0129, +0.0192] & +0.0187 [+0.0157, +0.0217] \\
+\quad Within match & +0.0008 [-0.0010, +0.0024] & -0.0008 [-0.0025, +0.0009] \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\section{Same-Match Pair Shares}
+Table~\ref{tab:pairshare} lists, for each primary cohort, the share of same-match pairs among the (eliminated, surviving) pairs that within-phase AUC compares. The share tracks $1/M$ for $M$ test matches.
+\begin{table}[t]
+\centering\footnotesize
+\caption{Share of same-match pairs among within-phase AUC pairs (patch 41.2).}
+\label{tab:pairshare}
+\begin{tabular}{lrrr}
+\toprule
+Cohort & Test matches & Same-match pairs (\%) & $1/M$ (\%) \\
+\midrule
+Erangel FPP squad & 103 & 1.32 & 0.97 \\
+Erangel TPP duo & 110 & 0.95 & 0.91 \\
+Erangel TPP solo & 38 & 2.80 & 2.63 \\
+Erangel TPP squad & 562 & 0.20 & 0.18 \\
+Miramar TPP squad & 289 & 0.39 & 0.35 \\
+Paramo TPP squad & 63 & 1.79 & 1.59 \\
+Rondo TPP squad & 120 & 1.00 & 0.83 \\
+Sanhok TPP squad & 154 & 0.71 & 0.65 \\
+Taego FPP squad & 91 & 1.65 & 1.10 \\
+Taego TPP duo & 113 & 0.93 & 0.88 \\
+Taego TPP squad & 780 & 0.15 & 0.13 \\
+\bottomrule
+\end{tabular}
+\smallskip
+\parbox{\columnwidth}{\scriptsize Per-phase shares averaged over eligible phases, as within-phase AUC averages per-phase AUCs; pair composition is shared by all designs.}
+\end{table}
+
+\section{Habitat Hazard Model}
+We fit, per cohort, a directly interpretable logistic regression:
+\begin{equation}
+\mathrm{logit}\,\lambda_{m,i,k}=\alpha_k+\textstyle\sum_{c\in\mathcal{C}}\beta_c z_{c,m,i,k},
+\label{eq:ehm}
+\end{equation}
+where $\mathrm{logit}\,p=\log\{p/(1-p)\}$ and $\alpha_k$ is the phase intercept, representing the risk level shared by its teams on the log-odds scale.
+$\mathcal{C}$ contains five variables (outside depth, inside depth, movement residual, local competition density, and remaining members) and, as controls, the log number of alive teams and the AI-team indicator at the cutoff; solo cohorts drop remaining members.
+$z_{c,m,i,k}$ is variable $c$ standardized by the cohort's training mean and SD, so $\beta_c$ is the change in log-odds per SD.
+Standard errors are clustered by match, and the 11 eligible cohort coefficients are pooled with a random-effects model~\cite{DerSimonian86}, reporting 95\% prediction intervals for a new cohort~\cite{Higgins09}. Sensitivity analyses omit the AI indicator, restrict targets to human teams, vary the competition radius to 100/500 m, and replace the movement residual by its two components. Effects of one more enemy team or member are averaged probability changes from adding one to the physical covariate.
+Phase bands (early 1--2, middle 3--5, late 6--7) get coefficients in within-band SD units, and their equality is tested with a multivariate random-effects Wald test, also on the common training-SD scale.
+An exploratory lite model with phase intercepts and four variables (required speed, competition density, log alive teams, remaining members) measures how much of the discrimination ($\mathrm{AUC}-0.5$) of our full tree model (GBDT, main paper, Section 4.2) they reproduce; it drops both depth terms, as outside depth is nearly collinear with required speed, and keeps log alive teams as a control.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{fig_rq1_effects.pdf}
+\caption{AI-adjusted habitat associations in training patch 40.2. Points and 95\% intervals pool 11 eligible cohorts (10 for members). Each band uses its own SD scale.}
+\label{fig:rq1}
+\Description{Forest plot of standardized habitat-factor coefficients and confidence intervals for early, middle, and late phases.}
+\end{figure}
+Competition and remaining members have the clearest all-phase associations in the AI-adjusted model. A one-SD increase in local competition corresponds to $+0.284$ $[0.230,\allowbreak 0.339]$ log-odds (11/11), and remaining members to $-0.594$ $[-0.686,\allowbreak -0.502]$ (10/10; solo excluded), or odds multipliers of approximately 1.33 and 0.55. Their signs agree across cohorts, but their magnitudes are heterogeneous ($I^2=0.90$ and 0.99); their prediction intervals, $[0.08,\allowbreak 0.49]$ and $[-0.95,\allowbreak -0.24]$, still exclude zero. Neither outside depth ($+0.002$ $[-0.021,\allowbreak 0.025]$) nor inside depth ($-0.020$ $[-0.054,\allowbreak 0.014]$) has a clear pooled all-phase association. The largest VIF is 2.47.
+
+\paragraph{Movement interpretation depends on population and specification.}
+The movement coefficient falls from $+0.069$ $[0.052,\allowbreak 0.086]$ without AI adjustment to $+0.005$ $[-0.007,\allowbreak 0.018]$ with adjustment and $+0.010$ $[-0.004,\allowbreak 0.023]$ in human teams, and it excludes zero only at a 500\,m competition radius; competition and member directions survive these checks. The residual is negative in a median 88.1\% of human and 93.8\% of AI rows ($d>0$ in 37.4\%/28.2\%), so it rarely describes an unmet travel requirement; separating required and observed speeds gives positive coefficients ($+0.395$/$+0.025$ per SD) but raises the maximum VIF to 12.55.
+
+\paragraph{Associations vary across phases.}
+In within-band SD units (Fig.~\ref{fig:rq1}), inside depth is near zero early, then $-0.224$/$-0.414$ middle/late (11/11). Competition is $+0.385$/$+0.213$/$+0.237$, and members $-0.516$/$-0.601$/$-0.617$. Equality tests reject constant depth and competition slopes on both SD scales ($p\le2.4\times10^{-6}$). Model-implied $+1$ enemy-team changes are 9.8/3.7/3.9\,pp; $+1$ member changes are $-6.6$/$-10.5$/$-13.3$\,pp.
+
+\paragraph{A small model retains much of the discrimination.}
+The lite model's mean overall/within-phase AUCs are 0.719/0.677, versus 0.615/0.500 for phase-only and 0.768/0.742 for full GBDT. Of the GBDT's AUC above chance (0.5), phase intercepts alone reproduce 43.1\% $[41.4,\allowbreak 44.8]$ and the four-variable lite model 81.9\% $[80.5,\allowbreak 83.1]$. By within-phase AUC, the lite model retains 73.3\% $[71.2,\allowbreak 75.7]$. Restoring both depth terms adds 0.0034 $[0.0023,\allowbreak 0.0044]$ overall and 0.0068 $[0.0054,\allowbreak 0.0080]$ within phases. These descriptive models omit the AI indicator.
+
+Competition is strongest early and inside depth and members later; the depth pattern resembles an ecological edge effect~\cite{Ries04} without identifying its mechanism. The population-sensitive movement residual and the lite model's 73\% retained within-phase discrimination support cautious, non-causal interpretation.
+
+\section{Stepwise Path Decomposition}
+The stepwise path asks where performance differences come from: we change each prior design step by step toward ours and read each step's change as its contribution conditional on the preceding design.
+On the Sagong path, with GBDT fixed, we add habitat context to Sagong's inputs (a1) and replace the rest with our inputs (a2); separately, (b) replaces KRAFTON's inputs with ours.
+The KRAFTON path starts from the KRAFTON architecture trained with the upstream weighted survival objective on our inputs, then adds a phase baseline (c1), switches to next-phase cross-entropy (c2), and adds explicit phase intercepts (d); structure effects replace the architecture with a team-axis-only PTR-Former (e) and add the phase axis and relation bias (f), both without the ranking loss.
+These are path-conditional comparisons: the first KRAFTON step changes inputs and training rows together, the objective switch also changes the head intercept initialization and stopping criterion, (e) changes architecture and training recipe, and (f) adds two components. The main paper's matched controls address these confounds; path gains alone are not a factorial attribution.
+Step (g) adds KRAFTON's inputs to GBDT to test complementarity.
+
+\begin{table}[t]
+\centering\footnotesize
+\caption{Conditional reference-path changes in AUC, pooled across 11 cohorts.}
+\label{tab:steps}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrrr}
+\toprule
+Step & Overall & Within phase & Within match \\
+\midrule
+(a) Sagong inputs $\to$ ours & \textbf{+0.075} & \textbf{+0.106} & \textbf{+0.101} \\
+(b) KRAFTON inputs $\to$ ours & -0.003 & \textbf{-0.007} & \textbf{-0.012} \\
+(c1) + phase baseline & \textbf{+0.020} & $0^{\dagger}$ & $0^{\dagger}$ \\
+(c2) $\to$ next-phase BCE recipe & \textbf{+0.016} & \textbf{+0.021} & \textbf{+0.009} \\
+(d) + explicit phase intercepts & -0.0003 & +0.0001 & +0.0004 \\
+(e) $\to$ team-axis PTR & +0.004 & +0.005 & +0.004 \\
+(f) + phase axis, relation bias & -0.002 & -0.002 & -0.002 \\
+(g) + KRAFTON inputs (union) & \textbf{+0.017} & \textbf{+0.019} & \textbf{+0.020} \\
+\bottomrule
+\end{tabular}
+\smallskip
+\parbox{\columnwidth}{\scriptsize Random-effects pooled estimates. Bold: 95\% CI excludes 0 and $|\Delta|\geq0.005$. $\dagger$Zero by monotonicity within a phase. Steps (a), (b), (g) use GBDT. Other steps change reference recipes and may bundle stopping, initialization, or baseline-fit split; matched controls follow.}
+\end{table}
+
+Table~\ref{tab:steps} pools the path changes with random effects. On the Sagong path, adding habitat context to Sagong's inputs raises GBDT AUC by $+0.046$ $[0.041,\allowbreak 0.052]$, and replacing the rest with our inputs by $+0.028$ $[0.024,\allowbreak 0.033]$ (both 11/11). Removing the habitat block from our GBDT costs $0.0127$ $[0.0110,\allowbreak 0.0144]$ overall AUC and $0.0151$ $[0.0119,\allowbreak 0.0182]$ within-phase AUC (11/11 for both).
+
+On the KRAFTON path, the phase baseline ($+0.020$) and the BCE recipe ($+0.016$) contribute most; these recipe changes bundle horizon, optimization, and mapping choices, so the main paper's matched controls separate them.
+
+\section{Objective--Mapping Factorial}
+An explicit $2\times2$ analysis in the two largest cohorts crosses objective (full-follow-up weighted survival/BCE) with probability mapping (global/phase-specific); the objective factor bundles loss and horizon. Its Shapley contributions average the two possible orders~\cite{Shorrocks13} and sum to the joint change in every bootstrap draw. The objective--mapping factorial yields an equal-cohort mean AUC gain of $0.0358$ $[0.0336,\allowbreak 0.0380]$. The mapping's Shapley contribution is $0.0108$ $[0.0098,\allowbreak 0.0118]$ and the objective's is $0.0250$ $[0.0234,\allowbreak 0.0265]$. The mapping contributes zero within-phase AUC, whereas the objective contributes $0.0137$ $[0.0117,\allowbreak 0.0157]$. The objective factor includes the horizon.
+
+\section{Equal-Trial Tuning}
+\begin{table}[t]
+\centering\footnotesize
+\caption{Matched-input, equal-trial tuning. Each value averages three selected-model seeds; all use the BCE target.}
+\label{tab:tuning}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrrrr}
+\toprule
+Model & All AUC & Human & Within & Log loss \\
+ & & AUC & match & \\
+\midrule
+\multicolumn{5}{l}{\emph{Erangel TPP squad}} \\
+GBDT & 0.803 & 0.804 & 0.783 & 0.452 \\
+KRAFTON-derived & 0.803 & 0.803 & 0.779 & 0.453 \\
+PTR (no rank loss) & 0.801 & 0.802 & 0.777 & 0.454 \\
+\multicolumn{5}{l}{\emph{Taego TPP squad}} \\
+GBDT & 0.805 & 0.805 & 0.789 & 0.443 \\
+KRAFTON-derived & 0.808 & 0.808 & 0.789 & 0.442 \\
+PTR (no rank loss) & 0.809 & 0.808 & 0.791 & 0.442 \\
+\bottomrule
+\end{tabular}
+\smallskip
+\parbox{\columnwidth}{\scriptsize Reference recipes (main paper, Table~5; 151 inputs, PTR-Former with ranking loss) reach all-team AUC 0.803/0.803 (GBDT), 0.799/0.807 (PTR-Former), and 0.800/0.801 (KRAFTON backbone, cross-entropy) in Erangel/Taego.}
+\end{table}
+
+With common inputs and BCE, the overall AUC difference between PTR and the KRAFTON backbone is $-0.0011$ in Erangel and $+0.0006$ in Taego; both intervals include zero (Table~\ref{tab:tuning}). The within-match differences from GBDT are $-0.0062$ $[-0.0097,\allowbreak -0.0029]$ and $+0.0026$ $[-0.0009,\allowbreak 0.0059]$. Against the reference recipes, tuning on patch 41.1 alone with 153 columns (adding the centroid coordinates) changes GBDT and PTR AUC by at most 0.002 (table note). The KRAFTON backbone gains 0.003/0.007, which removes Taego's reference gap to PTR ($+0.006$ to $+0.0006$); step (e)'s $+0.004$ in Table~\ref{tab:steps} also lies within this recipe range. No architecture dominates both cohorts and metrics under this search budget.
+
+\section{Population, History, and Graph Controls}
+Human-team evaluations retain opponents as observed context; retraining controls remove the AI input or restrict the training loss to human teams, keeping the selected hyperparameters. History controls add summaries of earlier tokens to the current token, or retrain PTR on ordered versus shuffled past prefixes with the current token fixed.
+
+An exploratory GATv2~\cite{Brody22} treats each match--phase as a graph with four continuous relation channels and uses BCE with the same 16 configurations and three seeds; a control jointly relabels relation channels. It was added after the reference results had been examined.
+
+Population and history controls move AUC by at most 0.0033: removing AI input changes human AUC by $-0.0012$ to $+0.0010$ and human-only loss by $-0.0022$ to $+0.0018$ across six model--cohort pairs, past-token summaries lower KRAFTON AUC by 0.0033/0.0028, and ordered PTR prefixes beat shuffled ones by at most 0.0010. GATv2 (AUC 0.8048/0.8079 in Erangel/Taego) exceeds PTR by $+0.0034$/$+0.0023$ but not the KRAFTON backbone ($+0.0009$/$+0.0003$, uncertain), relation alignment adds $+0.0020$/$+0.0010$ over jointly relabeled graphs, and every graph effect stays below the 0.005 threshold. GATv2 detects small alignment effects and scores close to KRAFTON; existing relation summaries may limit the value of explicit graphs.
+
+\bibliographystyle{ACM-Reference-Format-citation-order}
+\bibliography{refs}
+\end{document}

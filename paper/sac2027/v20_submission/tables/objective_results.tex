@@ -1,0 +1,21 @@
+\begin{table}[t]
+\centering\footnotesize
+\caption{Matched objective and horizon controls (KRAFTON's weighted loss omitted). AUCs average three seeds after a common phase-aware validation mapping; the last two rows were added after the main analyses.}
+\label{tab:objective}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrrrr}
+\toprule
+ & \multicolumn{2}{c}{Erangel} & \multicolumn{2}{c}{Taego} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Loss and horizon & Within & Within & Within & Within \\
+ & phase & match & phase & match \\
+\midrule
+Cox, full & 0.764 & 0.766 & 0.762 & 0.772 \\
+Cox, next phase & 0.773 & 0.778 & 0.775 & 0.787 \\
+BCE, next phase & 0.779 & 0.779 & 0.782 & 0.786 \\
+Cox + BCE, next phase & 0.776 & 0.780 & 0.780 & 0.788 \\
+Cox + 4\,BCE, next phase & 0.778 & 0.778 & 0.782 & 0.788 \\
+Conditional logistic, next phase & 0.772 & 0.777 & 0.774 & 0.788 \\
+\bottomrule
+\end{tabular}
+\end{table}

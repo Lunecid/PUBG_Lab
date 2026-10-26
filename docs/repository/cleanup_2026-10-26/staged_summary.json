@@ -1,0 +1,15 @@
+{
+  "changed_files": 651,
+  "status_counts": {
+    "M": 15,
+    "D": 6,
+    "A": 630
+  },
+  "forbidden_paths": [],
+  "preservation_unexpected_changes": [],
+  "diff_check_exit_code": 2,
+  "diff_check_output_lines": 612,
+  "preexisting_whitespace_files": 49,
+  "whitespace_files_hash_preserved": true,
+  "new_organization_diff_check_passed": true
+}

@@ -1,0 +1,27 @@
+# SAC 2027 v18 원고 (평가 논문 틀: 원리 → 예측 → 검증)
+
+- 원고: `main.tex` → `main.pdf`(9쪽). 빌드: `tectonic -X compile main.tex`.
+- v17 마지막 판(v17f)은 `../v17_revision/`에 그대로 있다. v18은 앞부분 순서와 틀만 바꾼 부분 재구성이다(변경 내용은 `CHANGES_KO.md` 13절).
+- 보충 노트는 쓰지 않는다(SAC 부록 규정이 불명확해 보수적으로 잘라냈다). 옛 파일은 `unused_supplement/`에 보관만 한다.
+- 절 구성: 1 서론 → 2 왜 평가 단위가 비교를 정하는가(쌍 분해, 손실 불변성, 지표 불변성, 예측, 관련 문헌) → 3 데이터와 과제 → 4 설계와 예측별 통제 → 5 평가 단위와 통계 → 6.1 예측 검증 → 6.2 단위별 설계 비교 → 7 함의와 한계 → 8 결론.
+- 그림
+  - 그림 1: `figures/fig_pipeline_clean.tex`(TikZ, `figures/`에서 `tectonic -X compile fig_pipeline_clean.tex`). RQ 두 개, 'ours' 표시 없음.
+  - 그림 2: `python tools/sac2027_figure_eval_units.py paper/sac2027/v18_revision/figures`(값은 `fig_eval_units_values.csv`).
+  - 옛 그림 3(서식지 연관)은 원고에서 뺐다. `figures/fig_rq1_effects.pdf`는 남아 있지만 쓰지 않는다.
+- 표
+  - 표 1(단위별 예측 부호): `main.tex` 안에 직접 쓴 표.
+  - 표 2(코호트), 표 3(입력 블록): `main.tex` 안.
+  - 표 4(목적함수 통제): `python tools/sac2027_paper_tables.py --table objective --out paper/sac2027/v18_revision/tables`.
+  - 표 5(예측 7개): 손으로 쓴 표. 값은 `control_evaluation/objective_all_cohorts/pooled.csv`.
+  - 표 6(주 결과): v17 표에서 행 이름만 손으로 바꿨다("Ours, ..." → "Reference ...", "reference recipes" → "recipe controls"). 생성기(`main_table()`)의 행 이름과 로지스틱 행은 원고와 다르다.
+  - 표 7(1차 결정): v17과 같다.
+  - 입력 대비 수치(6.2절)는 `primary_results_v2/contrasts_pooled.csv`(단계 안)와 `primary_results_v2/supplement/e2_contrasts_pooled_dl.csv`(경기 안)에서 왔다.
+- 쌍 비율: `python tools/sac2027_pair_share.py` → `reports/sac2027_patch_v14/control_evaluation/pair_share/pair_share.csv`.
+- 사전 기록(각 로그 첫 줄에 계획 파일 sha256과 실행 시각)
+  - Cox+BCE: `reports/sac2027_patch_v14/COXBCE_PLAN_KO_2026-10-09.md`, 로그 `objective_controls_coxbce.log`.
+  - 오프셋 전용: `OFFSET_ONLY_PLAN_KO_2026-10-09.md`, 로그 `offset_only.log`(launch 2026-10-08T19:27:17Z).
+  - 9개 코호트 반복: `OBJECTIVE_REPLICATION_PLAN_KO_2026-10-09.md`, 로그 `objective_controls_replication.log`.
+  - 두 최대 코호트의 BCE 단계 안 우위와 horizon 효과, 그 코호트의 중심화는 설명보다 먼저 나왔다(사전 기록 아님).
+- 결과 폴더: `control_evaluation/offset_only/`, `control_evaluation/objective_all_cohorts/`(`predictions.csv`), `objective_controls_ownloss/`, `control_evaluation/objective_match_offset/`, `control_evaluation/rq2_match_offset/`.
+- 변경 내용: `CHANGES_KO.md`. 리뷰 대응: `REVIEW_RESPONSE_KO.md`.
+- 조립 스크립트: `build_scripts/`(v16 본문에서 옮긴 블록과 저장소 갱신 절차; 저장소 갱신은 1회용이라 다시 돌리면 실패한다).

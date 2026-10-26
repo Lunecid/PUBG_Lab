@@ -1,0 +1,37 @@
+# SAC 2027 v19 원고 (v18 골격 + 입력 설계 복원 + 결과 재배치)
+
+- 원고: `main.tex` → `main.pdf`(9쪽). 빌드: `tectonic -X compile main.tex`.
+- 이전 판: v17f는 `../v17_revision/`, v18은 `../v18_revision/`에 그대로 있다. 변경 내용은 `CHANGES_KO.md` 14절에 있다.
+- 부록과 보충 노트는 쓰지 않는다(SAC 부록 규정이 불명확해 잘라내는 원칙). 서식지 연관 모형 결과는 익명 저장소 `NOTES.md`에만 남겼다.
+- 절 구성
+  - 1 서론(과제 → 단계 안 AUC의 혼합 → 시간 범위와 학습 신호 → 통제 → RQ·기여)
+  - 2 Evaluation Units and Learning Signals(정의 → 지표 성질 → 손실 성질 → 시간 범위 → 조건부 가설 H1–H4, 연구 순서)
+  - 3 데이터와 과제
+  - 4.1 Domain-Informed Input Representations, 4.2 Reference and Adapted Designs
+  - 5.1 Matched Comparisons, 5.2 Metrics, Aggregation, and Diagnostics, 5.3 Statistical Decisions and Model Selection
+  - 6.1 목적함수(RQ1) → 6.2 입력·구조 대비(RQ2) → 6.3 설계 전체와 검토 효용(RQ2)
+  - 7 함의와 한계, 8 결론
+- 그림
+  - 그림 1: `figures/fig_pipeline_clean.tex`(`figures/`에서 `tectonic -X compile fig_pipeline_clean.tex`). 입력 상자는 "Habitat context + team state"이다. 첫 줄은 exposure · movement · local competition, 둘째 줄은 status · combat · items · relations. 괄호 아래 상자는 "Input and structure contrasts"다.
+  - 그림 2: `python tools/sac2027_figure_eval_units.py paper/sac2027/v19_revision/figures`. 캡션에서 첫째·셋째 열은 평가 단위, 둘째 열은 점수 변환(중심화), 넷째 열은 집계 점검으로 구분했다.
+- 표
+  - 표 1: 공통 점수 이동 c에 대한 지표·손실의 성질(`main.tex` 안). 예측 부호는 2절 가설 문장으로 옮겼다.
+  - 표 2(코호트), 표 3(입력 블록; 서식지 행을 세 차원으로 정리): `main.tex` 안.
+  - 표 4(목적함수 통제): `python tools/sac2027_paper_tables.py --table objective --out paper/sac2027/v19_revision/tables`.
+  - 표 5(예측 7개): 손으로 쓴 표. 값은 `control_evaluation/objective_all_cohorts/pooled.csv`. H 열(H0–H4)은 2절 가설과 대응한다(v19b).
+  - 표 6(입력·구조 대비, 새 표): `main.tex` 안.
+    - 입력 행: `primary_results_v2/contrasts_pooled.csv`(단계 안), `primary_results_v2/supplement/e2_contrasts_pooled_dl.csv`(경기 안). 서식지 제거 수치는 v17 본문과 같다.
+    - 구조 행: team attention은 v17 본문과 같고, PTR − GBDT는 `control_evaluation/main_population/pooled.json`.
+  - 표 7(1차 결정): v17과 같다. 사전에 정한 규칙(overall AUC, 순위상관)을 그대로 둔다.
+  - 표 8(주 결과): 6.3절로 옮겼다. 열 순서는 단계 안 → 경기 안 → 전체 → 사람 팀이고, recipe controls 두 행은 뺐다. 행 이름은 손으로 바꿨으므로 생성기(`main_table()`) 출력과 다르다.
+- 오프셋 전용의 기울기 a는 제약 없이 적합했다. 코드(`tools/sac2027_offset_only.py`)가 a>0을 검사하고, 여섯 번 적합한 값은 0.99–1.16이다(`control_evaluation/offset_only/fits.json`).
+- 경쟁 피처는 팀의 마지막 생존 격자점에서 3-D 중심점 거리로 센다(`model_stgcn/phase_v2/features.py`, `grid.py`의 `D`).
+- 사전 기록(각 로그 첫 줄에 계획 파일 sha256과 실행 시각)
+  - Cox+BCE: `reports/sac2027_patch_v14/COXBCE_PLAN_KO_2026-10-09.md`.
+  - 오프셋 전용: `OFFSET_ONLY_PLAN_KO_2026-10-09.md`(launch 2026-10-08T19:27:17Z).
+  - 9개 코호트 반복: `OBJECTIVE_REPLICATION_PLAN_KO_2026-10-09.md`.
+  - 두 최대 코호트의 horizon 효과, BCE 단계 안 우위, 중심화는 설명보다 먼저 나왔다.
+- 오프셋 전용 정보 집합 사후 민감도(v19b): `python tools/sac2027_offset_only_cutoff.py` → `control_evaluation/offset_only_cutoff/`(로그 `reports/sac2027_patch_v14/offset_only_cutoff.log`). 계획에 없던 사후 분석이다.
+- 보관본: v19a(4acm) `archive/main_v19a.*`, v19b(5acm) `archive/main_v19b.*`. 현재는 v19c다.
+- 사후 민감도 변형 4개(no_size, cutoff_only, cutoff_means, raw_risk_set): `control_evaluation/offset_only_cutoff/contrasts.csv`. 원고에는 cutoff_means(34%, 58%)와 raw_risk_set(40%, 60%)을 쓴다.
+- 리뷰 대응: `REVIEW_RESPONSE_KO.md`.

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-26",
+  "previous_commit": "a593598abff2e97ec78de16438ef64b2e74897f0",
+  "previous_tag": "repo-2026.10.26-r1",
+  "new_release": "2026.10.26-r2",
+  "incorrect_claim": "12 tests skipped because of DB dependency",
+  "corrected_claim": "all 12 skipped because pyarrow is not installed",
+  "total_passed_unchanged": 133,
+  "source_model_changes": false,
+  "prior_evidence_preserved": true
+}

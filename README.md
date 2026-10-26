@@ -8,7 +8,7 @@ PUBG 텔레메트리의 공간·개인·팀·경기 구조를 연구하는 저�
 - [프로젝트 지침](AGENTS.md)과 [현재 적용 범위](docs/guidelines/PUBG_APPLICATION.md)
 - [버전 목록과 재현 경로](versions/README.md)
 - [문서 색인](docs/README.md)과 [데이터 품질 색인](docs/data_layer/CORPUS_QUALITY_INDEX.md)
-- [이번 폴더 정리 기록](docs/repository/cleanup_2026-10-26/REPORT_KO.md)
+- [이번 폴더 정리 기록](docs/repository/cleanup_2026-10-26/REPORT_KO_v2.md)
 
 ## 폴더 안내
 
@@ -28,7 +28,7 @@ PUBG 텔레메트리의 공간·개인·팀·경기 구조를 연구하는 저�
 
 코드의 V3, 전처리의 v3, 원고의 v20은 서로 다른 버전 축이다.
 [registry.json](versions/registry.json)은 이 구분을 유지한다.
-`VERSION`의 `2026.10.26-r1`은 정리한 저장소의 첫 릴리스이며 새 모델 성능 결과를 뜻하지 않는다.
+`VERSION`의 `2026.10.26-r2`은 정리한 저장소의 첫 릴리스이며 새 모델 성능 결과를 뜻하지 않는다.
 
 ## 보존과 공개 범위
 
@@ -40,7 +40,7 @@ PUBG 텔레메트리의 공간·개인·팀·경기 구조를 연구하는 저�
 ## 릴리스 확인
 
 ```sh
-python3 tools/repository_release.py verify --release 2026.10.26-r1
+python3 tools/repository_release.py verify --release 2026.10.26-r2
 ```
 
 새 정리 릴리스는 `VERSION`과 변경 기록을 갱신하고, 시험 뒤 새로운 이름으로 생성한다.

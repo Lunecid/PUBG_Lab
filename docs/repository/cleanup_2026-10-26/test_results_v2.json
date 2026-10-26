@@ -1,0 +1,50 @@
+{
+  "device": "CPU",
+  "python": "3.11.5",
+  "environment": "existing system Python; .venv has no numpy/torch/pytest and was not changed",
+  "db_access": "disabled by unsetting PG_PASSWORD, PGPASSWORD, DATABASE_URL",
+  "bytecode_cache": "PYTHONDONTWRITEBYTECODE=1",
+  "threads": {
+    "OPENBLAS_NUM_THREADS": 1,
+    "OMP_NUM_THREADS": 1,
+    "MKL_NUM_THREADS": 1
+  },
+  "runs": [
+    {
+      "command": "python3 -m pytest tests/world_model tests/movement_diffusion -q -p no:cacheprovider",
+      "passed": 82,
+      "skipped": 0,
+      "seconds": 8.1
+    },
+    {
+      "command": "python3 -m pytest tests/test_sagong2025.py tests/test_v2_consumers_sagong.py tests/test_sac2027_gatv2.py tests/test_sac2027_history_controls.py tests/test_sac2027_objective_controls.py tests/test_erangel_100m.py tests/corpus_quality -q -p no:cacheprovider",
+      "passed": 51,
+      "skipped": 12,
+      "warnings": 3,
+      "seconds": 4.33,
+      "skip_reason": "pyarrow is not installed"
+    }
+  ],
+  "total_passed": 133,
+  "total_skipped": 12,
+  "warning_kinds": [
+    "existing PyTorch/PyG deprecation warnings"
+  ],
+  "not_run": [
+    "DB-backed tests",
+    "training experiments",
+    "protected/final-test evaluation",
+    "LaTeX rendering",
+    "frontend builds"
+  ],
+  "scope": "existing local synthetic checks; no new research result",
+  "total_skipped_reason": "missing optional dependency pyarrow, verified with -rs",
+  "correction_of": "test_results.json (r1)",
+  "followup_reason_check": {
+    "command": "python3 -m pytest tests/test_sagong2025.py tests/test_v2_consumers_sagong.py -q -rs -p no:cacheprovider",
+    "passed": 22,
+    "skipped": 12,
+    "seconds": 1.72,
+    "note": "subset rerun to identify skips; these passes are already included in the 133 total"
+  }
+}

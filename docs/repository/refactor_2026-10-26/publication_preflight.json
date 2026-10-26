@@ -1,0 +1,41 @@
+{
+  "changed_files_before_final_release_inventory": 841,
+  "by_top_level": {
+    ".editorconfig": 1,
+    ".github": 1,
+    ".gitignore": 1,
+    "AGENTS.md": 1,
+    "CHANGELOG.md": 1,
+    "CLAUDE.md": 1,
+    "CONTRIBUTING.md": 1,
+    "Makefile": 1,
+    "README.md": 1,
+    "VERSION": 1,
+    "configs": 2,
+    "docs": 21,
+    "model_stgcn": 91,
+    "movement_diffusion": 9,
+    "network_analysis": 35,
+    "pyproject.toml": 1,
+    "requirements-quality.txt": 1,
+    "scripts": 48,
+    "src": 429,
+    "stdb": 22,
+    "tests": 1,
+    "tools": 158,
+    "versions": 2,
+    "world_model": 11
+  },
+  "private_or_frozen_paths_changed": [],
+  "credential_shape_flags": [],
+  "diff_check_passed": true,
+  "ignore_boundaries_verified": {
+    "data/not-public.json": true,
+    "third_party/krafton_pubg_winprob/src/data/dataset.py": true,
+    "src/pubg_lab/data/stdb/conn.py": false,
+    "src/pubg_lab/data/stdb/schema.sql": false,
+    "src/pubg_lab/data/.env": true
+  },
+  "remote_ci_not_run": true,
+  "rejected_candidate_retained": true
+}

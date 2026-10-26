@@ -1,0 +1,42 @@
+{
+  "attempts": [
+    {
+      "scope": "first migrated scientific regression",
+      "failed": 9,
+      "passed": 130,
+      "skipped": 12,
+      "cause": "old spec-loader callers retained the shim module; exports were only redirected via sys.modules",
+      "fix": "also forward attributes and wildcard exports from the retained shim object",
+      "recheck": "corpus quality 9 passed; canonical/old module identity still equal"
+    },
+    {
+      "scope": "first new structural test",
+      "failed": 1,
+      "passed": 145,
+      "skipped": 12,
+      "cause": "a text-based shim check depended on one-line formatting",
+      "fix": "validate AST forwarding target and absence of business definitions",
+      "recheck": "7 architecture tests passed"
+    },
+    {
+      "scope": "format validation",
+      "cause": "an obsolete noqa marker removal initially left comment text as Python syntax",
+      "fix": "restored the comment marker; no executable AST change",
+      "recheck": "771 files formatted and lint clean"
+    },
+    {
+      "scope": "formatter coverage",
+      "cause": "old unanchored data/ ignore pattern also excluded the new source data package",
+      "fix": "anchor private root data rule and include only tracked SQL source resources; lint/format ignores no source package",
+      "recheck": "all 396 canonical source files checked"
+    },
+    {
+      "scope": "publication preflight",
+      "cause": "anchoring global data/ rules made five previously ignored third-party data-library sources visible to git add",
+      "fix": "restore global data/ exclusions with a narrow canonical-source exception; untrack only the accidental staged additions while keeping local files",
+      "rejected_candidate_preserved": "rejected_candidate.json",
+      "public_push_occurred": false
+    }
+  ],
+  "research_results_changed": false
+}

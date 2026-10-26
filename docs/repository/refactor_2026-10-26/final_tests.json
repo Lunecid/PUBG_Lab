@@ -1,0 +1,23 @@
+{
+  "device": "CPU",
+  "passed": 246,
+  "skipped": 12,
+  "skip_reason": "pyarrow not installed",
+  "seconds": 10.18,
+  "warnings": 4,
+  "warning_kinds": [
+    "existing PyG/PyTorch deprecations",
+    "existing third-party docstring escape warning"
+  ],
+  "architecture_tests_included": 7,
+  "model_tests_are_synthetic": true,
+  "real_DB_API_services_or_final_test_access": false,
+  "full_frozen_checkpoint_compatibility_tested": false,
+  "remote_GitHub_CI_run": false,
+  "quality_checks": {
+    "structure": true,
+    "format_files": 771,
+    "lint": true,
+    "wheel_isolated_import": true
+  }
+}

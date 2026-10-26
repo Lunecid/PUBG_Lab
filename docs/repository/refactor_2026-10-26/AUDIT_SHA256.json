@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "release": "2026.10.26-r4",
+  "prior_audit_seals_unchanged": true,
+  "files": [
+    {
+      "path": "PLAN_KO.md",
+      "bytes": 3166,
+      "sha256": "d10f3ffc206afa6aa900052f209551b8a9f9486f87c13dd6b6cfc9fabf87737a"
+    },
+    {
+      "path": "REPORT_KO.md",
+      "bytes": 5854,
+      "sha256": "e9f96088acacaedf3731faf982c9602105dea8858f36bf3512c1e0da03ad8535"
+    },
+    {
+      "path": "baseline_identity.json",
+      "bytes": 159,
+      "sha256": "b51163b80f653bfda2678dcc2febeda741f9e089fb312ff8c32526dd882cb7ce"
+    },
+    {
+      "path": "failed_attempts.json",
+      "bytes": 1847,
+      "sha256": "a91105d14c7b4229286f84836e9809f727a8ec1728dde4e008921784a21f388a"
+    },
+    {
+      "path": "final_tests.json",
+      "bytes": 597,
+      "sha256": "df428ebe3f1256652529cba69b23b51a53c8ccafe49ea1f95a2508ddf74643f2"
+    },
+    {
+      "path": "format_ast_validation.json",
+      "bytes": 375,
+      "sha256": "9de6e34083a12392557e9e5c320698732d3610af9369e38a06e5f322525d4153"
+    },
+    {
+      "path": "frozen_paths_check.json",
+      "bytes": 252,
+      "sha256": "32c94db609a0031442ad0ac4fd12a08eea05d602d66e15168ee7ee51e6739497"
+    },
+    {
+      "path": "graphify_validation.json",
+      "bytes": 344,
+      "sha256": "9ff99b2d2ae4aa51ef972d2303c4d4ad28cd9a145dedfd594654df4d32696e3b"
+    },
+    {
+      "path": "migration_receipt.json",
+      "bytes": 176291,
+      "sha256": "a99c701e071e480950c4e77f0a84a43d5492b83ff58746e2cd64126da309e716"
+    },
+    {
+      "path": "move_plan.json",
+      "bytes": 89877,
+      "sha256": "1e7de795fb2b3c1f872def0f4e37a612ee3bc630f167a801d4fdc87bb3392beb"
+    },
+    {
+      "path": "publication_preflight.json",
+      "bytes": 1029,
+      "sha256": "a6b36fd956b505251c335fab3fc048d3b43ef6581c9bbd7e7e78a155ee05a2de"
+    },
+    {
+      "path": "quality_tool.json",
+      "bytes": 411,
+      "sha256": "892b0905e5a962c42be0ef33c50f313f69378195fa695e73ef252c055989443e"
+    },
+    {
+      "path": "rejected_candidate.json",
+      "bytes": 673,
+      "sha256": "4cd93411b5676368a38b1e6b9eb9c1af0936e76cdb7fef28897350d00e22de5b"
+    },
+    {
+      "path": "rejected_candidates/2026.10.26-r4-preflight-01/manifest.json",
+      "bytes": 860722,
+      "sha256": "ebeb8de27c60ceb51d1bee81d5f31e9e33d09e996a9a3572973b38d89a0e1ff4"
+    },
+    {
+      "path": "release_validation.json",
+      "bytes": 79,
+      "sha256": "65b16a615c32d53b3cb8dbec740ba8555c79370ba76e375008643466265a2583"
+    },
+    {
+      "path": "schema_resources.json",
+      "bytes": 347,
+      "sha256": "e58594088d8ae19d65073b32aaca43fabb126430e41394acb785046dd4611740"
+    },
+    {
+      "path": "snapshot_path_validation.json",
+      "bytes": 953,
+      "sha256": "696b47fd881f1b04950cf2d977a914ff13e2004d4250397cac0af33a38270595"
+    },
+    {
+      "path": "toolchain_artifacts.json",
+      "bytes": 828,
+      "sha256": "6910ce6907f4aff391316f2a4c345901a5cfdc87450a192151157bb8f7196d94"
+    },
+    {
+      "path": "wheel_validation.json",
+      "bytes": 537,
+      "sha256": "99f92ed1f587bb196afeff008a7e5cb7db8fbbcfa1842744583b2a104942c088"
+    }
+  ]
+}

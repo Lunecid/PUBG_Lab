@@ -1,8 +1,11 @@
-"""
-PUBG Network Analysis (sub-analysis)
-=====================================
-Chapter 3 기반 기본 네트워크 분석.
+"""Compatibility entry point; implementation: src/pubg_lab/analysis/network/__init__.py."""
 
-기존 main.py 파이프라인의 .pt 파일 (player/zone 노드, ally+encounter 엣지) 을
-그대로 재사용해 centrality 등 지표를 계산하고 인터랙티브 HTML로 출력.
-"""
+import sys as _compat_sys
+from pathlib import Path as _CompatPath
+
+_source = _CompatPath(__file__).resolve().parents[1] / "src"
+if str(_source) not in _compat_sys.path:
+    _compat_sys.path.insert(0, str(_source))
+from pubg_lab.common.compat import redirect as _redirect
+
+_redirect(globals(), "pubg_lab.analysis.network", package=True)

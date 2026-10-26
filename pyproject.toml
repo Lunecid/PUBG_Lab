@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools==80.9.0", "wheel==0.45.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pubg-lab"
+version = "2026.10.26.post4"
+description = "Versioned PUBG research components and project applications"
+readme = "README.md"
+requires-python = ">=3.11"
+dynamic = ["dependencies"]
+
+[project.optional-dependencies]
+dev = ["pytest==9.0.3", "ruff==0.14.1"]
+
+[project.scripts]
+pubg-lab = "pubg_lab.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["pubg_lab*"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.package-data]
+pubg_lab = ["**/*.json", "**/*.template", "**/*.txt", "**/*.md", "**/*.sql"]
+
+[tool.setuptools.exclude-package-data]
+"*" = [".env*", "*.pem", "*.key", "**/split_v3.py", "**/splits.py"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "."]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+respect-gitignore = false
+include = [
+  "src/**/*.py", "tests/architecture/**/*.py",
+  "world_model/**/*.py", "movement_diffusion/**/*.py", "model_stgcn/**/*.py",
+  "stdb/**/*.py", "network_analysis/**/*.py", "tools/**/*.py", "scripts/*.py",
+]
+extend-exclude = [
+  "**/split_v3.py", "**/splits.py", "model_stgcn/checkpoints/",
+  "model_stgcn/dumps/", "model_stgcn/experiment_datasets/", "model_stgcn/etl_runs/",
+]
+
+[tool.ruff.lint]
+select = ["E401", "E9", "F63", "F7", "F82"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"

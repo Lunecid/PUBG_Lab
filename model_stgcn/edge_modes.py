@@ -1,91 +1,11 @@
-"""Edge-channel ablation helpers for phase-level DynamicSTGNN experiments."""
+"""Compatibility entry point; implementation: src/pubg_lab/survival/edge_modes.py."""
 
-from __future__ import annotations
+import sys as _compat_sys
+from pathlib import Path as _CompatPath
 
-import torch
+_source = _CompatPath(__file__).resolve().parents[1] / "src"
+if str(_source) not in _compat_sys.path:
+    _compat_sys.path.insert(0, str(_source))
+from pubg_lab.common.compat import redirect as _redirect
 
-from stdb.queries import PHASE_EDGE_TYPES
-
-
-EDGE_MODE_CHOICES = (
-    "full",
-    "none",
-    "proximity",
-    "proximity_combat",
-    "proximity_copressure",
-    "combat_only",
-    "copressure_only",
-    # Directed-combat ablation modes — require the 4-channel layout
-    # (--combat-in / include_combat_in), i.e. "combat_in" in edge_types.
-    "proximity_combat_in",
-    "full_combat_in",
-)
-
-
-def active_edge_indices(edge_mode: str, edge_types: list[str] | tuple[str, ...] = PHASE_EDGE_TYPES) -> list[int]:
-    """Return channel indices kept for an ablation mode."""
-    edge_index = {name: i for i, name in enumerate(edge_types)}
-
-    def _require(name: str) -> int:
-        if name not in edge_index:
-            raise ValueError(
-                f"edge_mode '{edge_mode}' needs channel '{name}' but edge_types={list(edge_types)} "
-                "— train/eval with --combat-in (include_combat_in=True)"
-            )
-        return edge_index[name]
-
-    if edge_mode == "full":
-        return list(range(len(edge_types)))
-    if edge_mode == "none":
-        return []
-    if edge_mode == "proximity":
-        return [edge_index["proximity"]]
-    if edge_mode == "proximity_combat":
-        return [edge_index["proximity"], edge_index["combat"]]
-    if edge_mode == "proximity_copressure":
-        return [edge_index["proximity"], edge_index["copressure"]]
-    if edge_mode == "combat_only":
-        return [edge_index["combat"]]
-    if edge_mode == "copressure_only":
-        return [edge_index["copressure"]]
-    if edge_mode == "proximity_combat_in":
-        return [edge_index["proximity"], _require("combat_in")]
-    if edge_mode == "full_combat_in":
-        _require("combat_in")
-        # everything except the attacker-receives channel: isolates the
-        # victim-receives direction against the default "full" (E=3) run
-        return [i for name, i in edge_index.items() if name != "combat"]
-    raise ValueError(f"unknown edge_mode: {edge_mode}")
-
-
-def apply_edge_mode(
-    A: torch.Tensor,
-    edge_mode: str,
-    edge_types: list[str] | tuple[str, ...] = PHASE_EDGE_TYPES,
-) -> torch.Tensor:
-    """Zero inactive edge channels while preserving tensor shape.
-
-    The DynamicSTGNN residual path remains active. Therefore `none` is a
-    sequence-only neural baseline with no neighbor aggregation.
-    """
-    keep = active_edge_indices(edge_mode, edge_types)
-    if len(keep) == len(edge_types):
-        return A
-    out = torch.zeros_like(A)
-    if keep:
-        out[:, :, keep] = A[:, :, keep]
-    return out
-
-
-def edge_active_mask(
-    edge_mode: str,
-    edge_types: list[str] | tuple[str, ...] = PHASE_EDGE_TYPES,
-    *,
-    device: torch.device | None = None,
-) -> torch.Tensor:
-    """Boolean mask for edge channels active in a model run."""
-    mask = torch.zeros(len(edge_types), dtype=torch.bool, device=device)
-    keep = active_edge_indices(edge_mode, edge_types)
-    if keep:
-        mask[keep] = True
-    return mask
+_redirect(globals(), "pubg_lab.survival.edge_modes", package=False)

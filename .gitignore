@@ -328,3 +328,9 @@ tools/movement_diffusion/split_v3.py
 !.env.example
 *.pem
 *.key
+
+# Canonical source schemas are code, distinct from private SQL data dumps.
+!src/pubg_lab/data/stdb/*.sql
+
+# Only the canonical source data package is exempt; other data/ trees stay local.
+!src/pubg_lab/data/

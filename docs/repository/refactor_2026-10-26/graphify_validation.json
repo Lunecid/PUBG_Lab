@@ -1,0 +1,12 @@
+{
+  "scope": "canonical Python source only",
+  "files": 396,
+  "nodes": 5254,
+  "edges": 17521,
+  "seconds": 7.0411863330000415,
+  "llm_input_tokens": 0,
+  "llm_output_tokens": 0,
+  "private_source_read": false,
+  "raw_data_or_services_accessed": false,
+  "mode": "graphify local AST; not proof of runtime coverage or absence of unused code"
+}

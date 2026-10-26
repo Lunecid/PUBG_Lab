@@ -1,0 +1,10 @@
+{
+  "tool": "ruff",
+  "version": "0.14.1",
+  "source": "https://pypi.org/project/ruff/0.14.1/",
+  "license_source": "https://github.com/astral-sh/ruff/blob/main/LICENSE",
+  "wheel": "ruff-0.14.1-py3-none-macosx_11_0_arm64.whl",
+  "sha256": "d6191903d39ac156921398e9c86b7354d15e3c93772e7dbf26c9fcae59ceccd5",
+  "environment": "/private/tmp/pubg-code-quality-20261026",
+  "training_environment_modified": false
+}

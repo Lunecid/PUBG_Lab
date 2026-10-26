@@ -1,0 +1,13 @@
+{
+  "unchanged_frozen_paths": [
+    "data",
+    "reports",
+    "paper",
+    "third_party",
+    "legacy",
+    "versions/releases"
+  ],
+  "changed_files": [],
+  "protected_split_bodies_not_read_or_moved": true,
+  "old_executable_shebangs_restored": 47
+}

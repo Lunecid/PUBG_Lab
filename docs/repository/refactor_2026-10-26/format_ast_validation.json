@@ -1,0 +1,9 @@
+{
+  "files": 374,
+  "unexplained_ast_changes": [],
+  "formatter": "ruff 0.14.1",
+  "ordered_import_statements_normalized": true,
+  "import_sorting_not_performed": true,
+  "explicit_provenance_only_allowance": "train_world_model_g2.main sources list points to canonical implementation and shared path/build metadata",
+  "model_loss_metric_sampling_constants_changed": false
+}

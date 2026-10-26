@@ -1,0 +1,12 @@
+[
+  {
+    "old": "stdb/schema.sql",
+    "new": "src/pubg_lab/data/stdb/schema.sql",
+    "sha256": "45f3a81327f45802c49591d8abff5eb03b1249b27a07f6ba55ec42165b51270b"
+  },
+  {
+    "old": "stdb/schema_rq1.sql",
+    "new": "src/pubg_lab/data/stdb/schema_rq1.sql",
+    "sha256": "95116ab3788a39deb6d448f7bee02a4aafe227a70095f4fd4d086d4a66ec4227"
+  }
+]

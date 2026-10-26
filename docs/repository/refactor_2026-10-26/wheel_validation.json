@@ -1,0 +1,18 @@
+{
+  "wheel": "pubg_lab-2026.10.26.post4-py3-none-any.whl",
+  "sha256": "bfefdb6ec5f5f64e995ce96fc8b418d2b29b4b3cd74d46475e90f7a8fef6bf5b",
+  "bytes": 1716142,
+  "isolated_import": {
+    "isolated_import": true,
+    "commands": 284,
+    "modules": [
+      "pubg_lab.world_model.encoder",
+      "pubg_lab.movement.model_v4",
+      "pubg_lab.survival.ptr.loss"
+    ]
+  },
+  "forbidden_members": [],
+  "latest_source_snapshot_code_included": true,
+  "workspace_explicitly_configured": true,
+  "repository_root_not_added_to_sys_path": true
+}

@@ -1,0 +1,23 @@
+{
+  "artifacts": [
+    {
+      "artifact": "ruff-0.14.1-py3-none-macosx_11_0_arm64.whl",
+      "sha256": "d6191903d39ac156921398e9c86b7354d15e3c93772e7dbf26c9fcae59ceccd5",
+      "source": "https://pypi.org/",
+      "environment": "/private/tmp/pubg-code-quality-20261026"
+    },
+    {
+      "artifact": "setuptools-80.9.0-py3-none-any.whl",
+      "sha256": "062d34222ad13e0cc312a4c02d73f059e86a4acbfbdea8f8f76b28c99f306922",
+      "source": "https://pypi.org/",
+      "environment": "/private/tmp/pubg-code-quality-20261026"
+    },
+    {
+      "artifact": "wheel-0.45.1-py3-none-any.whl",
+      "sha256": "708e7481cc80179af0e556bbf0cc00b8444c7321e2700b8d8580231d13017248",
+      "source": "https://pypi.org/",
+      "environment": "/private/tmp/pubg-code-quality-20261026"
+    }
+  ],
+  "training_environment_modified": false
+}

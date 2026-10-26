@@ -1,0 +1,9 @@
+{
+  "original_path": "versions/releases/2026.10.26-r4/manifest.json",
+  "retained_path": "docs/repository/refactor_2026-10-26/rejected_candidates/2026.10.26-r4-preflight-01/manifest.json",
+  "sha256": "ebeb8de27c60ceb51d1bee81d5f31e9e33d09e996a9a3572973b38d89a0e1ff4",
+  "released_or_tagged": false,
+  "reason": "publication preflight rejected five previously ignored reference-library source files exposed by a broad data ignore change",
+  "action": "restore original ignore behavior everywhere except canonical src/pubg_lab/data; retain candidate unchanged and create final inventory only after passing preflight",
+  "local_reference_source_deleted_or_modified": false
+}

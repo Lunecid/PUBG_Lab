@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "layout": "src/pubg_lab",
+  "domains": {
+    "common": {
+      "responsibility": "Repository paths and compatibility execution only",
+      "dependencies": "Python standard library only"
+    },
+    "data": {
+      "responsibility": "STDB access, quality rules and data preparation",
+      "dependencies": "Shared infrastructure and scientific source contracts"
+    },
+    "world_model": {
+      "responsibility": "World-model inputs, encoder components, pretraining and owned CLI",
+      "dependencies": "Shared infrastructure, typed graph inputs and approved data views"
+    },
+    "movement": {
+      "responsibility": "Joint player/team movement models, datasets, metrics and owned CLI",
+      "dependencies": "Shared infrastructure and spatial/data components"
+    },
+    "survival": {
+      "responsibility": "BR/PTR/survival representation and model components",
+      "dependencies": "Data contracts; private split access remains outside the public package"
+    },
+    "spatial": {
+      "responsibility": "Erangel and Caldera spatial preparation and visualization",
+      "dependencies": "Shared workspace paths and explicit data inputs"
+    },
+    "analysis": {
+      "responsibility": "Network-analysis features, metrics and application orchestration",
+      "dependencies": "Scientific datasets and shared infrastructure"
+    },
+    "collectors": {
+      "responsibility": "Explicitly invoked data-collection applications",
+      "dependencies": "Operational API and DB configuration; never started by package discovery"
+    },
+    "projects": {
+      "responsibility": "SAC, BR and figure applications composing reusable components",
+      "dependencies": "Domain libraries; do not become dependencies of common infrastructure"
+    },
+    "repository": {
+      "responsibility": "Release inventory and static codebase checks",
+      "dependencies": "Python standard library and common workspace paths"
+    }
+  },
+  "frozen_paths": [
+    "data",
+    "reports",
+    "paper",
+    "third_party",
+    "legacy",
+    "versions/releases"
+  ],
+  "private_source_exceptions": [
+    "model_stgcn/splits.py",
+    "tools/movement_diffusion/split_v3.py"
+  ],
+  "research_values_remain_in_original_component_definitions": true
+}

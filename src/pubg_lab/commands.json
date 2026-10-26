@@ -1,0 +1,1422 @@
+{
+  "survival.baselines": {
+    "module": "pubg_lab.survival.baselines",
+    "old_path": "model_stgcn/baselines.py",
+    "owner": "survival"
+  },
+  "survival.calibration": {
+    "module": "pubg_lab.survival.calibration",
+    "old_path": "model_stgcn/calibration.py",
+    "owner": "survival"
+  },
+  "survival.domain-ablation": {
+    "module": "pubg_lab.survival.domain_ablation",
+    "old_path": "model_stgcn/domain_ablation.py",
+    "owner": "survival"
+  },
+  "survival.dump-phase-tier": {
+    "module": "pubg_lab.survival.dump_phase_tier",
+    "old_path": "model_stgcn/dump_phase_tier.py",
+    "owner": "survival"
+  },
+  "survival.dump-phase-tier-v2": {
+    "module": "pubg_lab.survival.dump_phase_tier_v2",
+    "old_path": "model_stgcn/dump_phase_tier_v2.py",
+    "owner": "survival"
+  },
+  "survival.dump-player-tier": {
+    "module": "pubg_lab.survival.dump_player_tier",
+    "old_path": "model_stgcn/dump_player_tier.py",
+    "owner": "survival"
+  },
+  "survival.dyn-stgnn": {
+    "module": "pubg_lab.survival.dyn_stgnn",
+    "old_path": "model_stgcn/dyn_stgnn.py",
+    "owner": "survival"
+  },
+  "survival.edge-sanity": {
+    "module": "pubg_lab.survival.edge_sanity",
+    "old_path": "model_stgcn/edge_sanity.py",
+    "owner": "survival"
+  },
+  "survival.eval": {
+    "module": "pubg_lab.survival.eval",
+    "old_path": "model_stgcn/eval.py",
+    "owner": "survival"
+  },
+  "survival.eval-mr": {
+    "module": "pubg_lab.survival.eval_mr",
+    "old_path": "model_stgcn/eval_mr.py",
+    "owner": "survival"
+  },
+  "survival.eval-phase": {
+    "module": "pubg_lab.survival.eval_phase",
+    "old_path": "model_stgcn/eval_phase.py",
+    "owner": "survival"
+  },
+  "survival.feature-ablation": {
+    "module": "pubg_lab.survival.feature_ablation",
+    "old_path": "model_stgcn/feature_ablation.py",
+    "owner": "survival"
+  },
+  "survival.infer": {
+    "module": "pubg_lab.survival.infer",
+    "old_path": "model_stgcn/infer.py",
+    "owner": "survival"
+  },
+  "survival.manifest-importance": {
+    "module": "pubg_lab.survival.manifest_importance",
+    "old_path": "model_stgcn/manifest_importance.py",
+    "owner": "survival"
+  },
+  "survival.novelty-analysis": {
+    "module": "pubg_lab.survival.novelty_analysis",
+    "old_path": "model_stgcn/novelty_analysis.py",
+    "owner": "survival"
+  },
+  "survival.phase-result-analysis": {
+    "module": "pubg_lab.survival.phase_result_analysis",
+    "old_path": "model_stgcn/phase_result_analysis.py",
+    "owner": "survival"
+  },
+  "survival.phase-wise-eval": {
+    "module": "pubg_lab.survival.phase_wise_eval",
+    "old_path": "model_stgcn/phase_wise_eval.py",
+    "owner": "survival"
+  },
+  "survival.ptr.aggregate": {
+    "module": "pubg_lab.survival.ptr.aggregate",
+    "old_path": "model_stgcn/ptr/aggregate.py",
+    "owner": "survival"
+  },
+  "survival.ptr.cohorts": {
+    "module": "pubg_lab.survival.ptr.cohorts",
+    "old_path": "model_stgcn/ptr/cohorts.py",
+    "owner": "survival"
+  },
+  "survival.ptr.derived": {
+    "module": "pubg_lab.survival.ptr.derived",
+    "old_path": "model_stgcn/ptr/derived.py",
+    "owner": "survival"
+  },
+  "survival.ptr.ecomodel": {
+    "module": "pubg_lab.survival.ptr.ecomodel",
+    "old_path": "model_stgcn/ptr/ecomodel.py",
+    "owner": "survival"
+  },
+  "survival.ptr.hgb": {
+    "module": "pubg_lab.survival.ptr.hgb",
+    "old_path": "model_stgcn/ptr/hgb.py",
+    "owner": "survival"
+  },
+  "survival.ptr.learning-curve": {
+    "module": "pubg_lab.survival.ptr.learning_curve",
+    "old_path": "model_stgcn/ptr/learning_curve.py",
+    "owner": "survival"
+  },
+  "survival.ptr.paths": {
+    "module": "pubg_lab.survival.ptr.paths",
+    "old_path": "model_stgcn/ptr/paths.py",
+    "owner": "survival"
+  },
+  "survival.ptr.player": {
+    "module": "pubg_lab.survival.ptr.player",
+    "old_path": "model_stgcn/ptr/player.py",
+    "owner": "survival"
+  },
+  "survival.ptr.run-matrix": {
+    "module": "pubg_lab.survival.ptr.run_matrix",
+    "old_path": "model_stgcn/ptr/run_matrix.py",
+    "owner": "survival"
+  },
+  "survival.ptr.supplement": {
+    "module": "pubg_lab.survival.ptr.supplement",
+    "old_path": "model_stgcn/ptr/supplement.py",
+    "owner": "survival"
+  },
+  "survival.ptr.train": {
+    "module": "pubg_lab.survival.ptr.train",
+    "old_path": "model_stgcn/ptr/train.py",
+    "owner": "survival"
+  },
+  "survival.run-domain-training": {
+    "module": "pubg_lab.survival.run_domain_training",
+    "old_path": "model_stgcn/run_domain_training.py",
+    "owner": "survival"
+  },
+  "survival.sagong2025.--main--": {
+    "module": "pubg_lab.survival.sagong2025.__main__",
+    "old_path": "model_stgcn/sagong2025/__main__.py",
+    "owner": "survival"
+  },
+  "survival.seed-repeat-experiments": {
+    "module": "pubg_lab.survival.seed_repeat_experiments",
+    "old_path": "model_stgcn/seed_repeat_experiments.py",
+    "owner": "survival"
+  },
+  "survival.snapshot-tabular-baseline": {
+    "module": "pubg_lab.survival.snapshot_tabular_baseline",
+    "old_path": "model_stgcn/snapshot_tabular_baseline.py",
+    "owner": "survival"
+  },
+  "survival.stgcn": {
+    "module": "pubg_lab.survival.stgcn",
+    "old_path": "model_stgcn/stgcn.py",
+    "owner": "survival"
+  },
+  "survival.train": {
+    "module": "pubg_lab.survival.train",
+    "old_path": "model_stgcn/train.py",
+    "owner": "survival"
+  },
+  "survival.train-mr": {
+    "module": "pubg_lab.survival.train_mr",
+    "old_path": "model_stgcn/train_mr.py",
+    "owner": "survival"
+  },
+  "survival.train-phase": {
+    "module": "pubg_lab.survival.train_phase",
+    "old_path": "model_stgcn/train_phase.py",
+    "owner": "survival"
+  },
+  "survival.train-snapshot-phase": {
+    "module": "pubg_lab.survival.train_snapshot_phase",
+    "old_path": "model_stgcn/train_snapshot_phase.py",
+    "owner": "survival"
+  },
+  "survival.v3.adv-model": {
+    "module": "pubg_lab.survival.v3.adv_model",
+    "old_path": "model_stgcn/v3/adv_model.py",
+    "owner": "survival"
+  },
+  "survival.v3.advantage-edges": {
+    "module": "pubg_lab.survival.v3.advantage_edges",
+    "old_path": "model_stgcn/v3/advantage_edges.py",
+    "owner": "survival"
+  },
+  "survival.v3.eval": {
+    "module": "pubg_lab.survival.v3.eval",
+    "old_path": "model_stgcn/v3/eval.py",
+    "owner": "survival"
+  },
+  "survival.v3.experiment-matrix": {
+    "module": "pubg_lab.survival.v3.experiment_matrix",
+    "old_path": "model_stgcn/v3/experiment_matrix.py",
+    "owner": "survival"
+  },
+  "survival.v3.run-matrix": {
+    "module": "pubg_lab.survival.v3.run_matrix",
+    "old_path": "model_stgcn/v3/run_matrix.py",
+    "owner": "survival"
+  },
+  "survival.v3.train": {
+    "module": "pubg_lab.survival.v3.train",
+    "old_path": "model_stgcn/v3/train.py",
+    "owner": "survival"
+  },
+  "analysis.network.advanced-graph-report": {
+    "module": "pubg_lab.analysis.network.advanced_graph_report",
+    "old_path": "network_analysis/advanced_graph_report.py",
+    "owner": "analysis"
+  },
+  "analysis.network.basic-graph-analysis": {
+    "module": "pubg_lab.analysis.network.basic_graph_analysis",
+    "old_path": "network_analysis/basic_graph_analysis.py",
+    "owner": "analysis"
+  },
+  "analysis.network.build-analysis-dataset": {
+    "module": "pubg_lab.analysis.network.build_analysis_dataset",
+    "old_path": "network_analysis/build_analysis_dataset.py",
+    "owner": "analysis"
+  },
+  "analysis.network.community-detect": {
+    "module": "pubg_lab.analysis.network.community_detect",
+    "old_path": "network_analysis/community_detect.py",
+    "owner": "analysis"
+  },
+  "analysis.network.hypotheses": {
+    "module": "pubg_lab.analysis.network.hypotheses",
+    "old_path": "network_analysis/hypotheses.py",
+    "owner": "analysis"
+  },
+  "analysis.network.legacy.run-h1": {
+    "module": "pubg_lab.analysis.network.legacy.run_h1",
+    "old_path": "network_analysis/legacy/run_h1.py",
+    "owner": "analysis"
+  },
+  "analysis.network.legacy.run-report": {
+    "module": "pubg_lab.analysis.network.legacy.run_report",
+    "old_path": "network_analysis/legacy/run_report.py",
+    "owner": "analysis"
+  },
+  "analysis.network.narrative": {
+    "module": "pubg_lab.analysis.network.narrative",
+    "old_path": "network_analysis/narrative.py",
+    "owner": "analysis"
+  },
+  "analysis.network.phase-h3-analysis": {
+    "module": "pubg_lab.analysis.network.phase_h3_analysis",
+    "old_path": "network_analysis/phase_h3_analysis.py",
+    "owner": "analysis"
+  },
+  "analysis.network.phase-strategy-type-analysis": {
+    "module": "pubg_lab.analysis.network.phase_strategy_type_analysis",
+    "old_path": "network_analysis/phase_strategy_type_analysis.py",
+    "owner": "analysis"
+  },
+  "analysis.network.run": {
+    "module": "pubg_lab.analysis.network.run",
+    "old_path": "network_analysis/run.py",
+    "owner": "analysis"
+  },
+  "analysis.network.run-v2": {
+    "module": "pubg_lab.analysis.network.run_v2",
+    "old_path": "network_analysis/run_v2.py",
+    "owner": "analysis"
+  },
+  "analysis.network.st-hypothesis-analysis": {
+    "module": "pubg_lab.analysis.network.st_hypothesis_analysis",
+    "old_path": "network_analysis/st_hypothesis_analysis.py",
+    "owner": "analysis"
+  },
+  "analysis.network.strategy-type-network-analysis": {
+    "module": "pubg_lab.analysis.network.strategy_type_network_analysis",
+    "old_path": "network_analysis/strategy_type_network_analysis.py",
+    "owner": "analysis"
+  },
+  "analysis.network.team-centrality": {
+    "module": "pubg_lab.analysis.network.team_centrality",
+    "old_path": "network_analysis/team_centrality.py",
+    "owner": "analysis"
+  },
+  "analysis.network.team-network": {
+    "module": "pubg_lab.analysis.network.team_network",
+    "old_path": "network_analysis/team_network.py",
+    "owner": "analysis"
+  },
+  "projects.battle-royale.adv-analysis": {
+    "module": "pubg_lab.projects.battle_royale.adv_analysis",
+    "old_path": "scripts/adv_analysis.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.adv-precompute": {
+    "module": "pubg_lab.projects.battle_royale.adv_precompute",
+    "old_path": "scripts/adv_precompute.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.advantage-edge-feasibility": {
+    "module": "pubg_lab.projects.battle_royale.advantage_edge_feasibility",
+    "old_path": "scripts/advantage_edge_feasibility.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.analyze-graph-signal": {
+    "module": "pubg_lab.projects.battle_royale.analyze_graph_signal",
+    "old_path": "scripts/analyze_graph_signal.py",
+    "owner": "projects"
+  },
+  "spatial.caldera.assemble-caldera-o6-construct-validation-artifacts": {
+    "module": "pubg_lab.spatial.caldera.assemble_caldera_o6_construct_validation_artifacts",
+    "old_path": "scripts/assemble_caldera_o6_construct_validation_artifacts.py",
+    "owner": "spatial"
+  },
+  "projects.battle-royale.audit-spatial-features": {
+    "module": "pubg_lab.projects.battle_royale.audit_spatial_features",
+    "old_path": "scripts/audit_spatial_features.py",
+    "owner": "projects"
+  },
+  "spatial.caldera.build-caldera-map-mesh": {
+    "module": "pubg_lab.spatial.caldera.build_caldera_map_mesh",
+    "old_path": "scripts/build_caldera_map_mesh.py",
+    "owner": "spatial"
+  },
+  "spatial.caldera.build-caldera-st-3d-scene": {
+    "module": "pubg_lab.spatial.caldera.build_caldera_st_3d_scene",
+    "old_path": "scripts/build_caldera_st_3d_scene.py",
+    "owner": "spatial"
+  },
+  "data.preparation.build-data-availability-domains": {
+    "module": "pubg_lab.data.preparation.build_data_availability_domains",
+    "old_path": "scripts/build_data_availability_domains.py",
+    "owner": "data"
+  },
+  "data.preparation.build-experiment-domain-datasets": {
+    "module": "pubg_lab.data.preparation.build_experiment_domain_datasets",
+    "old_path": "scripts/build_experiment_domain_datasets.py",
+    "owner": "data"
+  },
+  "data.preparation.build-research-cohort-flat": {
+    "module": "pubg_lab.data.preparation.build_research_cohort_flat",
+    "old_path": "scripts/build_research_cohort_flat.py",
+    "owner": "data"
+  },
+  "spatial.caldera.caldera-dataset-manager": {
+    "module": "pubg_lab.spatial.caldera.caldera_dataset_manager",
+    "old_path": "scripts/caldera_dataset_manager.py",
+    "owner": "spatial"
+  },
+  "spatial.caldera.caldera-ingest-geometry-catalog": {
+    "module": "pubg_lab.spatial.caldera.caldera_ingest_geometry_catalog",
+    "old_path": "scripts/caldera_ingest_geometry_catalog.py",
+    "owner": "spatial"
+  },
+  "spatial.caldera.caldera-ingest-players": {
+    "module": "pubg_lab.spatial.caldera.caldera_ingest_players",
+    "old_path": "scripts/caldera_ingest_players.py",
+    "owner": "spatial"
+  },
+  "data.preparation.convert-raw-to-usable": {
+    "module": "pubg_lab.data.preparation.convert_raw_to_usable",
+    "old_path": "scripts/convert_raw_to_usable.py",
+    "owner": "data"
+  },
+  "projects.figures.create-pubg-safe-zone-proposal-docx": {
+    "module": "pubg_lab.projects.figures.create_pubg_safe_zone_proposal_docx",
+    "old_path": "scripts/create_pubg_safe_zone_proposal_docx.py",
+    "owner": "projects"
+  },
+  "spatial.caldera.export-caldera-mesh-cache-obj": {
+    "module": "pubg_lab.spatial.caldera.export_caldera_mesh_cache_obj",
+    "old_path": "scripts/export_caldera_mesh_cache_obj.py",
+    "owner": "spatial"
+  },
+  "spatial.caldera.export-caldera-trajectory-json": {
+    "module": "pubg_lab.spatial.caldera.export_caldera_trajectory_json",
+    "old_path": "scripts/export_caldera_trajectory_json.py",
+    "owner": "spatial"
+  },
+  "spatial.caldera.extract-caldera-local-mesh": {
+    "module": "pubg_lab.spatial.caldera.extract_caldera_local_mesh",
+    "old_path": "scripts/extract_caldera_local_mesh.py",
+    "owner": "spatial"
+  },
+  "spatial.caldera.extract-caldera-terrain-experience-features": {
+    "module": "pubg_lab.spatial.caldera.extract_caldera_terrain_experience_features",
+    "old_path": "scripts/extract_caldera_terrain_experience_features.py",
+    "owner": "spatial"
+  },
+  "projects.battle-royale.generate-dynamic-graph-example": {
+    "module": "pubg_lab.projects.battle_royale.generate_dynamic_graph_example",
+    "old_path": "scripts/generate_dynamic_graph_example.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.generate-team-phase-feature-example": {
+    "module": "pubg_lab.projects.battle_royale.generate_team_phase_feature_example",
+    "old_path": "scripts/generate_team_phase_feature_example.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.highground-signal-test": {
+    "module": "pubg_lab.projects.battle_royale.highground_signal_test",
+    "old_path": "scripts/highground_signal_test.py",
+    "owner": "projects"
+  },
+  "data.preparation.import-research-cohort-to-br-exp": {
+    "module": "pubg_lab.data.preparation.import_research_cohort_to_br_exp",
+    "old_path": "scripts/import_research_cohort_to_br_exp.py",
+    "owner": "data"
+  },
+  "spatial.caldera.make-caldera-rq3-feature-design-board": {
+    "module": "pubg_lab.spatial.caldera.make_caldera_rq3_feature_design_board",
+    "old_path": "scripts/make_caldera_rq3_feature_design_board.py",
+    "owner": "spatial"
+  },
+  "projects.figures.make-labeling-figure": {
+    "module": "pubg_lab.projects.figures.make_labeling_figure",
+    "old_path": "scripts/make_labeling_figure.py",
+    "owner": "projects"
+  },
+  "projects.figures.make-paper-figures-svg": {
+    "module": "pubg_lab.projects.figures.make_paper_figures_svg",
+    "old_path": "scripts/make_paper_figures_svg.py",
+    "owner": "projects"
+  },
+  "projects.figures.make-phase-summary-figure": {
+    "module": "pubg_lab.projects.figures.make_phase_summary_figure",
+    "old_path": "scripts/make_phase_summary_figure.py",
+    "owner": "projects"
+  },
+  "projects.figures.make-presentation-figures": {
+    "module": "pubg_lab.projects.figures.make_presentation_figures",
+    "old_path": "scripts/make_presentation_figures.py",
+    "owner": "projects"
+  },
+  "projects.figures.make-realmap-figure": {
+    "module": "pubg_lab.projects.figures.make_realmap_figure",
+    "old_path": "scripts/make_realmap_figure.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.mr-paired-significance": {
+    "module": "pubg_lab.projects.battle_royale.mr_paired_significance",
+    "old_path": "scripts/mr_paired_significance.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.phase-significance": {
+    "module": "pubg_lab.projects.battle_royale.phase_significance",
+    "old_path": "scripts/phase_significance.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.phase-time-profile": {
+    "module": "pubg_lab.projects.battle_royale.phase_time_profile",
+    "old_path": "scripts/phase_time_profile.py",
+    "owner": "projects"
+  },
+  "data.preparation.register-pubg-l1-ground": {
+    "module": "pubg_lab.data.preparation.register_pubg_l1_ground",
+    "old_path": "scripts/register_pubg_l1_ground.py",
+    "owner": "data"
+  },
+  "spatial.caldera.render-caldera-agent-experience-snapshot": {
+    "module": "pubg_lab.spatial.caldera.render_caldera_agent_experience_snapshot",
+    "old_path": "scripts/render_caldera_agent_experience_snapshot.py",
+    "owner": "spatial"
+  },
+  "spatial.caldera.render-caldera-agent-pov-animation": {
+    "module": "pubg_lab.spatial.caldera.render_caldera_agent_pov_animation",
+    "old_path": "scripts/render_caldera_agent_pov_animation.py",
+    "owner": "spatial"
+  },
+  "spatial.caldera.render-caldera-asset-snapshot": {
+    "module": "pubg_lab.spatial.caldera.render_caldera_asset_snapshot",
+    "old_path": "scripts/render_caldera_asset_snapshot.py",
+    "owner": "spatial"
+  },
+  "spatial.caldera.render-caldera-blender-clay": {
+    "module": "pubg_lab.spatial.caldera.render_caldera_blender_clay",
+    "old_path": "scripts/render_caldera_blender_clay.py",
+    "owner": "spatial"
+  },
+  "spatial.caldera.render-caldera-rq3-clean-pov-proxy": {
+    "module": "pubg_lab.spatial.caldera.render_caldera_rq3_clean_pov_proxy",
+    "old_path": "scripts/render_caldera_rq3_clean_pov_proxy.py",
+    "owner": "spatial"
+  },
+  "spatial.caldera.render-caldera-rq3-clean-situation-panels": {
+    "module": "pubg_lab.spatial.caldera.render_caldera_rq3_clean_situation_panels",
+    "old_path": "scripts/render_caldera_rq3_clean_situation_panels.py",
+    "owner": "spatial"
+  },
+  "spatial.caldera.render-caldera-rq3-zbuffer-pov": {
+    "module": "pubg_lab.spatial.caldera.render_caldera_rq3_zbuffer_pov",
+    "old_path": "scripts/render_caldera_rq3_zbuffer_pov.py",
+    "owner": "spatial"
+  },
+  "spatial.caldera.render-caldera-semantic-basemap": {
+    "module": "pubg_lab.spatial.caldera.render_caldera_semantic_basemap",
+    "old_path": "scripts/render_caldera_semantic_basemap.py",
+    "owner": "spatial"
+  },
+  "spatial.caldera.render-caldera-single-agent-topdown": {
+    "module": "pubg_lab.spatial.caldera.render_caldera_single_agent_topdown",
+    "old_path": "scripts/render_caldera_single_agent_topdown.py",
+    "owner": "spatial"
+  },
+  "data.preparation.update-data-availability-summary": {
+    "module": "pubg_lab.data.preparation.update_data_availability_summary",
+    "old_path": "scripts/update_data_availability_summary.py",
+    "owner": "data"
+  },
+  "projects.battle-royale.v3-phase-significance": {
+    "module": "pubg_lab.projects.battle_royale.v3_phase_significance",
+    "old_path": "scripts/v3_phase_significance.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.v3-resolution-significance": {
+    "module": "pubg_lab.projects.battle_royale.v3_resolution_significance",
+    "old_path": "scripts/v3_resolution_significance.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.v3-tabular-baseline": {
+    "module": "pubg_lab.projects.battle_royale.v3_tabular_baseline",
+    "old_path": "scripts/v3_tabular_baseline.py",
+    "owner": "projects"
+  },
+  "spatial.caldera.visualize-caldera-3d": {
+    "module": "pubg_lab.spatial.caldera.visualize_caldera_3d",
+    "old_path": "scripts/visualize_caldera_3d.py",
+    "owner": "spatial"
+  },
+  "data.stdb.audit-raw": {
+    "module": "pubg_lab.data.stdb.audit_raw",
+    "old_path": "stdb/audit_raw.py",
+    "owner": "data"
+  },
+  "data.stdb.build-available": {
+    "module": "pubg_lab.data.stdb.build_available",
+    "old_path": "stdb/build_available.py",
+    "owner": "data"
+  },
+  "data.stdb.conn": {
+    "module": "pubg_lab.data.stdb.conn",
+    "old_path": "stdb/conn.py",
+    "owner": "data"
+  },
+  "data.stdb.etl": {
+    "module": "pubg_lab.data.stdb.etl",
+    "old_path": "stdb/etl.py",
+    "owner": "data"
+  },
+  "data.stdb.f0-feature-etl": {
+    "module": "pubg_lab.data.stdb.f0_feature_etl",
+    "old_path": "stdb/f0_feature_etl.py",
+    "owner": "data"
+  },
+  "data.stdb.habitat-feature-etl": {
+    "module": "pubg_lab.data.stdb.habitat_feature_etl",
+    "old_path": "stdb/habitat_feature_etl.py",
+    "owner": "data"
+  },
+  "data.stdb.network-feature-etl": {
+    "module": "pubg_lab.data.stdb.network_feature_etl",
+    "old_path": "stdb/network_feature_etl.py",
+    "owner": "data"
+  },
+  "data.stdb.patch-combat-zone-pass": {
+    "module": "pubg_lab.data.stdb.patch_combat_zone_pass",
+    "old_path": "stdb/patch_combat_zone_pass.py",
+    "owner": "data"
+  },
+  "data.stdb.phase-edge-etl": {
+    "module": "pubg_lab.data.stdb.phase_edge_etl",
+    "old_path": "stdb/phase_edge_etl.py",
+    "owner": "data"
+  },
+  "data.stdb.phase-spatial-feature-etl": {
+    "module": "pubg_lab.data.stdb.phase_spatial_feature_etl",
+    "old_path": "stdb/phase_spatial_feature_etl.py",
+    "owner": "data"
+  },
+  "data.stdb.queries": {
+    "module": "pubg_lab.data.stdb.queries",
+    "old_path": "stdb/queries.py",
+    "owner": "data"
+  },
+  "data.stdb.rq1-feature-etl": {
+    "module": "pubg_lab.data.stdb.rq1_feature_etl",
+    "old_path": "stdb/rq1_feature_etl.py",
+    "owner": "data"
+  },
+  "data.stdb.skill-coverage-audit": {
+    "module": "pubg_lab.data.stdb.skill_coverage_audit",
+    "old_path": "stdb/skill_coverage_audit.py",
+    "owner": "data"
+  },
+  "data.stdb.skill-proxy-etl": {
+    "module": "pubg_lab.data.stdb.skill_proxy_etl",
+    "old_path": "stdb/skill_proxy_etl.py",
+    "owner": "data"
+  },
+  "data.stdb.skill-rating-proxy-etl": {
+    "module": "pubg_lab.data.stdb.skill_rating_proxy_etl",
+    "old_path": "stdb/skill_rating_proxy_etl.py",
+    "owner": "data"
+  },
+  "data.stdb.snapshot-feature-etl": {
+    "module": "pubg_lab.data.stdb.snapshot_feature_etl",
+    "old_path": "stdb/snapshot_feature_etl.py",
+    "owner": "data"
+  },
+  "data.stdb.v2-view": {
+    "module": "pubg_lab.data.stdb.v2_view",
+    "old_path": "stdb/v2_view.py",
+    "owner": "data"
+  },
+  "data.stdb.z-affordance-feature-etl": {
+    "module": "pubg_lab.data.stdb.z_affordance_feature_etl",
+    "old_path": "stdb/z_affordance_feature_etl.py",
+    "owner": "data"
+  },
+  "projects.battle-royale.aggregate-o7-advantage-readout": {
+    "module": "pubg_lab.projects.battle_royale.aggregate_o7_advantage_readout",
+    "old_path": "tools/aggregate_o7_advantage_readout.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.analyze-o7-advantage-rank-bridge": {
+    "module": "pubg_lab.projects.battle_royale.analyze_o7_advantage_rank_bridge",
+    "old_path": "tools/analyze_o7_advantage_rank_bridge.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.analyze-o7-advantage-readout": {
+    "module": "pubg_lab.projects.battle_royale.analyze_o7_advantage_readout",
+    "old_path": "tools/analyze_o7_advantage_readout.py",
+    "owner": "projects"
+  },
+  "data.quality.audit-bot-trajectories": {
+    "module": "pubg_lab.data.quality.audit_bot_trajectories",
+    "old_path": "tools/audit_bot_trajectories.py",
+    "owner": "data"
+  },
+  "data.quality.audit-decision-state-schema": {
+    "module": "pubg_lab.data.quality.audit_decision_state_schema",
+    "old_path": "tools/audit_decision_state_schema.py",
+    "owner": "data"
+  },
+  "projects.battle-royale.audit-o1-survival-capital": {
+    "module": "pubg_lab.projects.battle_royale.audit_o1_survival_capital",
+    "old_path": "tools/audit_o1_survival_capital.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.audit-o6-z-ladder-availability": {
+    "module": "pubg_lab.projects.battle_royale.audit_o6_z_ladder_availability",
+    "old_path": "tools/audit_o6_z_ladder_availability.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.audit-o7-advantage-edge-shuffle": {
+    "module": "pubg_lab.projects.battle_royale.audit_o7_advantage_edge_shuffle",
+    "old_path": "tools/audit_o7_advantage_edge_shuffle.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.audit-spatial-feasibility": {
+    "module": "pubg_lab.projects.battle_royale.audit_spatial_feasibility",
+    "old_path": "tools/audit_spatial_feasibility.py",
+    "owner": "projects"
+  },
+  "world-model.audit-world-model-g4": {
+    "module": "pubg_lab.world_model.cli.audit_world_model_g4",
+    "old_path": "tools/audit_world_model_g4.py",
+    "owner": "world_model"
+  },
+  "world-model.audit-world-model-inputs": {
+    "module": "pubg_lab.world_model.cli.audit_world_model_inputs",
+    "old_path": "tools/audit_world_model_inputs.py",
+    "owner": "world_model"
+  },
+  "projects.battle-royale.bootstrap-om-paired-deltas": {
+    "module": "pubg_lab.projects.battle_royale.bootstrap_om_paired_deltas",
+    "old_path": "tools/bootstrap_om_paired_deltas.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.build-dynamic-probability-fluctuation": {
+    "module": "pubg_lab.projects.battle_royale.build_dynamic_probability_fluctuation",
+    "old_path": "tools/build_dynamic_probability_fluctuation.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.build-realtime-prefix-probability-demo": {
+    "module": "pubg_lab.projects.battle_royale.build_realtime_prefix_probability_demo",
+    "old_path": "tools/build_realtime_prefix_probability_demo.py",
+    "owner": "projects"
+  },
+  "world-model.build-world-model-g3": {
+    "module": "pubg_lab.world_model.cli.build_world_model_g3",
+    "old_path": "tools/build_world_model_g3.py",
+    "owner": "world_model"
+  },
+  "world-model.build-world-model-historical-prior": {
+    "module": "pubg_lab.world_model.cli.build_world_model_historical_prior",
+    "old_path": "tools/build_world_model_historical_prior.py",
+    "owner": "world_model"
+  },
+  "projects.battle-royale.check-feature-manifest": {
+    "module": "pubg_lab.projects.battle_royale.check_feature_manifest",
+    "old_path": "tools/check_feature_manifest.py",
+    "owner": "projects"
+  },
+  "data.quality.classify-collected-data": {
+    "module": "pubg_lab.data.quality.classify_collected_data",
+    "old_path": "tools/classify_collected_data.py",
+    "owner": "data"
+  },
+  "projects.battle-royale.collect-om-ladder-metrics": {
+    "module": "pubg_lab.projects.battle_royale.collect_om_ladder_metrics",
+    "old_path": "tools/collect_om_ladder_metrics.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.collect-om-phase-metrics": {
+    "module": "pubg_lab.projects.battle_royale.collect_om_phase_metrics",
+    "old_path": "tools/collect_om_phase_metrics.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.collect-rq4-baseline-metrics": {
+    "module": "pubg_lab.projects.battle_royale.collect_rq4_baseline_metrics",
+    "old_path": "tools/collect_rq4_baseline_metrics.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.collect-rq4-graph-design-metrics": {
+    "module": "pubg_lab.projects.battle_royale.collect_rq4_graph_design_metrics",
+    "old_path": "tools/collect_rq4_graph_design_metrics.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.collect-snapshot-survival-bridge-metrics": {
+    "module": "pubg_lab.projects.battle_royale.collect_snapshot_survival_bridge_metrics",
+    "old_path": "tools/collect_snapshot_survival_bridge_metrics.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.compare-phase-dumps-v1-v2": {
+    "module": "pubg_lab.projects.battle_royale.compare_phase_dumps_v1_v2",
+    "old_path": "tools/compare_phase_dumps_v1_v2.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.compare-rq4-board-baselines": {
+    "module": "pubg_lab.projects.battle_royale.compare_rq4_board_baselines",
+    "old_path": "tools/compare_rq4_board_baselines.py",
+    "owner": "projects"
+  },
+  "data.quality.corpus-quality-index": {
+    "module": "pubg_lab.data.quality.corpus_quality_index",
+    "old_path": "tools/corpus_quality_index.py",
+    "owner": "data"
+  },
+  "projects.battle-royale.diagnose-snapshot-relative-edge": {
+    "module": "pubg_lab.projects.battle_royale.diagnose_snapshot_relative_edge",
+    "old_path": "tools/diagnose_snapshot_relative_edge.py",
+    "owner": "projects"
+  },
+  "spatial.erangel.erangel-100m-build": {
+    "module": "pubg_lab.spatial.erangel.erangel_100m_build",
+    "old_path": "tools/erangel_100m_build.py",
+    "owner": "spatial"
+  },
+  "spatial.erangel.erangel-100m-extract": {
+    "module": "pubg_lab.spatial.erangel.erangel_100m_extract",
+    "old_path": "tools/erangel_100m_extract.py",
+    "owner": "spatial"
+  },
+  "spatial.erangel.erangel-100m-verify": {
+    "module": "pubg_lab.spatial.erangel.erangel_100m_verify",
+    "old_path": "tools/erangel_100m_verify.py",
+    "owner": "spatial"
+  },
+  "spatial.erangel.erangel-100m-visualize": {
+    "module": "pubg_lab.spatial.erangel.erangel_100m_visualize",
+    "old_path": "tools/erangel_100m_visualize.py",
+    "owner": "spatial"
+  },
+  "spatial.erangel.erangel-spatial-build": {
+    "module": "pubg_lab.spatial.erangel.erangel_spatial_build",
+    "old_path": "tools/erangel_spatial_build.py",
+    "owner": "spatial"
+  },
+  "spatial.erangel.erangel-spatial-extract": {
+    "module": "pubg_lab.spatial.erangel.erangel_spatial_extract",
+    "old_path": "tools/erangel_spatial_extract.py",
+    "owner": "spatial"
+  },
+  "spatial.erangel.erangel-spatial-patch-inventory": {
+    "module": "pubg_lab.spatial.erangel.erangel_spatial_patch_inventory",
+    "old_path": "tools/erangel_spatial_patch_inventory.py",
+    "owner": "spatial"
+  },
+  "spatial.erangel.erangel-spatial-visualize": {
+    "module": "pubg_lab.spatial.erangel.erangel_spatial_visualize",
+    "old_path": "tools/erangel_spatial_visualize.py",
+    "owner": "spatial"
+  },
+  "projects.battle-royale.eval-phase-transition-risk-board": {
+    "module": "pubg_lab.projects.battle_royale.eval_phase_transition_risk_board",
+    "old_path": "tools/eval_phase_transition_risk_board.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.eval-snapshot-phase-checkpoint": {
+    "module": "pubg_lab.projects.battle_royale.eval_snapshot_phase_checkpoint",
+    "old_path": "tools/eval_snapshot_phase_checkpoint.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.eval-snapshot-survival-bridge": {
+    "module": "pubg_lab.projects.battle_royale.eval_snapshot_survival_bridge",
+    "old_path": "tools/eval_snapshot_survival_bridge.py",
+    "owner": "projects"
+  },
+  "world-model.finalize-world-model-g3": {
+    "module": "pubg_lab.world_model.cli.finalize_world_model_g3",
+    "old_path": "tools/finalize_world_model_g3.py",
+    "owner": "world_model"
+  },
+  "projects.battle-royale.fixb-backup-tables": {
+    "module": "pubg_lab.projects.battle_royale.fixb_backup_tables",
+    "old_path": "tools/fixb_backup_tables.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.generate-om-prediction-csvs": {
+    "module": "pubg_lab.projects.battle_royale.generate_om_prediction_csvs",
+    "old_path": "tools/generate_om_prediction_csvs.py",
+    "owner": "projects"
+  },
+  "spatial.erangel.heterograph-case-build": {
+    "module": "pubg_lab.spatial.erangel.heterograph_case_build",
+    "old_path": "tools/heterograph_case_build.py",
+    "owner": "spatial"
+  },
+  "spatial.erangel.heterograph-case-extract": {
+    "module": "pubg_lab.spatial.erangel.heterograph_case_extract",
+    "old_path": "tools/heterograph_case_extract.py",
+    "owner": "spatial"
+  },
+  "spatial.erangel.heterograph-case-figure": {
+    "module": "pubg_lab.spatial.erangel.heterograph_case_figure",
+    "old_path": "tools/heterograph_case_figure.py",
+    "owner": "spatial"
+  },
+  "data.quality.inspect-movement-schema": {
+    "module": "pubg_lab.data.quality.inspect_movement_schema",
+    "old_path": "tools/inspect_movement_schema.py",
+    "owner": "data"
+  },
+  "projects.battle-royale.make-result-figures-v2": {
+    "module": "pubg_lab.projects.battle_royale.make_result_figures_v2",
+    "old_path": "tools/make_result_figures_v2.py",
+    "owner": "projects"
+  },
+  "world-model.mine-world-model-short-transport": {
+    "module": "pubg_lab.world_model.cli.mine_world_model_short_transport",
+    "old_path": "tools/mine_world_model_short_transport.py",
+    "owner": "world_model"
+  },
+  "movement.analyze-experiment-v2": {
+    "module": "pubg_lab.movement.cli.analyze_experiment_v2",
+    "old_path": "tools/movement_diffusion/analyze_experiment_v2.py",
+    "owner": "movement"
+  },
+  "movement.analyze-v3": {
+    "module": "pubg_lab.movement.cli.analyze_v3",
+    "old_path": "tools/movement_diffusion/analyze_v3.py",
+    "owner": "movement"
+  },
+  "movement.analyze-v4": {
+    "module": "pubg_lab.movement.cli.analyze_v4",
+    "old_path": "tools/movement_diffusion/analyze_v4.py",
+    "owner": "movement"
+  },
+  "movement.audit": {
+    "module": "pubg_lab.movement.cli.audit",
+    "old_path": "tools/movement_diffusion/audit.py",
+    "owner": "movement"
+  },
+  "movement.audit-experiment-v2": {
+    "module": "pubg_lab.movement.cli.audit_experiment_v2",
+    "old_path": "tools/movement_diffusion/audit_experiment_v2.py",
+    "owner": "movement"
+  },
+  "movement.audit-v3": {
+    "module": "pubg_lab.movement.cli.audit_v3",
+    "old_path": "tools/movement_diffusion/audit_v3.py",
+    "owner": "movement"
+  },
+  "movement.audit-v4": {
+    "module": "pubg_lab.movement.cli.audit_v4",
+    "old_path": "tools/movement_diffusion/audit_v4.py",
+    "owner": "movement"
+  },
+  "movement.build": {
+    "module": "pubg_lab.movement.cli.build",
+    "old_path": "tools/movement_diffusion/build.py",
+    "owner": "movement"
+  },
+  "movement.build-v3": {
+    "module": "pubg_lab.movement.cli.build_v3",
+    "old_path": "tools/movement_diffusion/build_v3.py",
+    "owner": "movement"
+  },
+  "movement.condition-diagnostics-v2": {
+    "module": "pubg_lab.movement.cli.condition_diagnostics_v2",
+    "old_path": "tools/movement_diffusion/condition_diagnostics_v2.py",
+    "owner": "movement"
+  },
+  "movement.coverage-v3": {
+    "module": "pubg_lab.movement.cli.coverage_v3",
+    "old_path": "tools/movement_diffusion/coverage_v3.py",
+    "owner": "movement"
+  },
+  "movement.diagnose-v3": {
+    "module": "pubg_lab.movement.cli.diagnose_v3",
+    "old_path": "tools/movement_diffusion/diagnose_v3.py",
+    "owner": "movement"
+  },
+  "movement.diagnose-v4": {
+    "module": "pubg_lab.movement.cli.diagnose_v4",
+    "old_path": "tools/movement_diffusion/diagnose_v4.py",
+    "owner": "movement"
+  },
+  "movement.experiment-v2": {
+    "module": "pubg_lab.movement.cli.experiment_v2",
+    "old_path": "tools/movement_diffusion/experiment_v2.py",
+    "owner": "movement"
+  },
+  "movement.experiment-v3": {
+    "module": "pubg_lab.movement.cli.experiment_v3",
+    "old_path": "tools/movement_diffusion/experiment_v3.py",
+    "owner": "movement"
+  },
+  "movement.experiment-v4": {
+    "module": "pubg_lab.movement.cli.experiment_v4",
+    "old_path": "tools/movement_diffusion/experiment_v4.py",
+    "owner": "movement"
+  },
+  "movement.export-example": {
+    "module": "pubg_lab.movement.cli.export_example",
+    "old_path": "tools/movement_diffusion/export_example.py",
+    "owner": "movement"
+  },
+  "movement.extract": {
+    "module": "pubg_lab.movement.cli.extract",
+    "old_path": "tools/movement_diffusion/extract.py",
+    "owner": "movement"
+  },
+  "movement.finalize-v3": {
+    "module": "pubg_lab.movement.cli.finalize_v3",
+    "old_path": "tools/movement_diffusion/finalize_v3.py",
+    "owner": "movement"
+  },
+  "movement.finalize-v4": {
+    "module": "pubg_lab.movement.cli.finalize_v4",
+    "old_path": "tools/movement_diffusion/finalize_v4.py",
+    "owner": "movement"
+  },
+  "movement.finish-v3": {
+    "module": "pubg_lab.movement.cli.finish_v3",
+    "old_path": "tools/movement_diffusion/finish_v3.py",
+    "owner": "movement"
+  },
+  "movement.finish-v4": {
+    "module": "pubg_lab.movement.cli.finish_v4",
+    "old_path": "tools/movement_diffusion/finish_v4.py",
+    "owner": "movement"
+  },
+  "movement.generation-diagnostics-v2": {
+    "module": "pubg_lab.movement.cli.generation_diagnostics_v2",
+    "old_path": "tools/movement_diffusion/generation_diagnostics_v2.py",
+    "owner": "movement"
+  },
+  "movement.horizons-v4": {
+    "module": "pubg_lab.movement.cli.horizons_v4",
+    "old_path": "tools/movement_diffusion/horizons_v4.py",
+    "owner": "movement"
+  },
+  "movement.mobility-diagnostics-v2": {
+    "module": "pubg_lab.movement.cli.mobility_diagnostics_v2",
+    "old_path": "tools/movement_diffusion/mobility_diagnostics_v2.py",
+    "owner": "movement"
+  },
+  "movement.parallel-replica-v2": {
+    "module": "pubg_lab.movement.cli.parallel_replica_v2",
+    "old_path": "tools/movement_diffusion/parallel_replica_v2.py",
+    "owner": "movement"
+  },
+  "movement.pre-evaluation-diagnostics": {
+    "module": "pubg_lab.movement.cli.pre_evaluation_diagnostics",
+    "old_path": "tools/movement_diffusion/pre_evaluation_diagnostics.py",
+    "owner": "movement"
+  },
+  "movement.prepare-v4": {
+    "module": "pubg_lab.movement.cli.prepare_v4",
+    "old_path": "tools/movement_diffusion/prepare_v4.py",
+    "owner": "movement"
+  },
+  "movement.report-experiment-v2": {
+    "module": "pubg_lab.movement.cli.report_experiment_v2",
+    "old_path": "tools/movement_diffusion/report_experiment_v2.py",
+    "owner": "movement"
+  },
+  "movement.report-v3": {
+    "module": "pubg_lab.movement.cli.report_v3",
+    "old_path": "tools/movement_diffusion/report_v3.py",
+    "owner": "movement"
+  },
+  "movement.report-v4": {
+    "module": "pubg_lab.movement.cli.report_v4",
+    "old_path": "tools/movement_diffusion/report_v4.py",
+    "owner": "movement"
+  },
+  "movement.residual-drift-v4": {
+    "module": "pubg_lab.movement.cli.residual_drift_v4",
+    "old_path": "tools/movement_diffusion/residual_drift_v4.py",
+    "owner": "movement"
+  },
+  "movement.smoke": {
+    "module": "pubg_lab.movement.cli.smoke",
+    "old_path": "tools/movement_diffusion/smoke.py",
+    "owner": "movement"
+  },
+  "movement.state-figures-v3": {
+    "module": "pubg_lab.movement.cli.state_figures_v3",
+    "old_path": "tools/movement_diffusion/state_figures_v3.py",
+    "owner": "movement"
+  },
+  "movement.train": {
+    "module": "pubg_lab.movement.cli.train",
+    "old_path": "tools/movement_diffusion/train.py",
+    "owner": "movement"
+  },
+  "movement.transport-audit-v3": {
+    "module": "pubg_lab.movement.cli.transport_audit_v3",
+    "old_path": "tools/movement_diffusion/transport_audit_v3.py",
+    "owner": "movement"
+  },
+  "movement.verify-model-v2": {
+    "module": "pubg_lab.movement.cli.verify_model_v2",
+    "old_path": "tools/movement_diffusion/verify_model_v2.py",
+    "owner": "movement"
+  },
+  "movement.verify-results-v2": {
+    "module": "pubg_lab.movement.cli.verify_results_v2",
+    "old_path": "tools/movement_diffusion/verify_results_v2.py",
+    "owner": "movement"
+  },
+  "movement.visualize-v4": {
+    "module": "pubg_lab.movement.cli.visualize_v4",
+    "old_path": "tools/movement_diffusion/visualize_v4.py",
+    "owner": "movement"
+  },
+  "projects.battle-royale.paper-numbers-v2": {
+    "module": "pubg_lab.projects.battle_royale.paper_numbers_v2",
+    "old_path": "tools/paper_numbers_v2.py",
+    "owner": "projects"
+  },
+  "collectors.pubg.fetch-match-ids": {
+    "module": "pubg_lab.collectors.pubg.fetch_match_ids",
+    "old_path": "tools/pubg_collector/01_fetch_match_ids.py",
+    "owner": "collectors"
+  },
+  "collectors.pubg.fetch-matches": {
+    "module": "pubg_lab.collectors.pubg.fetch_matches",
+    "old_path": "tools/pubg_collector/02_fetch_matches.py",
+    "owner": "collectors"
+  },
+  "collectors.pubg.fetch-telemetry": {
+    "module": "pubg_lab.collectors.pubg.fetch_telemetry",
+    "old_path": "tools/pubg_collector/03_fetch_telemetry.py",
+    "owner": "collectors"
+  },
+  "collectors.pubg.config": {
+    "module": "pubg_lab.collectors.pubg.config",
+    "old_path": "tools/pubg_collector/config.py",
+    "owner": "collectors"
+  },
+  "world-model.report-world-model-g2": {
+    "module": "pubg_lab.world_model.cli.report_world_model_g2",
+    "old_path": "tools/report_world_model_g2.py",
+    "owner": "world_model"
+  },
+  "world-model.report-world-model-g3": {
+    "module": "pubg_lab.world_model.cli.report_world_model_g3",
+    "old_path": "tools/report_world_model_g3.py",
+    "owner": "world_model"
+  },
+  "world-model.report-world-model-g4": {
+    "module": "pubg_lab.world_model.cli.report_world_model_g4",
+    "old_path": "tools/report_world_model_g4.py",
+    "owner": "world_model"
+  },
+  "world-model.report-world-model-preprocess": {
+    "module": "pubg_lab.world_model.cli.report_world_model_preprocess",
+    "old_path": "tools/report_world_model_preprocess.py",
+    "owner": "world_model"
+  },
+  "repository.repository-release": {
+    "module": "pubg_lab.repository.repository_release",
+    "old_path": "tools/repository_release.py",
+    "owner": "repository"
+  },
+  "projects.battle-royale.rerun-v2": {
+    "module": "pubg_lab.projects.battle_royale.rerun_v2",
+    "old_path": "tools/rerun_v2.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.run-fixb-phase-etl": {
+    "module": "pubg_lab.projects.battle_royale.run_fixb_phase_etl",
+    "old_path": "tools/run_fixb_phase_etl.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.run-o6z-required-cohort-etl": {
+    "module": "pubg_lab.projects.battle_royale.run_o6z_required_cohort_etl",
+    "old_path": "tools/run_o6z_required_cohort_etl.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-analysis-queue": {
+    "module": "pubg_lab.projects.sac2027.sac2027_analysis_queue",
+    "old_path": "tools/sac2027_analysis_queue.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-auc-population": {
+    "module": "pubg_lab.projects.sac2027.sac2027_auc_population",
+    "old_path": "tools/sac2027_auc_population.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-baseline-audit": {
+    "module": "pubg_lab.projects.sac2027.sac2027_baseline_audit",
+    "old_path": "tools/sac2027_baseline_audit.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-condlogit-eval": {
+    "module": "pubg_lab.projects.sac2027.sac2027_condlogit_eval",
+    "old_path": "tools/sac2027_condlogit_eval.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-count-error": {
+    "module": "pubg_lab.projects.sac2027.sac2027_count_error",
+    "old_path": "tools/sac2027_count_error.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-did-rq2": {
+    "module": "pubg_lab.projects.sac2027.sac2027_did_rq2",
+    "old_path": "tools/sac2027_did_rq2.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-evaluate-controls": {
+    "module": "pubg_lab.projects.sac2027.sac2027_evaluate_controls",
+    "old_path": "tools/sac2027_evaluate_controls.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-extra-evaluation": {
+    "module": "pubg_lab.projects.sac2027.sac2027_extra_evaluation",
+    "old_path": "tools/sac2027_extra_evaluation.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-fair-tune": {
+    "module": "pubg_lab.projects.sac2027.sac2027_fair_tune",
+    "old_path": "tools/sac2027_fair_tune.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-figure3": {
+    "module": "pubg_lab.projects.sac2027.sac2027_figure3",
+    "old_path": "tools/sac2027_figure3.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-figure-concept": {
+    "module": "pubg_lab.projects.sac2027.sac2027_figure_concept",
+    "old_path": "tools/sac2027_figure_concept.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-figure-eval-units": {
+    "module": "pubg_lab.projects.sac2027.sac2027_figure_eval_units",
+    "old_path": "tools/sac2027_figure_eval_units.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-followup-run": {
+    "module": "pubg_lab.projects.sac2027.sac2027_followup_run",
+    "old_path": "tools/sac2027_followup_run.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-graph-run": {
+    "module": "pubg_lab.projects.sac2027.sac2027_graph_run",
+    "old_path": "tools/sac2027_graph_run.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-history-controls": {
+    "module": "pubg_lab.projects.sac2027.sac2027_history_controls",
+    "old_path": "tools/sac2027_history_controls.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-history-queue": {
+    "module": "pubg_lab.projects.sac2027.sac2027_history_queue",
+    "old_path": "tools/sac2027_history_queue.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-logistic-baseline": {
+    "module": "pubg_lab.projects.sac2027.sac2027_logistic_baseline",
+    "old_path": "tools/sac2027_logistic_baseline.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-logistic-summary": {
+    "module": "pubg_lab.projects.sac2027.sac2027_logistic_summary",
+    "old_path": "tools/sac2027_logistic_summary.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-mapping-factorial": {
+    "module": "pubg_lab.projects.sac2027.sac2027_mapping_factorial",
+    "old_path": "tools/sac2027_mapping_factorial.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-match-offset": {
+    "module": "pubg_lab.projects.sac2027.sac2027_match_offset",
+    "old_path": "tools/sac2027_match_offset.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-match-offset-rq2": {
+    "module": "pubg_lab.projects.sac2027.sac2027_match_offset_rq2",
+    "old_path": "tools/sac2027_match_offset_rq2.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-match-offset-structure": {
+    "module": "pubg_lab.projects.sac2027.sac2027_match_offset_structure",
+    "old_path": "tools/sac2027_match_offset_structure.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-native-evaluation": {
+    "module": "pubg_lab.projects.sac2027.sac2027_native_evaluation",
+    "old_path": "tools/sac2027_native_evaluation.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-objective-all-cohorts": {
+    "module": "pubg_lab.projects.sac2027.sac2027_objective_all_cohorts",
+    "old_path": "tools/sac2027_objective_all_cohorts.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-objective-controls": {
+    "module": "pubg_lab.projects.sac2027.sac2027_objective_controls",
+    "old_path": "tools/sac2027_objective_controls.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-offset-only": {
+    "module": "pubg_lab.projects.sac2027.sac2027_offset_only",
+    "old_path": "tools/sac2027_offset_only.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-offset-only-cutoff": {
+    "module": "pubg_lab.projects.sac2027.sac2027_offset_only_cutoff",
+    "old_path": "tools/sac2027_offset_only_cutoff.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-package": {
+    "module": "pubg_lab.projects.sac2027.sac2027_package",
+    "old_path": "tools/sac2027_package.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-pair-share": {
+    "module": "pubg_lab.projects.sac2027.sac2027_pair_share",
+    "old_path": "tools/sac2027_pair_share.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-paper-tables": {
+    "module": "pubg_lab.projects.sac2027.sac2027_paper_tables",
+    "old_path": "tools/sac2027_paper_tables.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-patch-rebuild": {
+    "module": "pubg_lab.projects.sac2027.sac2027_patch_rebuild",
+    "old_path": "tools/sac2027_patch_rebuild.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-patch-run": {
+    "module": "pubg_lab.projects.sac2027.sac2027_patch_run",
+    "old_path": "tools/sac2027_patch_run.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-patch-validate": {
+    "module": "pubg_lab.projects.sac2027.sac2027_patch_validate",
+    "old_path": "tools/sac2027_patch_validate.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-plot-rq1": {
+    "module": "pubg_lab.projects.sac2027.sac2027_plot_rq1",
+    "old_path": "tools/sac2027_plot_rq1.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-population-controls": {
+    "module": "pubg_lab.projects.sac2027.sac2027_population_controls",
+    "old_path": "tools/sac2027_population_controls.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-recall-norm": {
+    "module": "pubg_lab.projects.sac2027.sac2027_recall_norm",
+    "old_path": "tools/sac2027_recall_norm.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-release-summary": {
+    "module": "pubg_lab.projects.sac2027.sac2027_release_summary",
+    "old_path": "tools/sac2027_release_summary.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-result-figures": {
+    "module": "pubg_lab.projects.sac2027.sac2027_result_figures",
+    "old_path": "tools/sac2027_result_figures.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-rq1-controls": {
+    "module": "pubg_lab.projects.sac2027.sac2027_rq1_controls",
+    "old_path": "tools/sac2027_rq1_controls.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-rq1-phase-equality": {
+    "module": "pubg_lab.projects.sac2027.sac2027_rq1_phase_equality",
+    "old_path": "tools/sac2027_rq1_phase_equality.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-rq1-table": {
+    "module": "pubg_lab.projects.sac2027.sac2027_rq1_table",
+    "old_path": "tools/sac2027_rq1_table.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-sesoi-top3": {
+    "module": "pubg_lab.projects.sac2027.sac2027_sesoi_top3",
+    "old_path": "tools/sac2027_sesoi_top3.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-verify-paper": {
+    "module": "pubg_lab.projects.sac2027.sac2027_verify_paper",
+    "old_path": "tools/sac2027_verify_paper.py",
+    "owner": "projects"
+  },
+  "projects.sac2027.sac2027-verify-results": {
+    "module": "pubg_lab.projects.sac2027.sac2027_verify_results",
+    "old_path": "tools/sac2027_verify_results.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.smoke-snapshot-phase-contract": {
+    "module": "pubg_lab.projects.battle_royale.smoke_snapshot_phase_contract",
+    "old_path": "tools/smoke_snapshot_phase_contract.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.stamp-artifact-provenance": {
+    "module": "pubg_lab.projects.battle_royale.stamp_artifact_provenance",
+    "old_path": "tools/stamp_artifact_provenance.py",
+    "owner": "projects"
+  },
+  "data.quality.summarize-corpus-quality": {
+    "module": "pubg_lab.data.quality.summarize_corpus_quality",
+    "old_path": "tools/summarize_corpus_quality.py",
+    "owner": "data"
+  },
+  "world-model.train-world-model-g2": {
+    "module": "pubg_lab.world_model.cli.train_world_model_g2",
+    "old_path": "tools/train_world_model_g2.py",
+    "owner": "world_model"
+  },
+  "world-model.train-world-model-g4": {
+    "module": "pubg_lab.world_model.cli.train_world_model_g4",
+    "old_path": "tools/train_world_model_g4.py",
+    "owner": "world_model"
+  },
+  "projects.battle-royale.validate-genre-feature-manifest": {
+    "module": "pubg_lab.projects.battle_royale.validate_genre_feature_manifest",
+    "old_path": "tools/validate_genre_feature_manifest.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.verify-dump-match": {
+    "module": "pubg_lab.projects.battle_royale.verify_dump_match",
+    "old_path": "tools/verify_dump_match.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.verify-dump-match-v2": {
+    "module": "pubg_lab.projects.battle_royale.verify_dump_match_v2",
+    "old_path": "tools/verify_dump_match_v2.py",
+    "owner": "projects"
+  },
+  "projects.battle-royale.verify-player-dump-match": {
+    "module": "pubg_lab.projects.battle_royale.verify_player_dump_match",
+    "old_path": "tools/verify_player_dump_match.py",
+    "owner": "projects"
+  },
+  "world-model.verify-world-model-encoder": {
+    "module": "pubg_lab.world_model.cli.verify_world_model_encoder",
+    "old_path": "tools/verify_world_model_encoder.py",
+    "owner": "world_model"
+  },
+  "world-model.verify-world-model-g3": {
+    "module": "pubg_lab.world_model.cli.verify_world_model_g3",
+    "old_path": "tools/verify_world_model_g3.py",
+    "owner": "world_model"
+  },
+  "world-model.verify-world-model-historical-prior": {
+    "module": "pubg_lab.world_model.cli.verify_world_model_historical_prior",
+    "old_path": "tools/verify_world_model_historical_prior.py",
+    "owner": "world_model"
+  },
+  "world-model.verify-world-model-preprocess": {
+    "module": "pubg_lab.world_model.cli.verify_world_model_preprocess",
+    "old_path": "tools/verify_world_model_preprocess.py",
+    "owner": "world_model"
+  },
+  "world-model.world-model-preprocess": {
+    "module": "pubg_lab.world_model.cli.world_model_preprocess",
+    "old_path": "tools/world_model_preprocess.py",
+    "owner": "world_model"
+  },
+  "world-model.world-model-toy-checks": {
+    "module": "pubg_lab.world_model.cli.world_model_toy_checks",
+    "old_path": "tools/world_model_toy_checks.py",
+    "owner": "world_model"
+  },
+  "repository.check-structure": {
+    "module": "pubg_lab.repository.check_structure",
+    "old_path": null,
+    "owner": "repository"
+  }
+}

@@ -1,0 +1,1333 @@
+#!/usr/bin/env python3
+"""Result figures and the main results table of the BigComp 2027 paper, rebuilt from the finished v2 re-run.
+
+    python3 tools/make_result_figures_v2.py [--figures-dir DIR] [--tables-dir DIR] [--rules hline|booktabs] [--no-qa]
+
+Reads only the v2 outputs (the roots of :mod:`model_stgcn.ptr.paths`; every root must end in ``_v2``) and writes, in ``paper/bigcomp2027``:
+
+* ``figures/fig_rq1_effects.{pdf,png}``  Fig. 2, 8.8 cm wide: the RQ1 phase-band model (``rq1_tidy.csv``, analysis M-phase, scale group_sd):
+  pooled effect per covariate and phase band with its 95% interval, and the number of cohorts whose estimate has the pooled sign.
+* ``figures/fig_contrast.{pdf,png}``     Fig. 3, 17.8 cm wide, panels in the order of the manuscript text: (a) per-phase calibration of four arms on
+  the identical pooled test rows, (b) the Sagong path (compact), (c) the waterfall from KRAFTON original to PTR-Former without rank loss (wide).
+  The waterfalls use ONE estimator throughout: bars are 12-cohort mean AUCs, steps are 12-cohort mean differences with 95% t-intervals over
+  the cohorts, so the steps add up exactly to the end bar.  The pooled DerSimonian-Laird steps (``contrasts_pooled.csv``; panel (b) computed
+  here, see below) stay in the text and in Table V and are written next to the mean steps in ``fig_contrast_panels_bc_steps.csv``.
+* ``figures/fig_contrast_panel_a_per_phase.csv``  the per-phase numbers behind panel (a);
+  ``figures/fig_contrast_panels_bc_steps.csv``     the bars and steps behind panels (b) and (c);
+  ``figures/fig_rq1_effects_data.csv``             the numbers behind Fig. 2.
+* ``tables/tab_main_results.tex``                  the main results table, a ``table*`` float with ``\\small`` and ``\\hline`` rules (``--rules booktabs``
+  switches to the rules of the other paper tables): five models, then the block "Same KRAFTON backbone"; the six metrics of our task and, under
+  "KRAFTON task", KRAFTON's native winner accuracy and C-index (``fidelity/krafton_native_bootstrap.csv``); best value bold within each block.
+  ``tables/tab_main_results_values.csv``: unrounded values and where each came from.
+
+Everything that is not in the aggregator outputs is computed from ``<runs>/<cohort>/<arm>/seed42/pred_test.csv`` with the aggregator's own code
+(:mod:`model_stgcn.ptr.metrics`; read only, nothing of the repository is modified):
+
+* panel (a): pooled per-phase observed elimination rate and mean predicted probability (identical test rows of all 12 cohorts, checked);
+* panel (b): the two steps SAGONG-hgb -> SAGONG-hgb-hab -> HGB-cut are not rows of ``contrasts_pooled.csv``.  They use the aggregator's paired
+  match bootstrap (2,000 resamples, the per-cohort seed of ``aggregate.task_seed``) and DerSimonian-Laird pooling; the run asserts that the
+  same code reproduces the per-cohort estimates, bootstrap SEs and the pooled estimate of ``hgbcut_vs_sagong_hgb`` (the sum of the two steps);
+* table: the per-phase calibration gap of SAGONG-xgb (``h0_arm_metrics.csv`` has no SAGONG row).  Definition of ``adaptation.phase_auc`` /
+  ``h0_report``: row-weighted mean over the cut phases of |mean predicted p - observed rate|, per cohort, then the mean over the 12 cohorts.
+  The same code is asserted to reproduce the file's value for the arms it has.  The within match-phase AUC of every table arm is also
+  recomputed (``supplement.RiskSetAUC`` definition) and asserted equal to ``e2_arm_wmp_per_cohort.csv``;
+* table, KRAFTON task: the native winner accuracy and C-index of KRAFTON-tf-h0, the one table arm without a row in
+  ``fidelity/krafton_native_bootstrap.csv``, with the code of ``fidelity/krafton_fidelity.py`` (loaded read-only; ``-p_hazard`` as the survival
+  score, its convention for every arm but KRAFTON-tf); the same path is asserted to reproduce KRAFTON-tf's row of the CSV.
+
+Colours (fixed by the brief): ours blue 4472C4 (PTR-Former 2F5597), KRAFTON original D55E00, KRAFTON + phase baseline E69F00 dashed, Sagong 7F7F7F,
+observed black.  Every series also has its own marker, line style or hatch, so the figures read in greyscale.
+
+Typographic hierarchy: panel titles bold; tick labels 595959; in the waterfalls the key steps (the two formulation steps of the KRAFTON path, the habitat
+step of the Sagong path) are strong blue 2F5597 with bold labels and the other steps light blue 9DB4E0 with regular grey labels; Fig. 2 has bold construct
+names and same-sign counts in bold 2F5597 when every evaluable cohort agrees (12/12, 11/11) and grey otherwise; panel (a) labels the observed line and
+the KRAFTON original line directly.  The learner is called GBDT in every reader-facing name (arm directories keep their code names).
+
+Checks that run with every build (the run fails on a violation): the bootstrap, WMP and calibration-gap reproductions above; the figure sizes
+(PDF page and PNG pixels); no text below 7 pt (the font sizes are read back from the PDF); and, on the 300 dpi render, no text over text, no text
+over a mark, no text at the canvas edge and no legend over data (``--no-qa`` skips only the last group).
+"""
+
+from __future__ import annotations
+
+# Support explicit direct-file execution as well as package entry points.
+if not __package__:
+    import sys as _pkg_sys
+    from pathlib import Path as _PackagePath
+
+    _pkg_sys.path.insert(0, str(_PackagePath(__file__).resolve().parents[3]))
+
+from pubg_lab.common.paths import REPO_ROOT
+
+import argparse
+import importlib.util
+import logging
+import pickle
+import re
+import sys
+import zlib
+from pathlib import Path
+
+import matplotlib as mpl
+
+mpl.use("Agg")
+import matplotlib.pyplot as plt  # noqa: E402
+import numpy as np  # noqa: E402
+import pandas as pd  # noqa: E402
+from scipy import stats  # noqa: E402
+from matplotlib import font_manager  # noqa: E402
+from matplotlib.backends.backend_agg import RendererAgg  # noqa: E402
+from matplotlib.lines import Line2D  # noqa: E402
+from matplotlib.patches import Patch, Rectangle  # noqa: E402
+from matplotlib.ticker import FuncFormatter  # noqa: E402
+
+REPO = REPO_ROOT
+if str(REPO) not in sys.path:
+    sys.path.insert(0, str(REPO))
+
+from pubg_lab.survival.ptr import metrics as M  # noqa: E402  (read only: the aggregator's metrics, paired bootstrap and DL pooling)
+from pubg_lab.survival.ptr import paths as P  # noqa: E402  (the v2 roots)
+
+# --------------------------------------------------------------------------------------------------------- inputs (v2 only)
+RUNS, RES, KRAFTON_RES, PAPER = P.RUNS_DIR, P.RESULTS_DIR, P.KRAFTON_REPORTS_DIR, P.PAPER_DIR
+for _root in (RUNS, RES, KRAFTON_RES):
+    if not _root.name.endswith("_v2"):  # never read the v1 results by accident
+        raise SystemExit(
+            f"refusing {_root}: this tool reads the v2 re-run only (directory name must end in _v2)"
+        )
+SRC = {
+    "contrasts_pooled": RES / "contrasts_pooled.csv",
+    "contrasts_per_cohort": RES / "contrasts_per_cohort.csv",
+    "arm_per_cohort": RES / "arm_metrics_per_cohort.csv",
+    "e2_arm": RES / "supplement" / "e2_arm_wmp_per_cohort.csv",
+    "e2_pooled": RES / "supplement" / "e2_contrasts_pooled_dl.csv",
+    "h0": KRAFTON_RES / "h0_arm_metrics.csv",
+    "rq1": RES / "ecological_model" / "rq1" / "rq1_tidy.csv",
+    "native": RES
+    / "fidelity"
+    / "krafton_native_bootstrap.csv",  # KRAFTON's native metrics (winner accuracy, C-index), "mean of 12 cohorts" rows
+    "fidelity_code": RES
+    / "fidelity"
+    / "krafton_fidelity.py",  # its metric code: loaded read-only for the one arm the CSV does not have
+}
+MAIN_SEED, STRATUM, N_BOOT = 42, "all", 2000
+CM = 1 / 2.54  # inch per cm
+MIN_PT = 7.0  # nothing smaller than this at final size
+PANEL_LETTER_PT = 8.0
+MINUS, EN_DASH = (
+    chr(0x2212),
+    chr(0x2013),
+)  # the typographic minus and the range dash (chr(): the source stays ASCII)
+
+# --------------------------------------------------------------------------------------------------------- colours and styles
+INK, INK2, AXIS, GRID, BAND = "#1B1B1B", "#555555", "#8C8C8C", "#E3E3E3", "#F2F3F5"
+NOTE_GREY = "#6E6E6E"  # small annotations inside a plot (5:1 on white)
+TICK_GREY = "#595959"  # tick labels, and the labels of the ordinary steps of the waterfalls
+STRONG_BLUE, LIGHT_BLUE = "#2F5597", "#9DB4E0"  # waterfall steps: emphasised / ordinary
+COUNT_GREY = "#7F7F7F"  # Fig. 2: same-sign counts that are not unanimous
+OURS, PTR, KRAFTON_C, KRAFTON_H0, SAGONG, OBSERVED = (
+    "#4472C4",
+    "#2F5597",
+    "#D55E00",
+    "#E69F00",
+    "#7F7F7F",
+    "#000000",
+)
+RAMP_EARLY = "#6F90CF"  # Fig. 2 bands: ordinal blue ramp early (this tint) < mid (4472C4) < late (2F5597); passes the dataviz validator (--ordinal)
+CONNECT = "#A0A0A0"
+
+# --------------------------------------------------------------------------------------------------------- what is plotted
+RQ1_ORDER = (  # covariate in rq1_tidy.csv, row label; the order of the manuscript text
+    ("outside_depth", "Outside\ndepth"),
+    ("inside_cushion", "Inside depth\n(cushion)"),
+    (
+        "migration_deficit",
+        "Movement\ndeficit",
+    ),  # the variable name of the paper (the construct is movement burden)
+    ("local_crowding", "Local\ncompetition"),
+    ("team_members", "Team\nmembers"),
+)
+RQ1_BANDS = (  # group in rq1_tidy.csv, legend label (read after the lead-in "Phases:"), marker, colour, marker size (pt)
+    ("early", f"Early (1{EN_DASH}2)", "o", RAMP_EARLY, 4.4),
+    ("mid", f"Mid (3{EN_DASH}5)", "s", OURS, 4.0),
+    ("late", f"Late (6{EN_DASH}7)", "^", PTR, 4.8),
+)
+PANEL_A = (  # arm directory, legend label, colour, line style, marker, marker size, filled, zorder
+    ("KRAFTON-tf", "KRAFTON (adapted)", KRAFTON_C, "-", "s", 3.4, True, 4),
+    ("KRAFTON-tf-h0", "KRAFTON + phase baseline", KRAFTON_H0, (0, (3.2, 1.6)), "D", 3.2, True, 5),
+    ("HGB-cut", "Ours GBDT", OURS, "-", "^", 4.0, False, 6),
+    ("M11R", "Ours PTR-Former", PTR, "-", "v", 3.6, True, 7),
+)
+# (c) steps along the KRAFTON path: label, contrast of contrasts_pooled.csv (stratum all, metric auc), arm added, arm before ("to - from")
+KRAFTON_STEPS = (
+    (
+        "our inputs + training rows",
+        "krafton_ourfeat_input",
+        "KRAFTON-tf-ourfeat",
+        "KRAFTON-tf",
+    ),  # K2 - KRAFTON-tf; bundled: inputs and training sample change together
+    ("phase baseline", "k2h0_vs_k2", "KRAFTON-tf-ourfeat-h0", "KRAFTON-tf-ourfeat"),  # K2H0 - K2
+    (
+        "next-phase objective",
+        "k3a_vs_k2h0",
+        "KRAFTON-tf-ourfeat-bce",
+        "KRAFTON-tf-ourfeat-h0",
+    ),  # K3a - K2H0
+    (
+        "explicit phase intercept",
+        "k3_vs_k3a",
+        "KRAFTON-tf-ourfeat-hazard",
+        "KRAFTON-tf-ourfeat-bce",
+    ),  # K3 - K3a
+    (
+        "team-axis architecture",
+        "m01norank_vs_k3",
+        "M01-norank",
+        "KRAFTON-tf-ourfeat-hazard",
+    ),  # M01-norank - K3
+    ("phase axis + relations", "m11rnorank_vs_m01norank", "M11R-norank", "M01-norank"),
+)
+KRAFTON_START, KRAFTON_END = (
+    ("KRAFTON adapted", "KRAFTON-tf"),
+    ("PTR-Former (no rank loss)", "M11R-norank"),
+)
+KRAFTON_KEY_STEPS = (
+    "phase baseline",
+    "next-phase objective",
+)  # the two formulation steps: strong blue, bold labels; the other steps light blue, grey labels
+# (b) the Sagong path: label, arm added, arm before; the check contrast is HGB-cut - SAGONG-hgb (a row of contrasts_pooled.csv)
+SAGONG_STEPS = (
+    ("+ habitat context", "SAGONG-hgb-hab", "SAGONG-hgb"),
+    ("our other inputs", "HGB-cut", "SAGONG-hgb-hab"),
+)
+SAGONG_START, SAGONG_END = ("Sagong GBDT", "SAGONG-hgb"), ("Ours GBDT", "HGB-cut")
+SAGONG_CHECK = ("hgbcut_vs_sagong_hgb", "HGB-cut", "SAGONG-hgb")
+SAGONG_KEY_STEPS = ("+ habitat context",)  # emphasised step of the Sagong path
+SUM_TOLERANCE = 0.002  # |sum of pooled steps - (end - start)| above this is reported
+NATIVE_COMPUTED = "computed"  # marker: no row in krafton_native_bootstrap.csv; computed with the code of krafton_fidelity.py
+TABLE_BLOCKS = (  # (block title or None, rows); row = (label, arm directory, arm name in h0_arm_metrics.csv, method in krafton_native_bootstrap.csv)
+    (None, (
+        ("Ours GBDT", "HGB-cut", "HGB-cut", "HGB-cut"),
+        ("Ours PTR-Former", "M11R", "M11R", "M11R-rankhead"),  # PTR-Former's rank output, which the paper uses for rank metrics
+        ("KRAFTON (adapted)", "KRAFTON-tf", "KRAFTON-tf", "KRAFTON-tf"),
+        ("KRAFTON + phase baseline", "KRAFTON-tf-h0", "KRAFTON+H0", NATIVE_COMPUTED),
+        ("Sagong (XGB)", "SAGONG-xgb", None, None),  # not run on the KRAFTON task
+    )),
+    ("Same KRAFTON backbone", (
+        ("Cox objective", "KRAFTON-tf-ourfeat", "K2", "KRAFTON-tf-ourfeat"),
+        ("next-phase objective", "KRAFTON-tf-ourfeat-bce", "K3a", "KRAFTON-tf-ourfeat-bce"),
+    )),
+)  # fmt: skip
+TABLE_COLUMNS = (  # key, header (LaTeX), direction: +1 higher is better, -1 lower is better
+    ("auc", "AUC", +1),
+    ("auc_within_phase", r"\shortstack{Within-phase\\AUC}", +1),
+    ("auc_within_match_phase", r"\shortstack{Within match-\\phase AUC}", +1),
+    ("nll", "Log loss", -1),
+    ("brier", "Brier", -1),
+    ("cal_gap", r"\shortstack{Per-phase\\calibration gap}", -1),
+    ("native_winner_acc", "Winner acc.", +1),  # KRAFTON task: the last two columns
+    ("native_c_index", "C-index", +1),
+)
+N_KRAFTON_TASK = 2  # columns under the spanning header "KRAFTON task"
+
+
+# --------------------------------------------------------------------------------------------------------- data
+def read_csv(key: str) -> pd.DataFrame:
+    return pd.read_csv(SRC[key])
+
+
+def load_pred(cohort: str, arm: str) -> pd.DataFrame:
+    return M.read_predictions(RUNS / cohort / arm / f"seed{MAIN_SEED}" / "pred_test.csv")
+
+
+def cohort_list() -> list[str]:
+    apc = read_csv("arm_per_cohort")
+    cohorts = sorted(apc["cohort"].unique())
+    if len(cohorts) != 12:
+        raise SystemExit(f"expected 12 cohorts in arm_metrics_per_cohort.csv, found {len(cohorts)}")
+    return cohorts
+
+
+def arm_cohort_values(apc: pd.DataFrame, arm: str, metric: str) -> pd.Series:
+    """Per-cohort test value of ``arm`` (seed 42, stratum all), indexed by cohort; exactly one value per cohort."""
+    s = apc[
+        (apc["arm"] == arm)
+        & (apc["seed"] == MAIN_SEED)
+        & (apc["stratum"] == STRATUM)
+        & (apc["metric"] == metric)
+    ]
+    if s["cohort"].duplicated().any() or len(s) != 12:
+        raise SystemExit(
+            f"arm_metrics_per_cohort.csv: {arm}/{metric} does not have one value for each of the 12 cohorts"
+        )
+    return s.set_index("cohort")["value"].sort_index()
+
+
+def mean_step(apc: pd.DataFrame, to: str, frm: str) -> dict:
+    """12-cohort mean difference of the test AUC (``to`` - ``from``) with its 95% t-interval over the cohorts and the number of cohorts with its sign.
+    Panels (b) and (c) draw these, so every bar of a waterfall is the same estimator (12-cohort means) and the steps add up to the end bar."""
+    d = arm_cohort_values(apc, to, "auc") - arm_cohort_values(apc, frm, "auc")
+    k = len(d)
+    md = float(d.mean())
+    half = float(stats.t.ppf(0.975, k - 1) * d.std(ddof=1) / np.sqrt(k))
+    return {
+        "md": md,
+        "md_ci95_low": md - half,
+        "md_ci95_high": md + half,
+        "md_same_sign": int((np.sign(d) == np.sign(md)).sum()),
+        "md_k": k,
+    }
+
+
+def pred_col(label: str, prefix: str = "mean_pred") -> str:
+    """Column of the per-phase CSV for a series: the legend name of the manuscript, e.g. ``mean_pred__Ours_GBDT``."""
+    return f"{prefix}__" + re.sub(r"[^A-Za-z0-9]+", "_", label.replace("+", "plus")).strip("_")
+
+
+def per_phase_table(cohorts: list[str]) -> pd.DataFrame:
+    """Pooled per-phase observed elimination rate and mean predicted probability of the four panel-(a) arms on identical test rows;
+    the columns carry the legend names (``pred_col``), the arm directories are those of ``PANEL_A``."""
+    arms = [a[0] for a in PANEL_A]
+    name = {a[0]: a[1] for a in PANEL_A}
+    ys, phases, preds = [], [], {a: [] for a in arms}
+    for c in cohorts:
+        ref = load_pred(c, arms[0])
+        ys.append(ref["y"].to_numpy())
+        phases.append(ref["phase"].to_numpy())
+        for a in arms:
+            df = (
+                ref if a == arms[0] else M.align_predictions(ref, load_pred(c, a))[1]
+            )  # raises unless the rows and labels are identical
+            preds[a].append(df["p_hazard"].to_numpy())
+    y, ph = np.concatenate(ys), np.concatenate(phases)
+    p = {a: np.concatenate(v) for a, v in preds.items()}
+    rows = []
+    for k in sorted(np.unique(ph)):
+        sel = ph == k
+        row = {
+            "phase": int(k),
+            "n_rows": int(sel.sum()),
+            "n_eliminated": int(y[sel].sum()),
+            "observed_rate": float(y[sel].mean()),
+        }
+        for a in arms:
+            row[pred_col(name[a])] = float(p[a][sel].mean())
+        for a in arms:
+            row[pred_col(name[a], "gap")] = row[pred_col(name[a])] - row["observed_rate"]
+        rows.append(row)
+    out = pd.DataFrame(rows)
+    if out["phase"].tolist() != list(range(1, 8)):
+        raise SystemExit(f"expected phases 1..7, found {out['phase'].tolist()}")
+    return out
+
+
+def cal_gap(df: pd.DataFrame) -> float:
+    """Row-weighted mean over the cut phases of |mean predicted p - observed rate| (``adaptation.phase_auc`` / ``h0_baseline.cal_gap``)."""
+    return float(
+        sum(abs(g["p_hazard"].mean() - g["y"].mean()) * len(g) for _k, g in df.groupby("phase"))
+        / len(df)
+    )
+
+
+def within_match_phase_auc(df: pd.DataFrame) -> float:
+    """``supplement.RiskSetAUC`` with unit weights: sum of the Mann-Whitney counts / sum of the positive-negative pairs over the (match, phase)
+    risk sets that hold both labels (ties 1/2).  Independent re-implementation, used to check ``e2_arm_wmp_per_cohort.csv``."""
+    codes = df.groupby(["match_id", "phase"], sort=False).ngroup().to_numpy()
+    y, score = df["y"].to_numpy(), df["p_hazard"].to_numpy()
+    n = np.bincount(codes).astype(float)
+    pos = np.bincount(codes, weights=y)
+    rank = pd.Series(score).groupby(codes).rank(method="average").to_numpy()
+    u = np.bincount(codes, weights=rank * y) - pos * (pos + 1) / 2
+    d = pos * (n - pos)
+    return float(u[d > 0].sum() / d[d > 0].sum())
+
+
+def task_seed(cohort: str, stratum: str, seed: int = 0) -> int:
+    """The aggregator's bootstrap seed of one (cohort, stratum) (``aggregate.task_seed``; checked below against a published contrast)."""
+    return (zlib.crc32(f"{cohort}|{stratum}".encode("utf-8")) ^ int(seed)) & 0xFFFFFFFF
+
+
+def sagong_steps(cohorts: list[str]) -> dict:
+    """Pooled DL steps of the Sagong path with the aggregator's paired bootstrap; asserts that the same code reproduces ``hgbcut_vs_sagong_hgb``."""
+    arms = (SAGONG_START[1], "SAGONG-hgb-hab", SAGONG_END[1])
+    per = {"hab": [], "rest": [], "total": []}
+    for c in cohorts:
+        preds = {a: load_pred(c, a) for a in arms}
+        _info, point, samples = M.bootstrap_arms(
+            preds,
+            rank_col="rank_score",
+            metrics=("auc",),
+            n_boot=N_BOOT,
+            seed=task_seed(c, STRATUM),
+        )
+        for key, (to, frm) in {
+            "hab": ("SAGONG-hgb-hab", "SAGONG-hgb"),
+            "rest": ("HGB-cut", "SAGONG-hgb-hab"),
+            "total": ("HGB-cut", "SAGONG-hgb"),
+        }.items():
+            est = point[to]["auc"] - point[frm]["auc"]
+            se = float((samples[to]["auc"] - samples[frm]["auc"]).std(ddof=1))
+            per[key].append((c, est, se))
+    # the reproduction check against the published per-cohort and pooled numbers of HGB-cut - SAGONG-hgb
+    ref = read_csv("contrasts_per_cohort")
+    ref = ref[
+        (ref["contrast"] == SAGONG_CHECK[0])
+        & (ref["metric"] == "auc")
+        & (ref["stratum"] == STRATUM)
+    ].set_index("cohort")
+    for c, est, se in per["total"]:
+        if abs(est - ref.loc[c, "estimate"]) > 1e-7 or abs(se - ref.loc[c, "se"]) > 1e-7:
+            raise SystemExit(
+                f"bootstrap does not reproduce the aggregator for {c}: {est:.9f}/{se:.9f} vs {ref.loc[c, 'estimate']:.9f}/{ref.loc[c, 'se']:.9f}"
+            )
+    pooled = {}
+    for key, rows in per.items():
+        dl = M.dersimonian_laird([r[1] for r in rows], [r[2] for r in rows])
+        pooled[key] = {"theta": dl["theta"], "ci95_low": dl["ci95"][0], "ci95_high": dl["ci95"][1], "k": dl["k"],
+                       "same_sign": int(np.sum(np.sign([r[1] for r in rows]) == np.sign(dl["theta"]))), "tau2": dl["tau2"]}  # fmt: skip
+    cp = read_csv("contrasts_pooled")
+    cp = cp[
+        (cp["contrast"] == SAGONG_CHECK[0]) & (cp["metric"] == "auc") & (cp["stratum"] == STRATUM)
+    ].iloc[0]
+    if (
+        abs(pooled["total"]["theta"] - cp["theta"]) > 1e-7
+        or abs(pooled["total"]["ci95_low"] - cp["ci95_low"]) > 1e-7
+    ):
+        raise SystemExit("pooled HGB-cut - SAGONG-hgb does not reproduce contrasts_pooled.csv")
+    return pooled
+
+
+def waterfall_data(cohorts: list[str]) -> dict:
+    """Bars and steps of the KRAFTON path (panel c) and the Sagong path (panel b), with the sum check."""
+    apc = read_csv("arm_per_cohort")
+    mean = lambda arm: float(arm_cohort_values(apc, arm, "auc").mean())  # noqa: E731
+    cp = read_csv("contrasts_pooled")
+    cp = cp[(cp["metric"] == "auc") & (cp["stratum"] == STRATUM)].set_index("contrast")
+    e2 = read_csv("e2_pooled").set_index("contrast")
+    out: dict = {}
+    steps = []
+    for label, contrast, to, frm in KRAFTON_STEPS:
+        r = cp.loc[contrast]
+        diff = mean(to) - mean(frm)
+        if (
+            abs(r["theta"] - diff) > 0.01 or int(r["k"]) != 12
+        ):  # a swapped arm or a wrong contrast name would show here
+            raise SystemExit(
+                f"contrast {contrast} ({to} - {frm}): pooled {r['theta']:.4f} vs mean difference {diff:.4f}"
+            )
+        w = e2.loc[contrast] if contrast in e2.index else None
+        steps.append({"label": label, "contrast": contrast, "to": to, "from": frm, "theta": float(r["theta"]), "ci95_low": float(r["ci95_low"]),
+                      "ci95_high": float(r["ci95_high"]), "k": int(r["k"]), "same_sign": int(r["same_sign"]), "mean_difference": diff,
+                      "wmp_theta": float(w["theta"]) if w is not None and int(w["k"]) > 0 else np.nan,
+                      "wmp_ci95_low": float(w["ci95_low"]) if w is not None and int(w["k"]) > 0 else np.nan,
+                      "wmp_ci95_high": float(w["ci95_high"]) if w is not None and int(w["k"]) > 0 else np.nan, **mean_step(apc, to, frm)})  # fmt: skip
+    start, end = mean(KRAFTON_START[1]), mean(KRAFTON_END[1])
+    total = sum(s["theta"] for s in steps)
+    out["krafton"] = {"start_label": KRAFTON_START[0], "start": start, "end_label": KRAFTON_END[0], "end": end, "steps": steps,
+                "sum_steps": total, "end_minus_start": end - start, "mismatch": total - (end - start)}  # fmt: skip
+    pooled = sagong_steps(cohorts)
+    csteps = []
+    for (label, to, frm), key in zip(SAGONG_STEPS, ("hab", "rest")):
+        p = pooled[key]
+        csteps.append({"label": label, "contrast": f"{to} - {frm}", "to": to, "from": frm, "theta": p["theta"], "ci95_low": p["ci95_low"],
+                       "ci95_high": p["ci95_high"], "k": p["k"], "same_sign": p["same_sign"], "mean_difference": mean(to) - mean(frm),
+                       **mean_step(apc, to, frm)})  # fmt: skip
+    cs, ce = mean(SAGONG_START[1]), mean(SAGONG_END[1])
+    ctotal = sum(s["theta"] for s in csteps)
+    out["sagong"] = {"start_label": SAGONG_START[0], "start": cs, "end_label": SAGONG_END[0], "end": ce, "steps": csteps, "sum_steps": ctotal,
+                "end_minus_start": ce - cs, "mismatch": ctotal - (ce - cs), "pooled_total": pooled["total"]["theta"]}  # fmt: skip
+    for key in (
+        "krafton",
+        "sagong",
+    ):  # the drawn steps are mean differences of a chain of arms: they must add up to end - start
+        d = out[key]
+        if abs(sum(st["md"] for st in d["steps"]) - (d["end"] - d["start"])) > 1e-9:
+            raise SystemExit(
+                f"{key} path: the mean steps do not add up to end - start (the arms are not a chain)"
+            )
+    return out
+
+
+def waterfall_frame(wf: dict) -> pd.DataFrame:
+    """The bars and steps of panels (b, Sagong path) and (c, KRAFTON path), one row each, in plotting order.  ``mean_auc``: 12-cohort mean AUC of a start / end bar's arm;
+    ``md`` and ``md_ci95_*``: the drawn step, the 12-cohort mean difference (to - from) and its 95% t-interval over cohorts; ``cumulative_after``: start + the drawn
+    steps so far (where a step ends); ``end_minus_cumulative`` (end rows): end bar minus the cumulative level (zero up to rounding);
+    ``theta`` and ``ci95_*``: the pooled DL step of the text and Table V (not drawn); ``wmp_*``: the same step in the within match-phase AUC (supplement E2;
+    empty where E2 has no such contrast)."""
+    rows = []
+    for panel, key in (("b", "sagong"), ("c", "krafton")):
+        d = wf[key]
+        rows.append(
+            {
+                "panel": panel,
+                "order": 0,
+                "kind": "start",
+                "label": d["start_label"],
+                "mean_auc": d["start"],
+                "cumulative_after": d["start"],
+            }
+        )
+        cum = d["start"]
+        for i, s in enumerate(d["steps"], 1):
+            cum += s["md"]
+            rows.append({"panel": panel, "order": i, "kind": "step", "label": s["label"], "arm_to": s["to"], "arm_from": s["from"], "md": s["md"],
+                         "md_ci95_low": s["md_ci95_low"], "md_ci95_high": s["md_ci95_high"], "md_same_sign": s["md_same_sign"], "theta": s["theta"],
+                         "ci95_low": s["ci95_low"], "ci95_high": s["ci95_high"], "k": s["k"], "same_sign": s["same_sign"],
+                         "mean_difference": s["mean_difference"], "cumulative_after": cum, "wmp_theta": s.get("wmp_theta", np.nan),
+                         "wmp_ci95_low": s.get("wmp_ci95_low", np.nan), "wmp_ci95_high": s.get("wmp_ci95_high", np.nan)})  # fmt: skip
+        rows.append({"panel": panel, "order": len(d["steps"]) + 1, "kind": "end", "label": d["end_label"], "mean_auc": d["end"], "cumulative_after": cum,
+                     "end_minus_cumulative": d["end"] - cum})  # fmt: skip
+    df = pd.DataFrame(rows)
+    for col in ("k", "same_sign", "md_same_sign"):
+        df[col] = df[col].astype(
+            "Int64"
+        )  # counts stay integers next to the empty cells of the bars
+    return df
+
+
+def native_means(cohorts: list[str]) -> dict[str, tuple[float, float]]:
+    """KRAFTON-native metrics (winner accuracy, C-index; unweighted 12-cohort means, test split) of the arm that is not a row of
+    ``krafton_native_bootstrap.csv``, with the code of ``krafton_fidelity.py`` (loaded read-only: ``padded`` groups the rows by (match, cut phase),
+    ``per_sample_stats`` gives accuracy and concordance, pooled per cohort as in its ``bootstrap_native``).  The survival score of an arm is ``-p_hazard``
+    (its convention for every arm but KRAFTON-tf itself, which uses ``-raw_score``); KRAFTON-tf is run through the same path and must reproduce the CSV."""
+    spec = importlib.util.spec_from_file_location("krafton_fidelity_v2", SRC["fidelity_code"])
+    kf = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(
+        kf
+    )  # top level holds constants and definitions only (main() is guarded)
+    jobs = {
+        "KRAFTON-tf": "raw_score",
+        "KRAFTON-tf-h0": "p_hazard",
+    }  # arm -> score column (survival score = -column)
+    acc, cidx = {a: [] for a in jobs}, {a: [] for a in jobs}
+    for c in cohorts:
+        mats = {
+            m["match_id"]: m
+            for m in pickle.load(open(kf.LABELS / c / "labels_test.pkl", "rb"))["matches"]
+        }
+        for arm, col in jobs.items():
+            pred = pd.read_csv(kf.mpath(c, arm, "pred_test.csv"))
+            P, Y, V, _ph, _mids = kf.padded(pred, -pred[col].to_numpy(np.float64), mats)
+            st = kf.per_sample_stats(P, Y, V)
+            acc[arm].append(float(st["acc"].mean()))
+            cidx[arm].append(float(st["conc"].sum() / st["comp"].sum()))
+    return {a: (float(np.mean(acc[a])), float(np.mean(cidx[a]))) for a in jobs}
+
+
+def table_values(cohorts: list[str]) -> pd.DataFrame:
+    """12-cohort means of the table arms (both blocks), with the source of each column (and the checks that tie the sources to pred_test.csv)."""
+    apc, e2, h0 = read_csv("arm_per_cohort"), read_csv("e2_arm"), read_csv("h0")
+    nat = read_csv("native")
+    nat = nat[nat["what"] == "mean of 12 cohorts"].set_index(["method", "metric"])["point"]
+    try:
+        computed = native_means(cohorts)
+        ref = (nat[("KRAFTON-tf", "winner_accuracy")], nat[("KRAFTON-tf", "c_index")])
+        if (
+            max(abs(computed["KRAFTON-tf"][0] - ref[0]), abs(computed["KRAFTON-tf"][1] - ref[1]))
+            > 2e-6
+        ):  # the CSV holds six decimals
+            raise SystemExit(
+                f"krafton_fidelity.py code on KRAFTON-tf gives {computed['KRAFTON-tf']}, the CSV {ref}"
+            )
+    except ImportError as exc:  # torch missing: the code of krafton_fidelity.py cannot run
+        print(
+            f"WARNING: {exc}; the KRAFTON-task cells of the KRAFTON + phase baseline row stay empty",
+            file=sys.stderr,
+        )
+        computed = {}
+    rows = []
+    for block, (_title, block_rows) in enumerate(TABLE_BLOCKS):
+        for label, arm, h0_name, native in block_rows:
+            row = {"block": block, "row": label, "arm": arm}
+            for metric in ("auc", "auc_within_phase", "nll", "brier"):
+                row[metric] = float(arm_cohort_values(apc, arm, metric).mean())
+            wmp_file = (
+                e2[e2["arm"] == arm].set_index("cohort")["auc_within_match_phase"].sort_index()
+            )
+            gaps, gaps_u, wmp_new = {}, {}, {}
+            for c in cohorts:
+                df = load_pred(c, arm)
+                gaps[c] = cal_gap(df)
+                gaps_u[c] = float(
+                    np.mean(
+                        [abs(g["p_hazard"].mean() - g["y"].mean()) for _k, g in df.groupby("phase")]
+                    )
+                )
+                wmp_new[c] = within_match_phase_auc(df)
+            if len(wmp_file) != 12 or max(abs(wmp_file[c] - wmp_new[c]) for c in cohorts) > 1e-6:
+                raise SystemExit(
+                    f"{arm}: within match-phase AUC of e2_arm_wmp_per_cohort.csv differs from pred_test.csv"
+                )
+            row["auc_within_match_phase"] = float(wmp_file.mean())
+            row["wmp_source"] = (
+                "supplement/e2_arm_wmp_per_cohort.csv (recomputed from pred_test.csv: identical to 1e-6)"
+            )
+            if h0_name is not None:
+                h = h0[h0["arm"] == h0_name].set_index("cohort").sort_index()
+                if len(h) != 12 or max(abs(h.loc[c, "cal_gap"] - gaps[c]) for c in cohorts) > 1e-6:
+                    raise SystemExit(
+                        f"{arm}: cal_gap of h0_arm_metrics.csv is not reproduced by the pred_test.csv computation"
+                    )
+                row["cal_gap"] = float(h["cal_gap"].mean())
+                row["cal_gap_unweighted"] = float(h["cal_gap_unweighted"].mean())
+                row["cal_gap_source"] = (
+                    "krafton_baseline_v2/h0_arm_metrics.csv (reproduced from pred_test.csv)"
+                )
+            else:
+                row["cal_gap"] = float(np.mean(list(gaps.values())))
+                row["cal_gap_unweighted"] = float(np.mean(list(gaps_u.values())))
+                row["cal_gap_source"] = (
+                    "COMPUTED from pred_test.csv (not in h0_arm_metrics.csv): same definition as adaptation.phase_auc"
+                )
+            if native is None:
+                row["native_winner_acc"] = row["native_c_index"] = np.nan
+                row["native_source"] = "not run on the KRAFTON task"
+            elif native == NATIVE_COMPUTED:
+                row["native_winner_acc"], row["native_c_index"] = computed.get(
+                    arm, (np.nan, np.nan)
+                )
+                row["native_source"] = (
+                    "COMPUTED with fidelity/krafton_fidelity.py (padded, per_sample_stats) on pred_test.csv, score -p_hazard (not in krafton_native_bootstrap.csv)"
+                )
+            else:
+                row["native_winner_acc"], row["native_c_index"] = (
+                    float(nat[(native, "winner_accuracy")]),
+                    float(nat[(native, "c_index")]),
+                )
+                row["native_source"] = (
+                    f"fidelity/krafton_native_bootstrap.csv, mean of 12 cohorts, method {native}"
+                )
+            rows.append(row)
+    return pd.DataFrame(rows)
+
+
+# --------------------------------------------------------------------------------------------------------- style and layout helpers
+def pick_font() -> str:
+    have = {f.name for f in font_manager.fontManager.ttflist}
+    for fam in ("Arial", "Helvetica", "Liberation Sans", "Arimo", "Nimbus Sans"):
+        if fam in have:
+            return fam
+    print(
+        "WARNING: neither Arial nor Helvetica (nor a metric-compatible clone) is installed; falling back to DejaVu Sans",
+        file=sys.stderr,
+    )
+    return "DejaVu Sans"
+
+
+def setup_style() -> str:
+    logging.getLogger("fontTools").setLevel(
+        logging.ERROR
+    )  # the font subsetter is chatty about macOS system fonts
+    font = pick_font()
+    mpl.rcParams.update({
+        "font.family": "sans-serif", "font.sans-serif": [font], "font.size": MIN_PT,
+        "axes.labelsize": MIN_PT, "xtick.labelsize": MIN_PT, "ytick.labelsize": MIN_PT, "legend.fontsize": MIN_PT,
+        "text.color": INK, "axes.labelcolor": INK, "xtick.color": INK, "ytick.color": INK, "xtick.labelcolor": TICK_GREY, "ytick.labelcolor": TICK_GREY,
+        "axes.edgecolor": AXIS,
+        "axes.linewidth": 0.6, "xtick.major.width": 0.6, "ytick.major.width": 0.6, "xtick.major.size": 2.5, "ytick.major.size": 2.5,
+        "xtick.major.pad": 2.0, "ytick.major.pad": 2.0, "axes.spines.top": False, "axes.spines.right": False,
+        "figure.facecolor": "white", "axes.facecolor": "white", "savefig.facecolor": "white", "figure.dpi": 300, "savefig.dpi": 300,
+        "pdf.fonttype": 42, "ps.fonttype": 42, "axes.unicode_minus": True, "hatch.linewidth": 0.7, "lines.solid_capstyle": "butt",
+    })  # fmt: skip
+    return font
+
+
+def new_figure(w_cm: float, h_cm: float) -> plt.Figure:
+    return plt.figure(figsize=(w_cm * CM, h_cm * CM), dpi=300)
+
+
+def add_axes_cm(
+    fig: plt.Figure, left: float, bottom: float, width: float, height: float
+) -> plt.Axes:
+    """Axes box in cm from the figure's lower-left corner."""
+    w, h = fig.get_size_inches() * 2.54
+    return fig.add_axes([left / w, bottom / h, width / w, height / h])
+
+
+def minus(text: str) -> str:
+    return text.replace("-", MINUS)
+
+
+def panel_title(fig: plt.Figure, x_cm: float, y_cm: float, letter: str, title: str) -> None:
+    """Bold panel letter and bold title on one baseline."""
+    w, h = fig.get_size_inches() * 2.54
+    t = fig.text(
+        x_cm / w,
+        y_cm / h,
+        letter,
+        fontsize=PANEL_LETTER_PT,
+        fontweight="bold",
+        ha="left",
+        va="baseline",
+    )
+    fig.canvas.draw()
+    width_cm = t.get_window_extent().width / fig.dpi * 2.54
+    fig.text(
+        (x_cm + width_cm + 0.12) / w,
+        y_cm / h,
+        title,
+        fontsize=MIN_PT,
+        fontweight="bold",
+        ha="left",
+        va="baseline",
+    )
+
+
+def style_axes(ax: plt.Axes, grid: str | None = None) -> None:
+    for side in ("left", "bottom"):
+        ax.spines[side].set_linewidth(0.6)
+        ax.spines[side].set_color(AXIS)
+    ax.set_axisbelow(True)
+    if grid:
+        ax.grid(axis=grid, color=GRID, linewidth=0.5)
+
+
+def pt_to_axes(ax: plt.Axes, dx_pt: float, dy_pt: float) -> tuple[float, float]:
+    pos = ax.get_position()
+    w, h = ax.figure.get_size_inches() * 72
+    return dx_pt / (pos.width * w), dy_pt / (pos.height * h)
+
+
+def break_mark(ax: plt.Axes, y_frac: float = 0.0) -> None:
+    """Two short slashes on the y axis at the baseline: the axis does not start at zero."""
+    dx, dy = pt_to_axes(ax, 3.2, 2.0)
+    gap_x, gap_y = pt_to_axes(ax, 1.1, 3.0)
+    ax.add_patch(
+        Rectangle(
+            (-gap_x, y_frac - gap_y),
+            2 * gap_x,
+            2 * gap_y,
+            transform=ax.transAxes,
+            facecolor="white",
+            edgecolor="none",
+            clip_on=False,
+            zorder=6,
+        )
+    )
+    for off in (-1.0, 1.0):
+        oy = pt_to_axes(ax, 0, 1.6 * off)[1]
+        ax.add_line(
+            Line2D(
+                [-dx, dx],
+                [y_frac + oy - dy, y_frac + oy + dy],
+                transform=ax.transAxes,
+                color=INK2,
+                lw=0.7,
+                clip_on=False,
+                zorder=7,
+            )
+        )
+
+
+# --------------------------------------------------------------------------------------------------------- Fig. 2
+def rq1_frame() -> pd.DataFrame:
+    t = read_csv("rq1")
+    t = t[(t["analysis"] == "M-phase") & (t["scale"] == "group_sd")]
+    out = []
+    for cov, _label in RQ1_ORDER:
+        for band, *_rest in RQ1_BANDS:
+            r = t[(t["covariate"] == cov) & (t["group"] == band)]
+            if len(r) != 1:
+                raise SystemExit(
+                    f"rq1_tidy.csv: expected one M-phase/group_sd row for {cov}/{band}, found {len(r)}"
+                )
+            r = r.iloc[0]
+            if f"{int(r['same_sign_as_pooled'])}/{int(r['k'])}" != r["sign_agreement"]:
+                raise SystemExit(
+                    f"rq1_tidy.csv: sign_agreement of {cov}/{band} is not same_sign_as_pooled/k"
+                )
+            out.append({"covariate": cov, "band": band, "theta": r["theta"], "ci95_low": r["ci95_low"], "ci95_high": r["ci95_high"],
+                        "same_sign": int(r["same_sign_as_pooled"]), "k": int(r["k"])})  # fmt: skip
+    return pd.DataFrame(out)
+
+
+def fig_rq1(rq1: pd.DataFrame) -> plt.Figure:
+    W, H = 8.8, 6.4
+    L, R, T, B = 1.72, 1.36, 0.72, 0.88
+    fig = new_figure(W, H)
+    ax = add_axes_cm(fig, L, B, W - L - R, H - T - B)
+    n = len(RQ1_ORDER)
+    ax.set_xlim(-0.8, 0.5)
+    ax.set_ylim(n - 0.5, -0.5)
+    d = 0.28 / (
+        (H - T - B) / n
+    )  # vertical spacing of the three bands: 0.28 cm, so the 7 pt counts at the right never touch
+    off = {"early": -d, "mid": 0.0, "late": d}
+    axw = W - L - R
+    x0, x1 = -(L - 0.05) / axw, 1 + (R - 0.05) / axw
+    for i in range(1, n, 2):  # alternating bands, also behind the row labels and the count column
+        ax.add_patch(
+            Rectangle(
+                (x0, i - 0.5),
+                x1 - x0,
+                1.0,
+                transform=ax.get_yaxis_transform(),
+                facecolor=BAND,
+                edgecolor="none",
+                clip_on=False,
+                zorder=0,
+            )
+        )
+    style_axes(ax, grid="x")
+    ax.spines["left"].set_visible(False)
+    ax.axvline(0, color=INK2, linewidth=0.8, zorder=2)
+    for i, (cov, _label) in enumerate(RQ1_ORDER):
+        for band, _lab, marker, color, ms in RQ1_BANDS:
+            r = rq1[(rq1["covariate"] == cov) & (rq1["band"] == band)].iloc[0]
+            y = i + off[band]
+            ax.hlines(y, r["ci95_low"], r["ci95_high"], color=color, linewidth=1.1, zorder=3)
+            ax.plot(
+                r["theta"],
+                y,
+                marker=marker,
+                markersize=ms,
+                markerfacecolor=color,
+                markeredgecolor="white",
+                markeredgewidth=0.5,
+                linestyle="none",
+                zorder=4,
+            )
+            unanimous = (
+                r["same_sign"] == r["k"]
+            )  # every evaluable cohort has the pooled sign (12/12, or 11/11 for team members)
+            ax.annotate(f"{r['same_sign']}/{r['k']}", xy=(1.0, y), xycoords=("axes fraction", "data"), xytext=(4.5, 0), textcoords="offset points",
+                        ha="left", va="center", fontsize=MIN_PT, color=STRONG_BLUE if unanimous else COUNT_GREY, fontweight="bold" if unanimous else "normal")  # fmt: skip
+    ax.annotate("Same-sign\ncohorts", xy=(1.0, -0.5), xycoords=("axes fraction", "data"), xytext=(4.5, 2.0), textcoords="offset points",
+                ha="left", va="bottom", fontsize=MIN_PT, color=INK2, linespacing=1.05)  # fmt: skip
+    ax.set_yticks(range(n))
+    ax.set_yticklabels(
+        [lab for _c, lab in RQ1_ORDER], linespacing=1.05, fontweight="bold", color=INK
+    )  # construct names
+    ax.tick_params(axis="y", length=0, pad=4)
+    ax.set_xticks([-0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4])
+    ax.xaxis.set_major_formatter(
+        FuncFormatter(lambda v, _p: "0" if abs(v) < 1e-9 else minus(f"{v:.1f}"))
+    )
+    ax.set_xlabel("Effect on elimination log-odds (per within-band SD)", labelpad=2)
+    # one legend row above the plot (the free corners inside the plot are crossed by the zero line): lead-in word + three entries
+    y_leg = H - 0.26
+    lead = fig.text(0.12 / W, y_leg / H, "Phases:", ha="left", va="center", fontsize=MIN_PT)
+    fig.canvas.draw()
+    lead_cm = lead.get_window_extent().width / fig.dpi * 2.54
+    handles = [Line2D([0], [0], color=c, lw=1.1, marker=m, markersize=ms, markerfacecolor=c, markeredgecolor="white", markeredgewidth=0.5)
+               for _b, _l, m, c, ms in RQ1_BANDS]  # fmt: skip
+    leg = fig.legend(handles, [lab for _b, lab, *_r in RQ1_BANDS], loc="center left", bbox_to_anchor=((0.12 + lead_cm + 0.15) / W, y_leg / H), ncol=3,
+                     frameon=False, handlelength=1.5, handletextpad=0.4, columnspacing=1.1, borderpad=0, borderaxespad=0, fontsize=MIN_PT)  # fmt: skip
+    fig._legends_to_check = [leg]
+    return fig
+
+
+# --------------------------------------------------------------------------------------------------------- Fig. 3
+def draw_panel_a(ax: plt.Axes, pa: pd.DataFrame) -> tuple[list, list]:
+    """Observed rate (black) and the mean predicted probability of the four arms per phase; returns the legend handles and labels."""
+    style_axes(ax, grid="y")
+    x = pa["phase"].to_numpy()
+    ax.plot(x, pa["observed_rate"], color=OBSERVED, linewidth=2.4, marker="o", markersize=6.6, markerfacecolor=OBSERVED, markeredgecolor="white",
+            markeredgewidth=0.5, zorder=3, label="Observed")  # drawn first and wider: a black rim stays visible wherever a model sits on the observed rate  # fmt: skip
+    for (
+        arm,
+        label,
+        color,
+        ls,
+        marker,
+        ms,
+        filled,
+        z,
+    ) in PANEL_A:  # hollow markers stay transparent so the observed dot below them remains visible
+        ax.plot(x, pa[pred_col(label)], color=color, linestyle=ls, linewidth=1.0, marker=marker, markersize=ms, markerfacecolor=color if filled else "none",
+                markeredgecolor="white" if filled else color, markeredgewidth=0.4 if filled else 0.9, zorder=z, label=label)  # fmt: skip
+    ax.set_xlim(0.5, 7.5)
+    ax.set_ylim(0, 0.6)
+    ax.set_xticks(range(1, 8))
+    ax.set_yticks([0, 0.2, 0.4, 0.6])
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda v, _p: "0" if v == 0 else f"{v:.1f}"))
+    ax.set_xlabel("Phase", labelpad=2)
+    ax.set_ylabel("Next-phase elimination rate", labelpad=2)
+    # direct labels at the right end of the two lines that stand apart; the three phase-aware lines lie on the observed one, the legend names them
+    k_end = float(pa[pred_col(PANEL_A[0][1])].iloc[-1])
+    ax.text(
+        7.45,
+        float(pa["observed_rate"].iloc[-1]) + 0.046,
+        "observed",
+        ha="right",
+        va="baseline",
+        fontsize=MIN_PT,
+        fontweight="bold",
+        color=OBSERVED,
+    )
+    ax.text(
+        7.45,
+        k_end - 0.036,
+        "KRAFTON\nadapted",
+        ha="right",
+        va="top",
+        fontsize=MIN_PT,
+        fontweight="bold",
+        color=KRAFTON_C,
+        linespacing=1.05,
+    )
+    # ... and say so in the empty upper left (the QA checks that the note touches no mark)
+    ax.annotate(
+        "phase-aware\ndesigns overlap\nobserved",
+        xy=(0.62, 0.592),
+        xycoords="data",
+        ha="left",
+        va="top",
+        fontsize=MIN_PT,
+        fontstyle="italic",
+        color=NOTE_GREY,
+        linespacing=1.1,
+    )
+    return ax.get_legend_handles_labels()
+
+
+def draw_waterfall(
+    ax: plt.Axes,
+    d: dict,
+    ylim: tuple[float, float],
+    yticks: list[float],
+    start_color: str,
+    end_color: str,
+    rot: float,
+    key_steps: tuple,
+) -> None:
+    """Start bar, floating step bars (12-cohort mean differences) with their 95% t-interval over cohorts as whiskers (drawn at the end of each step),
+    end bar; y axis from ``ylim[0]``.  Bars and steps are all 12-cohort means, so the steps end exactly at the end bar.
+    ``key_steps`` (labels): strong blue bar, bold value and axis labels; the other positive steps light blue with regular grey labels; a negative step stays
+    grey with a hatch; start and end bars as given."""
+    style_axes(ax, grid="y")
+    bw = 0.58
+    lo_axis = ylim[0]
+    labels, cum, key_idx = [d["start_label"]], d["start"], []
+    ax.bar(0, cum - lo_axis, bottom=lo_axis, width=bw, color=start_color, linewidth=0, zorder=3)
+    ax.annotate(
+        f"{cum:.3f}",
+        xy=(0, cum),
+        xytext=(0, 2.0),
+        textcoords="offset points",
+        ha="center",
+        va="bottom",
+        fontsize=MIN_PT,
+        color=INK,
+    )
+    level = cum
+    for i, s in enumerate(d["steps"], 1):
+        before, after = level, level + s["md"]
+        pos = s["md"] >= 0
+        key = s["label"] in key_steps
+        if key:
+            key_idx.append(i)
+        ax.bar(i, abs(s["md"]), bottom=min(before, after), width=bw, color=(STRONG_BLUE if key else LIGHT_BLUE) if pos else SAGONG,
+               edgecolor="none" if pos else "white", linewidth=0, hatch=None if pos else "////", zorder=3)  # fmt: skip
+        ax.plot(
+            [i - 1 + bw / 2, i - bw / 2], [before, before], color=CONNECT, linewidth=0.5, zorder=2
+        )
+        lo, hi = before + s["md_ci95_low"], before + s["md_ci95_high"]
+        ax.errorbar(
+            i,
+            after,
+            yerr=[[after - lo], [hi - after]],
+            fmt="none",
+            ecolor=INK,
+            elinewidth=0.8,
+            capsize=2.0,
+            capthick=0.8,
+            zorder=5,
+        )
+        ax.annotate(minus(f"{s['md']:+.3f}") if round(s["md"], 3) != 0 else "0.000", xy=(i, hi), xytext=(0, 2.0), textcoords="offset points", ha="center", va="bottom", fontsize=MIN_PT,
+                    fontweight="bold" if key else "normal", color=INK if key else TICK_GREY)  # fmt: skip
+        labels.append(s["label"])
+        level = after
+    n = len(d["steps"]) + 1
+    ax.plot([n - 1 + bw / 2, n - bw / 2], [level, level], color=CONNECT, linewidth=0.5, zorder=2)
+    ax.bar(n, d["end"] - lo_axis, bottom=lo_axis, width=bw, color=end_color, linewidth=0, zorder=3)
+    ax.annotate(
+        f"{d['end']:.3f}",
+        xy=(n, d["end"]),
+        xytext=(0, 2.0),
+        textcoords="offset points",
+        ha="center",
+        va="bottom",
+        fontsize=MIN_PT,
+        color=INK,
+    )
+    labels.append(d["end_label"])
+    ax.set_xlim(-0.5, n + 0.5)
+    ax.set_ylim(*ylim)
+    ax.set_yticks(yticks)
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda v, _p: f"{v:.2f}"))
+    ax.set_xticks(range(n + 1))
+    ax.set_xticklabels(labels, rotation=rot, ha="right", va="top", rotation_mode="anchor")
+    for i, tl in enumerate(ax.get_xticklabels()):
+        tl.set_color(INK if i in key_idx else TICK_GREY)
+        tl.set_fontweight("bold" if i in key_idx else "normal")
+    ax.tick_params(axis="x", length=0, pad=3)
+    ax.set_ylabel(
+        f"AUC (12-cohort mean)\naxis starts at {ylim[0]:.2f}", labelpad=2, linespacing=1.1
+    )
+    break_mark(ax)
+
+
+def fig_contrast(pa: pd.DataFrame, wf: dict) -> plt.Figure:
+    W, H = 17.8, 5.8
+    fig = new_figure(W, H)
+    top, bottom = (
+        0.55,
+        2.2,
+    )  # the band below the axes holds the rotated bar labels of (b) and (c) and, in (a), the axis label and the legend
+    h = H - top - bottom
+    axa = add_axes_cm(fig, 1.0, bottom, 3.35, h)  # (a) calibration
+    axs = add_axes_cm(fig, 5.78, bottom, 3.35, h)  # (b) Sagong path, compact
+    axk = add_axes_cm(fig, 10.5, bottom, 7.25, h)  # (c) KRAFTON path, wide
+    handles_a, labels_a = draw_panel_a(axa, pa)
+    legend_a = fig.legend(handles_a, labels_a, loc="upper left", bbox_to_anchor=(0.12 / W, (bottom - 0.66) / H), ncol=1, frameon=False, handlelength=2.0,
+                          handletextpad=0.5, labelspacing=0.08, borderpad=0, borderaxespad=0, fontsize=MIN_PT)  # fmt: skip
+    draw_waterfall(
+        axs,
+        wf["sagong"],
+        (0.68, 0.80),
+        [0.68, 0.72, 0.76, 0.80],
+        SAGONG,
+        OURS,
+        35,
+        SAGONG_KEY_STEPS,
+    )
+    draw_waterfall(
+        axk,
+        wf["krafton"],
+        (0.72, 0.792),
+        [0.72, 0.74, 0.76, 0.78],
+        KRAFTON_C,
+        PTR,
+        35,
+        KRAFTON_KEY_STEPS,
+    )
+    handles = [Patch(facecolor=STRONG_BLUE, linewidth=0), Patch(facecolor=LIGHT_BLUE, linewidth=0), Patch(facecolor=SAGONG, edgecolor="white", hatch="////", linewidth=0),
+               Line2D([0], [0], color=INK, lw=0.8, marker="_", markersize=4.5, markeredgewidth=0.8)]  # fmt: skip
+    # the key sits in the empty space under the floating steps of (c)
+    legend_k = axk.legend(handles, ["Key step", "Other step", "Negative step", "95% CI"], loc="lower left", bbox_to_anchor=(3.6, 0.7235), bbox_transform=axk.transData,
+                          frameon=False, handlelength=1.1, handleheight=0.8, handletextpad=0.5, labelspacing=0.15, borderpad=0, borderaxespad=0, fontsize=MIN_PT)  # fmt: skip
+    y = H - 0.30
+    panel_title(fig, 0.06, y, "(a)", "Per-phase calibration")
+    panel_title(fig, 4.58, y, "(b)", "Decomposition, Sagong path")
+    panel_title(fig, 9.36, y, "(c)", "Decomposition, KRAFTON path")
+    fig._legends_to_check = [legend_a, legend_k]
+    return fig
+
+
+# --------------------------------------------------------------------------------------------------------- table
+def write_table(values: pd.DataFrame, path: Path, rules: str) -> list[str]:
+    """LaTeX table of the 12-cohort means; the best value of each column within each block (ties at 3 decimals included) in bold; a missing value is
+    three dashes.  Returns the tie notes."""
+    top, mid, bottom, cline = (
+        (r"\hline", r"\hline", r"\hline", r"\cline{%d-%d}")
+        if rules == "hline"
+        else (r"\toprule", r"\midrule", r"\bottomrule", r"\cmidrule(lr){%d-%d}")
+    )
+    ncol = len(TABLE_COLUMNS)
+    notes: list[str] = []
+    winners: dict[str, set] = {}
+    for key, _head, direction in TABLE_COLUMNS:
+        winners[key] = set()
+        for block in sorted(values["block"].unique()):
+            part = values.loc[values["block"] == block, key].dropna().round(3)
+            if part.empty:
+                continue
+            best = part.max() if direction > 0 else part.min()
+            win = set(part.index[np.isclose(part.to_numpy(), best)])
+            if len(win) > 1:
+                notes.append(
+                    f"{key} (block {block}): tie at 3 decimals between {', '.join(values.loc[sorted(win), 'row'])} (all in bold)"
+                )
+            winners[key] |= win
+
+    def cell(i: int, key: str) -> str:
+        v = values.loc[i, key]
+        if pd.isna(v):
+            return "---"
+        return rf"\textbf{{{v:.3f}}}" if i in winners[key] else f"{v:.3f}"
+
+    span = (
+        " & ".join(
+            [""] * (ncol + 1 - N_KRAFTON_TASK)
+            + [r"\multicolumn{%d}{c}{KRAFTON task}" % N_KRAFTON_TASK]
+        )
+        + r" \\"
+    )
+    lines = [
+        "% generated by tools/make_result_figures_v2.py from the v2 re-run -- do not edit by hand (python3 tools/make_result_figures_v2.py).",
+        "% 12-cohort means (test split, seed 42, stratum all, identical rows for every model); 3 decimals; bold = best of the column within its block",
+        "% (higher is better for the three AUC columns, winner accuracy and C-index, lower for log loss, Brier and the per-phase calibration gap; ties at 3 decimals are all bold).",
+        "% rows (names of the manuscript; the run directories keep their code names): Ours GBDT = HGB-cut, Ours PTR-Former = M11R, KRAFTON original = KRAFTON-tf, KRAFTON + phase baseline = KRAFTON-tf-h0 (the same scores plus a",
+        "% per-phase baseline fitted on the VALIDATION split: the training-cut inputs of KRAFTON's model are not on disk, adaptation/h0_baseline.py),",
+        "% Sagong (XGB) = SAGONG-xgb; block 'Same KRAFTON backbone' (KRAFTON's transformer on our features): Cox objective = KRAFTON-tf-ourfeat (K2),",
+        "% next-phase objective = KRAFTON-tf-ourfeat-bce (K3a).",
+        "% AUC, within-phase AUC (unweighted mean over phases), log loss (nll) and Brier: reports/bigcomp2027_results_v2/arm_metrics_per_cohort.csv.",
+        "% Within match-phase AUC: reports/bigcomp2027_results_v2/supplement/e2_arm_wmp_per_cohort.csv (also recomputed from pred_test.csv).",
+        "% Per-phase calibration gap = row-weighted mean over the phases of |mean predicted probability - observed elimination rate|:",
+        "%   reports/krafton_baseline_v2/h0_arm_metrics.csv (cal_gap); the Sagong (XGB) value is NOT in that file and was computed from its",
+        "%   pred_test.csv with the same definition (the same code reproduces the file's value for the other rows).",
+        "% KRAFTON task = KRAFTON's native metrics at the phase cuts (winner accuracy, C-index): reports/bigcomp2027_results_v2/fidelity/krafton_native_bootstrap.csv,",
+        "%   rows 'mean of 12 cohorts'; Ours PTR-Former = M11R read through its rank head (M11R-rankhead).  The KRAFTON + phase baseline row is NOT in that file:",
+        "%   computed with the code of fidelity/krafton_fidelity.py (padded, per_sample_stats) on KRAFTON-tf-h0's pred_test.csv, score -p_hazard (the same code",
+        "%   reproduces KRAFTON-tf's CSV value); it equals KRAFTON-tf, since a per-phase shift cannot change the ranking inside a (match, cut phase) sample.",
+        "%   Sagong (XGB) was not run on this task (three dashes).",
+        "% Two-column float (the columns at \\small do not fit one IEEEtran column); include at paragraph level with \\input{tables/tab_main_results},",
+        "% the file holds the whole float; the caption is still to be written.",
+        r"\begin{table*}[t]",
+        "% caption TBD",
+        r"\centering\small",
+        r"\setlength{\tabcolsep}{3pt}",
+        r"\renewcommand{\arraystretch}{1.15}",
+        r"\begin{tabular}{@{}l " + " ".join(["c"] * ncol) + r"@{}}",
+        top,
+        span,
+        cline % (ncol + 2 - N_KRAFTON_TASK, ncol + 1),
+        "Model & " + " & ".join(h for _k, h, _d in TABLE_COLUMNS) + r" \\",
+        mid,
+    ]
+    for block, (title, _rows) in enumerate(TABLE_BLOCKS):
+        if title is not None:
+            lines += [mid, r"\multicolumn{%d}{@{}l}{\emph{%s}} \\" % (ncol + 1, title)]
+        for pos, i in enumerate(values.index[values["block"] == block]):
+            lines.append(
+                f"{values.loc[i, 'row']} & "
+                + " & ".join(cell(i, k) for k, _h, _d in TABLE_COLUMNS)
+                + r" \\"
+            )
+            if block == 0 and pos == 1:  # ours | others
+                lines.append(mid)
+    lines += [bottom, r"\end{tabular}", r"\end{table*}"]
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return notes
+
+
+# --------------------------------------------------------------------------------------------------------- QA
+class _TextRecorder:
+    """Context manager that remembers every Text artist whose ``draw`` runs.  (Agg draws a multi-line text line by line and hands the renderer
+    no artist, so recording at the renderer would miss the two-line labels.)"""
+
+    def __enter__(self) -> "_TextRecorder":
+        self.drawn: list = []
+        self._orig = mpl.text.Text.draw
+        rec = self
+
+        def draw(this, renderer):
+            if (
+                this.get_visible()
+                and this.get_text().strip()
+                and all(this is not t for t in rec.drawn)
+            ):
+                rec.drawn.append(this)
+            return rec._orig(this, renderer)
+
+        mpl.text.Text.draw = draw
+        return self
+
+    def __exit__(self, *exc) -> None:
+        mpl.text.Text.draw = self._orig
+
+
+def _bbox(mask: np.ndarray) -> tuple[int, int, int, int] | None:
+    ys, xs = np.nonzero(mask)
+    return None if ys.size == 0 else (int(ys.min()), int(ys.max()), int(xs.min()), int(xs.max()))
+
+
+def qa_overlaps(fig: plt.Figure) -> tuple[list[str], dict]:
+    """Ink-level check of the rendered figure at 300 dpi: text over text, text over marks, text at or beyond the canvas edge, legends over data."""
+    w, h = int(round(fig.get_figwidth() * fig.dpi)), int(round(fig.get_figheight() * fig.dpi))
+    with _TextRecorder() as rec:
+        fig.draw(RendererAgg(w, h, fig.dpi))
+    texts = rec.drawn
+    masks = []
+    for t in texts:  # each text on its own transparent canvas
+        r = RendererAgg(w, h, fig.dpi)
+        t.draw(r)
+        masks.append(np.asarray(r.buffer_rgba())[..., 3] > 32)
+    legends = list(getattr(fig, "_legends_to_check", []))
+    hidden = [(a, a.get_visible()) for a in (*texts, *legends)]
+    for a, _v in hidden:
+        a.set_visible(False)
+    r2 = RendererAgg(w, h, fig.dpi)
+    fig.draw(r2)  # marks only: no text, no legend
+    ink = (
+        np.asarray(r2.buffer_rgba())[..., :3].astype(int).min(axis=2) < 175
+    )  # marks, axes and connectors; the faint grid and the row bands are not ink
+    for a, v in hidden:
+        a.set_visible(v)
+    issues, boxes, sizes = [], [_bbox(m) for m in masks], [t.get_fontsize() for t in texts]
+    for t, m, b in zip(texts, masks, boxes):
+        name = repr(t.get_text()[:28])
+        if b is None:
+            continue
+        if b[0] <= 0 or b[2] <= 0 or b[1] >= h - 1 or b[3] >= w - 1:
+            issues.append(f"text {name} touches or leaves the canvas")
+        n_ink = int((m & ink).sum())
+        if n_ink > 0:
+            issues.append(f"text {name} overlaps {n_ink} px of marks")
+    for i in range(len(texts)):
+        for j in range(i + 1, len(texts)):
+            bi, bj = boxes[i], boxes[j]
+            if (
+                bi is None
+                or bj is None
+                or bi[1] < bj[0]
+                or bj[1] < bi[0]
+                or bi[3] < bj[2]
+                or bj[3] < bi[2]
+            ):
+                continue
+            n = int((masks[i] & masks[j]).sum())
+            if n > 0:
+                issues.append(
+                    f"text {texts[i].get_text()[:20]!r} overlaps text {texts[j].get_text()[:20]!r} ({n} px)"
+                )
+    renderer = fig.canvas.get_renderer()
+    pad = int(round(fig.dpi / 72))  # one point around the legend box
+    for k, leg in enumerate(legends):
+        bb = leg.get_window_extent(renderer)
+        x0, x1 = max(int(bb.x0) - pad, 0), min(int(bb.x1) + pad, w)
+        y0, y1 = max(h - int(bb.y1) - pad, 0), min(h - int(bb.y0) + pad, h)
+        n = int(ink[y0:y1, x0:x1].sum())
+        if n > 0:
+            issues.append(f"legend {k} covers {n} px of marks")
+    return issues, {"n_text": len(texts), "min_font_pt": min(sizes) if sizes else float("nan")}
+
+
+def pdf_facts(path: Path) -> dict:
+    """Font sizes (Tf operators of the decompressed content streams), page size and fonts of a PDF written by matplotlib."""
+    data = path.read_bytes()
+    sizes: set[float] = set()
+    for m in re.finditer(rb"stream\r?\n(.*?)\r?\nendstream", data, re.S):
+        try:
+            s = zlib.decompress(m.group(1))
+        except zlib.error:
+            continue
+        sizes.update(
+            float(t.group(1)) for t in re.finditer(rb"(?<![\w.])([0-9]+(?:\.[0-9]+)?) Tf", s)
+        )
+    box = re.search(rb"/MediaBox\s*\[\s*0\s+0\s+([0-9.]+)\s+([0-9.]+)\s*\]", data)
+    w_pt, h_pt = float(box.group(1)), float(box.group(2))
+    return {"font_sizes": sorted(sizes), "w_cm": w_pt / 72 * 2.54, "h_cm": h_pt / 72 * 2.54}
+
+
+def save_and_check(
+    fig: plt.Figure, stem: Path, expect_w_cm: float, max_h_cm: float, qa: bool
+) -> list[str]:
+    meta = {
+        "Creator": "src/pubg_lab/projects/battle_royale/make_result_figures_v2.py",
+        "CreationDate": None,
+    }
+    fig.savefig(stem.with_suffix(".pdf"), metadata=meta)
+    fig.savefig(stem.with_suffix(".png"), dpi=300)
+    problems: list[str] = []
+    facts = pdf_facts(stem.with_suffix(".pdf"))
+    from PIL import Image
+
+    with Image.open(stem.with_suffix(".png")) as im:
+        px, dpi = im.size, im.info.get("dpi", (None, None))
+    w_cm, h_cm = fig.get_size_inches() * 2.54
+    if (
+        abs(w_cm - expect_w_cm) > 1e-6
+        or h_cm > max_h_cm + 1e-6
+        or abs(facts["w_cm"] - expect_w_cm) > 0.01
+        or facts["h_cm"] > max_h_cm + 0.01
+    ):
+        problems.append(
+            f"size {w_cm:.2f} x {h_cm:.2f} cm (PDF {facts['w_cm']:.2f} x {facts['h_cm']:.2f}) violates {expect_w_cm} x <= {max_h_cm}"
+        )
+    if facts["font_sizes"] and min(facts["font_sizes"]) < MIN_PT - 1e-6:
+        problems.append(f"PDF has text below {MIN_PT} pt: {facts['font_sizes']}")
+    if dpi[0] is None or abs(dpi[0] - 300) > 1:
+        problems.append(f"PNG dpi {dpi}")
+    report = [f"{stem.name}: {w_cm:.2f} x {h_cm:.2f} cm; PDF page {facts['w_cm']:.2f} x {facts['h_cm']:.2f} cm; PNG {px[0]} x {px[1]} px at {dpi[0]:.0f} dpi; "
+              f"PDF font sizes (pt) {facts['font_sizes']}"]  # fmt: skip
+    if qa:
+        issues, stats = qa_overlaps(fig)
+        problems += issues
+        report.append(
+            f"  QA: {stats['n_text']} text items, min font {stats['min_font_pt']:.1f} pt, {len(issues)} overlap/legend issue(s)"
+        )
+        if stats["min_font_pt"] < MIN_PT - 1e-6:
+            problems.append(f"font below {MIN_PT} pt in the figure")
+    for line in report:
+        print(line)
+    return problems
+
+
+# --------------------------------------------------------------------------------------------------------- main
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    ap.add_argument("--figures-dir", type=Path, default=PAPER / "figures")
+    ap.add_argument("--tables-dir", type=Path, default=PAPER / "tables")
+    ap.add_argument(
+        "--rules",
+        choices=("hline", "booktabs"),
+        default="hline",
+        help="table rules (default: \\hline, as in the brief; the other paper tables use booktabs)",
+    )
+    ap.add_argument("--no-qa", action="store_true", help="skip the pixel-level overlap check")
+    a = ap.parse_args(argv)
+    a.figures_dir.mkdir(parents=True, exist_ok=True)
+    a.tables_dir.mkdir(parents=True, exist_ok=True)
+    font = setup_style()
+    print(f"font: {font}")
+    cohorts = cohort_list()
+
+    rq1 = rq1_frame()
+    pa = per_phase_table(cohorts)
+    wf = waterfall_data(cohorts)
+    vals = table_values(cohorts)
+
+    rq1.to_csv(a.figures_dir / "fig_rq1_effects_data.csv", index=False, float_format="%.9g")
+    pa.to_csv(
+        a.figures_dir / "fig_contrast_panel_a_per_phase.csv", index=False, float_format="%.9g"
+    )
+    waterfall_frame(wf).to_csv(
+        a.figures_dir / "fig_contrast_panels_bc_steps.csv", index=False, float_format="%.9g"
+    )
+    vals.to_csv(a.tables_dir / "tab_main_results_values.csv", index=False, float_format="%.9g")
+
+    problems = []
+    problems += save_and_check(
+        fig_rq1(rq1), a.figures_dir / "fig_rq1_effects", 8.8, 6.5, not a.no_qa
+    )
+    problems += save_and_check(
+        fig_contrast(pa, wf), a.figures_dir / "fig_contrast", 17.8, 5.8, not a.no_qa
+    )
+    notes = write_table(vals, a.tables_dir / "tab_main_results.tex", a.rules)
+
+    print("\npanel (a): per-phase observed rate and mean predicted probability (12 cohorts pooled)")
+    print(pa.round(4).to_string(index=False))
+    for panel, key in (("b", "sagong"), ("c", "krafton")):
+        d = wf[key]
+        print(
+            f"\npanel ({panel}, {key} path): start {d['start_label']} {d['start']:.4f}, end {d['end_label']} {d['end']:.4f}"
+        )
+        for s in d["steps"]:
+            print(
+                f"  {s['label']:<26s} drawn mean {s['md']:+.4f} [{s['md_ci95_low']:+.4f}, {s['md_ci95_high']:+.4f}] {s['md_same_sign']}/{s['md_k']}"
+                f"  | pooled {s['theta']:+.4f} [{s['ci95_low']:+.4f}, {s['ci95_high']:+.4f}] {s['same_sign']}/{s['k']}"
+            )
+        flag = "  <-- exceeds the tolerance" if abs(d["mismatch"]) > SUM_TOLERANCE else ""
+        print(
+            f"  sum of pooled steps {d['sum_steps']:+.4f}, end - start {d['end_minus_start']:+.4f}, difference {d['mismatch']:+.4f}{flag}"
+        )
+    print("\ntable (12-cohort means):")
+    print(vals[["row", *[k for k, _h, _d in TABLE_COLUMNS]]].round(4).to_string(index=False))
+    for n in notes:
+        print("tie:", n)
+    print(
+        "computed here (not in the outputs): panel (a) per-phase table, panel (b) steps, cal_gap of SAGONG-xgb, native metrics of KRAFTON-tf-h0"
+    )
+    if problems:
+        print("\nPROBLEMS:")
+        for p in problems:
+            print("  -", p)
+        return 1
+    print("\nall checks passed")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

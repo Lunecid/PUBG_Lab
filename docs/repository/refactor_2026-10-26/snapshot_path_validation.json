@@ -1,0 +1,25 @@
+{
+  "application_not_executed": true,
+  "selected_source_files": [
+    "src/pubg_lab/world_model/cohorts.py",
+    "src/pubg_lab/world_model/pretraining.py",
+    "src/pubg_lab/world_model/preprocess.py",
+    "src/pubg_lab/world_model/__init__.py",
+    "src/pubg_lab/world_model/temporal_prior.py",
+    "src/pubg_lab/world_model/encoder.py",
+    "src/pubg_lab/world_model/historical_prior.py",
+    "src/pubg_lab/world_model/dataset.py",
+    "src/pubg_lab/world_model/patches.py",
+    "src/pubg_lab/world_model/inputs.py",
+    "src/pubg_lab/world_model/indexed_dataset.py",
+    "src/pubg_lab/world_model/cli/train_world_model_g2.py",
+    "src/pubg_lab/common/paths.py",
+    "src/pubg_lab/common/__init__.py",
+    "src/pubg_lab/__init__.py",
+    "pyproject.toml",
+    "docs/experiment_design/WORLD_MODEL_G2_CPU_PROTOCOL_2026-10-20.md"
+  ],
+  "canonical_encoder_included": true,
+  "compatibility_wrappers_excluded": true,
+  "private_source_excluded": true
+}

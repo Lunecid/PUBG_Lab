@@ -1,29 +1,11 @@
-"""Hand-checkable unit/time/label examples; no DB and no training."""
-import json
-import numpy as np
-from world_model.patches import at_time
+"""Compatibility entry point; implementation: src/pubg_lab/world_model/cli/world_model_toy_checks.py."""
 
+import sys as _compat_sys
+from pathlib import Path as _CompatPath
 
-def main():
-    xy_cm=np.array([20100.,9900.])
-    xy_m=xy_cm/100
-    cell=np.floor(xy_m/100).astype(int)
-    np.testing.assert_array_equal(cell,[2,0])
-    distance=float(np.linalg.norm(np.array([3.,1.])))
-    assert np.isclose(distance,np.sqrt(10))
-    t0=110.
-    observations=np.array([98.,108.2,115.])
-    chosen=observations[np.searchsorted(observations,t0,side="right")-1]
-    assert chosen==108.2 and chosen<=t0
-    ranks=[4-e+1 for e in (1,2,3)]
-    assert ranks==[4,3,2]
-    assert at_time("2026-04-08T08:59:59+09:00")=="40.2"
-    assert at_time("2026-04-08T09:00:00+09:00") is None
-    print(json.dumps({"xy_m":xy_m.tolist(),"cell":cell.tolist(),
-                      "distance_m":distance,"asof_source_s":chosen,
-                      "age_s":round(t0-chosen,6),"eliminated_team_ranks":ranks,
-                      "winner_rank":1,"checks":"passed"}))
+_source = _CompatPath(__file__).resolve().parents[1] / "src"
+if str(_source) not in _compat_sys.path:
+    _compat_sys.path.insert(0, str(_source))
+from pubg_lab.common.compat import redirect as _redirect
 
-
-if __name__=="__main__":
-    main()
+_redirect(globals(), "pubg_lab.world_model.cli.world_model_toy_checks", package=False)

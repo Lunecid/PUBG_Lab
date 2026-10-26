@@ -1,8 +1,11 @@
-"""V3 final-experiment pipeline.
+"""Compatibility entry point; implementation: src/pubg_lab/survival/v3/__init__.py."""
 
-This package keeps the legacy DynamicSTGNN/MR-STGNN results reproducible while
-adding the factorized input contract needed for the final experiments:
+import sys as _compat_sys
+from pathlib import Path as _CompatPath
 
-    node features + global phase context + dynamic graph + optional snapshots.
-"""
+_source = _CompatPath(__file__).resolve().parents[2] / "src"
+if str(_source) not in _compat_sys.path:
+    _compat_sys.path.insert(0, str(_source))
+from pubg_lab.common.compat import redirect as _redirect
 
+_redirect(globals(), "pubg_lab.survival.v3", package=True)

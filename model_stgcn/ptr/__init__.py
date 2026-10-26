@@ -1,6 +1,11 @@
-"""PTR-Former experiment framework (BigComp 2027 phase / team / relation study).
+"""Compatibility entry point; implementation: src/pubg_lab/survival/ptr/__init__.py."""
 
-DB-free: everything here reads the per-cohort ``.pt`` dumps produced by the
-dump script and never imports ``stdb``.  See
-``docs/experiment_design/BIGCOMP2027_PTR_STUDY_DESIGN_2026-10-05.md`` (sections 3-5).
-"""
+import sys as _compat_sys
+from pathlib import Path as _CompatPath
+
+_source = _CompatPath(__file__).resolve().parents[2] / "src"
+if str(_source) not in _compat_sys.path:
+    _compat_sys.path.insert(0, str(_source))
+from pubg_lab.common.compat import redirect as _redirect
+
+_redirect(globals(), "pubg_lab.survival.ptr", package=True)

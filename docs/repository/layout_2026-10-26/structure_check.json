@@ -1,0 +1,23 @@
+{
+  "checked_files": 507,
+  "dependency_edges": {
+    "analysis": [],
+    "common": [],
+    "data": [
+      "common"
+    ],
+    "movement": [
+      "common"
+    ],
+    "repository": [
+      "common"
+    ],
+    "survival": [
+      "common",
+      "data"
+    ],
+    "world_model": []
+  },
+  "ok": true,
+  "errors": []
+}

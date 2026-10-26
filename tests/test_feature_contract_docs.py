@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from model_stgcn.v3.spec import FORBIDDEN_INPUT_FEATURES
+from pubg_lab.survival.v3.data.spec import FORBIDDEN_INPUT_FEATURES
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]

@@ -11,14 +11,14 @@ import numpy as np
 import pytest
 import torch
 
-from model_stgcn.ptr import data as D
-from model_stgcn.ptr import metrics as M
-from model_stgcn.ptr import player as PL
-from model_stgcn.ptr import relations as R
-from model_stgcn.ptr import train as T
-from model_stgcn.ptr.arms import get_arm, model_config
-from model_stgcn.ptr.model import PTRConfig, PTRFormer, TeamPool, _Init
-from model_stgcn.ptr.synthetic import make_dump, make_player_dump, write_cohort_dumps, write_player_dumps
+import pubg_lab.survival.ptr.data.data as D
+import pubg_lab.survival.ptr.evaluation.metrics as M
+import pubg_lab.survival.ptr.models.player as PL
+import pubg_lab.survival.ptr.models.relations as R
+import pubg_lab.survival.ptr.training.train as T
+from pubg_lab.survival.ptr.models.arms import get_arm, model_config
+from pubg_lab.survival.ptr.models.model import PTRConfig, PTRFormer, TeamPool, _Init
+from pubg_lab.survival.ptr.data.synthetic import make_dump, make_player_dump, write_cohort_dumps, write_player_dumps
 
 FULL = PL.PLAYER_RELATION_TYPES
 TM = tuple(t for t in FULL if t != "teammate")

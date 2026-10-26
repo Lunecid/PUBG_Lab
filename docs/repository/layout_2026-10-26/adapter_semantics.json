@@ -1,0 +1,150 @@
+{
+  "adapters": [
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/schema.py",
+      "active_copy": "projects/krafton_baseline/data/schema.py",
+      "normalized_equal": true,
+      "reference_sha256_unchanged": true
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/features.py",
+      "active_copy": "projects/krafton_baseline/data/features.py",
+      "normalized_equal": true,
+      "reference_sha256_unchanged": true
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/data.py",
+      "active_copy": "projects/krafton_baseline/data/data.py",
+      "normalized_equal": true,
+      "reference_sha256_unchanged": true
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/labels.py",
+      "active_copy": "projects/krafton_baseline/data/labels.py",
+      "normalized_equal": true,
+      "reference_sha256_unchanged": true
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/extract.py",
+      "active_copy": "projects/krafton_baseline/data/extract.py",
+      "normalized_equal": true,
+      "reference_sha256_unchanged": true
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/kftable.py",
+      "active_copy": "projects/krafton_baseline/data/kftable.py",
+      "normalized_equal": true,
+      "reference_sha256_unchanged": true
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/ourfeat.py",
+      "active_copy": "projects/krafton_baseline/models/ourfeat.py",
+      "normalized_equal": false,
+      "reference_sha256_unchanged": true,
+      "review_diff": "--- third_party/krafton_pubg_winprob/adaptation/ourfeat.py\n\n+++ projects/krafton_baseline/models/ourfeat.py\n\n@@ -252,9 +252,9 @@\n\n \n def code_fingerprint() -> str:\n     h = hashlib.sha1()\n-    files = sorted((ROOT / 'src').rglob('*.py')) + [ROOT / 'adaptation' / f'{n}.py' for n in ('ourfeat', 'train', 'data', 'labels', 'schema')]\n+    files = sorted((ROOT / 'src').rglob('*.py')) + [source_for(n) for n in ('ourfeat', 'train', 'data', 'labels', 'schema')]\n     for f in files:\n-        h.update(f.relative_to(ROOT).as_posix().encode() + b'\\x00' + f.read_bytes() + b'\\x00')\n+        h.update(f.relative_to(REPO).as_posix().encode() + b'\\x00' + f.read_bytes() + b'\\x00')\n     return h.hexdigest()\n \n def run(args) -> dict:",
+      "reviewed": true,
+      "review_reason": "Source identity locations and subprocess source import environment only"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/train.py",
+      "active_copy": "projects/krafton_baseline/training/train.py",
+      "normalized_equal": false,
+      "reference_sha256_unchanged": true,
+      "review_diff": "--- third_party/krafton_pubg_winprob/adaptation/train.py\n\n+++ projects/krafton_baseline/training/train.py\n\n@@ -192,9 +192,9 @@\n\n def code_fingerprint() -> str:\n     \"\"\"SHA-1 over the vendored src/ and the adaptation modules that decide a result.\"\"\"\n     h = hashlib.sha1()\n-    files = sorted((ROOT / 'src').rglob('*.py')) + [ROOT / 'adaptation' / f'{n}.py' for n in ('data', 'train', 'features', 'extract', 'labels', 'schema')]\n+    files = sorted((ROOT / 'src').rglob('*.py')) + [source_for(n) for n in ('data', 'train', 'features', 'extract', 'labels', 'schema')]\n     for f in files:\n-        h.update(f.relative_to(ROOT).as_posix().encode() + b'\\x00' + f.read_bytes() + b'\\x00')\n+        h.update(f.relative_to(REPO).as_posix().encode() + b'\\x00' + f.read_bytes() + b'\\x00')\n     return h.hexdigest()\n \n def spec_of(args) -> dict:",
+      "reviewed": true,
+      "review_reason": "Source identity locations and subprocess source import environment only"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/ourfeat_hazard.py",
+      "active_copy": "projects/krafton_baseline/training/ourfeat_hazard.py",
+      "normalized_equal": false,
+      "reference_sha256_unchanged": true,
+      "review_diff": "--- third_party/krafton_pubg_winprob/adaptation/ourfeat_hazard.py\n\n+++ projects/krafton_baseline/training/ourfeat_hazard.py\n\n@@ -191,9 +191,9 @@\n\n \n def code_fingerprint() -> str:\n     h = hashlib.sha1()\n-    files = sorted((ROOT / 'src').rglob('*.py')) + [ROOT / 'adaptation' / f'{n}.py' for n in ('ourfeat_hazard', 'ourfeat', 'train', 'data', 'labels', 'schema')]\n+    files = sorted((ROOT / 'src').rglob('*.py')) + [source_for(n) for n in ('ourfeat_hazard', 'ourfeat', 'train', 'data', 'labels', 'schema')]\n     for f in files:\n-        h.update(f.relative_to(ROOT).as_posix().encode() + b'\\x00' + f.read_bytes() + b'\\x00')\n+        h.update(f.relative_to(REPO).as_posix().encode() + b'\\x00' + f.read_bytes() + b'\\x00')\n     return h.hexdigest()\n \n def _k2_data_block(out_dir: Path, cohort: str, seed: int) -> dict | None:",
+      "reviewed": true,
+      "review_reason": "Source identity locations and subprocess source import environment only"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/hgb_kraftonfeat.py",
+      "active_copy": "projects/krafton_baseline/training/hgb_kraftonfeat.py",
+      "normalized_equal": true,
+      "reference_sha256_unchanged": true
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/h0_baseline.py",
+      "active_copy": "projects/krafton_baseline/training/h0_baseline.py",
+      "normalized_equal": true,
+      "reference_sha256_unchanged": true
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/h0_fit.py",
+      "active_copy": "projects/krafton_baseline/training/h0_fit.py",
+      "normalized_equal": true,
+      "reference_sha256_unchanged": true
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/phase_auc.py",
+      "active_copy": "projects/krafton_baseline/evaluation/phase_auc.py",
+      "normalized_equal": true,
+      "reference_sha256_unchanged": true
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/k3_contrasts.py",
+      "active_copy": "projects/krafton_baseline/evaluation/k3_contrasts.py",
+      "normalized_equal": true,
+      "reference_sha256_unchanged": true
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/diagnostics.py",
+      "active_copy": "projects/krafton_baseline/evaluation/diagnostics.py",
+      "normalized_equal": true,
+      "reference_sha256_unchanged": true
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/validate_causal.py",
+      "active_copy": "projects/krafton_baseline/evaluation/validate_causal.py",
+      "normalized_equal": true,
+      "reference_sha256_unchanged": true
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/diag_phase_init.py",
+      "active_copy": "projects/krafton_baseline/evaluation/diag_phase_init.py",
+      "normalized_equal": true,
+      "reference_sha256_unchanged": true
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/k3_facts.py",
+      "active_copy": "projects/krafton_baseline/reporting/k3_facts.py",
+      "normalized_equal": true,
+      "reference_sha256_unchanged": true
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/h0_report.py",
+      "active_copy": "projects/krafton_baseline/reporting/h0_report.py",
+      "normalized_equal": true,
+      "reference_sha256_unchanged": true
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/parity.py",
+      "active_copy": "projects/krafton_baseline/reporting/parity.py",
+      "normalized_equal": true,
+      "reference_sha256_unchanged": true
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/summarize.py",
+      "active_copy": "projects/krafton_baseline/reporting/summarize.py",
+      "normalized_equal": true,
+      "reference_sha256_unchanged": true
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/run_all.py",
+      "active_copy": "projects/krafton_baseline/pipelines/run_all.py",
+      "normalized_equal": false,
+      "reference_sha256_unchanged": true,
+      "review_diff": "--- third_party/krafton_pubg_winprob/adaptation/run_all.py\n\n+++ projects/krafton_baseline/pipelines/run_all.py\n\n@@ -180,7 +180,7 @@\n\n         if a.dry_run:\n             return 0\n         P.claim_root(roots.out, roots.dump, role='runs')\n-        rc = run_command_stage(cmd, cwd, log, {'PYTHONPATH': os.pathsep.join(filter(None, [str(REPO), os.environ.get('PYTHONPATH', '')]))})\n+        rc = run_command_stage(cmd, cwd, log, {'PYTHONPATH': os.pathsep.join(filter(None, [str(REPO / 'src'), str(REPO), os.environ.get('PYTHONPATH', '')]))})\n         print(f\"  -> {('done' if rc == 0 else 'failed')} (exit {rc}); log {log}\", flush=True)\n         return 1 if rc else 0\n     cohorts = resolve_cohorts(a.only, roots.dump)\n@@ -202,6 +202,7 @@\n\n         start = _utc()\n         print(f'[{start}] start {job.run_id}', flush=True)\n         env = dict(os.environ)\n+        env['PYTHONPATH'] = os.pathsep.join(filter(None, [str(REPO / 'src'), str(REPO), env.get('PYTHONPATH', '')]))\n         env.update(job.env)\n         with open(job.log, 'w') as lf:\n             rc = subprocess.run(job.cmd, cwd=str(job.cwd), stdout=lf, stderr=subprocess.STDOUT, env=env).returncode",
+      "reviewed": true,
+      "review_reason": "Source identity locations and subprocess source import environment only"
+    }
+  ],
+  "all_reference_bytes_unchanged": true,
+  "unresolved_semantic_changes": []
+}

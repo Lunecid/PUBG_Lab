@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from model_stgcn.v3.cohorts import cohort_choices, resolve_cohort, resolve_map_mode
-from model_stgcn.v3.run_matrix import _cmd_eval, _cmd_train
+from pubg_lab.survival.v3.data.cohorts import cohort_choices, resolve_cohort, resolve_map_mode
+from pubg_lab.survival.v3.experiments.run_matrix import _cmd_eval, _cmd_train
 
 
 def _runner_args(**overrides):

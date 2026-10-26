@@ -13,8 +13,8 @@ import numpy as np
 import pytest
 import torch
 
-from model_stgcn import dump_phase_tier as V1
-from model_stgcn.phase_v2 import features as FT
+import pubg_lab.survival.data.dump_phase_tier as V1
+import pubg_lab.survival.data.phase_v2.features as FT
 
 DUMP = Path("model_stgcn/dumps/bigcomp2027_phase_v2")
 V1_DUMP = Path("model_stgcn/dumps/bigcomp2027_phase_v1")

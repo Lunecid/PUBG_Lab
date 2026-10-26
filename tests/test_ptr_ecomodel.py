@@ -12,11 +12,11 @@ import pandas as pd
 import pytest
 import torch
 
-from model_stgcn.ptr import data as D
-from model_stgcn.ptr import ecomodel as E
-from model_stgcn.ptr import hgb as H
-from model_stgcn.ptr import metrics as M
-from model_stgcn.ptr.synthetic import make_dump
+import pubg_lab.survival.ptr.data.data as D
+import pubg_lab.survival.ptr.evaluation.ecomodel as E
+import pubg_lab.survival.ptr.models.hgb as H
+import pubg_lab.survival.ptr.evaluation.metrics as M
+from pubg_lab.survival.ptr.data.synthetic import make_dump
 
 COLUMNS = {  # real dump name -> column of the synthetic dump that carries it
     "hab_signed_boundary_distance_end_m": 3, "hab_required_speed_to_safe_mps": 4, "hab_local_enemy_count_200m": 5,
@@ -554,7 +554,7 @@ def test_run_cohort_writes_the_standard_format_on_the_rows_of_hgb_cut(cohort_run
 
 
 def test_the_run_directories_are_read_by_the_aggregator_scan(cohort_runs):
-    from model_stgcn.ptr import aggregate as A
+    import pubg_lab.survival.ptr.evaluation.aggregate as A
 
     _, runs = cohort_runs
     found, issues = A.scan_runs(runs)

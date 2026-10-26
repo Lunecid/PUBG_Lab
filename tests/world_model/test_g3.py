@@ -3,10 +3,10 @@ import pytest
 import torch
 from dataclasses import fields
 import test_dataset
-from world_model.cohorts import classify_match, movement_events, label_support, load_at, CohortDataset, candidate_windows
-from world_model.inputs import ConditionVocabulary
-from world_model.indexed_dataset import IndexedWorldDataset
-from world_model.historical_prior import HistoricalPrior
+from pubg_lab.world_model.data.cohorts import classify_match, movement_events, label_support, load_at, CohortDataset, candidate_windows
+from pubg_lab.world_model.features.inputs import ConditionVocabulary
+from pubg_lab.world_model.data.indexed_dataset import IndexedWorldDataset
+from pubg_lab.world_model.features.historical_prior import HistoricalPrior
 import sqlite3
 import json
 

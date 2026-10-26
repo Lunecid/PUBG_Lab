@@ -1,0 +1,38 @@
+........................................................................ [ 18%]
+.......................................ssssss.......ssssss.............. [ 37%]
+........................................................................ [ 55%]
+........................................................................ [ 74%]
+........................................................................ [ 92%]
+.............................                                            [100%]
+=============================== warnings summary ===============================
+../../.pyenv/versions/3.11.5/lib/python3.11/site-packages/torch_geometric/llm/utils/backend_utils.py:26
+  /Users/lunecid/.pyenv/versions/3.11.5/lib/python3.11/site-packages/torch_geometric/llm/utils/backend_utils.py:26: DeprecationWarning: `torch_geometric.distributed` has been deprecated since 2.7.0 and will no longer be maintained. For distributed training, refer to our tutorials on distributed training at https://pytorch-geometric.readthedocs.io/en/latest/tutorial/distributed.html or cuGraph examples at https://github.com/rapidsai/cugraph-gnn/tree/main/python/cugraph-pyg/cugraph_pyg/examples
+    from torch_geometric.distributed import (
+
+../../.pyenv/versions/3.11.5/lib/python3.11/site-packages/torch/jit/_script.py:1488
+../../.pyenv/versions/3.11.5/lib/python3.11/site-packages/torch/jit/_script.py:1488
+  /Users/lunecid/.pyenv/versions/3.11.5/lib/python3.11/site-packages/torch/jit/_script.py:1488: DeprecationWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+third_party/krafton_pubg_winprob/src/training/losses.py:61: 1 warning
+tests/test_krafton_adaptation.py: 10 warnings
+  /Users/lunecid/project/PUBG/third_party/krafton_pubg_winprob/src/training/losses.py:61: DeprecationWarning: invalid escape sequence '\i'
+    """
+
+tests/test_krafton_adaptation.py::test_k3_init_intercepts_and_shared_initial_weights_with_k2
+  /Users/lunecid/project/PUBG/tests/test_krafton_adaptation.py:551: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+  Consider using tensor.detach() first. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:837.)
+    bias = float(h3.base.mlp[-1].bias)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [4] tests/test_sagong2025.py:262: could not import 'pyarrow': No module named 'pyarrow'
+SKIPPED [1] tests/test_sagong2025.py:298: could not import 'pyarrow': No module named 'pyarrow'
+SKIPPED [1] tests/test_sagong2025.py:321: could not import 'pyarrow': No module named 'pyarrow'
+SKIPPED [1] tests/test_v2_consumers_sagong.py:122: could not import 'pyarrow': No module named 'pyarrow'
+SKIPPED [1] tests/test_v2_consumers_sagong.py:180: could not import 'pyarrow': No module named 'pyarrow'
+SKIPPED [1] tests/test_v2_consumers_sagong.py:198: could not import 'pyarrow': No module named 'pyarrow'
+SKIPPED [1] tests/test_v2_consumers_sagong.py:216: could not import 'pyarrow': No module named 'pyarrow'
+SKIPPED [1] tests/test_v2_consumers_sagong.py:231: could not import 'pyarrow': No module named 'pyarrow'
+SKIPPED [1] tests/test_v2_consumers_sagong.py:257: could not import 'pyarrow': No module named 'pyarrow'
+377 passed, 12 skipped, 1 deselected, 15 warnings in 24.21s

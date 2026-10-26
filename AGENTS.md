@@ -35,3 +35,12 @@
 실제 Python 구현은 `src/pubg_lab/`에 둔다. root 기존 Python 경로는 호환용이다.
 [코드 구조·양식 기준](docs/repository/CODEBASE_STANDARD.md)과 `make structure format-check lint test-architecture`를 따른다.
 연구 상수·분할·평가·동결 증거를 구조 변경과 함께 바꾸지 않는다.
+
+
+## 코드 위치와 구조 검사
+
+현재 개발은 src/pubg_lab(역할별 재사용 부품), projects(실제 실행 프로젝트), apps(사용자 앱)에서 한다.
+같은 분야의 모델·데이터·평가·실험을 역할별 하위 폴더에 모은다. 루트 전달용 .py 파일은 추가하지 않는다.
+이동 시 호출·시험·명령도 실제 경로로 바꾼다. 라이브러리는 projects를 import하지 않는다.
+구조·양식 검사는 CODEBASE_STANDARD와 make structure format-check lint test-architecture를 따른다.
+model_stgcn의 실험 자료·제한 분할과 tools의 제한 분할 경로는 보존 예외이며 새 코드 위치가 아니다.

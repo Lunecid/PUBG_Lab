@@ -13,12 +13,12 @@ from pathlib import Path
 
 import pytest
 
-from model_stgcn.ptr import paths as P
+import pubg_lab.survival.ptr.data.paths as P
 from tests.test_rerun_paths import make_dump
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
-from tools import rerun_v2 as R  # noqa: E402
+import projects.battle_royale.pipelines.rerun_v2 as R  # noqa: E402
 
 FINAL_STEPS = [
     "gate.dump", "gate.leak_tests",
@@ -98,7 +98,7 @@ def test_hgb_cut_runs_first_every_sagong_and_krafton_stage_waits_for_it(tmp_path
 
 def test_stage_2_the_player_layer_is_not_part_of_the_plan(tmp_path, capsys):
     """M11RZ-P / M11RZ-P-tm need the player dump, which is not rebuilt; the paper does not use them."""
-    from model_stgcn.ptr.arms import STAGE2_ARMS
+    from pubg_lab.survival.ptr.models.arms import STAGE2_ARMS
 
     assert STAGE2_ARMS == ("M11RZ-P", "M11RZ-P-tm") and R.PLAYER_LAYER_TOKENS == ("--stage2", "--player-dump-dir", *STAGE2_ARMS)
     for streams in (1, 2):
@@ -109,16 +109,16 @@ def test_stage_2_the_player_layer_is_not_part_of_the_plan(tmp_path, capsys):
                 for tok in s.cmd or []:
                     assert not any(t in tok for t in R.PLAYER_LAYER_TOKENS), (s.id, tok)
     # what the plan asks run_matrix for contains no stage-2 run (the group exists in run_matrix, the plan never selects it)
-    from model_stgcn.ptr import run_matrix as RM
+    import pubg_lab.survival.ptr.experiments.run_matrix as RM
 
     runs, _ = RM.enumerate_runs(["karakin_tpp_squad", "erangel_tpp_squad"], ("erangel_tpp_squad",))
     assert set(STAGE2_ARMS).isdisjoint({r.arm for r in runs}) and RM.STAGE2_GROUP not in {r.group for r in runs} and {r.arm for r in RM.enumerate_norank_runs(["karakin_tpp_squad"])} == {"M01-norank", "M11R-norank"}
     # the check itself: stage 2, a stage-2 arm or a player dump in any command is refused (M11RZ, the relation-zone arm without the player layer, is fine)
-    ok = R.Step(id="ok", lane="cpu", desc="", cmd=["python", "-m", "model_stgcn.ptr.run_matrix", "--only", "arm=M11RZ"])
+    ok = R.Step(id="ok", lane="cpu", desc="", cmd=["python", "-m", 'pubg_lab.survival.ptr.experiments.run_matrix', "--only", "arm=M11RZ"])
     R.validate_plan([ok])
     for bad in (["--stage2"], ["--only", "arm=M11RZ-P"], ["--only", "arm=M11RZ-P-tm,M00"], ["--player-dump-dir", "/x/bigcomp2027_player_v2"]):
         with pytest.raises(ValueError, match="stage 2 is not part of the v2 re-run"):
-            R.validate_plan([R.Step(id="bad", lane="cpu", desc="", cmd=["python", "-m", "model_stgcn.ptr.run_matrix", *bad])])
+            R.validate_plan([R.Step(id="bad", lane="cpu", desc="", cmd=["python", "-m", 'pubg_lab.survival.ptr.experiments.run_matrix', *bad])])
         with pytest.raises(ValueError, match="stage 2 is not part"):  # the runner validates too
             R.Runner([R.Step(id="bad", lane="cpu", desc="", cmd=["true", *bad])], R.State(tmp_path / "s.json"), tmp_path / "logs")
     # the dry run says so
@@ -178,14 +178,14 @@ def test_every_command_forwards_the_configured_roots_and_no_v1_path(tmp_path):
     assert arg("cpu.hgb", "--status-name") == "run_matrix_status_hgb.csv" and arg("cpu.ptr_norank", "--status-name") == "run_matrix_status_norank.csv"  # one status file per plan type
     for sid in ("cpu.sagong_plan", "cpu.sagong_extract", "cpu.sagong_habcols", "cpu.sagong_fit"):  # Sagong: the other interpreter, the three roots
         c = steps[sid].cmd
-        assert c[0] == "/py/sagong" and c[1:3] == ["-m", "model_stgcn.sagong2025"] and arg(sid, "--plan-dir") == str(p.sagong) and arg(sid, "--runs-dir") == str(p.runs)
+        assert c[0] == "/py/sagong" and c[1:3] == ["-m", 'pubg_lab.survival.baselines.sagong2025'] and arg(sid, "--plan-dir") == str(p.sagong) and arg(sid, "--runs-dir") == str(p.runs)
     assert arg("cpu.sagong_fit", "--models") == "xgb,rf,lr,hgb,hgb-hab" and arg("cpu.sagong_extract", "--workers") == "2"
     for sid in ("cpu.ehm_fit", "cpu.ehm_rq1", "cpu.ehm_rq1_physical", "reports.ehm_report"):
         assert arg(sid, "--runs-dir") == str(p.runs) and arg(sid, "--out-dir") == str(p.ecological) and steps[sid].env["OMP_NUM_THREADS"] == "2"
     assert arg("cpu.ehm_fit", "--stage") == "fit" and "--rq1-units" in steps["cpu.ehm_rq1_physical"].cmd and arg("reports.ehm_report", "--stage") == "report"
     for sid in ("mps.hgbkf", "mps.k2", "mps.k3", "mps.k1", "mps.h0", "cpu.union"):  # run_all: every root is forwarded
         assert arg(sid, "--out-dir") == str(p.runs) and arg(sid, "--data-dir") == str(p.krafton_data) and arg(sid, "--dump-dir") == str(p.dump) and arg(sid, "--table-dir") == str(p.kf), sid
-        assert steps[sid].cwd == R.KR and steps[sid].cmd[1:4] == ["-m", "adaptation.run_all", "--stage"], sid
+        assert steps[sid].cwd == R.KR and steps[sid].cmd[1:4] == ["-m", 'projects.krafton_baseline.pipelines.run_all', "--stage"], sid
     assert [arg(s, "--stage") for s in ("mps.hgbkf", "mps.k2", "mps.k3", "mps.k1", "mps.h0", "cpu.union")] == ["hgbkf", "ourfeat", "k3", "main", "h0", "union"]
     assert arg("mps.k2", "--device") == "mps" and arg("mps.k2", "--threads") == "2" and arg("mps.h0", "--device") == "cpu"
     assert arg("cpu.union", "--cpu-workers") == "5" and arg("cpu.union", "--cpu-threads") == "3" and arg("cpu.union", "--union-arms") == "HGB-union"
@@ -242,7 +242,7 @@ def test_the_dry_run_prints_the_plan_and_writes_nothing(tmp_path, capsys):
     assert "WOULD FAIL now" in text and "does not exist" in text and "estimate      about 4." in text and "HEAD " in text and "status --porcelain sha1 " in text
     assert "result modules sha1" in text and "main 108 + seeds 20 (hgb 36 first), norank 24, union HGB 12" in text and "_v1" not in text
     assert "credentials in the environment:" in text and "$ " in text and "[needs the database]" in text
-    assert "code snapshot " in text and "git diff HEAD --binary = " in text and "tracked files changed" in text and "untracked .py/.md/.json files under model_stgcn, stdb, third_party/krafton_pubg_winprob/adaptation, tools, tests, paper/bigcomp2027/tables" in text
+    assert "code snapshot " in text and "git diff HEAD --binary = " in text and "tracked files changed" in text and "untracked .py/.md/.json files under src/pubg_lab, projects, third_party/krafton_pubg_winprob/src, tests, paper/bigcomp2027/tables" in text
     assert "(written at launch, not by this dry run)" in text and "excluded      stage 2" in text
     # a dump that is there: the preview checks it, the budget options are echoed
     make_dump(P.RerunPaths.under(tmp_path).dump, version="v2", cohorts=("paramo_tpp_squad", "karakin_tpp_squad"))
@@ -369,31 +369,31 @@ def snapshot_repo(tmp_path: Path) -> Path:
     repo.mkdir()
     git(repo, "init", "-q")
     git(repo, "config", "commit.gpgsign", "false")
-    write(repo / ".gitignore", "model_stgcn/ignored.py\nreports/\n")
-    write(repo / "model_stgcn/ptr/a.py", "a = 1\n")
-    write(repo / "tools/old.py", "old = 1\n")
+    write(repo / ".gitignore", "src/pubg_lab/ignored.py\nreports/\n")
+    write(repo / "src/pubg_lab/survival/ptr/a.py", "a = 1\n")
+    write(repo / "projects/battle_royale/pipelines/old.py", "old = 1\n")
     write(repo / "data/blob.bin", BLOB_V1)
     write(repo / "README.md", "readme\n")
     git(repo, "add", "-A")
     git(repo, "commit", "-q", "-m", "base")
-    write(repo / "model_stgcn/ptr/a.py", "a = 2  # modified, not staged\n")
-    (repo / "tools/old.py").unlink()  # deleted
+    write(repo / "src/pubg_lab/survival/ptr/a.py", "a = 2  # modified, not staged\n")
+    (repo / "projects/battle_royale/pipelines/old.py").unlink()  # deleted
     write(repo / "data/blob.bin", BLOB_V2)  # a binary file changed (outside the scope of the tar, inside the diff)
-    write(repo / "model_stgcn/ptr/staged.py", "staged = 1\n")
-    git(repo, "add", "model_stgcn/ptr/staged.py")  # staged, never committed: part of git diff HEAD
-    for rel, text in {"model_stgcn/ptr/new.py": "new = 1\n", "tests/test_new.py": "def test_x():\n    pass\n", "tools/sub/dir/y.json": '{"y": 1}\n', "stdb/x.json": "{}\n",
-                      "third_party/krafton_pubg_winprob/adaptation/k.md": "# k\n", "model_stgcn/ünï.py": "u = 'ü'\n",
-                      "paper/bigcomp2027/tables/make_paper_tables.py": "t = 1\n"}.items():
+    write(repo / "src/pubg_lab/survival/ptr/staged.py", "staged = 1\n")
+    git(repo, "add", "src/pubg_lab/survival/ptr/staged.py")  # staged, never committed: part of git diff HEAD
+    for rel, text in {"src/pubg_lab/survival/ptr/new.py": "new = 1\n", "tests/test_new.py": "def test_x():\n    pass\n", "projects/battle_royale/configs/y.json": '{"y": 1}\n', "src/pubg_lab/data/stdb/x.json": "{}\n",
+                      "third_party/krafton_pubg_winprob/src/k.md": "# k\n", "src/pubg_lab/ünï.py": "u = 'ü'\n",
+                      "projects/battle_royale/reporting/make_paper_tables.py": "t = 1\n"}.items():
         write(repo / rel, text)  # untracked, in scope
-    for rel in ("docs/note.md", "paper/x.tex", "third_party/krafton_pubg_winprob/src/z.py", "tests/data.csv", "model_stgcn/notes.txt"):
+    for rel in ("docs/note.md", "paper/x.tex", "third_party/krafton_pubg_winprob/notebooks/z.py", "tests/data.csv", "src/pubg_lab/notes.txt"):
         write(repo / rel, "outside\n")  # untracked, outside the scope (another directory or another extension)
-    write(repo / "model_stgcn/ignored.py", "ignored = 1\n")
+    write(repo / "src/pubg_lab/ignored.py", "ignored = 1\n")
     write(repo / "reports/r.json", "{}\n")  # both are git-ignored: never listed
     return repo
 
 
-UNTRACKED_IN_SCOPE = sorted(["model_stgcn/ptr/new.py", "model_stgcn/ünï.py", "stdb/x.json", "third_party/krafton_pubg_winprob/adaptation/k.md", "tests/test_new.py", "tools/sub/dir/y.json",
-                             "paper/bigcomp2027/tables/make_paper_tables.py"])  # fmt: skip
+UNTRACKED_IN_SCOPE = sorted(["src/pubg_lab/survival/ptr/new.py", "src/pubg_lab/ünï.py", "src/pubg_lab/data/stdb/x.json", "third_party/krafton_pubg_winprob/src/k.md", "tests/test_new.py", "projects/battle_royale/configs/y.json",
+                             "projects/battle_royale/reporting/make_paper_tables.py"])  # fmt: skip
 
 
 def test_the_code_snapshot_holds_the_diff_and_the_untracked_sources_with_their_hashes(tmp_path):
@@ -419,8 +419,8 @@ def test_the_code_snapshot_holds_the_diff_and_the_untracked_sources_with_their_h
     assert doc["untracked"]["sha256"] == hashlib.sha256((out / "untracked_files.tar").read_bytes()).hexdigest() and doc["git_diff_HEAD"]["sha256"] == info["git_diff_HEAD"]["sha256"]
     # what is left out is said, not silently dropped: untracked files of other directories / extensions are counted and named, ignored files are not there at all
     assert doc["untracked"]["outside_scope"]["n"] == 5 and sorted(doc["untracked"]["outside_scope"]["first"]) == sorted(
-        ["docs/note.md", "model_stgcn/notes.txt", "paper/x.tex", "tests/data.csv", "third_party/krafton_pubg_winprob/src/z.py"])  # fmt: skip
-    assert "model_stgcn/ignored.py" not in json.dumps(doc) and "reports/r.json" not in json.dumps(doc) and info["n_untracked_outside_scope"] == 5
+        ["docs/note.md", "src/pubg_lab/notes.txt", "paper/x.tex", "tests/data.csv", "third_party/krafton_pubg_winprob/notebooks/z.py"])  # fmt: skip
+    assert "src/pubg_lab/ignored.py" not in json.dumps(doc) and "reports/r.json" not in json.dumps(doc) and info["n_untracked_outside_scope"] == 5
     assert "git apply --binary" in doc["restore"] and doc["restore"].startswith(f"git checkout {doc['head']}")
     # the hash files are in sha256sum format
     sums = dict(line.split("  ")[::-1] for line in (out / "SHA256SUMS").read_text().splitlines())
@@ -430,7 +430,7 @@ def test_the_code_snapshot_holds_the_diff_and_the_untracked_sources_with_their_h
     # the digest is a function of the code alone: the same tree gives the same digest in another directory, another tracked change gives another one
     again = R.take_code_snapshot(repo, tmp_path / "snap2")
     assert again["digest"] == info["digest"]
-    write(repo / "model_stgcn/ptr/a.py", "a = 3\n")
+    write(repo / "src/pubg_lab/survival/ptr/a.py", "a = 3\n")
     assert R.take_code_snapshot(repo, tmp_path / "snap3")["digest"] != info["digest"]
 
 
@@ -440,25 +440,25 @@ def test_the_code_snapshot_restores_the_working_tree_on_a_clean_checkout_of_head
     R.take_code_snapshot(repo, out)
     clone = tmp_path / "clone"
     git(tmp_path, "clone", "-q", str(repo), str(clone))  # HEAD of the repository: the base commit, none of the changes
-    assert (clone / "model_stgcn/ptr/a.py").read_text() == "a = 1\n" and not (clone / "model_stgcn/ptr/new.py").exists()
+    assert (clone / "src/pubg_lab/survival/ptr/a.py").read_text() == "a = 1\n" and not (clone / "src/pubg_lab/survival/ptr/new.py").exists()
     git(clone, "apply", "--binary", str(out / "git_diff_HEAD.patch"))
     with tarfile.open(out / "untracked_files.tar") as tf:
         tf.extractall(clone)
-    for rel in ["model_stgcn/ptr/a.py", "model_stgcn/ptr/staged.py", "data/blob.bin", "README.md", *UNTRACKED_IN_SCOPE]:
+    for rel in ["src/pubg_lab/survival/ptr/a.py", "src/pubg_lab/survival/ptr/staged.py", "data/blob.bin", "README.md", *UNTRACKED_IN_SCOPE]:
         assert (clone / rel).read_bytes() == (repo / rel).read_bytes(), rel
-    assert not (clone / "tools/old.py").exists() and (clone / "data/blob.bin").read_bytes() == BLOB_V2  # the deletion and the binary change came back
-    assert not (clone / "docs/note.md").exists() and not (clone / "model_stgcn/ignored.py").exists()  # not captured, as listed
+    assert not (clone / "projects/battle_royale/pipelines/old.py").exists() and (clone / "data/blob.bin").read_bytes() == BLOB_V2  # the deletion and the binary change came back
+    assert not (clone / "docs/note.md").exists() and not (clone / "src/pubg_lab/ignored.py").exists()  # not captured, as listed
 
 
 def test_the_code_snapshot_skips_what_is_not_a_regular_or_small_file_and_refuses_an_implausible_set(tmp_path, monkeypatch):
     repo = snapshot_repo(tmp_path)
-    (repo / "tools/link.py").symlink_to("../README.md")
-    write(repo / "tools/big.json", "x" * 300)
+    (repo / "projects/battle_royale/pipelines/link.py").symlink_to("../../../README.md")
+    write(repo / "projects/battle_royale/configs/big.json", "x" * 300)
     out = tmp_path / "snap"
     info = R.take_code_snapshot(repo, out, max_file_bytes=200)
     doc = json.loads((out / "snapshot.json").read_text())
     assert {f["reason"].split(" (")[0] for f in doc["untracked"]["skipped"]} == {"not a regular file", "larger than 200 bytes"} and info["untracked_tar"]["n_skipped"] == 2
-    assert {s["path"] for s in doc["untracked"]["skipped"]} == {"tools/link.py", "tools/big.json"} and "tools/big.json" not in {f["path"] for f in doc["untracked"]["files"]}
+    assert {s["path"] for s in doc["untracked"]["skipped"]} == {"projects/battle_royale/pipelines/link.py", "projects/battle_royale/configs/big.json"} and "projects/battle_royale/configs/big.json" not in {f["path"] for f in doc["untracked"]["files"]}
     assert R.verify_code_snapshot(out) == []
     monkeypatch.setattr(R, "SNAPSHOT_MAX_FILES", 3)
     with pytest.raises(RuntimeError, match="something that is not code is not ignored"):
@@ -504,7 +504,7 @@ def test_a_launch_snapshot_keeps_the_first_one_and_adds_one_only_when_the_code_c
     same = R.snapshot_launch(repo, results)  # a resume of the same code: nothing new
     assert same["dir"] == str(root) and same["unchanged"] is True and same["digest"] == first["digest"] and not list(root.glob("launch_*"))
     base_files = {f.name: f.read_bytes() for f in root.iterdir() if f.is_file()}
-    write(repo / "model_stgcn/ptr/a.py", "a = 4  # edited after the first launch\n")  # the code changed: the resume gets its own snapshot, the first stays
+    write(repo / "src/pubg_lab/survival/ptr/a.py", "a = 4  # edited after the first launch\n")  # the code changed: the resume gets its own snapshot, the first stays
     second = R.snapshot_launch(repo, results)
     d2 = Path(second["dir"])
     assert second["unchanged"] is False and d2.parent == root and d2.name.startswith("launch_") and R.verify_code_snapshot(d2) == [] and second["digest"] != first["digest"]
@@ -512,7 +512,7 @@ def test_a_launch_snapshot_keeps_the_first_one_and_adds_one_only_when_the_code_c
     assert b"a = 4" in (d2 / "git_diff_HEAD.patch").read_bytes() and b"a = 4" not in (root / "git_diff_HEAD.patch").read_bytes()
     third = R.snapshot_launch(repo, results)  # back to a saved state: points at it
     assert third["dir"] == str(d2) and third["unchanged"] is True and len(list(root.glob("launch_*"))) == 1
-    write(repo / "model_stgcn/ptr/a.py", "a = 2  # modified, not staged\n")  # the first code again
+    write(repo / "src/pubg_lab/survival/ptr/a.py", "a = 2  # modified, not staged\n")  # the first code again
     assert R.snapshot_launch(repo, results)["dir"] == str(root)
     (tmp_path / "not_a_repo").mkdir()
     with pytest.raises(RuntimeError, match="git rev-parse HEAD failed"):  # a failing snapshot leaves nothing behind
@@ -547,11 +547,11 @@ def test_a_launch_saves_the_snapshot_into_the_run_manifest(tmp_path, capsys, mon
     # the same code on the next launch: recorded as unchanged, no second directory; other code: its own directory, and the manifest points at it
     assert R.main(argv) == 0
     assert json.loads(paths.run_manifest.read_text())["launches"][1]["code_snapshot"]["unchanged"] is True and not list(root.glob("launch_*"))
-    write(repo / "tools/another.py", "z = 1\n")
+    write(repo / "projects/battle_royale/pipelines/another.py", "z = 1\n")
     assert R.main(argv) == 0
     third = json.loads(paths.run_manifest.read_text())["launches"][2]["code_snapshot"]
     assert third["unchanged"] is False and Path(third["dir"]).parent == root and R.verify_code_snapshot(Path(third["dir"])) == []
-    assert "tools/another.py" in json.loads((Path(third["dir"]) / "snapshot.json").read_text())["untracked"]["files"].__repr__()
+    assert "projects/battle_royale/pipelines/another.py" in json.loads((Path(third["dir"]) / "snapshot.json").read_text())["untracked"]["files"].__repr__()
     # --no-code-snapshot is recorded, and a failing snapshot stops the launch before any step starts
     other = argv_under(tmp_path / "second_results_root", "--only", "gate.dump", "--skip-leak-tests")
     other[other.index("--dump-dir") + 1] = str(paths.dump)  # the same dump, another root for everything else
@@ -747,7 +747,7 @@ def test_every_command_of_the_plan_is_accepted_by_the_parser_of_the_module_it_ru
         cmd = s.cmd
         if cmd[1] == "-m":
             name = cmd[2]
-            module = importlib.import_module("model_stgcn.sagong2025.__main__" if name == "model_stgcn.sagong2025" else name)
+            module = importlib.import_module('pubg_lab.survival.baselines.sagong2025.__main__' if name == 'pubg_lab.survival.baselines.sagong2025' else name)
             ns = _parses(monkeypatch, module.main, cmd[3:])
         elif cmd[1].endswith("make_paper_tables.py"):
             spec = importlib.util.spec_from_file_location("mpt_plan", cmd[1])
@@ -756,7 +756,7 @@ def test_every_command_of_the_plan_is_accepted_by_the_parser_of_the_module_it_ru
             spec.loader.exec_module(mod)
             ns = _parses(monkeypatch, mod.main, cmd[2:])
         elif cmd[1].endswith("paper_numbers_v2.py"):
-            from tools import paper_numbers_v2 as PN
+            import projects.battle_royale.reporting.paper_numbers_v2 as PN
 
             ns = _parses(monkeypatch, PN.main, cmd[2:])
         else:
@@ -765,10 +765,10 @@ def test_every_command_of_the_plan_is_accepted_by_the_parser_of_the_module_it_ru
         assert ns is not None
     assert len(checked) >= 30 and "mps.k1" in checked and "cpu.union" in checked and "numbers.paper_numbers" in checked and "tables.make_paper_tables" in checked
     # the run_all stage union command is itself a run_matrix command: it must parse with run_matrix's parser (after run_all built it)
-    from adaptation import run_all as RA
+    import projects.krafton_baseline.pipelines.run_all as RA
 
     roots = RA.Roots(tmp_path / "r", tmp_path / "d", tmp_path / "p", tmp_path / "k")
-    from model_stgcn.ptr import run_matrix as RM
+    import pubg_lab.survival.ptr.experiments.run_matrix as RM
 
     ns = RM.parse_args(RA.union_command(roots, arms=("HGB-union", "M11R-union"), workers=6, threads=2, cohorts="a,b")[3:])
     assert ns.union and ns.only == ["arm=HGB-union,M11R-union", "cohort=a,b"] and ns.extra_features == str(roots.table)

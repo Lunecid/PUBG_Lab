@@ -11,15 +11,15 @@ from dataclasses import replace
 import numpy as np
 import pytest
 
-from model_stgcn import dump_phase_tier as V1
-from model_stgcn import dump_phase_tier_v2 as D2
-from model_stgcn.phase_v2 import alive as AL
-from model_stgcn.phase_v2 import assemble as AS
-from model_stgcn.phase_v2 import features as FT
-from model_stgcn.phase_v2 import grid as GR
-from model_stgcn.phase_v2 import labels as LB
-from model_stgcn.phase_v2 import phases as PH
-from model_stgcn.phase_v2 import source as S
+import pubg_lab.survival.data.dump_phase_tier as V1
+import pubg_lab.survival.data.dump_phase_tier_v2 as D2
+import pubg_lab.survival.data.phase_v2.alive as AL
+import pubg_lab.survival.data.phase_v2.assemble as AS
+import pubg_lab.survival.data.phase_v2.features as FT
+import pubg_lab.survival.data.phase_v2.grid as GR
+import pubg_lab.survival.data.phase_v2.labels as LB
+import pubg_lab.survival.data.phase_v2.phases as PH
+import pubg_lab.survival.data.phase_v2.source as S
 from tests.phase_v2_synth import END_W, KILLS, PHASE_EVENTS, SCHEDULE, TEAMS, make_source
 
 MAP = 8160.0
@@ -495,7 +495,7 @@ def test_alive_module_public_api_is_stable():
 
 
 def test_meta_v2_block_documents_the_isgame_semantics_and_every_changed_feature(tmp_path):
-    from model_stgcn.v3.cohorts import REQUIRED_COHORTS
+    from pubg_lab.survival.v3.data.cohorts import REQUIRED_COHORTS
 
     spec = REQUIRED_COHORTS[0]
     meta = D2.build_meta_v2(spec, "test", split_path=tmp_path / "split.json", split_ids=["a", "b"], extra={"n_dumped": 2},

@@ -20,13 +20,13 @@ import pytest
 import torch
 import torch.nn.functional as F
 
-from model_stgcn.ptr import data as D
-from model_stgcn.ptr import hgb as H
-from model_stgcn.ptr import relations as R
-from model_stgcn.ptr.arms import ARMS, model_config
-from model_stgcn.ptr.loss import ptr_loss
-from model_stgcn.ptr.model import PTRFormer
-from model_stgcn.ptr.synthetic import make_dump
+import pubg_lab.survival.ptr.data.data as D
+import pubg_lab.survival.ptr.models.hgb as H
+import pubg_lab.survival.ptr.models.relations as R
+from pubg_lab.survival.ptr.models.arms import ARMS, model_config
+from pubg_lab.survival.ptr.training.loss import ptr_loss
+from pubg_lab.survival.ptr.models.model import PTRFormer
+from pubg_lab.survival.ptr.data.synthetic import make_dump
 from tests.v2_fixtures import comeback_cells, make_v2_dump, write_v2_cohort
 
 KEYS = ("hazard_logit", "rank_score")
@@ -418,7 +418,7 @@ def test_a_match_without_a_winner_flag_keeps_its_stored_rows():
 
 
 def test_cut_lead_and_exact_cut_times_follow_the_producer():
-    from model_stgcn.phase_v2.phases import CUT_LEAD_S as PRODUCER_LEAD
+    from pubg_lab.survival.data.phase_v2.phases import CUT_LEAD_S as PRODUCER_LEAD
 
     assert D.CUT_LEAD_S == PRODUCER_LEAD == 10.0
     dump = make_v2_dump(2, seed=24)

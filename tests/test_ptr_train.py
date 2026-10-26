@@ -10,13 +10,13 @@ import pandas as pd
 import pytest
 import torch
 
-from model_stgcn.ptr import data as D
-from model_stgcn.ptr import hgb as H
-from model_stgcn.ptr import metrics as M
-from model_stgcn.ptr import relations as R
-from model_stgcn.ptr import train as T
-from model_stgcn.ptr.arms import ARMS, EXPLORATORY_ARMS, MAIN_ARMS, NORANK_ARMS, STAGE2_ARMS, STUB_ARMS, UNION_ARMS, get_arm
-from model_stgcn.ptr.synthetic import write_cohort_dumps
+import pubg_lab.survival.ptr.data.data as D
+import pubg_lab.survival.ptr.models.hgb as H
+import pubg_lab.survival.ptr.evaluation.metrics as M
+import pubg_lab.survival.ptr.models.relations as R
+import pubg_lab.survival.ptr.training.train as T
+from pubg_lab.survival.ptr.models.arms import ARMS, EXPLORATORY_ARMS, MAIN_ARMS, NORANK_ARMS, STAGE2_ARMS, STUB_ARMS, UNION_ARMS, get_arm
+from pubg_lab.survival.ptr.data.synthetic import write_cohort_dumps
 
 # design doc section 4 (phase axis, team axis, relation bias, zone object, shuffle, dropped groups)
 SPEC = {
@@ -101,7 +101,7 @@ def test_stage_two_arms_are_registered_with_the_player_layer():
     assert tm.player_relation_types == ("enemy_prox", "combat_out", "combat_in")  # -tm: the teammate bias only is gone
     assert not any(get_arm(n).player for n in (*MAIN_ARMS, *EXPLORATORY_ARMS))
     with pytest.raises(ValueError, match="player"):
-        from model_stgcn.ptr.arms import model_config
+        from pubg_lab.survival.ptr.models.arms import model_config
 
         model_config(full, 10)  # a player arm needs the player feature count
 
@@ -320,7 +320,7 @@ def test_phase_axis_reads_a_signal_that_only_exists_one_phase_earlier(tmp_path):
 
 # =========================================================================== v2.2 details
 def test_nohab_arms_keep_alive_counts_and_other_arms_drop_nothing():
-    from model_stgcn.ptr.data import ALIVE_COUNT_FEATURES
+    from pubg_lab.survival.ptr.data.data import ALIVE_COUNT_FEATURES
 
     for name in MAIN_ARMS:
         expect = ALIVE_COUNT_FEATURES if name.endswith("noHab") else ()
@@ -580,7 +580,7 @@ def test_match_type_population_guard_and_override(tmp_path):
 
 
 def test_cohort_discovery_feeds_the_training_cli(tmp_path):
-    from model_stgcn.ptr.cohorts import discover_cohorts
+    from pubg_lab.survival.ptr.data.cohorts import discover_cohorts
 
     root = tmp_path / "dumps"
     for k, name in enumerate(("erangel_tpp_squad", "taego_tpp_squad")):
@@ -606,7 +606,7 @@ def test_alive_mask_rule_is_logged_and_recorded_for_every_dump_format(tmp_path, 
     ]
     for cohort, extra, rule, removes in cases:
         caplog.clear()
-        with caplog.at_level(logging.INFO, logger="model_stgcn.ptr.train"):
+        with caplog.at_level(logging.INFO, logger='pubg_lab.survival.ptr.training.train'):
             assert T.main(cli(root, out / f"{cohort}{len(extra)}", "M00", *SMALL, *extra, cohort=cohort)) == 0
         assert any(f"alive tokens: {rule}" in r.getMessage() for r in caplog.records), (cohort, extra, rule)
         met = json.loads((run_dir(out / f"{cohort}{len(extra)}", "M00", cohort=cohort) / "metrics.json").read_text())
@@ -676,7 +676,7 @@ def test_config_hash_is_stamped_and_follows_every_input_that_changes_a_result(tm
 
 
 def test_config_hash_follows_the_result_affecting_code(monkeypatch):
-    from model_stgcn.ptr import util
+    import pubg_lab.survival.ptr.common.util as util
 
     h = util.code_fingerprint()
     assert h == util.code_fingerprint() and len(h) == 40

@@ -22,7 +22,7 @@ import pytest
 from tests.conftest import requires_db
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-MANIFEST = REPO_ROOT / "model_stgcn" / "feature_manifests" / "pubg_representation_v2.json"
+MANIFEST = REPO_ROOT / 'src/pubg_lab/survival/features/manifests/pubg_representation_v2.json'
 
 REL_TOL = 1e-6  # 면적 ~1e8 m^2의 float4 저장 오차(~1.5e-8) 흡수
 
@@ -43,14 +43,9 @@ def _pick_match_id(cur) -> str:
 
 @pytest.fixture()
 def rebuilt_match():
-    from stdb.base_stage import (
-        TempBaseCursor,
-        analyze_temp_base_tables,
-        create_temp_base_tables,
-        stage_base_rows,
-    )
-    from stdb.conn import connect
-    from stdb.habitat_feature_etl import apply_schema, build_match
+    from pubg_lab.data.stdb.pipelines.base_stage import TempBaseCursor, analyze_temp_base_tables, create_temp_base_tables, stage_base_rows
+    from pubg_lab.data.stdb.connection.conn import connect
+    from pubg_lab.data.stdb.pipelines.habitat_feature_etl import apply_schema, build_match
 
     apply_schema()
     conn = connect()
@@ -142,7 +137,7 @@ def test_range_sign_and_formula_invariants(rebuilt_match):
 
 @requires_db
 def test_target_distance_containment_consistency(rebuilt_match):
-    from stdb.causal_cut import GUARD_S, fetch_clock_delta
+    from pubg_lab.data.stdb.temporal.causal_cut import GUARD_S, fetch_clock_delta
 
     _conn, cur, mid = rebuilt_match
     delta = fetch_clock_delta(cur, mid)  # one clock: grid windows are [start - delta, end - delta - GUARD_S]
@@ -187,7 +182,7 @@ def test_target_distance_containment_consistency(rebuilt_match):
 @requires_db
 def test_future_phase_blindness(rebuilt_match):
     """phase>2 입력을 지우고 재빌드해도 cut<=2 피처가 불변이어야 한다."""
-    from stdb.habitat_feature_etl import build_match
+    from pubg_lab.data.stdb.pipelines.habitat_feature_etl import build_match
 
     _conn, cur, mid = rebuilt_match
 
@@ -256,7 +251,7 @@ def test_table_satisfies_manifest_contract(rebuilt_match):
 
 
 def test_build_sql_references_no_label_sources():
-    from stdb.habitat_feature_etl import BUILD_SQL
+    from pubg_lab.data.stdb.pipelines.habitat_feature_etl import BUILD_SQL
 
     sql = BUILD_SQL.lower()
     forbidden = [

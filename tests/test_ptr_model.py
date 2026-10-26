@@ -19,11 +19,11 @@ import numpy as np
 import pytest
 import torch
 
-from model_stgcn.ptr import data as D
-from model_stgcn.ptr import relations as R
-from model_stgcn.ptr.arms import ARMS, model_config
-from model_stgcn.ptr.model import MultiHeadAttention, PTRConfig, PTRFormer, masked_attention
-from model_stgcn.ptr.synthetic import make_dump
+import pubg_lab.survival.ptr.data.data as D
+import pubg_lab.survival.ptr.models.relations as R
+from pubg_lab.survival.ptr.models.arms import ARMS, model_config
+from pubg_lab.survival.ptr.models.model import MultiHeadAttention, PTRConfig, PTRFormer, masked_attention
+from pubg_lab.survival.ptr.data.synthetic import make_dump
 
 KEYS = ("hazard_logit", "rank_score")
 NEURAL_ARMS = ["M00", "M10", "M01", "M11", "M11R", "M11RZ"]
@@ -311,7 +311,7 @@ def test_fully_masked_rows_produce_no_nan_and_finite_gradients():
     for k in KEYS:
         assert torch.isfinite(out[k]).all(), k
 
-    from model_stgcn.ptr.loss import ptr_loss
+    from pubg_lab.survival.ptr.training.loss import ptr_loss
 
     model.train()
     out = model(batch)
@@ -612,7 +612,7 @@ def test_zone_token_fully_masked_equals_the_zone_off_model():
 
 @pytest.mark.parametrize("arm", ["M11R", "M11RZ"])
 def test_gradients_stay_finite_with_nan_at_dead_inputs_and_invalid_zone(arm):
-    from model_stgcn.ptr.loss import ptr_loss
+    from pubg_lab.survival.ptr.training.loss import ptr_loss
 
     model, batch = build(arm, seed=24)
     model.train()

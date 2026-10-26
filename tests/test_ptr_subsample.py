@@ -9,12 +9,12 @@ import math
 import numpy as np
 import pytest
 
-from model_stgcn.ptr import data as D
-from model_stgcn.ptr import hgb as H
-from model_stgcn.ptr import run_matrix as RM
-from model_stgcn.ptr import train as T
-from model_stgcn.ptr.synthetic import make_dump, write_cohort_dumps
-from model_stgcn.ptr.util import run_dir_name
+import pubg_lab.survival.ptr.data.data as D
+import pubg_lab.survival.ptr.models.hgb as H
+import pubg_lab.survival.ptr.experiments.run_matrix as RM
+import pubg_lab.survival.ptr.training.train as T
+from pubg_lab.survival.ptr.data.synthetic import make_dump, write_cohort_dumps
+from pubg_lab.survival.ptr.common.util import run_dir_name
 
 SMALL = ["--d-model", "32", "--n-heads", "4", "--n-layers", "2"]
 LARGE = ("erangel_tpp_squad", "taego_tpp_squad")

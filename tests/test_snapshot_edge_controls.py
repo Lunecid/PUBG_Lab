@@ -2,10 +2,7 @@ from __future__ import annotations
 
 import torch
 
-from model_stgcn.snapshot_edge_controls import (
-    _edge_shuffle_edges,
-    apply_snapshot_edge_control,
-)
+from pubg_lab.survival.features.snapshot_edge_controls import _edge_shuffle_edges, apply_snapshot_edge_control
 
 
 def _synthetic() -> tuple[torch.Tensor, torch.Tensor]:

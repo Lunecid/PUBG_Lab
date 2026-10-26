@@ -11,16 +11,16 @@ from pathlib import Path
 
 import pytest
 
-from model_stgcn.ptr import paths as P
+import pubg_lab.survival.ptr.data.paths as P
 from tests.test_rerun_paths import make_dump
 
 KT = Path(__file__).resolve().parents[1] / "third_party" / "krafton_pubg_winprob"
 if str(KT) not in sys.path:
     sys.path.insert(0, str(KT))
 
-from adaptation import h0_baseline as H0  # noqa: E402
-from adaptation import h0_report as HR  # noqa: E402
-from adaptation import run_all as RA  # noqa: E402
+import projects.krafton_baseline.training.h0_baseline as H0  # noqa: E402
+import projects.krafton_baseline.reporting.h0_report as HR  # noqa: E402
+import projects.krafton_baseline.pipelines.run_all as RA  # noqa: E402
 
 
 @pytest.fixture()
@@ -37,12 +37,12 @@ def flag(cmd: list[str], name: str) -> str:
 def test_every_child_gets_the_paths_it_needs_and_no_v1_path(roots):
     r, base = roots
     for stage_run, module, wants in (
-        (("karakin_tpp_squad", "transformer", 42), "adaptation.train", {"--out-dir": r.out, "--data-dir": r.data}),  # K1 reads shards, not the dump
-        (("karakin_tpp_squad", "mlp", 42), "adaptation.train", {"--out-dir": r.out, "--data-dir": r.data}),
-        (("karakin_tpp_squad", "ourfeat", 42), "adaptation.ourfeat", {"--out-dir": r.out, "--data-dir": r.data, "--dump-dir": r.dump}),  # K2
-        (("karakin_tpp_squad", "bce", 42), "adaptation.ourfeat_hazard", {"--out-dir": r.out, "--data-dir": r.data, "--dump-dir": r.dump}),  # K3a
-        (("karakin_tpp_squad", "hazard", 42), "adaptation.ourfeat_hazard", {"--out-dir": r.out, "--data-dir": r.data, "--dump-dir": r.dump}),  # K3
-        (("karakin_tpp_squad", "hgbkf", 42), "adaptation.hgb_kraftonfeat", {"--out-dir": r.out, "--data-dir": r.data, "--dump-dir": r.dump, "--table-dir": r.table}),
+        (("karakin_tpp_squad", "transformer", 42), 'projects.krafton_baseline.training.train', {"--out-dir": r.out, "--data-dir": r.data}),  # K1 reads shards, not the dump
+        (("karakin_tpp_squad", "mlp", 42), 'projects.krafton_baseline.training.train', {"--out-dir": r.out, "--data-dir": r.data}),
+        (("karakin_tpp_squad", "ourfeat", 42), 'projects.krafton_baseline.models.ourfeat', {"--out-dir": r.out, "--data-dir": r.data, "--dump-dir": r.dump}),  # K2
+        (("karakin_tpp_squad", "bce", 42), 'projects.krafton_baseline.training.ourfeat_hazard', {"--out-dir": r.out, "--data-dir": r.data, "--dump-dir": r.dump}),  # K3a
+        (("karakin_tpp_squad", "hazard", 42), 'projects.krafton_baseline.training.ourfeat_hazard', {"--out-dir": r.out, "--data-dir": r.data, "--dump-dir": r.dump}),  # K3
+        (("karakin_tpp_squad", "hgbkf", 42), 'projects.krafton_baseline.training.hgb_kraftonfeat', {"--out-dir": r.out, "--data-dir": r.data, "--dump-dir": r.dump, "--table-dir": r.table}),
     ):
         job = RA.build_job(stage_run, r, device="mps", threads=3)
         assert job.cmd[1:3] == ["-m", module] and job.cwd == RA.ROOT, stage_run
@@ -59,13 +59,13 @@ def test_every_child_gets_the_paths_it_needs_and_no_v1_path(roots):
 def test_union_and_h0_stages_forward_the_roots(roots):
     r, base = roots
     u = RA.union_command(r, arms=("HGB-union",), workers=6, threads=2)
-    assert u[1:4] == ["-m", "model_stgcn.ptr.run_matrix", "--union"] and flag(u, "--dump-dir") == str(r.dump) and flag(u, "--out-dir") == str(r.out)
+    assert u[1:4] == ["-m", 'pubg_lab.survival.ptr.experiments.run_matrix', "--union"] and flag(u, "--dump-dir") == str(r.dump) and flag(u, "--out-dir") == str(r.out)
     assert flag(u, "--extra-features") == str(r.table) and flag(u, "--status-name") == "run_matrix_status_union.csv"
     assert flag(u, "--workers") == "6" and flag(u, "--threads") == "2" and u[u.index("--only") + 1] == "arm=HGB-union"
     assert "cohort=" in " ".join(RA.union_command(r, arms=("HGB-union", "M11R-union"), workers=1, threads=1, cohorts="a,b")) and "arm=HGB-union,M11R-union" in " ".join(
         RA.union_command(r, arms=("HGB-union", "M11R-union"), workers=1, threads=1))  # fmt: skip
     h = RA.h0_command(r, device="cpu", threads=5, cohorts="paramo_tpp_squad", redo=True)
-    assert h[1:3] == ["-m", "adaptation.h0_baseline"] and flag(h, "--ckpt-dir") == str(r.out) and flag(h, "--dump-dir") == str(r.dump) and flag(h, "--data-dir") == str(r.data)
+    assert h[1:3] == ["-m", 'projects.krafton_baseline.training.h0_baseline'] and flag(h, "--ckpt-dir") == str(r.out) and flag(h, "--dump-dir") == str(r.dump) and flag(h, "--data-dir") == str(r.data)
     assert flag(h, "--threads") == "3" and flag(h, "--cohorts") == "paramo_tpp_squad" and "--redo" in h  # the module's own cap
     # the commands are accepted by the modules' own parsers (no option is invented)
     ns = H0.parse_args(h[3:])
@@ -88,9 +88,9 @@ def test_the_dry_run_prints_the_commands_and_writes_nothing(roots, capsys):
     argv = ["--out-dir", str(r.out), "--data-dir", str(r.data), "--dump-dir", str(r.dump), "--table-dir", str(r.table), "--dry-run"]
     assert RA.main(["--stage", "k3", *argv]) == 0
     text = capsys.readouterr().out
-    assert text.count("run ") == 6 and "adaptation.ourfeat_hazard" in text and str(r.dump) in text and "_v1" not in text
+    assert text.count("run ") == 6 and 'projects.krafton_baseline.training.ourfeat_hazard' in text and str(r.dump) in text and "_v1" not in text
     assert RA.main(["--stage", "union", *argv]) == 0 and "run_matrix --union" in capsys.readouterr().out
-    assert RA.main(["--stage", "h0", *argv]) == 0 and "adaptation.h0_baseline" in capsys.readouterr().out
+    assert RA.main(["--stage", "h0", *argv]) == 0 and 'projects.krafton_baseline.training.h0_baseline' in capsys.readouterr().out
     assert not r.out.exists() and not r.data.exists()  # nothing was created: no stamp, no logs, no status
     done = r.out / "paramo_tpp_squad" / "KRAFTON-tf-ourfeat-bce" / "seed42"
     done.mkdir(parents=True)

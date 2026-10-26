@@ -23,7 +23,7 @@ def test_phase_indices_one_indexed(phase_tensors):
 @requires_db
 def test_target_alignment_against_label_table(phase_tensors):
     """텐서의 (out_t, i)가 team_phase_labels의 (cut_phase=out_t+1, team)과 일치."""
-    from stdb.conn import get_cur
+    from pubg_lab.data.stdb.connection.conn import get_cur
 
     mt = phase_tensors
     team_index = {tid: i for i, tid in enumerate(mt.team_ids) if tid > 0}
@@ -64,7 +64,7 @@ def test_alive_start_end_gap_bounded():
     공백).  라벨 누수는 아니나 해당 팀은 그 phase에서 proximity self-loop을 받지
     못한다.  ETL 보강 전까지는 이 비율이 조용히 증가하지 않는지만 감시한다.
     """
-    from stdb.conn import get_cur
+    from pubg_lab.data.stdb.connection.conn import get_cur
 
     with get_cur() as (_conn, cur):
         cur.execute(

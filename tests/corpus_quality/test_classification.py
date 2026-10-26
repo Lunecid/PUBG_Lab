@@ -4,7 +4,7 @@ from pathlib import Path
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
-spec = importlib.util.spec_from_file_location("corpus_audit", ROOT/"tools/classify_collected_data.py")
+spec = importlib.util.spec_from_file_location("corpus_audit", ROOT / 'src/pubg_lab/data/quality/classify_collected_data.py')
 audit = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(audit)
 

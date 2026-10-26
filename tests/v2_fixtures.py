@@ -18,7 +18,7 @@ from __future__ import annotations
 import numpy as np
 import torch
 
-from model_stgcn.ptr.synthetic import make_dump
+from pubg_lab.survival.ptr.data.synthetic import make_dump
 
 N_PHASES = 8
 
@@ -136,7 +136,7 @@ def synth_record(*, no_winner: bool = False, **source_kw):
     keeps ``T = +inf`` through the alive rule alone."""
     from dataclasses import replace
 
-    from model_stgcn.phase_v2.assemble import build_match_v2
+    from pubg_lab.survival.data.phase_v2.assemble import build_match_v2
     from tests.phase_v2_synth import make_source
 
     src = make_source(**source_kw)
@@ -147,7 +147,7 @@ def synth_record(*, no_winner: bool = False, **source_kw):
 
 def krafton_raw_from_source(src, lab: dict, *, drop_after: float | None = None) -> dict:
     """The KRAFTON ``raw`` dict (adaptation.extract.build_raw layout, v2: ``life`` instead of ``d``) of a ``MatchSource``."""
-    from adaptation.features import member_life
+    from projects.krafton_baseline.data.features import member_life
 
     roster = sorted(src.roster, key=lambda r: (int(r[0]), str(r[1])))
     pid = np.array([str(r[1]) for r in roster])
@@ -204,7 +204,7 @@ def sagong_raw_from_source(src):
     """The Sagong ``MatchRaw`` (clock = W, ``start_epoch`` 0) of a ``MatchSource``."""
     import pandas as pd
 
-    from model_stgcn.sagong2025.features import MatchRaw
+    from pubg_lab.survival.baselines.sagong2025.features import MatchRaw
 
     team_of = {str(r[1]): int(r[0]) for r in src.roster}
     first = {}

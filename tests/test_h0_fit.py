@@ -15,7 +15,7 @@ KT = Path(__file__).resolve().parents[1] / "third_party" / "krafton_pubg_winprob
 if str(KT) not in sys.path:
     sys.path.insert(0, str(KT))
 
-from adaptation.h0_fit import cloglog_prob, fit_cloglog_offset, predict_h0  # noqa: E402
+from projects.krafton_baseline.training.h0_fit import cloglog_prob, fit_cloglog_offset, predict_h0  # noqa: E402
 
 GAMMA = np.array([-1.6, -1.2, -0.9, -0.6, -0.3, 0.0, 0.4])
 

@@ -9,9 +9,9 @@ import numpy as np
 import pytest
 import torch
 
-from model_stgcn.ptr import data as D
-from model_stgcn.ptr import relations as R
-from model_stgcn.ptr.synthetic import group_columns, make_dump
+import pubg_lab.survival.ptr.data.data as D
+import pubg_lab.survival.ptr.models.relations as R
+from pubg_lab.survival.ptr.data.synthetic import group_columns, make_dump
 
 K = {name: i for i, name in enumerate(R.RELATION_TYPES)}
 
@@ -153,7 +153,7 @@ def test_validate_dump_error_names_the_missing_field_and_the_match():
 
 
 def test_load_cohort_roundtrip(tmp_path):
-    from model_stgcn.ptr.synthetic import write_cohort_dumps
+    from pubg_lab.survival.ptr.data.synthetic import write_cohort_dumps
 
     root = write_cohort_dumps(tmp_path, "c1", sizes={"train": 3, "val": 2, "test": 2}, seed=3)
     splits = D.load_cohort(tmp_path, "c1")
@@ -565,7 +565,7 @@ def test_nohab_on_the_real_feature_layout_never_removes_the_alive_count_variable
     The dump script's groups may or may not contain the alive-count variables (they did in the first version
     and no longer do); either way noHab must remove exactly the spatial zone / habitat columns."""
     try:
-        from model_stgcn import dump_phase_tier as real
+        import pubg_lab.survival.data.dump_phase_tier as real
 
         groups, names = real.build_feature_groups(), list(real.FEATURE_NAMES)
     except Exception as exc:  # the dump script is owned by another workstream
@@ -662,14 +662,14 @@ def test_selecting_v2_on_a_legacy_dump_fails_loudly_pipeline_still_works():
 
 
 def test_load_cohort_validates_the_selected_labels(tmp_path):
-    from model_stgcn.ptr.synthetic import write_cohort_dumps
+    from pubg_lab.survival.ptr.data.synthetic import write_cohort_dumps
 
-    write_cohort_dumps(tmp_path, "legacy", sizes={"train": 3, "val": 2, "test": 2}, seed=54, v2_fields=False)
+    write_cohort_dumps(tmp_path, 'archive/legacy_snapshot', sizes={"train": 3, "val": 2, "test": 2}, seed=54, v2_fields=False)
     with pytest.raises(ValueError, match=r"target_mask_v2|y_hazard_v2"):
-        D.load_cohort(tmp_path, "legacy")  # default v2
-    assert set(D.load_cohort(tmp_path, "legacy", labels="pipeline")) == {"train", "val", "test"}
+        D.load_cohort(tmp_path, 'archive/legacy_snapshot')  # default v2
+    assert set(D.load_cohort(tmp_path, 'archive/legacy_snapshot', labels="pipeline")) == {"train", "val", "test"}
     with pytest.raises(ValueError, match="labels"):
-        D.load_cohort(tmp_path, "legacy", labels="v3")
+        D.load_cohort(tmp_path, 'archive/legacy_snapshot', labels="v3")
 
 
 def test_team_ai_frac_is_appended_to_every_token_and_broadcast_over_phases():
@@ -738,7 +738,7 @@ def test_match_type_guard_enforces_the_registered_population():
 
 
 def test_load_cohort_applies_the_match_type_guard(tmp_path):
-    from model_stgcn.ptr.synthetic import write_cohort_dumps
+    from pubg_lab.survival.ptr.data.synthetic import write_cohort_dumps
 
     write_cohort_dumps(
         tmp_path, "leaky", sizes={"train": 4, "val": 3, "test": 3}, seed=59,

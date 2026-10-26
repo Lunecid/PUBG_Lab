@@ -1,8 +1,8 @@
 import math
 import torch
-from tools.sac2027_objective_controls import survival_loss, labels
-from tools.sac2027_fair_tune import KRAFTONMatched
-from model_stgcn.ptr.model import PTRConfig
+from projects.sac2027.evaluation.controls.sac2027_objective_controls import survival_loss, labels
+from projects.sac2027.training.sac2027_fair_tune import KRAFTONMatched
+from pubg_lab.survival.ptr.models.model import PTRConfig
 from src.training.losses import WeightedCoxHazardLoss
 
 def test_standard_cox_breslow_ties_and_censoring():
@@ -56,7 +56,7 @@ def test_truncated_cox_does_not_use_the_order_of_later_events():
 def test_cox_gives_no_gradient_to_a_common_offset_and_the_bce_term_does():
     # Mechanism behind cox_truncated_bce: a per-match offset changes neither risk-set ratio, so only the BCE term
     # receives its gradient, the expected-minus-observed eliminations of that match divided by the target rows.
-    from model_stgcn.ptr.loss import hazard_bce
+    from pubg_lab.survival.ptr.training.loss import hazard_bce
     torch.manual_seed(0)
     z=torch.randn(2,1,4)
     y=torch.tensor([[[1.,0.,0.,1.]],[[0.,1.,0.,0.]]])

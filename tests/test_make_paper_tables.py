@@ -1,4 +1,4 @@
-"""``paper/bigcomp2027/tables/make_paper_tables.py`` on the output of the aggregator (synthetic runs): the explicit directories, the H0 rows, the copies of the
+"""``projects/battle_royale/reporting/make_paper_tables.py`` on the output of the aggregator (synthetic runs): the explicit directories, the H0 rows, the copies of the
 aggregator's decomposition / RQ2 / grid tables, no row for an arm that was not run."""
 
 from __future__ import annotations
@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from model_stgcn.ptr import aggregate as A
+import pubg_lab.survival.ptr.evaluation.aggregate as A
 from tests.test_ptr_aggregate import (COHORTS, EXPLORATORY, EXTERNAL_QUALITY, EXTERNAL_RANK_QUALITY, NORANK_QUALITY, NORANK_RANK_QUALITY, QUALITY, RANK_QUALITY,
                                       UNION_QUALITY, UNION_RANK_QUALITY, make_runs)  # fmt: skip
 

@@ -2,11 +2,7 @@ from __future__ import annotations
 
 import torch
 
-from model_stgcn.snapshot_phase_survival import (
-    SnapshotPhaseSurvivalGNN,
-    phase_cut_indices,
-    snapshot_phase_hazard_loss,
-)
+from pubg_lab.survival.models.snapshot_phase_survival import SnapshotPhaseSurvivalGNN, phase_cut_indices, snapshot_phase_hazard_loss
 
 
 def _identity_adjacency(B: int, T: int, E: int, N: int) -> torch.Tensor:

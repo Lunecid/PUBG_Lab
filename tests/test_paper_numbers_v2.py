@@ -15,15 +15,15 @@ import pytest
 import torch
 from scipy import stats
 
-from model_stgcn.ptr import paths as P
+import pubg_lab.survival.ptr.data.paths as P
 from tests.conftest import requires_db
 from tests.test_rerun_paths import make_dump
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
-from tools import paper_numbers_v2 as PN  # noqa: E402
+import projects.battle_royale.reporting.paper_numbers_v2 as PN  # noqa: E402
 
-V1_DUMP = REPO / "model_stgcn" / "dumps" / "bigcomp2027_phase_v1"
+V1_DUMP = REPO / 'model_stgcn' / "dumps" / "bigcomp2027_phase_v1"
 V1_RESULTS = REPO / "reports" / "bigcomp2027_results"
 PROFILE = REPO / "reports" / "bigcomp2027_data_profile" / "csv"
 needs_v1 = pytest.mark.skipif(not (V1_DUMP / "population.json").is_file(), reason="the v1 dump is not on this disk")
@@ -139,7 +139,7 @@ def test_the_dump_stages_write_every_number_with_its_provenance(tmp_path):
     n = nums.numbers
     assert n["population.n_matches"]["value"] == 28 and n["population.matches_train"]["value"] == 12 and n["risk_set.n_matches_dumped"]["value"] == 28
     # the risk set is what select_labels returns: recount by hand
-    from model_stgcn.ptr.data import select_labels
+    from pubg_lab.survival.ptr.data.data import select_labels
 
     rows = pos = 0
     by_cut = np.zeros(7, dtype=int)
@@ -172,7 +172,7 @@ def test_main_writes_strict_json_and_refuses_what_it_should(tmp_path, capsys):
     assert doc["numbers"]["population.n_matches"]["value"] == 22 and doc["errors"] == []  # 2 cohorts x (5 + 3 + 3) matches
     assert any(x["key"] == "headline" and "no aggregator output" in x["reason"] for x in doc["not_computed"])  # the headline stage needs the aggregator's outputs
     # a v1 dump needs --allow-v1; a v1 results directory next to the v2 dump is refused
-    legacy = make_dump(tmp_path / "legacy")
+    legacy = make_dump(tmp_path / 'archive/legacy_snapshot')
     with pytest.raises(SystemExit, match="not v2"):
         PN.main(["--dump-dir", str(legacy), "--results-dir", str(tmp_path / "r1"), "--stages", "population", "--no-db"])
     assert PN.main(["--dump-dir", str(legacy), "--results-dir", str(tmp_path / "r1"), "--out", str(tmp_path / "legacy.json"), "--stages", "risk_set", "--no-db", "--allow-v1"]) == 0
@@ -190,7 +190,7 @@ def test_main_writes_strict_json_and_refuses_what_it_should(tmp_path, capsys):
 
 
 def test_the_headline_stage_reads_the_aggregator_outputs(tmp_path):
-    from model_stgcn.ptr import aggregate as A
+    import pubg_lab.survival.ptr.evaluation.aggregate as A
     from tests.test_ptr_aggregate import union_runs
 
     root = union_runs(tmp_path / "runs", norank=True)
@@ -216,7 +216,7 @@ def test_the_headline_stage_reads_the_aggregator_outputs(tmp_path):
 # --------------------------------------------------------------------------- real v1 files, where they are on this disk
 @needs_v1
 def test_the_v1_risk_set_of_two_cohorts_equals_the_sagong_plan_audit(tmp_path):
-    plan = REPO / "model_stgcn" / "dumps" / "bigcomp2027_sagong_v1"
+    plan = REPO / 'model_stgcn' / "dumps" / "bigcomp2027_sagong_v1"
     cohorts = ["paramo_tpp_squad", "karakin_tpp_squad"]
     if not all((plan / c / "plan_audit.json").is_file() for c in cohorts):
         pytest.skip("the Sagong v1 plan audit is not on this disk")

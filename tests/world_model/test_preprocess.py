@@ -1,8 +1,8 @@
 import copy
 import unittest
 import numpy as np
-from world_model.preprocess import build_bank, view_at, targets_at, outcomes
-from world_model.patches import infer_patch, at_time
+from pubg_lab.world_model.data.preprocess import build_bank, view_at, targets_at, outcomes
+from pubg_lab.world_model.data.patches import infer_patch, at_time
 
 
 def fixture():

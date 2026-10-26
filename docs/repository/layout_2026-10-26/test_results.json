@@ -1,0 +1,32 @@
+{
+  "synthetic_suite": {
+    "passed": 377,
+    "skipped": 12,
+    "failed": 0,
+    "warnings": 15,
+    "skip_reason": "pyarrow is not installed; Parquet-dependent synthetic tests skipped",
+    "deselected": 1,
+    "selection_note": "Existing real-repository-state dry-run test intentionally excluded; synthetic runner/source-contract coverage included"
+  },
+  "quality": "structure, Ruff format, Ruff selected lint, 8 architecture tests passed",
+  "shell_syntax": 42,
+  "presentation_js_syntax": 3,
+  "webapp": {
+    "typescript_exitcode": 0,
+    "vite_build_exitcode": 0,
+    "publicDir": false,
+    "research_data_build_executed": false,
+    "output": "/private/tmp/pubg-layout-webapp-build"
+  },
+  "cli_help_checks": 6,
+  "python": "3.11.5",
+  "packages": {
+    "torch": "2.11.0",
+    "numpy": "1.26.1",
+    "pytest": "9.0.3",
+    "psutil": "5.9.5"
+  },
+  "research_runs": false,
+  "database_or_api_calls": false,
+  "protected_or_final_data_access": false
+}

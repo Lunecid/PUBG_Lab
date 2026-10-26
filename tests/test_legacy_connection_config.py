@@ -18,7 +18,7 @@ def connection_module(monkeypatch):
     dotenv = ModuleType("dotenv")
     dotenv.load_dotenv = lambda: loaded.append(True)
     monkeypatch.setitem(sys.modules, "dotenv", dotenv)
-    source = Path(__file__).resolve().parents[1] / "legacy" / "main.py"
+    source = Path(__file__).resolve().parents[1] / 'archive/legacy_snapshot/main.py'
     spec = importlib.util.spec_from_file_location("legacy_merge_fixture", source)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)

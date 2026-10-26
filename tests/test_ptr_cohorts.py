@@ -10,9 +10,9 @@ import json
 
 import pytest
 
-from model_stgcn.ptr import cohorts as C
-from model_stgcn.ptr import data as D
-from model_stgcn.ptr.synthetic import write_cohort_dumps
+import pubg_lab.survival.ptr.data.cohorts as C
+import pubg_lab.survival.ptr.data.data as D
+from pubg_lab.survival.ptr.data.synthetic import write_cohort_dumps
 
 SMALL = {"train": 3, "val": 2, "test": 2}
 
@@ -96,7 +96,7 @@ def test_cli_prints_one_cohort_per_line_or_json(tmp_path, capsys):
 
 
 def test_training_cli_error_for_an_unknown_cohort_lists_the_available_ones(tmp_path):
-    from model_stgcn.ptr import train as T
+    import pubg_lab.survival.ptr.training.train as T
 
     root = make_root(tmp_path, ["erangel_tpp_squad"])
     argv = [

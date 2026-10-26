@@ -18,9 +18,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from model_stgcn.ptr import data as D
-from model_stgcn.sagong2025 import features as F
-from model_stgcn.sagong2025 import fit as T
+import pubg_lab.survival.ptr.data.data as D
+import pubg_lab.survival.baselines.sagong2025.features as F
+import pubg_lab.survival.baselines.sagong2025.fit as T
 from tests.v2_fixtures import sagong_raw_from_source, synth_record, write_v2_cohort
 
 
@@ -84,7 +84,7 @@ def test_late_records_cannot_change_indicators_but_early_ones_do(synth):
 
 
 def test_db_clock_option_is_validated_and_sql_computes_w():
-    from model_stgcn.sagong2025 import db
+    import pubg_lab.survival.baselines.sagong2025.db as db
 
     assert "m.started_at" in db.sql_pos("w") and "m.started_at" not in db.sql_pos("epoch")
     assert db.SQL_POS == db.sql_pos("epoch") and "JOIN stdb.matches" in db.sql_kill("w")
@@ -112,7 +112,7 @@ def test_survival_table_uses_the_causal_alive_column_and_ignores_comeback_rows_a
 @pytest.fixture()
 def v2_plan(tmp_path):
     pytest.importorskip("pyarrow")
-    from model_stgcn.sagong2025.plan import build_plan
+    from pubg_lab.survival.baselines.sagong2025.plan import build_plan
 
     base = write_v2_cohort(tmp_path / "dumps", "c", n=14, seed=5, comeback_prob=0.1, exclude_prob=0.25)
     audit = build_plan(base.parent, "c", tmp_path / "plan")
@@ -178,7 +178,7 @@ def _fake_features(plan_dir, cohort="c", version="v2", sha=None):
 
 
 def test_stale_feature_source_is_refused_by_extract_and_fit(v2_plan):
-    from model_stgcn.sagong2025 import extract as X
+    import pubg_lab.survival.baselines.sagong2025.extract as X
     tmp, _, _ = v2_plan
     base = tmp / "plan" / "c"
     _fake_features(tmp / "plan")
@@ -220,7 +220,7 @@ def test_fit_runs_on_v2_and_records_the_version(v2_plan):
     r = res["SAGONG-hgb"]
     assert r["dump_version"] == "v2" and r["sagong"]["dump_version"] == "v2"
     units = pd.read_parquet(tmp / "plan" / "c" / "units.parquet")
-    from model_stgcn.ptr import metrics as M
+    import pubg_lab.survival.ptr.evaluation.metrics as M
 
     for split in ("val", "test"):
         pred = M.read_predictions(tmp / "runs" / "c" / "SAGONG-hgb" / "seed42" / f"pred_{split}.csv")
@@ -237,14 +237,14 @@ def test_v1_and_v2_caches_are_never_mixed(v2_plan):
     with pytest.raises(ValueError, match="other windows"):
         T.prepare(tmp / "plan", "c")
     # the extract stage refuses to skip a cache of another version
-    from model_stgcn.sagong2025 import extract as X
+    import pubg_lab.survival.baselines.sagong2025.extract as X
 
     base = tmp / "plan" / "c"
     wins = pd.read_parquet(base / "windows.parquet")
     with pytest.raises(D.DumpVersionError):
         X.check_features_meta(base, {**X._plan_info(base, wins), "version": "v1"})
     # a habitat table of another dump version
-    from model_stgcn.sagong2025.hab import AUDIT_FILE, HAB_FILE, attach_hab
+    from pubg_lab.survival.baselines.sagong2025.hab import AUDIT_FILE, HAB_FILE, attach_hab
 
     pd.DataFrame({"split": [], "match_id": [], "team_id": [], "phase": [], "y": []}).to_parquet(base / HAB_FILE, index=False)
     (base / AUDIT_FILE).write_text(json.dumps({"names": [], "indices": [], "dump_fingerprint": {}}))  # no dump_version = v1

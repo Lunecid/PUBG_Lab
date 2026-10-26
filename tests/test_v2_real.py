@@ -32,14 +32,14 @@ if str(KT) not in sys.path:
 
 torch = pytest.importorskip("torch")
 
-DUMP = Path(__file__).resolve().parents[1] / "model_stgcn" / "dumps" / "bigcomp2027_phase_v2"
+DUMP = Path(__file__).resolve().parents[1] / 'model_stgcn' / "dumps" / "bigcomp2027_phase_v2"
 N_PER_COHORT = 2
 MAX_CUTS = 4  # cuts replayed per match (the first, the middle ones, the last): bounds the run time
 needs_dump = pytest.mark.skipif(not (DUMP / "population.json").is_file(), reason="the v2 dump is not on disk")
 
 
 def _cohorts():
-    from model_stgcn.ptr.cohorts import discover_cohorts
+    from pubg_lab.survival.ptr.data.cohorts import discover_cohorts
 
     return discover_cohorts(DUMP)
 
@@ -47,7 +47,7 @@ def _cohorts():
 def _comeback_matches():
     """The real matches that contain a comeback row (found through the producer's manifests)."""
     out = []
-    from model_stgcn.ptr import data as D
+    import pubg_lab.survival.ptr.data.data as D
 
     for c in _cohorts():
         man = json.loads((DUMP / c / "dump_manifest.json").read_text())
@@ -64,7 +64,7 @@ NO_WINNER_MATCH = ("erangel_tpp_squad", "val", "b5134321-aeca-459e-ab84-508e8e87
 
 
 def _no_winner_match():
-    from model_stgcn.ptr import data as D
+    import pubg_lab.survival.ptr.data.data as D
 
     c, split, mid = NO_WINNER_MATCH
     d = D.load_dump(DUMP / c / f"{split}.pt")
@@ -73,7 +73,7 @@ def _no_winner_match():
 
 @pytest.fixture(scope="module")
 def real_matches():
-    from model_stgcn.ptr import data as D
+    import pubg_lab.survival.ptr.data.data as D
 
     picked = []
     for c in _cohorts():
@@ -101,8 +101,8 @@ def _cut_slots(lab, limit=MAX_CUTS):
 
 @pytest.fixture(scope="module")
 def krafton_inputs(real_matches):
-    from adaptation import extract as E
-    from adaptation.labels import compact_match
+    import projects.krafton_baseline.data.extract as E
+    from projects.krafton_baseline.data.labels import compact_match
 
     out = {}
     for c, split, m in real_matches:
@@ -119,7 +119,7 @@ def krafton_inputs(real_matches):
 
 @needs_dump
 def test_the_real_dump_loads_and_the_comeback_rows_are_there(real_matches):
-    from model_stgcn.ptr import data as D
+    import pubg_lab.survival.ptr.data.data as D
 
     cb = [(c, s, m) for c, s, m in real_matches if D.comeback_mask(m).any()]
     assert len(cb) == 2  # the two comeback matches of the corpus (producer's run_summary: 2 comeback rows)
@@ -131,7 +131,7 @@ def test_the_real_dump_loads_and_the_comeback_rows_are_there(real_matches):
 @requires_db
 @needs_dump
 def test_krafton_causal_alive_equals_the_dump_node_mask_at_every_cut(krafton_inputs):
-    from adaptation.features import team_alive_causal
+    from projects.krafton_baseline.data.features import team_alive_causal
 
     n_cells = 0
     for mid, (c, lab, raw, extra) in krafton_inputs.items():
@@ -146,8 +146,8 @@ def test_krafton_causal_alive_equals_the_dump_node_mask_at_every_cut(krafton_inp
 @requires_db
 @needs_dump
 def test_krafton_features_replay_bit_for_bit_from_the_records_before_each_cut(krafton_inputs):
-    from adaptation import extract as E
-    from adaptation.features import compute_features
+    import projects.krafton_baseline.data.extract as E
+    from projects.krafton_baseline.data.features import compute_features
 
     n = 0
     for mid, (c, lab, raw, extra) in krafton_inputs.items():
@@ -166,7 +166,7 @@ def test_krafton_features_replay_bit_for_bit_from_the_records_before_each_cut(kr
 @requires_db
 @needs_dump
 def test_krafton_samples_are_the_dump_rows_flags_and_T(krafton_inputs):
-    from adaptation import extract as E
+    import projects.krafton_baseline.data.extract as E
 
     for mid, (c, lab, raw, extra) in krafton_inputs.items():
         for split in ("val", "train"):
@@ -195,8 +195,8 @@ def test_krafton_samples_are_the_dump_rows_flags_and_T(krafton_inputs):
 @requires_db
 @needs_dump
 def test_kf_table_rows_replay_exactly_and_are_the_dump_tokens(krafton_inputs):
-    from adaptation import extract as E
-    from adaptation import kftable as KF
+    import projects.krafton_baseline.data.extract as E
+    import projects.krafton_baseline.data.kftable as KF
 
     for mid, (c, lab, raw, extra) in krafton_inputs.items():
         slots = [p for p in _cut_slots(lab) if p < 7]  # the table covers the cut phases 1..7 (slot 7 has tokens but no cut label)
@@ -225,7 +225,7 @@ def test_kf_table_rows_replay_exactly_and_are_the_dump_tokens(krafton_inputs):
 
 @pytest.fixture(scope="module")
 def sagong_raws(real_matches):
-    from model_stgcn.sagong2025.db import connect_readonly, fetch_raw_batch
+    from pubg_lab.survival.baselines.sagong2025.db import connect_readonly, fetch_raw_batch
 
     conn = connect_readonly()
     try:
@@ -243,8 +243,8 @@ def sagong_raws(real_matches):
 @requires_db
 @needs_dump
 def test_sagong_indicators_replay_bit_for_bit_from_the_records_before_each_cut(real_matches, sagong_raws):
-    from model_stgcn.ptr import data as D
-    from model_stgcn.sagong2025 import features as F
+    import pubg_lab.survival.ptr.data.data as D
+    import pubg_lab.survival.baselines.sagong2025.features as F
 
     def trunc(raw, cut):
         f = lambda df: df[df["ep"] < cut].reset_index(drop=True)  # noqa: E731
@@ -278,8 +278,8 @@ def _slice(items, limit):
 @needs_dump
 def test_sagong_window_rows_include_the_records_before_the_cut_and_nothing_else(real_matches, sagong_raws):
     """The indicators use records in ``[s_k, a_k)``: re-computed by hand from the raw frames for the number of enemy kills."""
-    from model_stgcn.ptr import data as D
-    from model_stgcn.sagong2025 import features as F
+    import pubg_lab.survival.ptr.data.data as D
+    import pubg_lab.survival.baselines.sagong2025.features as F
 
     checked = 0
     for c, split, m in real_matches[:12]:
@@ -307,7 +307,7 @@ def test_sagong_window_rows_include_the_records_before_the_cut_and_nothing_else(
 def test_the_match_without_a_winner_flag_keeps_its_rows_and_is_censored_by_the_alive_rule(real_matches):
     """b5134321: no ``team_won`` team; its rank-0 team is alive at the end and censored (T = +inf) by the alive rule.  The loader must
     return the stored rows (a winner is never re-added) and every consumer reads T / masks from the record."""
-    from model_stgcn.ptr import data as D
+    import pubg_lab.survival.ptr.data.data as D
 
     ms = [m for _, _, m in real_matches if str(m["match_id"]) == NO_WINNER_MATCH[2]]
     assert len(ms) == 1

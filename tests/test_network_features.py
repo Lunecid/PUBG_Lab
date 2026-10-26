@@ -21,7 +21,7 @@ import pytest
 from tests.conftest import requires_db
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-MANIFEST = REPO_ROOT / "model_stgcn" / "feature_manifests" / "pubg_representation_v2.json"
+MANIFEST = REPO_ROOT / 'src/pubg_lab/survival/features/manifests/pubg_representation_v2.json'
 
 FLOAT_TOL = 1e-3
 
@@ -48,8 +48,8 @@ def _pick_match_id(cur) -> str:
 @pytest.fixture()
 def rebuilt_match():
     """트랜잭션 안에서 매치 1개를 빌드하고 (conn, cur, match_id)를 내준 뒤 rollback."""
-    from stdb.conn import connect
-    from stdb.network_feature_etl import apply_schema, build_match
+    from pubg_lab.data.stdb.connection.conn import connect
+    from pubg_lab.data.stdb.pipelines.network_feature_etl import apply_schema, build_match
 
     apply_schema()
     conn = connect()
@@ -205,7 +205,7 @@ def test_future_phase_blindness(rebuilt_match):
     같은 트랜잭션 안에서 phase>2 엣지를 삭제하고 재빌드 → phase<=2 행이
     바이트 단위로 동일해야 한다.
     """
-    from stdb.network_feature_etl import build_match
+    from pubg_lab.data.stdb.pipelines.network_feature_etl import build_match
 
     _conn, cur, mid = rebuilt_match
 
@@ -256,7 +256,7 @@ def test_table_satisfies_manifest_contract(rebuilt_match):
 
 def test_build_sql_references_no_label_sources():
     """F6 입력은 edge cache + 우주(teams/bounds/global)뿐이어야 한다."""
-    from stdb.network_feature_etl import BUILD_SQL
+    from pubg_lab.data.stdb.pipelines.network_feature_etl import BUILD_SQL
 
     sql = BUILD_SQL.lower()
     forbidden = [

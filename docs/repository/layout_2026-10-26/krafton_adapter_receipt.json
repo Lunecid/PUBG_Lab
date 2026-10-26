@@ -1,0 +1,183 @@
+{
+  "reference_preserved": true,
+  "files": [
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/schema.py",
+      "active_copy": "projects/krafton_baseline/data/schema.py",
+      "bytes": 10678,
+      "sha256": "6258df5fc5488ce9d6eaa77a8a00524774cd15ee93498303481812ed365ace99",
+      "reason": "Preserve frozen reference unchanged; give project-owned adapters supported canonical imports"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/features.py",
+      "active_copy": "projects/krafton_baseline/data/features.py",
+      "bytes": 23919,
+      "sha256": "86acb485b657dbf497dc6c4274c7af8e04e32b58e8e8679e30286702066e844b",
+      "reason": "Preserve frozen reference unchanged; give project-owned adapters supported canonical imports"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/data.py",
+      "active_copy": "projects/krafton_baseline/data/data.py",
+      "bytes": 8306,
+      "sha256": "9eb827972ca8f63ac8907eb9545967a572a56cc8d6f4172bc2975743cdcb6352",
+      "reason": "Preserve frozen reference unchanged; give project-owned adapters supported canonical imports"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/labels.py",
+      "active_copy": "projects/krafton_baseline/data/labels.py",
+      "bytes": 9141,
+      "sha256": "9165195c1a167e2e6a98acb442a906063a68ae586d82ed5713e33809d86dcea1",
+      "reason": "Preserve frozen reference unchanged; give project-owned adapters supported canonical imports"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/extract.py",
+      "active_copy": "projects/krafton_baseline/data/extract.py",
+      "bytes": 32809,
+      "sha256": "5d47d0a7995252be62f045b1c8c53c0b5a13ee6af01703634452418a46ab40bd",
+      "reason": "Preserve frozen reference unchanged; give project-owned adapters supported canonical imports"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/kftable.py",
+      "active_copy": "projects/krafton_baseline/data/kftable.py",
+      "bytes": 22921,
+      "sha256": "6947b69ac79901ede453f127aa1bc181b6611afbd91cbfd097d41feb0b15d5ff",
+      "reason": "Preserve frozen reference unchanged; give project-owned adapters supported canonical imports"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/ourfeat.py",
+      "active_copy": "projects/krafton_baseline/models/ourfeat.py",
+      "bytes": 26047,
+      "sha256": "3999d83821ba4c1f89ee6c1c0cb241dfdf69b712b4d8ed33a96abf9e27e5bf63",
+      "reason": "Preserve frozen reference unchanged; give project-owned adapters supported canonical imports"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/train.py",
+      "active_copy": "projects/krafton_baseline/training/train.py",
+      "bytes": 21499,
+      "sha256": "e0eca5965c9b9bb777da2991520d8251c3595878a2c509c9314a4a0eeb764178",
+      "reason": "Preserve frozen reference unchanged; give project-owned adapters supported canonical imports"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/ourfeat_hazard.py",
+      "active_copy": "projects/krafton_baseline/training/ourfeat_hazard.py",
+      "bytes": 23483,
+      "sha256": "dd142a789ab367009d787d5399ade93bac4bff0618345af0e1084a23a723a10c",
+      "reason": "Preserve frozen reference unchanged; give project-owned adapters supported canonical imports"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/hgb_kraftonfeat.py",
+      "active_copy": "projects/krafton_baseline/training/hgb_kraftonfeat.py",
+      "bytes": 11545,
+      "sha256": "b98bde1976e300ac37cee381608aa2130cdf1380477d32a8146584e091874d7f",
+      "reason": "Preserve frozen reference unchanged; give project-owned adapters supported canonical imports"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/h0_baseline.py",
+      "active_copy": "projects/krafton_baseline/training/h0_baseline.py",
+      "bytes": 20525,
+      "sha256": "9efc9a17ba9f75a313389f03d5aa2fc050a203c503ef433ab7de03828267072f",
+      "reason": "Preserve frozen reference unchanged; give project-owned adapters supported canonical imports"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/h0_fit.py",
+      "active_copy": "projects/krafton_baseline/training/h0_fit.py",
+      "bytes": 5750,
+      "sha256": "387c8cb4eee8a7b5fdd903344bcdfb9d4553e668fc24fb43c36894af2a8eed4f",
+      "reason": "Preserve frozen reference unchanged; give project-owned adapters supported canonical imports"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/phase_auc.py",
+      "active_copy": "projects/krafton_baseline/evaluation/phase_auc.py",
+      "bytes": 7079,
+      "sha256": "0674af56874ca492e8a99627a5bc3b9f65e63493f5541f0035ce9f6026391808",
+      "reason": "Preserve frozen reference unchanged; give project-owned adapters supported canonical imports"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/k3_contrasts.py",
+      "active_copy": "projects/krafton_baseline/evaluation/k3_contrasts.py",
+      "bytes": 5795,
+      "sha256": "e9bdff7995b0a9f272fa4faf2476a6e32255b6025ad7cc5d08299c6347375dd7",
+      "reason": "Preserve frozen reference unchanged; give project-owned adapters supported canonical imports"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/diagnostics.py",
+      "active_copy": "projects/krafton_baseline/evaluation/diagnostics.py",
+      "bytes": 3909,
+      "sha256": "9799d91ab5e637ee6dc827303be282a5c38a8121eb18830032ab9ee3bfab33d9",
+      "reason": "Preserve frozen reference unchanged; give project-owned adapters supported canonical imports"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/validate_causal.py",
+      "active_copy": "projects/krafton_baseline/evaluation/validate_causal.py",
+      "bytes": 5482,
+      "sha256": "fcf1fd9b9d8e31e1020a5f2432488320cc6db90e49ea51ca12ad54cf013ebebb",
+      "reason": "Preserve frozen reference unchanged; give project-owned adapters supported canonical imports"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/diag_phase_init.py",
+      "active_copy": "projects/krafton_baseline/evaluation/diag_phase_init.py",
+      "bytes": 3230,
+      "sha256": "0894a5fe113c2bf5ae827832f4fcef6c52a58f4c094161e4a75c7403b0b047a4",
+      "reason": "Preserve frozen reference unchanged; give project-owned adapters supported canonical imports"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/k3_facts.py",
+      "active_copy": "projects/krafton_baseline/reporting/k3_facts.py",
+      "bytes": 4447,
+      "sha256": "6ace239e2e1340f4f6d84bbc5e316a968c3c3e769ec1d3016de8e3b9166406f3",
+      "reason": "Preserve frozen reference unchanged; give project-owned adapters supported canonical imports"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/h0_report.py",
+      "active_copy": "projects/krafton_baseline/reporting/h0_report.py",
+      "bytes": 14673,
+      "sha256": "6bcd477b85e777dfcdd3738f2084b3d8a98256e1d1314100f05c9600ade577d0",
+      "reason": "Preserve frozen reference unchanged; give project-owned adapters supported canonical imports"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/parity.py",
+      "active_copy": "projects/krafton_baseline/reporting/parity.py",
+      "bytes": 3934,
+      "sha256": "3540151c08571192895eba9df2718bfd8609e5b7118b0f143d507996297d1ab4",
+      "reason": "Preserve frozen reference unchanged; give project-owned adapters supported canonical imports"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/summarize.py",
+      "active_copy": "projects/krafton_baseline/reporting/summarize.py",
+      "bytes": 7025,
+      "sha256": "66842649b0fe7386a9376fa7f70b18cbde8b50f3d324d0ec1df11cc1ba7fa00c",
+      "reason": "Preserve frozen reference unchanged; give project-owned adapters supported canonical imports"
+    },
+    {
+      "reference": "third_party/krafton_pubg_winprob/adaptation/run_all.py",
+      "active_copy": "projects/krafton_baseline/pipelines/run_all.py",
+      "bytes": 14346,
+      "sha256": "c08a9a298660b45e51e875ccf0e014af5a56d31f1ed306472e727731f5c87e66",
+      "reason": "Preserve frozen reference unchanged; give project-owned adapters supported canonical imports"
+    }
+  ],
+  "canonical_commands": {
+    "schema": "projects.krafton_baseline.data.schema",
+    "features": "projects.krafton_baseline.data.features",
+    "data": "projects.krafton_baseline.data.data",
+    "labels": "projects.krafton_baseline.data.labels",
+    "extract": "projects.krafton_baseline.data.extract",
+    "kftable": "projects.krafton_baseline.data.kftable",
+    "ourfeat": "projects.krafton_baseline.models.ourfeat",
+    "train": "projects.krafton_baseline.training.train",
+    "ourfeat_hazard": "projects.krafton_baseline.training.ourfeat_hazard",
+    "hgb_kraftonfeat": "projects.krafton_baseline.training.hgb_kraftonfeat",
+    "h0_baseline": "projects.krafton_baseline.training.h0_baseline",
+    "h0_fit": "projects.krafton_baseline.training.h0_fit",
+    "phase_auc": "projects.krafton_baseline.evaluation.phase_auc",
+    "k3_contrasts": "projects.krafton_baseline.evaluation.k3_contrasts",
+    "diagnostics": "projects.krafton_baseline.evaluation.diagnostics",
+    "validate_causal": "projects.krafton_baseline.evaluation.validate_causal",
+    "diag_phase_init": "projects.krafton_baseline.evaluation.diag_phase_init",
+    "k3_facts": "projects.krafton_baseline.reporting.k3_facts",
+    "h0_report": "projects.krafton_baseline.reporting.h0_report",
+    "parity": "projects.krafton_baseline.reporting.parity",
+    "summarize": "projects.krafton_baseline.reporting.summarize",
+    "run_all": "projects.krafton_baseline.pipelines.run_all"
+  }
+}

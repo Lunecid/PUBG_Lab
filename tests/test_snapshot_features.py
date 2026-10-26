@@ -29,8 +29,8 @@ def _pick_match_id(cur) -> str:
 
 @pytest.fixture()
 def rebuilt_match():
-    from stdb.conn import connect
-    from stdb.snapshot_feature_etl import apply_schema, build_match
+    from pubg_lab.data.stdb.connection.conn import connect
+    from pubg_lab.data.stdb.pipelines.snapshot_feature_etl import apply_schema, build_match
 
     apply_schema()
     conn = connect()
@@ -110,7 +110,7 @@ def test_phase_idx_matches_dynamic_regions(rebuilt_match):
 @requires_db
 def test_future_snapshot_blindness(rebuilt_match):
     """미래 snapshot 삭제 후 과거 snapshot 행이 불변 — speed가 lag(과거)만 보는 증명."""
-    from stdb.snapshot_feature_etl import build_match
+    from pubg_lab.data.stdb.pipelines.snapshot_feature_etl import build_match
 
     _conn, cur, mid = rebuilt_match
     cur.execute(
@@ -143,7 +143,7 @@ def test_future_snapshot_blindness(rebuilt_match):
 
 
 def test_build_sql_references_no_label_sources():
-    from stdb.snapshot_feature_etl import BUILD_SQL
+    from pubg_lab.data.stdb.pipelines.snapshot_feature_etl import BUILD_SQL
 
     sql = BUILD_SQL.lower()
     forbidden = [

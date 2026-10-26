@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from model_stgcn.ptr import learning_curve as LC
+import pubg_lab.survival.ptr.experiments.learning_curve as LC
 
 COHORTS = {"taego_tpp_squad": 3329, "erangel_tpp_squad": 2638}
 SIZES = (300, 600, 1200)

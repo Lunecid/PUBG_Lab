@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import torch
 
-from model_stgcn.snapshot_relative_edge import SnapshotRelativeEdgeHazard
+from pubg_lab.survival.models.snapshot_relative_edge import SnapshotRelativeEdgeHazard
 
 
 FEATURE_NAMES = [

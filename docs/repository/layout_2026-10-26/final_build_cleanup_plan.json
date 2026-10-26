@@ -1,0 +1,3442 @@
+[
+  {
+    "path": "build/lib/pubg_lab/__init__.py",
+    "bytes": 114,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/commands.json",
+    "bytes": 83307,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/README.md",
+    "bytes": 831,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/__main__.py",
+    "bytes": 1289,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/repository/repository_release.py",
+    "bytes": 5728,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/repository/__init__.py",
+    "bytes": 29,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/repository/README.md",
+    "bytes": 501,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/repository/check_structure.py",
+    "bytes": 7570,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/__init__.py",
+    "bytes": 27,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/README.md",
+    "bytes": 269,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/__init__.py",
+    "bytes": 315,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/README.md",
+    "bytes": 322,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/reporting/export_json.py",
+    "bytes": 16054,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/reporting/__init__.py",
+    "bytes": 28,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/reporting/narrative.py",
+    "bytes": 11706,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/reporting/README.md",
+    "bytes": 648,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/reporting/visualize_summary.py",
+    "bytes": 15945,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/reporting/visualize_match.py",
+    "bytes": 58191,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/config/config.py",
+    "bytes": 7174,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/config/__init__.py",
+    "bytes": 25,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/config/README.md",
+    "bytes": 357,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/features/metrics.py",
+    "bytes": 11029,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/features/team_centrality.py",
+    "bytes": 5946,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/features/__init__.py",
+    "bytes": 27,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/features/team_network.py",
+    "bytes": 10144,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/features/movement.py",
+    "bytes": 6674,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/features/README.md",
+    "bytes": 696,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/features/community_detect.py",
+    "bytes": 8538,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/features/archetype.py",
+    "bytes": 6456,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/legacy/__init__.py",
+    "bytes": 654,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/legacy/h3_analysis.py",
+    "bytes": 8109,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/legacy/README.md",
+    "bytes": 543,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/legacy/h1_analysis.py",
+    "bytes": 17648,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/legacy/h2_analysis.py",
+    "bytes": 7621,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/data/db_loader.py",
+    "bytes": 7050,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/data/data_loader.py",
+    "bytes": 9699,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/data/__init__.py",
+    "bytes": 23,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/data/README.md",
+    "bytes": 439,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/__init__.py",
+    "bytes": 82,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/README.md",
+    "bytes": 309,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/training/pretraining.py",
+    "bytes": 6219,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/training/__init__.py",
+    "bytes": 27,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/training/README.md",
+    "bytes": 423,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/features/__init__.py",
+    "bytes": 27,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/features/temporal_prior.py",
+    "bytes": 8238,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/features/README.md",
+    "bytes": 561,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/features/historical_prior.py",
+    "bytes": 3333,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/features/inputs.py",
+    "bytes": 13570,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/models/__init__.py",
+    "bytes": 25,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/models/encoder.py",
+    "bytes": 9973,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/models/README.md",
+    "bytes": 400,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/data/cohorts.py",
+    "bytes": 7039,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/data/preprocess.py",
+    "bytes": 25354,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/data/__init__.py",
+    "bytes": 23,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/data/README.md",
+    "bytes": 794,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/data/dataset.py",
+    "bytes": 8444,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/data/patches.py",
+    "bytes": 2135,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/data/indexed_dataset.py",
+    "bytes": 2169,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/common/paths.py",
+    "bytes": 840,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/common/__init__.py",
+    "bytes": 82,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/common/README.md",
+    "bytes": 390,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/__init__.py",
+    "bytes": 82,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/README.md",
+    "bytes": 292,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/models/model_v4.py",
+    "bytes": 9849,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/models/__init__.py",
+    "bytes": 25,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/models/model.py",
+    "bytes": 7660,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/models/README.md",
+    "bytes": 613,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/models/model_v3.py",
+    "bytes": 7216,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/evaluation/evaluation.py",
+    "bytes": 3382,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/evaluation/__init__.py",
+    "bytes": 29,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/evaluation/README.md",
+    "bytes": 434,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/data/bank_v3.py",
+    "bytes": 12055,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/data/__init__.py",
+    "bytes": 23,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/data/bank.py",
+    "bytes": 11129,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/data/dataset_v3.py",
+    "bytes": 4964,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/data/README.md",
+    "bytes": 688,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/data/dataset.py",
+    "bytes": 18278,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/__init__.py",
+    "bytes": 23,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/README.md",
+    "bytes": 305,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/classify_collected_data.py",
+    "bytes": 31860,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/inspect_movement_schema.py",
+    "bytes": 6127,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/audit_decision_state_schema.py",
+    "bytes": 5009,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/audit_bot_trajectories.py",
+    "bytes": 9903,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/__init__.py",
+    "bytes": 26,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/README.md",
+    "bytes": 975,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/corpus_quality_index.py",
+    "bytes": 20397,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/summarize_corpus_quality.py",
+    "bytes": 31311,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/__init__.py",
+    "bytes": 0,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/README.md",
+    "bytes": 319,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/temporal/__init__.py",
+    "bytes": 27,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/temporal/README.md",
+    "bytes": 426,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/temporal/causal_cut.py",
+    "bytes": 14473,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/connection/__init__.py",
+    "bytes": 29,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/connection/README.md",
+    "bytes": 364,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/connection/conn.py",
+    "bytes": 3716,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/audits/skill_coverage_audit.py",
+    "bytes": 3528,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/audits/__init__.py",
+    "bytes": 25,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/audits/README.md",
+    "bytes": 444,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/audits/audit_raw.py",
+    "bytes": 4509,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/queries/__init__.py",
+    "bytes": 26,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/queries/README.md",
+    "bytes": 496,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/queries/queries.py",
+    "bytes": 45468,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/queries/snapshot_queries.py",
+    "bytes": 11100,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/queries/v2_view.py",
+    "bytes": 4358,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/pipelines/etl.py",
+    "bytes": 32283,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/pipelines/base_stage.py",
+    "bytes": 6257,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/pipelines/habitat_feature_etl.py",
+    "bytes": 21211,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/pipelines/phase_spatial_feature_etl.py",
+    "bytes": 22329,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/pipelines/rq1_feature_etl.py",
+    "bytes": 36695,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/pipelines/skill_rating_proxy_etl.py",
+    "bytes": 22199,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/pipelines/__init__.py",
+    "bytes": 28,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/pipelines/snapshot_feature_etl.py",
+    "bytes": 10986,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/pipelines/README.md",
+    "bytes": 1450,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/pipelines/build_available.py",
+    "bytes": 11497,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/pipelines/z_affordance_feature_etl.py",
+    "bytes": 13107,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/pipelines/network_feature_etl.py",
+    "bytes": 21043,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/pipelines/skill_proxy_etl.py",
+    "bytes": 17779,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/pipelines/phase_edge_etl.py",
+    "bytes": 16630,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/pipelines/f0_feature_etl.py",
+    "bytes": 14199,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/pipelines/patch_combat_zone_pass.py",
+    "bytes": 5735,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/schemas/schema_rq1.sql",
+    "bytes": 13182,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/schemas/schema.sql",
+    "bytes": 9330,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/schemas/schema_br_layers.sql",
+    "bytes": 19355,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/schemas/migrations/2026-06-12_phase_indexes.sql",
+    "bytes": 499,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/config.py",
+    "bytes": 894,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/__init__.py",
+    "bytes": 0,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/README.md",
+    "bytes": 573,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/provenance.py",
+    "bytes": 2239,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/experiments/feature_ablation.py",
+    "bytes": 40302,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/experiments/phase_result_analysis.py",
+    "bytes": 17725,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/experiments/novelty_analysis.py",
+    "bytes": 13682,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/experiments/phase_wise_eval.py",
+    "bytes": 15651,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/experiments/__init__.py",
+    "bytes": 30,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/experiments/README.md",
+    "bytes": 825,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/experiments/manifest_importance.py",
+    "bytes": 10684,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/experiments/domain_ablation.py",
+    "bytes": 10637,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/training/train_snapshot_phase.py",
+    "bytes": 30593,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/training/train_mr.py",
+    "bytes": 8564,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/training/__init__.py",
+    "bytes": 27,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/training/README.md",
+    "bytes": 610,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/training/train.py",
+    "bytes": 7923,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/training/train_phase.py",
+    "bytes": 13410,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/features/edge_modes.py",
+    "bytes": 3111,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/features/edge_sanity.py",
+    "bytes": 17472,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/features/__init__.py",
+    "bytes": 27,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/features/README.md",
+    "bytes": 569,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/features/snapshot_edge_controls.py",
+    "bytes": 2450,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/features/manifests/pubg_representation_v2.json",
+    "bytes": 14487,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/models/snapshot_encoder.py",
+    "bytes": 2976,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/models/mr_stgnn.py",
+    "bytes": 6325,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/models/snapshot_relative_edge.py",
+    "bytes": 10584,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/models/__init__.py",
+    "bytes": 25,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/models/README.md",
+    "bytes": 870,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/models/dyn_stgnn.py",
+    "bytes": 11827,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/models/snapshot_phase_survival.py",
+    "bytes": 6486,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/models/snapshot_baselines.py",
+    "bytes": 14871,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/models/stgcn.py",
+    "bytes": 7248,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/__init__.py",
+    "bytes": 268,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/README.md",
+    "bytes": 331,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/experiments/experiment_matrix.py",
+    "bytes": 13282,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/experiments/__init__.py",
+    "bytes": 27,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/experiments/README.md",
+    "bytes": 457,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/experiments/run_matrix.py",
+    "bytes": 12063,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/training/__init__.py",
+    "bytes": 27,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/training/README.md",
+    "bytes": 374,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/training/train.py",
+    "bytes": 16567,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/features/advantage_edges.py",
+    "bytes": 8791,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/features/__init__.py",
+    "bytes": 27,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/features/README.md",
+    "bytes": 522,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/features/edge_controls.py",
+    "bytes": 2687,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/models/models.py",
+    "bytes": 22443,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/models/__init__.py",
+    "bytes": 25,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/models/README.md",
+    "bytes": 455,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/models/adv_model.py",
+    "bytes": 12194,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/evaluation/__init__.py",
+    "bytes": 29,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/evaluation/README.md",
+    "bytes": 384,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/evaluation/eval.py",
+    "bytes": 23388,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/data/cohorts.py",
+    "bytes": 4718,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/data/factorized_data.py",
+    "bytes": 11944,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/data/__init__.py",
+    "bytes": 23,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/data/spec.py",
+    "bytes": 11322,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/data/README.md",
+    "bytes": 516,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/__init__.py",
+    "bytes": 293,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/README.md",
+    "bytes": 331,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/experiments/learning_curve.py",
+    "bytes": 17883,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/experiments/__init__.py",
+    "bytes": 30,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/experiments/README.md",
+    "bytes": 713,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/experiments/derived.py",
+    "bytes": 35795,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/experiments/run_matrix.py",
+    "bytes": 47749,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/training/__init__.py",
+    "bytes": 27,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/training/README.md",
+    "bytes": 534,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/training/loss.py",
+    "bytes": 4044,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/training/train.py",
+    "bytes": 33825,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/models/gatv2.py",
+    "bytes": 3555,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/models/hgb.py",
+    "bytes": 20303,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/models/relations.py",
+    "bytes": 7368,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/models/arms.py",
+    "bytes": 8759,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/models/__init__.py",
+    "bytes": 25,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/models/model.py",
+    "bytes": 24126,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/models/README.md",
+    "bytes": 907,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/models/player.py",
+    "bytes": 22479,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/common/util.py",
+    "bytes": 5486,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/common/__init__.py",
+    "bytes": 25,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/common/README.md",
+    "bytes": 391,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/evaluation/metrics.py",
+    "bytes": 34212,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/evaluation/aggregate.py",
+    "bytes": 138952,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/evaluation/__init__.py",
+    "bytes": 29,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/evaluation/README.md",
+    "bytes": 832,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/evaluation/ecomodel.py",
+    "bytes": 106818,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/evaluation/supplement.py",
+    "bytes": 47937,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/data/cohorts.py",
+    "bytes": 4921,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/data/synthetic.py",
+    "bytes": 37727,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/data/extra.py",
+    "bytes": 24996,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/data/paths.py",
+    "bytes": 32311,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/data/__init__.py",
+    "bytes": 23,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/data/README.md",
+    "bytes": 835,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/data/data.py",
+    "bytes": 64434,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/inference/__init__.py",
+    "bytes": 25,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/inference/README.md",
+    "bytes": 347,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/inference/infer.py",
+    "bytes": 20876,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/evaluation/eval_mr.py",
+    "bytes": 5814,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/evaluation/eval_phase.py",
+    "bytes": 13506,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/evaluation/__init__.py",
+    "bytes": 29,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/evaluation/README.md",
+    "bytes": 732,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/evaluation/eval.py",
+    "bytes": 5188,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/evaluation/bootstrap_ci.py",
+    "bytes": 2433,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/evaluation/calibration.py",
+    "bytes": 7373,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/baselines/baselines.py",
+    "bytes": 8677,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/baselines/__init__.py",
+    "bytes": 28,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/baselines/snapshot_tabular_baseline.py",
+    "bytes": 25412,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/baselines/README.md",
+    "bytes": 527,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/baselines/sagong2025/plan.py",
+    "bytes": 9532,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/baselines/sagong2025/db.py",
+    "bytes": 6288,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/baselines/sagong2025/fit.py",
+    "bytes": 27981,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/baselines/sagong2025/__init__.py",
+    "bytes": 2054,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/baselines/sagong2025/features.py",
+    "bytes": 14939,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/baselines/sagong2025/hab.py",
+    "bytes": 6229,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/baselines/sagong2025/README.md",
+    "bytes": 1112,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/baselines/sagong2025/extract.py",
+    "bytes": 8619,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/baselines/sagong2025/__main__.py",
+    "bytes": 5056,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/data/dump_player_tier.py",
+    "bytes": 48509,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/data/__init__.py",
+    "bytes": 23,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/data/dump_phase_tier.py",
+    "bytes": 61639,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/data/README.md",
+    "bytes": 1057,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/data/mr_dataset.py",
+    "bytes": 3347,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/data/dataset.py",
+    "bytes": 6683,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/data/dump_phase_tier_v2.py",
+    "bytes": 26898,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/data/snapshot_phase_dataset.py",
+    "bytes": 6894,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/data/split_access.py",
+    "bytes": 941,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/data/phase_v2/labels.py",
+    "bytes": 3996,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/data/phase_v2/grid.py",
+    "bytes": 7518,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/data/phase_v2/events.py",
+    "bytes": 11696,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/data/phase_v2/__init__.py",
+    "bytes": 1001,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/data/phase_v2/features.py",
+    "bytes": 43912,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/data/phase_v2/alive.py",
+    "bytes": 14221,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/data/phase_v2/assemble.py",
+    "bytes": 9146,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/data/phase_v2/phases.py",
+    "bytes": 3431,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/data/phase_v2/README.md",
+    "bytes": 1343,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/data/phase_v2/replay.py",
+    "bytes": 6902,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/data/phase_v2/source.py",
+    "bytes": 20797,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/__init__.py",
+    "bytes": 27,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/README.md",
+    "bytes": 1356,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/__init__.py",
+    "bytes": 32,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/README.md",
+    "bytes": 877,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/reporting/k3_facts.py",
+    "bytes": 5334,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/reporting/h0_report.py",
+    "bytes": 16410,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/reporting/parity.py",
+    "bytes": 4405,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/reporting/__init__.py",
+    "bytes": 25,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/reporting/summarize.py",
+    "bytes": 7741,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/reporting/README.md",
+    "bytes": 885,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/training/h0_baseline.py",
+    "bytes": 22064,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/training/hgb_kraftonfeat.py",
+    "bytes": 12440,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/training/h0_fit.py",
+    "bytes": 6141,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/training/__init__.py",
+    "bytes": 24,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/training/README.md",
+    "bytes": 1007,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/training/ourfeat_hazard.py",
+    "bytes": 24775,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/training/train.py",
+    "bytes": 22584,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/pipelines/__init__.py",
+    "bytes": 25,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/pipelines/README.md",
+    "bytes": 448,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/pipelines/run_all.py",
+    "bytes": 16739,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/models/ourfeat.py",
+    "bytes": 27656,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/models/__init__.py",
+    "bytes": 22,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/models/README.md",
+    "bytes": 455,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/common/__init__.py",
+    "bytes": 22,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/common/README.md",
+    "bytes": 422,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/common/commands.py",
+    "bytes": 1812,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/evaluation/phase_auc.py",
+    "bytes": 7990,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/evaluation/diag_phase_init.py",
+    "bytes": 3874,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/evaluation/k3_contrasts.py",
+    "bytes": 6802,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/evaluation/validate_causal.py",
+    "bytes": 6389,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/evaluation/diagnostics.py",
+    "bytes": 4337,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/evaluation/__init__.py",
+    "bytes": 26,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/evaluation/README.md",
+    "bytes": 1010,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/data/labels.py",
+    "bytes": 9688,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/data/kftable.py",
+    "bytes": 24447,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/data/__init__.py",
+    "bytes": 20,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/data/features.py",
+    "bytes": 24964,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/data/README.md",
+    "bytes": 1045,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/data/extract.py",
+    "bytes": 34634,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/data/data.py",
+    "bytes": 8922,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/krafton_baseline/data/schema.py",
+    "bytes": 11458,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/__init__.py",
+    "bytes": 35,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/README.md",
+    "bytes": 313,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/reporting/h1_report.py",
+    "bytes": 28281,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/reporting/__init__.py",
+    "bytes": 51,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/reporting/README.md",
+    "bytes": 425,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/reporting/report.py",
+    "bytes": 89846,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/studies/strategy_type_network_analysis.py",
+    "bytes": 25229,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/studies/advanced_graph_report.py",
+    "bytes": 52979,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/studies/h3_movement.py",
+    "bytes": 9710,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/studies/h1_archetype.py",
+    "bytes": 8239,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/studies/__init__.py",
+    "bytes": 26,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/studies/h2_battle_center.py",
+    "bytes": 8484,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/studies/st_hypothesis_analysis.py",
+    "bytes": 55148,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/studies/README.md",
+    "bytes": 1226,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/studies/hypotheses.py",
+    "bytes": 10074,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/studies/basic_graph_analysis.py",
+    "bytes": 26279,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/studies/phase_h3_analysis.py",
+    "bytes": 16428,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/studies/phase_strategy_type_analysis.py",
+    "bytes": 30658,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/pipelines/run_report.py",
+    "bytes": 20066,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/pipelines/run.py",
+    "bytes": 5746,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/pipelines/run_h1.py",
+    "bytes": 5585,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/pipelines/run_v2.py",
+    "bytes": 19728,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/pipelines/__init__.py",
+    "bytes": 28,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/pipelines/README.md",
+    "bytes": 654,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/pipelines/build_analysis_dataset.py",
+    "bytes": 16381,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/docs/pubg_safe_zone_stdb_proposal_plain.md",
+    "bytes": 19299,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/docs/final_spatiotemporal_project_report.md",
+    "bytes": 28010,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/docs/official_api_ppt_alignment_plan.md",
+    "bytes": 12363,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/docs/trajectory_literature_application.md",
+    "bytes": 14563,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/docs/habitat_contraction_model_addendum.md",
+    "bytes": 10406,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/docs/current_focus_research_report.md",
+    "bytes": 13777,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/network_analysis/docs/spatiotemporal_survival_proposal.md",
+    "bytes": 26349,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/collector/config.py",
+    "bytes": 4512,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/collector/requirements.txt",
+    "bytes": 55,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/collector/__init__.py",
+    "bytes": 28,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/collector/README.md",
+    "bytes": 631,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/collector/fetch_telemetry.py",
+    "bytes": 23628,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/collector/fetch_match_ids.py",
+    "bytes": 2872,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/collector/fetch_matches.py",
+    "bytes": 9050,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/data_preparation/update_data_availability_summary.py",
+    "bytes": 6088,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/data_preparation/build_research_cohort_flat.py",
+    "bytes": 21122,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/data_preparation/__init__.py",
+    "bytes": 35,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/data_preparation/convert_raw_to_usable.py",
+    "bytes": 8263,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/data_preparation/README.md",
+    "bytes": 1020,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/data_preparation/build_data_availability_domains.py",
+    "bytes": 8807,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/data_preparation/import_research_cohort_to_br_exp.py",
+    "bytes": 6541,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/data_preparation/register_pubg_l1_ground.py",
+    "bytes": 9766,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/data_preparation/build_experiment_domain_datasets.py",
+    "bytes": 14683,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/data_preparation/docs/schema_audit.md",
+    "bytes": 23646,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/__init__.py",
+    "bytes": 30,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/README.md",
+    "bytes": 325,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/reporting/report_world_model_preprocess.py",
+    "bytes": 13347,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/reporting/__init__.py",
+    "bytes": 28,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/reporting/report_world_model_g4.py",
+    "bytes": 12942,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/reporting/README.md",
+    "bytes": 741,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/reporting/report_world_model_g3.py",
+    "bytes": 12575,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/reporting/report_world_model_g2.py",
+    "bytes": 13472,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/training/train_world_model_g4.py",
+    "bytes": 19808,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/training/__init__.py",
+    "bytes": 27,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/training/README.md",
+    "bytes": 542,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/training/train_world_model_g2.py",
+    "bytes": 17962,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/common/__init__.py",
+    "bytes": 43,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/common/README.md",
+    "bytes": 398,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/common/resources.py",
+    "bytes": 1619,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/evaluation/verify_world_model_historical_prior.py",
+    "bytes": 4973,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/evaluation/verify_world_model_preprocess.py",
+    "bytes": 10958,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/evaluation/__init__.py",
+    "bytes": 29,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/evaluation/verify_world_model_encoder.py",
+    "bytes": 11377,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/evaluation/README.md",
+    "bytes": 1105,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/evaluation/world_model_toy_checks.py",
+    "bytes": 1570,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/evaluation/audit_world_model_inputs.py",
+    "bytes": 10353,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/evaluation/verify_world_model_g3.py",
+    "bytes": 10549,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/evaluation/audit_world_model_g4.py",
+    "bytes": 6034,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/data/build_world_model_g3.py",
+    "bytes": 11481,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/data/finalize_world_model_g3.py",
+    "bytes": 6005,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/data/build_world_model_historical_prior.py",
+    "bytes": 4351,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/data/__init__.py",
+    "bytes": 23,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/data/world_model_preprocess.py",
+    "bytes": 31511,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/data/mine_world_model_short_transport.py",
+    "bytes": 5421,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/world_model/data/README.md",
+    "bytes": 892,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/__init__.py",
+    "bytes": 27,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/README.md",
+    "bytes": 320,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/reporting/report_v4.py",
+    "bytes": 25298,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/reporting/export_example.py",
+    "bytes": 1500,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/reporting/visualize_v4.py",
+    "bytes": 10012,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/reporting/__init__.py",
+    "bytes": 28,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/reporting/report_experiment_v2.py",
+    "bytes": 32331,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/reporting/README.md",
+    "bytes": 939,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/reporting/state_figures_v3.py",
+    "bytes": 6285,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/reporting/report_v3.py",
+    "bytes": 30027,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/training/experiment_v2.py",
+    "bytes": 12924,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/training/experiment_v3.py",
+    "bytes": 11198,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/training/__init__.py",
+    "bytes": 27,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/training/parallel_replica_v2.py",
+    "bytes": 1302,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/training/README.md",
+    "bytes": 939,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/training/experiment_v4.py",
+    "bytes": 17393,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/training/train.py",
+    "bytes": 5979,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/training/prepare_v4.py",
+    "bytes": 3551,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/release/finish_v4.py",
+    "bytes": 1870,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/release/__init__.py",
+    "bytes": 26,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/release/finalize_v4.py",
+    "bytes": 7469,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/release/README.md",
+    "bytes": 690,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/release/finalize_v3.py",
+    "bytes": 5050,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/release/finish_v3.py",
+    "bytes": 2515,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/configs/requirements.txt",
+    "bytes": 65,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/configs/requirements-experiment.txt",
+    "bytes": 54,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/__init__.py",
+    "bytes": 29,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/README.md",
+    "bytes": 354,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/analysis/analyze_experiment_v2.py",
+    "bytes": 18813,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/analysis/analyze_v3.py",
+    "bytes": 15119,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/analysis/__init__.py",
+    "bytes": 27,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/analysis/README.md",
+    "bytes": 817,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/analysis/horizons_v4.py",
+    "bytes": 4109,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/analysis/coverage_v3.py",
+    "bytes": 2552,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/analysis/analyze_v4.py",
+    "bytes": 11435,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/verification/audit.py",
+    "bytes": 4094,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/verification/verify_model_v2.py",
+    "bytes": 2689,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/verification/audit_v3.py",
+    "bytes": 5389,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/verification/__init__.py",
+    "bytes": 31,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/verification/README.md",
+    "bytes": 998,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/verification/audit_experiment_v2.py",
+    "bytes": 8351,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/verification/verify_results_v2.py",
+    "bytes": 6117,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/verification/audit_v4.py",
+    "bytes": 5544,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/verification/smoke.py",
+    "bytes": 3050,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/diagnostics/diagnose_v4.py",
+    "bytes": 6755,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/diagnostics/pre_evaluation_diagnostics.py",
+    "bytes": 4224,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/diagnostics/transport_audit_v3.py",
+    "bytes": 7004,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/diagnostics/mobility_diagnostics_v2.py",
+    "bytes": 3930,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/diagnostics/generation_diagnostics_v2.py",
+    "bytes": 3879,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/diagnostics/__init__.py",
+    "bytes": 30,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/diagnostics/README.md",
+    "bytes": 1162,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/diagnostics/residual_drift_v4.py",
+    "bytes": 2375,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/diagnostics/diagnose_v3.py",
+    "bytes": 7961,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/evaluation/diagnostics/condition_diagnostics_v2.py",
+    "bytes": 5234,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/data/build.py",
+    "bytes": 9593,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/data/build_v3.py",
+    "bytes": 6523,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/data/__init__.py",
+    "bytes": 23,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/data/README.md",
+    "bytes": 597,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/movement/data/extract.py",
+    "bytes": 8665,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/figures/__init__.py",
+    "bytes": 26,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/figures/README.md",
+    "bytes": 269,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/figures/rendering/make_paper_figures_svg.py",
+    "bytes": 18338,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/figures/rendering/make_presentation_figures.py",
+    "bytes": 6754,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/figures/rendering/__init__.py",
+    "bytes": 28,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/figures/rendering/make_realmap_figure.py",
+    "bytes": 19001,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/figures/rendering/make_phase_summary_figure.py",
+    "bytes": 7858,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/figures/rendering/README.md",
+    "bytes": 908,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/figures/rendering/make_labeling_figure.py",
+    "bytes": 5227,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/figures/rendering/create_pubg_safe_zone_proposal_docx.py",
+    "bytes": 26070,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/__init__.py",
+    "bytes": 26,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/README.md",
+    "bytes": 279,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/__init__.py",
+    "bytes": 26,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/README.md",
+    "bytes": 319,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/ingestion/heterograph_case_extract.py",
+    "bytes": 8075,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/ingestion/erangel_100m_extract.py",
+    "bytes": 11964,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/ingestion/__init__.py",
+    "bytes": 28,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/ingestion/README.md",
+    "bytes": 630,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/ingestion/erangel_spatial_extract.py",
+    "bytes": 6629,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/resources/erangel_100m_viewer.html.template",
+    "bytes": 12572,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/resources/erangel_spatial_viewer.html.template",
+    "bytes": 10201,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/configs/requirements.txt",
+    "bytes": 85,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/rendering/erangel_spatial_visualize.py",
+    "bytes": 9693,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/rendering/heterograph_case_figure.py",
+    "bytes": 7347,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/rendering/__init__.py",
+    "bytes": 28,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/rendering/erangel_100m_visualize.py",
+    "bytes": 9875,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/rendering/README.md",
+    "bytes": 649,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/geometry/heterograph_case_build.py",
+    "bytes": 23523,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/geometry/__init__.py",
+    "bytes": 27,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/geometry/README.md",
+    "bytes": 635,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/geometry/erangel_spatial_build.py",
+    "bytes": 14076,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/geometry/erangel_100m_build.py",
+    "bytes": 16796,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/validation/__init__.py",
+    "bytes": 29,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/validation/erangel_100m_verify.py",
+    "bytes": 5179,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/validation/README.md",
+    "bytes": 521,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/erangel/validation/erangel_spatial_patch_inventory.py",
+    "bytes": 2507,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/__init__.py",
+    "bytes": 26,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/README.md",
+    "bytes": 304,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/ingestion/caldera_dataset_manager.py",
+    "bytes": 23927,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/ingestion/export_caldera_trajectory_json.py",
+    "bytes": 3161,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/ingestion/extract_caldera_terrain_experience_features.py",
+    "bytes": 20911,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/ingestion/__init__.py",
+    "bytes": 28,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/ingestion/README.md",
+    "bytes": 1085,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/ingestion/caldera_ingest_geometry_catalog.py",
+    "bytes": 22025,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/ingestion/caldera_ingest_players.py",
+    "bytes": 20771,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/ingestion/extract_caldera_local_mesh.py",
+    "bytes": 19119,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/ingestion/export_caldera_mesh_cache_obj.py",
+    "bytes": 13899,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/rendering/render_caldera_single_agent_topdown.py",
+    "bytes": 12304,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/rendering/render_caldera_semantic_basemap.py",
+    "bytes": 44604,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/rendering/render_caldera_rq3_zbuffer_pov.py",
+    "bytes": 16178,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/rendering/render_caldera_agent_experience_snapshot.py",
+    "bytes": 30236,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/rendering/render_caldera_blender_clay.py",
+    "bytes": 12901,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/rendering/__init__.py",
+    "bytes": 28,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/rendering/render_caldera_rq3_clean_situation_panels.py",
+    "bytes": 11861,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/rendering/render_caldera_agent_pov_animation.py",
+    "bytes": 30923,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/rendering/README.md",
+    "bytes": 1432,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/rendering/render_caldera_rq3_clean_pov_proxy.py",
+    "bytes": 21840,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/rendering/render_caldera_asset_snapshot.py",
+    "bytes": 31469,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/rendering/visualize_caldera_3d.py",
+    "bytes": 28361,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/geometry/build_caldera_st_3d_scene.py",
+    "bytes": 22456,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/geometry/__init__.py",
+    "bytes": 27,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/geometry/build_caldera_map_mesh.py",
+    "bytes": 17657,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/geometry/README.md",
+    "bytes": 722,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/geometry/make_caldera_rq3_feature_design_board.py",
+    "bytes": 19046,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/spatial/caldera/geometry/assemble_caldera_o6_construct_validation_artifacts.py",
+    "bytes": 42308,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/__init__.py",
+    "bytes": 26,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/README.md",
+    "bytes": 323,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/reporting/sac2027_logistic_summary.py",
+    "bytes": 4185,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/reporting/sac2027_result_figures.py",
+    "bytes": 7312,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/reporting/sac2027_figure_concept.py",
+    "bytes": 6592,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/reporting/sac2027_figure3.py",
+    "bytes": 10919,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/reporting/__init__.py",
+    "bytes": 28,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/reporting/README.md",
+    "bytes": 1261,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/reporting/sac2027_figure_eval_units.py",
+    "bytes": 11846,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/reporting/sac2027_paper_tables.py",
+    "bytes": 13276,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/reporting/sac2027_rq1_table.py",
+    "bytes": 6605,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/reporting/sac2027_plot_rq1.py",
+    "bytes": 2451,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/training/sac2027_followup_run.py",
+    "bytes": 2794,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/training/sac2027_graph_run.py",
+    "bytes": 4846,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/training/__init__.py",
+    "bytes": 27,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/training/sac2027_patch_run.py",
+    "bytes": 3257,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/training/README.md",
+    "bytes": 1032,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/training/sac2027_fair_tune.py",
+    "bytes": 13178,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/training/sac2027_logistic_baseline.py",
+    "bytes": 4602,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/training/sac2027_patch_rebuild.py",
+    "bytes": 7140,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/pipelines/sac2027_analysis_queue.py",
+    "bytes": 3815,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/pipelines/__init__.py",
+    "bytes": 28,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/pipelines/README.md",
+    "bytes": 392,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/release/sac2027_release_summary.py",
+    "bytes": 5387,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/release/sac2027_patch_validate.py",
+    "bytes": 6298,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/release/sac2027_verify_results.py",
+    "bytes": 6119,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/release/__init__.py",
+    "bytes": 26,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/release/sac2027_verify_paper.py",
+    "bytes": 5028,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/release/README.md",
+    "bytes": 848,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/release/sac2027_package.py",
+    "bytes": 4850,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/__init__.py",
+    "bytes": 29,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/README.md",
+    "bytes": 360,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/metrics/sac2027_baseline_audit.py",
+    "bytes": 4897,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/metrics/sac2027_count_error.py",
+    "bytes": 10241,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/metrics/sac2027_extra_evaluation.py",
+    "bytes": 10859,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/metrics/__init__.py",
+    "bytes": 26,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/metrics/README.md",
+    "bytes": 1471,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/metrics/sac2027_did_rq2.py",
+    "bytes": 5431,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/metrics/sac2027_sesoi_top3.py",
+    "bytes": 7596,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/metrics/sac2027_native_evaluation.py",
+    "bytes": 4990,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/metrics/sac2027_rq1_phase_equality.py",
+    "bytes": 1928,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/metrics/sac2027_evaluate_controls.py",
+    "bytes": 11350,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/metrics/sac2027_recall_norm.py",
+    "bytes": 6467,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/controls/sac2027_objective_all_cohorts.py",
+    "bytes": 8038,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/controls/sac2027_population_controls.py",
+    "bytes": 5836,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/controls/sac2027_mapping_factorial.py",
+    "bytes": 4875,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/controls/sac2027_auc_population.py",
+    "bytes": 4204,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/controls/__init__.py",
+    "bytes": 27,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/controls/README.md",
+    "bytes": 1052,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/controls/sac2027_objective_controls.py",
+    "bytes": 15421,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/controls/sac2027_rq1_controls.py",
+    "bytes": 7137,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/risk_models/sac2027_condlogit_eval.py",
+    "bytes": 13645,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/risk_models/sac2027_offset_only_cutoff.py",
+    "bytes": 13418,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/risk_models/__init__.py",
+    "bytes": 30,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/risk_models/sac2027_match_offset.py",
+    "bytes": 13830,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/risk_models/sac2027_offset_only.py",
+    "bytes": 10210,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/risk_models/sac2027_pair_share.py",
+    "bytes": 2956,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/risk_models/README.md",
+    "bytes": 1321,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/risk_models/sac2027_match_offset_rq2.py",
+    "bytes": 6822,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/risk_models/sac2027_match_offset_structure.py",
+    "bytes": 5773,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/history/__init__.py",
+    "bytes": 26,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/history/README.md",
+    "bytes": 525,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/history/sac2027_history_controls.py",
+    "bytes": 7467,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/sac2027/evaluation/history/sac2027_history_queue.py",
+    "bytes": 1966,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/__init__.py",
+    "bytes": 32,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/README.md",
+    "bytes": 323,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/reporting/__init__.py",
+    "bytes": 28,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/reporting/README.md",
+    "bytes": 609,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/reporting/paper_numbers_v2.py",
+    "bytes": 74220,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/reporting/make_result_figures_v2.py",
+    "bytes": 65436,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/__init__.py",
+    "bytes": 27,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/README.md",
+    "bytes": 313,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/advantage/advantage_edge_feasibility.py",
+    "bytes": 4466,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/advantage/__init__.py",
+    "bytes": 28,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/advantage/analyze_o7_advantage_readout.py",
+    "bytes": 6294,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/advantage/README.md",
+    "bytes": 1031,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/advantage/adv_analysis.py",
+    "bytes": 4666,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/advantage/analyze_o7_advantage_rank_bridge.py",
+    "bytes": 8430,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/advantage/adv_precompute.py",
+    "bytes": 8847,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/advantage/audit_o7_advantage_edge_shuffle.py",
+    "bytes": 7932,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/advantage/aggregate_o7_advantage_readout.py",
+    "bytes": 6014,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/robustness/build_dynamic_probability_fluctuation.py",
+    "bytes": 26640,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/robustness/highground_signal_test.py",
+    "bytes": 4976,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/robustness/build_realtime_prefix_probability_demo.py",
+    "bytes": 12824,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/robustness/phase_time_profile.py",
+    "bytes": 3787,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/robustness/phase_significance.py",
+    "bytes": 6326,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/robustness/__init__.py",
+    "bytes": 29,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/robustness/audit_spatial_feasibility.py",
+    "bytes": 9147,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/robustness/README.md",
+    "bytes": 1593,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/robustness/analyze_graph_signal.py",
+    "bytes": 7626,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/robustness/v3_resolution_significance.py",
+    "bytes": 1259,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/robustness/mr_paired_significance.py",
+    "bytes": 6357,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/robustness/v3_phase_significance.py",
+    "bytes": 8560,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/robustness/audit_spatial_features.py",
+    "bytes": 3830,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/robustness/v3_tabular_baseline.py",
+    "bytes": 8915,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/ontology/audit_o6_z_ladder_availability.py",
+    "bytes": 10432,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/ontology/collect_om_phase_metrics.py",
+    "bytes": 9550,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/ontology/collect_om_ladder_metrics.py",
+    "bytes": 3484,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/ontology/__init__.py",
+    "bytes": 27,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/ontology/README.md",
+    "bytes": 817,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/ontology/bootstrap_om_paired_deltas.py",
+    "bytes": 17182,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/analysis/ontology/audit_o1_survival_capital.py",
+    "bytes": 14284,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/pipelines/run_o6z_required_cohort_etl.py",
+    "bytes": 4201,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/pipelines/__init__.py",
+    "bytes": 28,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/pipelines/generate_om_prediction_csvs.py",
+    "bytes": 5354,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/pipelines/README.md",
+    "bytes": 1390,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/pipelines/fixb_backup_tables.py",
+    "bytes": 7554,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/pipelines/run_domain_training.py",
+    "bytes": 6112,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/pipelines/rerun_v2.py",
+    "bytes": 71093,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/pipelines/stamp_artifact_provenance.py",
+    "bytes": 3129,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/pipelines/generate_dynamic_graph_example.py",
+    "bytes": 10369,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/pipelines/run_fixb_phase_etl.py",
+    "bytes": 19948,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/pipelines/generate_team_phase_feature_example.py",
+    "bytes": 8574,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/pipelines/seed_repeat_experiments.py",
+    "bytes": 11735,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/snapshot/run_snapshot_narrow_full_matrix.sh",
+    "bytes": 3736,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/snapshot/run_snapshot_paper_st_feature_matrix.sh",
+    "bytes": 9327,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/snapshot/run_snapshot_domain_channel_matrix.sh",
+    "bytes": 8086,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/robustness/run_seed_repeat.sh",
+    "bytes": 1976,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/robustness/run_full_db_robustness.sh",
+    "bytes": 2592,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/robustness/run_mr_full_squad_seed_repeats.sh",
+    "bytes": 2738,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/graph_controls/run_mr_shuffle_robustness.sh",
+    "bytes": 1889,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/graph_controls/run_full_db_edge_ablation.sh",
+    "bytes": 2675,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/graph_controls/run_v3_graph_relation_seed_repeats.sh",
+    "bytes": 1710,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/graph_controls/run_br_rq4_graph_design_required_cohorts.sh",
+    "bytes": 3747,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/graph_controls/run_v3_full_graph_relation_matrix.sh",
+    "bytes": 1015,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/graph_controls/run_v3_graph_relation_pilot_matrix.sh",
+    "bytes": 952,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/graph_controls/run_br_o7_advantage_edge_early_readout.sh",
+    "bytes": 4372,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_full_db_reexperiment.sh",
+    "bytes": 1205,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_br_om_ladder_remaining_after_erangel.sh",
+    "bytes": 2291,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_adv_experiment.sh",
+    "bytes": 1318,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_v3_full_controls_matrix.sh",
+    "bytes": 920,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_mr_1map.sh",
+    "bytes": 1522,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_br_rq4_hier_survival_required_cohorts.sh",
+    "bytes": 8578,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_adv_nodeabs.sh",
+    "bytes": 1317,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_raw_to_usable_batch.sh",
+    "bytes": 615,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_v3_erangel_required_followups.sh",
+    "bytes": 1763,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/v3_gen_resolution_preds.sh",
+    "bytes": 1336,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_adv_base.sh",
+    "bytes": 2154,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/overnight_runs.sh",
+    "bytes": 1720,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/v3_gen_predictions.sh",
+    "bytes": 1440,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_v3_feature_pilot_matrix.sh",
+    "bytes": 759,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_solo_duo.sh",
+    "bytes": 2001,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_v3_full_main_matrix.sh",
+    "bytes": 888,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_br_om_ladder_required_cohorts.sh",
+    "bytes": 3084,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_full_db_aux_ablation.sh",
+    "bytes": 1709,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_br_om6z_required_cohorts.sh",
+    "bytes": 3556,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_br_o7_rank_bridge_analysis.sh",
+    "bytes": 1315,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_v2_node_gnn.sh",
+    "bytes": 3610,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_v3_core13_required_matrix.sh",
+    "bytes": 1906,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_v3_full_feature_matrix.sh",
+    "bytes": 1001,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_v3_pilot_matrix.sh",
+    "bytes": 572,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_mr_full_squad.sh",
+    "bytes": 1590,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/rerun_full_db_suite.sh",
+    "bytes": 4049,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_br_rq4_prior_baseline_required_cohorts.sh",
+    "bytes": 3611,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_full_db_followup.sh",
+    "bytes": 1978,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/launchers/survival/run_adv_kablation.sh",
+    "bytes": 1415,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/evaluation/__init__.py",
+    "bytes": 29,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/evaluation/README.md",
+    "bytes": 335,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/evaluation/rq4/compare_rq4_board_baselines.py",
+    "bytes": 39755,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/evaluation/rq4/eval_phase_transition_risk_board.py",
+    "bytes": 12292,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/evaluation/rq4/__init__.py",
+    "bytes": 22,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/evaluation/rq4/README.md",
+    "bytes": 743,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/evaluation/rq4/collect_rq4_baseline_metrics.py",
+    "bytes": 3450,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/evaluation/rq4/collect_rq4_graph_design_metrics.py",
+    "bytes": 2694,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/evaluation/contracts/verify_dump_match_v2.py",
+    "bytes": 23197,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/evaluation/contracts/collect_snapshot_survival_bridge_metrics.py",
+    "bytes": 9658,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/evaluation/contracts/verify_player_dump_match.py",
+    "bytes": 27913,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/evaluation/contracts/eval_snapshot_survival_bridge.py",
+    "bytes": 22252,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/evaluation/contracts/__init__.py",
+    "bytes": 28,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/evaluation/contracts/README.md",
+    "bytes": 1575,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/evaluation/contracts/smoke_snapshot_phase_contract.py",
+    "bytes": 8180,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/evaluation/contracts/verify_dump_match.py",
+    "bytes": 35441,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/evaluation/contracts/validate_genre_feature_manifest.py",
+    "bytes": 8421,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/evaluation/contracts/compare_phase_dumps_v1_v2.py",
+    "bytes": 12019,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/evaluation/contracts/diagnose_snapshot_relative_edge.py",
+    "bytes": 11090,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/evaluation/contracts/check_feature_manifest.py",
+    "bytes": 3756,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "build/lib/projects/battle_royale/evaluation/contracts/eval_snapshot_phase_checkpoint.py",
+    "bytes": 5317,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "src/pubg_lab.egg-info/PKG-INFO",
+    "bytes": 5275,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "src/pubg_lab.egg-info/SOURCES.txt",
+    "bytes": 22604,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "src/pubg_lab.egg-info/entry_points.txt",
+    "bytes": 52,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "src/pubg_lab.egg-info/requires.txt",
+    "bytes": 226,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "src/pubg_lab.egg-info/top_level.txt",
+    "bytes": 9,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  },
+  {
+    "path": "src/pubg_lab.egg-info/dependency_links.txt",
+    "bytes": 1,
+    "reason": "Generated wheel staging copy or metadata; final wheel is verified in /private/tmp and active code is preserved"
+  }
+]

@@ -1,0 +1,23 @@
+{
+  "reason": "Bare schema/preset/artifact-root names are values, not module identifiers; restore original research values after path migration",
+  "files": [
+    "projects/network_analysis/studies/advanced_graph_report.py",
+    "projects/network_analysis/studies/basic_graph_analysis.py",
+    "projects/network_analysis/studies/phase_h3_analysis.py",
+    "projects/network_analysis/studies/phase_strategy_type_analysis.py",
+    "projects/network_analysis/studies/st_hypothesis_analysis.py",
+    "projects/network_analysis/studies/strategy_type_network_analysis.py",
+    "projects/data_preparation/import_research_cohort_to_br_exp.py",
+    "projects/battle_royale/pipelines/fixb_backup_tables.py",
+    "projects/battle_royale/analysis/robustness/phase_time_profile.py",
+    "projects/battle_royale/pipelines/rerun_v2.py",
+    "src/pubg_lab/survival/ptr/data/paths.py",
+    "src/pubg_lab/survival/v3/data/experiment_matrix.py",
+    "src/pubg_lab/survival/v3/data/spec.py",
+    "tests/test_causal_cut.py",
+    "tests/test_paper_numbers_v2.py",
+    "tests/test_v2_krafton_guards.py",
+    "tests/test_v2_real.py",
+    "tests/test_v3_factorized.py"
+  ]
+}

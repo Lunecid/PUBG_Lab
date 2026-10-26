@@ -1,0 +1,2162 @@
+[
+  {
+    "path": "build/lib/pubg_lab/__init__.py",
+    "bytes": 114,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/commands.json",
+    "bytes": 53291,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/README.md",
+    "bytes": 609,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/__main__.py",
+    "bytes": 1289,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/repository/repository_release.py",
+    "bytes": 5605,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/repository/__init__.py",
+    "bytes": 29,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/repository/README.md",
+    "bytes": 971,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/repository/check_structure.py",
+    "bytes": 4039,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/collectors/__init__.py",
+    "bytes": 29,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/collectors/README.md",
+    "bytes": 575,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/collectors/pubg/config.py",
+    "bytes": 4431,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/collectors/pubg/__init__.py",
+    "bytes": 23,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/collectors/pubg/README.md",
+    "bytes": 973,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/collectors/pubg/fetch_telemetry.py",
+    "bytes": 23553,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/collectors/pubg/fetch_match_ids.py",
+    "bytes": 2797,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/collectors/pubg/fetch_matches.py",
+    "bytes": 8975,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/__init__.py",
+    "bytes": 27,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/README.md",
+    "bytes": 563,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/export_json.py",
+    "bytes": 16030,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/metrics.py",
+    "bytes": 11010,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/run.py",
+    "bytes": 5634,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/strategy_type_network_analysis.py",
+    "bytes": 25138,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/advanced_graph_report.py",
+    "bytes": 52888,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/config.py",
+    "bytes": 7174,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/h3_movement.py",
+    "bytes": 9701,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/db_loader.py",
+    "bytes": 7022,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/run_v2.py",
+    "bytes": 19525,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/team_centrality.py",
+    "bytes": 5851,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/data_loader.py",
+    "bytes": 9687,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/h1_archetype.py",
+    "bytes": 8230,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/__init__.py",
+    "bytes": 315,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/team_network.py",
+    "bytes": 10053,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/narrative.py",
+    "bytes": 11625,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/h2_battle_center.py",
+    "bytes": 8484,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/st_hypothesis_analysis.py",
+    "bytes": 55023,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/movement.py",
+    "bytes": 6667,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/README.md",
+    "bytes": 2606,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/hypotheses.py",
+    "bytes": 9970,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/community_detect.py",
+    "bytes": 8457,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/visualize_summary.py",
+    "bytes": 15938,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/archetype.py",
+    "bytes": 6456,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/basic_graph_analysis.py",
+    "bytes": 26188,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/phase_h3_analysis.py",
+    "bytes": 16337,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/phase_strategy_type_analysis.py",
+    "bytes": 30550,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/build_analysis_dataset.py",
+    "bytes": 16202,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/visualize_match.py",
+    "bytes": 58184,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/legacy/run_report.py",
+    "bytes": 19929,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/legacy/run_h1.py",
+    "bytes": 5480,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/legacy/h1_report.py",
+    "bytes": 28272,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/legacy/__init__.py",
+    "bytes": 654,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/legacy/h3_analysis.py",
+    "bytes": 8109,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/legacy/README.md",
+    "bytes": 1097,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/legacy/h1_analysis.py",
+    "bytes": 17616,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/legacy/h2_analysis.py",
+    "bytes": 7621,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/legacy/report.py",
+    "bytes": 89829,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/__init__.py",
+    "bytes": 27,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/README.md",
+    "bytes": 584,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/figures/make_paper_figures_svg.py",
+    "bytes": 18257,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/figures/make_presentation_figures.py",
+    "bytes": 6673,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/figures/__init__.py",
+    "bytes": 26,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/figures/make_realmap_figure.py",
+    "bytes": 18904,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/figures/make_phase_summary_figure.py",
+    "bytes": 7777,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/figures/README.md",
+    "bytes": 1228,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/figures/make_labeling_figure.py",
+    "bytes": 5146,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/figures/create_pubg_safe_zone_proposal_docx.py",
+    "bytes": 25975,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_logistic_summary.py",
+    "bytes": 4076,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_objective_all_cohorts.py",
+    "bytes": 7926,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_release_summary.py",
+    "bytes": 5306,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_baseline_audit.py",
+    "bytes": 4816,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_analysis_queue.py",
+    "bytes": 3695,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_result_figures.py",
+    "bytes": 7230,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_count_error.py",
+    "bytes": 10106,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_figure_concept.py",
+    "bytes": 6510,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_followup_run.py",
+    "bytes": 2693,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_patch_validate.py",
+    "bytes": 6201,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_population_controls.py",
+    "bytes": 5755,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_mapping_factorial.py",
+    "bytes": 4794,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_auc_population.py",
+    "bytes": 4039,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_condlogit_eval.py",
+    "bytes": 13512,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_graph_run.py",
+    "bytes": 4751,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_figure3.py",
+    "bytes": 10837,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_verify_results.py",
+    "bytes": 6028,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_extra_evaluation.py",
+    "bytes": 10759,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_offset_only_cutoff.py",
+    "bytes": 13248,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/__init__.py",
+    "bytes": 26,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_match_offset.py",
+    "bytes": 13719,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_offset_only.py",
+    "bytes": 10071,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_verify_paper.py",
+    "bytes": 4947,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_pair_share.py",
+    "bytes": 2858,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_patch_run.py",
+    "bytes": 3183,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/README.md",
+    "bytes": 6131,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_objective_controls.py",
+    "bytes": 15331,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_figure_eval_units.py",
+    "bytes": 11764,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_package.py",
+    "bytes": 4769,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_rq1_controls.py",
+    "bytes": 6982,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_history_controls.py",
+    "bytes": 7370,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_did_rq2.py",
+    "bytes": 5330,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_match_offset_rq2.py",
+    "bytes": 6689,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_fair_tune.py",
+    "bytes": 13009,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_history_queue.py",
+    "bytes": 1879,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_paper_tables.py",
+    "bytes": 13195,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_match_offset_structure.py",
+    "bytes": 5640,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_sesoi_top3.py",
+    "bytes": 7488,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_native_evaluation.py",
+    "bytes": 4909,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_rq1_table.py",
+    "bytes": 6524,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_rq1_phase_equality.py",
+    "bytes": 1836,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_plot_rq1.py",
+    "bytes": 2370,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_evaluate_controls.py",
+    "bytes": 11223,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_logistic_baseline.py",
+    "bytes": 4513,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_recall_norm.py",
+    "bytes": 6370,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_patch_rebuild.py",
+    "bytes": 7026,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/audit_o6_z_ladder_availability.py",
+    "bytes": 10330,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/compare_rq4_board_baselines.py",
+    "bytes": 39643,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/eval_phase_transition_risk_board.py",
+    "bytes": 12211,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/build_dynamic_probability_fluctuation.py",
+    "bytes": 26559,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/run_o6z_required_cohort_etl.py",
+    "bytes": 4061,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/highground_signal_test.py",
+    "bytes": 4884,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/build_realtime_prefix_probability_demo.py",
+    "bytes": 12708,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/collect_om_phase_metrics.py",
+    "bytes": 9469,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/verify_dump_match_v2.py",
+    "bytes": 23085,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/phase_time_profile.py",
+    "bytes": 3695,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/advantage_edge_feasibility.py",
+    "bytes": 4374,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/collect_snapshot_survival_bridge_metrics.py",
+    "bytes": 9577,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/phase_significance.py",
+    "bytes": 6245,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/verify_player_dump_match.py",
+    "bytes": 27821,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/collect_om_ladder_metrics.py",
+    "bytes": 3403,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/eval_snapshot_survival_bridge.py",
+    "bytes": 22113,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/__init__.py",
+    "bytes": 32,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/analyze_o7_advantage_readout.py",
+    "bytes": 6213,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/generate_om_prediction_csvs.py",
+    "bytes": 5256,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/audit_spatial_feasibility.py",
+    "bytes": 9066,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/README.md",
+    "bytes": 6090,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/fixb_backup_tables.py",
+    "bytes": 7435,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/adv_analysis.py",
+    "bytes": 4585,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/paper_numbers_v2.py",
+    "bytes": 74108,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/analyze_o7_advantage_rank_bridge.py",
+    "bytes": 8344,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/analyze_graph_signal.py",
+    "bytes": 7545,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/v3_resolution_significance.py",
+    "bytes": 1154,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/bootstrap_om_paired_deltas.py",
+    "bytes": 17101,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/adv_precompute.py",
+    "bytes": 8672,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/rerun_v2.py",
+    "bytes": 70698,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/collect_rq4_baseline_metrics.py",
+    "bytes": 3369,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/smoke_snapshot_phase_contract.py",
+    "bytes": 8065,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/verify_dump_match.py",
+    "bytes": 35341,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/audit_o7_advantage_edge_shuffle.py",
+    "bytes": 7800,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/stamp_artifact_provenance.py",
+    "bytes": 3048,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/audit_o1_survival_capital.py",
+    "bytes": 14188,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/collect_rq4_graph_design_metrics.py",
+    "bytes": 2613,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/validate_genre_feature_manifest.py",
+    "bytes": 8329,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/mr_paired_significance.py",
+    "bytes": 6243,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/v3_phase_significance.py",
+    "bytes": 8479,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/aggregate_o7_advantage_readout.py",
+    "bytes": 5933,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/make_result_figures_v2.py",
+    "bytes": 65352,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/compare_phase_dumps_v1_v2.py",
+    "bytes": 11938,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/generate_dynamic_graph_example.py",
+    "bytes": 10278,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/diagnose_snapshot_relative_edge.py",
+    "bytes": 10973,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/audit_spatial_features.py",
+    "bytes": 3738,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/run_fixb_phase_etl.py",
+    "bytes": 19425,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/generate_team_phase_feature_example.py",
+    "bytes": 8483,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/check_feature_manifest.py",
+    "bytes": 3653,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/eval_snapshot_phase_checkpoint.py",
+    "bytes": 5178,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/v3_tabular_baseline.py",
+    "bytes": 8804,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cohorts.py",
+    "bytes": 6985,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/pretraining.py",
+    "bytes": 6219,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/preprocess.py",
+    "bytes": 25354,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/__init__.py",
+    "bytes": 82,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/temporal_prior.py",
+    "bytes": 8103,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/encoder.py",
+    "bytes": 9944,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/README.md",
+    "bytes": 1523,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/historical_prior.py",
+    "bytes": 3308,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/dataset.py",
+    "bytes": 8419,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/patches.py",
+    "bytes": 2135,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/inputs.py",
+    "bytes": 13570,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/indexed_dataset.py",
+    "bytes": 2144,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/build_world_model_g3.py",
+    "bytes": 11383,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/verify_world_model_historical_prior.py",
+    "bytes": 4883,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/train_world_model_g4.py",
+    "bytes": 19533,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/report_world_model_preprocess.py",
+    "bytes": 13266,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/finalize_world_model_g3.py",
+    "bytes": 5924,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/build_world_model_historical_prior.py",
+    "bytes": 4270,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/verify_world_model_preprocess.py",
+    "bytes": 10867,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/__init__.py",
+    "bytes": 22,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/report_world_model_g4.py",
+    "bytes": 12861,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/world_model_preprocess.py",
+    "bytes": 31408,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/mine_world_model_short_transport.py",
+    "bytes": 5354,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/verify_world_model_encoder.py",
+    "bytes": 12592,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/README.md",
+    "bytes": 2623,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/report_world_model_g3.py",
+    "bytes": 12494,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/report_world_model_g2.py",
+    "bytes": 13355,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/world_model_toy_checks.py",
+    "bytes": 1484,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/audit_world_model_inputs.py",
+    "bytes": 10272,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/verify_world_model_g3.py",
+    "bytes": 10463,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/audit_world_model_g4.py",
+    "bytes": 5953,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/train_world_model_g2.py",
+    "bytes": 17747,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/common/compat.py",
+    "bytes": 978,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/common/paths.py",
+    "bytes": 840,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/common/__init__.py",
+    "bytes": 82,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/common/README.md",
+    "bytes": 759,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/model_v4.py",
+    "bytes": 9825,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/bank_v3.py",
+    "bytes": 12033,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/evaluation.py",
+    "bytes": 3382,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/__init__.py",
+    "bytes": 82,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/bank.py",
+    "bytes": 11129,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/dataset_v3.py",
+    "bytes": 4942,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/model.py",
+    "bytes": 7638,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/README.md",
+    "bytes": 1391,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/dataset.py",
+    "bytes": 18256,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/model_v3.py",
+    "bytes": 7192,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/build.py",
+    "bytes": 9502,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/diagnose_v4.py",
+    "bytes": 6651,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/report_v4.py",
+    "bytes": 25191,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/export_example.py",
+    "bytes": 1414,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/analyze_experiment_v2.py",
+    "bytes": 18726,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/pre_evaluation_diagnostics.py",
+    "bytes": 4133,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/audit.py",
+    "bytes": 4008,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/verify_model_v2.py",
+    "bytes": 2596,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/analyze_v3.py",
+    "bytes": 15016,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/audit_v3.py",
+    "bytes": 5293,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/transport_audit_v3.py",
+    "bytes": 6900,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/visualize_v4.py",
+    "bytes": 9907,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/experiment_v2.py",
+    "bytes": 12790,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/mobility_diagnostics_v2.py",
+    "bytes": 3839,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/generation_diagnostics_v2.py",
+    "bytes": 3798,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/build_v3.py",
+    "bytes": 6427,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/finish_v4.py",
+    "bytes": 1789,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/experiment_v3.py",
+    "bytes": 11043,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/__init__.py",
+    "bytes": 22,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/report_experiment_v2.py",
+    "bytes": 32238,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/finalize_v4.py",
+    "bytes": 7378,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/parallel_replica_v2.py",
+    "bytes": 1216,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/README.md",
+    "bytes": 4596,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/finalize_v3.py",
+    "bytes": 4969,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/residual_drift_v4.py",
+    "bytes": 2294,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/audit_experiment_v2.py",
+    "bytes": 8260,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/state_figures_v3.py",
+    "bytes": 6194,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/experiment_v4.py",
+    "bytes": 17218,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/horizons_v4.py",
+    "bytes": 4028,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/finish_v3.py",
+    "bytes": 2434,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/verify_results_v2.py",
+    "bytes": 6017,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/train.py",
+    "bytes": 5875,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/coverage_v3.py",
+    "bytes": 2471,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/audit_v4.py",
+    "bytes": 5458,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/analyze_v4.py",
+    "bytes": 11343,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/report_v3.py",
+    "bytes": 29946,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/extract.py",
+    "bytes": 8584,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/prepare_v4.py",
+    "bytes": 3465,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/diagnose_v3.py",
+    "bytes": 7852,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/smoke.py",
+    "bytes": 2957,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/condition_diagnostics_v2.py",
+    "bytes": 5141,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/__init__.py",
+    "bytes": 26,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/README.md",
+    "bytes": 557,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/heterograph_case_extract.py",
+    "bytes": 7994,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/erangel_100m_extract.py",
+    "bytes": 11883,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/erangel_spatial_visualize.py",
+    "bytes": 9569,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/heterograph_case_build.py",
+    "bytes": 23442,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/heterograph_case_figure.py",
+    "bytes": 7266,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/__init__.py",
+    "bytes": 26,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/erangel_100m_verify.py",
+    "bytes": 5088,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/erangel_100m_visualize.py",
+    "bytes": 9741,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/README.md",
+    "bytes": 1799,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/erangel_spatial_build.py",
+    "bytes": 13995,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/erangel_spatial_extract.py",
+    "bytes": 6548,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/erangel_spatial_patch_inventory.py",
+    "bytes": 2426,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/erangel_100m_viewer.html.template",
+    "bytes": 12572,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/erangel_spatial_viewer.html.template",
+    "bytes": 10201,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/erangel_100m_build.py",
+    "bytes": 16696,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/build_caldera_st_3d_scene.py",
+    "bytes": 22375,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/caldera_dataset_manager.py",
+    "bytes": 23813,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/render_caldera_single_agent_topdown.py",
+    "bytes": 12212,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/render_caldera_semantic_basemap.py",
+    "bytes": 44512,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/render_caldera_rq3_zbuffer_pov.py",
+    "bytes": 16097,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/export_caldera_trajectory_json.py",
+    "bytes": 3069,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/render_caldera_agent_experience_snapshot.py",
+    "bytes": 30144,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/extract_caldera_terrain_experience_features.py",
+    "bytes": 20830,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/render_caldera_blender_clay.py",
+    "bytes": 12820,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/__init__.py",
+    "bytes": 26,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/render_caldera_rq3_clean_situation_panels.py",
+    "bytes": 11780,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/render_caldera_agent_pov_animation.py",
+    "bytes": 30831,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/build_caldera_map_mesh.py",
+    "bytes": 17576,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/README.md",
+    "bytes": 2910,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/caldera_ingest_geometry_catalog.py",
+    "bytes": 21911,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/make_caldera_rq3_feature_design_board.py",
+    "bytes": 18965,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/render_caldera_rq3_clean_pov_proxy.py",
+    "bytes": 21759,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/render_caldera_asset_snapshot.py",
+    "bytes": 31388,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/visualize_caldera_3d.py",
+    "bytes": 28269,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/caldera_ingest_players.py",
+    "bytes": 20657,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/extract_caldera_local_mesh.py",
+    "bytes": 19038,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/export_caldera_mesh_cache_obj.py",
+    "bytes": 13818,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/assemble_caldera_o6_construct_validation_artifacts.py",
+    "bytes": 42227,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/__init__.py",
+    "bytes": 23,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/README.md",
+    "bytes": 550,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/classify_collected_data.py",
+    "bytes": 31779,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/inspect_movement_schema.py",
+    "bytes": 6046,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/audit_decision_state_schema.py",
+    "bytes": 4928,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/audit_bot_trajectories.py",
+    "bytes": 9822,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/__init__.py",
+    "bytes": 26,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/README.md",
+    "bytes": 1294,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/corpus_quality_index.py",
+    "bytes": 20316,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/summarize_corpus_quality.py",
+    "bytes": 31230,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/schema_rq1.sql",
+    "bytes": 13182,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/etl.py",
+    "bytes": 32167,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/base_stage.py",
+    "bytes": 6247,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/habitat_feature_etl.py",
+    "bytes": 21086,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/phase_spatial_feature_etl.py",
+    "bytes": 22204,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/schema.sql",
+    "bytes": 9330,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/rq1_feature_etl.py",
+    "bytes": 36508,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/skill_rating_proxy_etl.py",
+    "bytes": 22083,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/skill_coverage_audit.py",
+    "bytes": 3436,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/__init__.py",
+    "bytes": 0,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/snapshot_feature_etl.py",
+    "bytes": 10870,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/README.md",
+    "bytes": 2239,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/build_available.py",
+    "bytes": 11289,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/z_affordance_feature_etl.py",
+    "bytes": 12982,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/causal_cut.py",
+    "bytes": 14463,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/queries.py",
+    "bytes": 45354,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/conn.py",
+    "bytes": 3635,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/network_feature_etl.py",
+    "bytes": 20927,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/skill_proxy_etl.py",
+    "bytes": 17663,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/snapshot_queries.py",
+    "bytes": 11081,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/v2_view.py",
+    "bytes": 4255,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/phase_edge_etl.py",
+    "bytes": 16505,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/audit_raw.py",
+    "bytes": 4397,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/f0_feature_etl.py",
+    "bytes": 14074,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/patch_combat_zone_pass.py",
+    "bytes": 5610,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/preparation/update_data_availability_summary.py",
+    "bytes": 5988,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/preparation/build_research_cohort_flat.py",
+    "bytes": 21009,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/preparation/__init__.py",
+    "bytes": 30,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/preparation/convert_raw_to_usable.py",
+    "bytes": 8083,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/preparation/README.md",
+    "bytes": 1330,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/preparation/build_data_availability_domains.py",
+    "bytes": 8726,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/preparation/import_research_cohort_to_br_exp.py",
+    "bytes": 6427,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/preparation/register_pubg_l1_ground.py",
+    "bytes": 9652,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/preparation/build_experiment_domain_datasets.py",
+    "bytes": 14570,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/train_snapshot_phase.py",
+    "bytes": 30414,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/feature_ablation.py",
+    "bytes": 40024,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/edge_modes.py",
+    "bytes": 3103,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_result_analysis.py",
+    "bytes": 17479,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/baselines.py",
+    "bytes": 8528,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/snapshot_encoder.py",
+    "bytes": 2969,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/config.py",
+    "bytes": 894,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/eval_mr.py",
+    "bytes": 5704,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/mr_stgnn.py",
+    "bytes": 6311,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/eval_phase.py",
+    "bytes": 13300,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/edge_sanity.py",
+    "bytes": 17347,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/novelty_analysis.py",
+    "bytes": 13518,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/train_mr.py",
+    "bytes": 8361,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_wise_eval.py",
+    "bytes": 15523,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/dump_player_tier.py",
+    "bytes": 48406,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/snapshot_relative_edge.py",
+    "bytes": 10570,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/__init__.py",
+    "bytes": 0,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/snapshot_tabular_baseline.py",
+    "bytes": 25255,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/dump_phase_tier.py",
+    "bytes": 61461,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/README.md",
+    "bytes": 3805,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/mr_dataset.py",
+    "bytes": 3315,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/dataset.py",
+    "bytes": 6647,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/dump_phase_tier_v2.py",
+    "bytes": 26734,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/run_domain_training.py",
+    "bytes": 5991,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/manifest_importance.py",
+    "bytes": 10485,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/snapshot_edge_controls.py",
+    "bytes": 2450,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/train.py",
+    "bytes": 7807,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/dyn_stgnn.py",
+    "bytes": 11746,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/snapshot_phase_survival.py",
+    "bytes": 6479,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/train_phase.py",
+    "bytes": 13219,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/infer.py",
+    "bytes": 20753,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/snapshot_phase_dataset.py",
+    "bytes": 6867,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/snapshot_baselines.py",
+    "bytes": 14864,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/provenance.py",
+    "bytes": 2239,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/eval.py",
+    "bytes": 5078,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/stgcn.py",
+    "bytes": 7167,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/bootstrap_ci.py",
+    "bytes": 2433,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/domain_ablation.py",
+    "bytes": 10473,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/calibration.py",
+    "bytes": 7292,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/seed_repeat_experiments.py",
+    "bytes": 11599,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_v2/labels.py",
+    "bytes": 3991,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_v2/grid.py",
+    "bytes": 7518,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_v2/events.py",
+    "bytes": 11696,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_v2/__init__.py",
+    "bytes": 1001,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_v2/features.py",
+    "bytes": 43894,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_v2/alive.py",
+    "bytes": 14221,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_v2/assemble.py",
+    "bytes": 9136,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_v2/phases.py",
+    "bytes": 3431,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_v2/README.md",
+    "bytes": 1678,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_v2/replay.py",
+    "bytes": 6882,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_v2/source.py",
+    "bytes": 20797,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/sagong2025/plan.py",
+    "bytes": 9513,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/sagong2025/db.py",
+    "bytes": 6278,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/sagong2025/fit.py",
+    "bytes": 27852,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/sagong2025/__init__.py",
+    "bytes": 2054,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/sagong2025/features.py",
+    "bytes": 14939,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/sagong2025/hab.py",
+    "bytes": 6208,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/sagong2025/README.md",
+    "bytes": 1440,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/sagong2025/extract.py",
+    "bytes": 8471,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/sagong2025/__main__.py",
+    "bytes": 4930,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/cohorts.py",
+    "bytes": 4718,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/experiment_matrix.py",
+    "bytes": 13184,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/models.py",
+    "bytes": 22422,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/factorized_data.py",
+    "bytes": 11899,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/advantage_edges.py",
+    "bytes": 8694,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/__init__.py",
+    "bytes": 268,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/spec.py",
+    "bytes": 11314,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/README.md",
+    "bytes": 1385,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/edge_controls.py",
+    "bytes": 2687,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/adv_model.py",
+    "bytes": 12113,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/train.py",
+    "bytes": 16370,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/eval.py",
+    "bytes": 23187,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/run_matrix.py",
+    "bytes": 11933,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/gatv2.py",
+    "bytes": 3555,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/cohorts.py",
+    "bytes": 4835,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/learning_curve.py",
+    "bytes": 17777,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/synthetic.py",
+    "bytes": 37716,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/extra.py",
+    "bytes": 24990,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/metrics.py",
+    "bytes": 34212,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/aggregate.py",
+    "bytes": 138823,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/paths.py",
+    "bytes": 32223,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/util.py",
+    "bytes": 4990,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/hgb.py",
+    "bytes": 20184,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/relations.py",
+    "bytes": 7368,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/arms.py",
+    "bytes": 8733,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/__init__.py",
+    "bytes": 293,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/model.py",
+    "bytes": 24112,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/README.md",
+    "bytes": 2897,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/ecomodel.py",
+    "bytes": 106694,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/loss.py",
+    "bytes": 4044,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/player.py",
+    "bytes": 22391,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/train.py",
+    "bytes": 33674,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/supplement.py",
+    "bytes": 47820,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/derived.py",
+    "bytes": 35677,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/data.py",
+    "bytes": 64425,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/run_matrix.py",
+    "bytes": 47508,
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "tools/__pycache__/repository_release.cpython-311.pyc",
+    "bytes": 10978,
+    "reason": "generated cache or superseded generated package index; active sources moved and indexes regenerated"
+  },
+  {
+    "path": "src/pubg_lab/survival/phase_v2/README.md",
+    "bytes": 1678,
+    "reason": "generated cache or superseded generated package index; active sources moved and indexes regenerated"
+  },
+  {
+    "path": "src/pubg_lab/survival/sagong2025/README.md",
+    "bytes": 1440,
+    "reason": "generated cache or superseded generated package index; active sources moved and indexes regenerated"
+  }
+]

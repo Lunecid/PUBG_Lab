@@ -1,0 +1,227 @@
+[
+  {
+    "path": "projects/battle_royale/launchers/snapshot/run_snapshot_narrow_full_matrix.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/snapshot/run_snapshot_paper_st_feature_matrix.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/snapshot/run_snapshot_domain_channel_matrix.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/robustness/run_seed_repeat.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/robustness/run_full_db_robustness.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/robustness/run_mr_full_squad_seed_repeats.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/graph_controls/run_mr_shuffle_robustness.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/graph_controls/run_full_db_edge_ablation.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/graph_controls/run_v3_graph_relation_seed_repeats.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/graph_controls/run_br_rq4_graph_design_required_cohorts.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/graph_controls/run_v3_full_graph_relation_matrix.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/graph_controls/run_v3_graph_relation_pilot_matrix.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/graph_controls/run_br_o7_advantage_edge_early_readout.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_full_db_reexperiment.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_br_om_ladder_remaining_after_erangel.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_adv_experiment.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_v3_full_controls_matrix.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_mr_1map.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_br_rq4_hier_survival_required_cohorts.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_adv_nodeabs.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_raw_to_usable_batch.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_v3_erangel_required_followups.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/v3_gen_resolution_preds.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_adv_base.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/overnight_runs.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/v3_gen_predictions.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_v3_feature_pilot_matrix.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_solo_duo.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_v3_full_main_matrix.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_br_om_ladder_required_cohorts.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_full_db_aux_ablation.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_br_om6z_required_cohorts.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_br_o7_rank_bridge_analysis.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_v2_node_gnn.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_v3_core13_required_matrix.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_v3_full_feature_matrix.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_v3_pilot_matrix.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_mr_full_squad.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/rerun_full_db_suite.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_br_rq4_prior_baseline_required_cohorts.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_full_db_followup.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "projects/battle_royale/launchers/survival/run_adv_kablation.sh",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "apps/presentations/build.js",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "apps/presentations/build_summary_en.js",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "path": "apps/presentations/build_intro_en_5min.js",
+    "returncode": 0,
+    "stderr": ""
+  }
+]

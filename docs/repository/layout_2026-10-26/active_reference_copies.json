@@ -1,0 +1,10 @@
+{
+  "policy": "Original reference bytes and completed evidence remain unchanged; active project code uses current paths",
+  "krafton_adapters": 22,
+  "paper_table_generator": 1,
+  "source_definition_evidence": [
+    "adapter_semantics.json",
+    "paper_generator_receipt.json"
+  ],
+  "new_research_results": false
+}

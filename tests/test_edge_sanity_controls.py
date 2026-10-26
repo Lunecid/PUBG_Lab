@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import torch
 
-from model_stgcn.edge_sanity import _edge_shuffle_edges, _node_shuffle_edges
+from pubg_lab.survival.features.edge_sanity import _edge_shuffle_edges, _node_shuffle_edges
 
 B, T, E, N = 1, 3, 2, 6
 ALIVE = {0: [0, 1, 2, 3], 1: [0, 1, 2], 2: [0, 1]}  # 매 phase 줄어드는 생존 집합

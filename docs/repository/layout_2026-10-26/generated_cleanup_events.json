@@ -1,0 +1,2162 @@
+[
+  {
+    "path": "build/lib/pubg_lab/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/commands.json",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/__main__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/repository/repository_release.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/repository/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/repository/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/repository/check_structure.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/collectors/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/collectors/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/collectors/pubg/config.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/collectors/pubg/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/collectors/pubg/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/collectors/pubg/fetch_telemetry.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/collectors/pubg/fetch_match_ids.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/collectors/pubg/fetch_matches.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/export_json.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/metrics.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/run.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/strategy_type_network_analysis.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/advanced_graph_report.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/config.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/h3_movement.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/db_loader.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/run_v2.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/team_centrality.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/data_loader.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/h1_archetype.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/team_network.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/narrative.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/h2_battle_center.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/st_hypothesis_analysis.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/movement.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/hypotheses.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/community_detect.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/visualize_summary.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/archetype.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/basic_graph_analysis.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/phase_h3_analysis.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/phase_strategy_type_analysis.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/build_analysis_dataset.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/visualize_match.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/legacy/run_report.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/legacy/run_h1.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/legacy/h1_report.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/legacy/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/legacy/h3_analysis.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/legacy/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/legacy/h1_analysis.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/legacy/h2_analysis.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/analysis/network/legacy/report.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/figures/make_paper_figures_svg.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/figures/make_presentation_figures.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/figures/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/figures/make_realmap_figure.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/figures/make_phase_summary_figure.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/figures/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/figures/make_labeling_figure.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/figures/create_pubg_safe_zone_proposal_docx.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_logistic_summary.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_objective_all_cohorts.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_release_summary.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_baseline_audit.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_analysis_queue.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_result_figures.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_count_error.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_figure_concept.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_followup_run.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_patch_validate.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_population_controls.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_mapping_factorial.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_auc_population.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_condlogit_eval.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_graph_run.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_figure3.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_verify_results.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_extra_evaluation.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_offset_only_cutoff.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_match_offset.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_offset_only.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_verify_paper.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_pair_share.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_patch_run.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_objective_controls.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_figure_eval_units.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_package.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_rq1_controls.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_history_controls.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_did_rq2.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_match_offset_rq2.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_fair_tune.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_history_queue.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_paper_tables.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_match_offset_structure.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_sesoi_top3.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_native_evaluation.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_rq1_table.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_rq1_phase_equality.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_plot_rq1.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_evaluate_controls.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_logistic_baseline.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_recall_norm.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/sac2027/sac2027_patch_rebuild.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/audit_o6_z_ladder_availability.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/compare_rq4_board_baselines.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/eval_phase_transition_risk_board.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/build_dynamic_probability_fluctuation.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/run_o6z_required_cohort_etl.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/highground_signal_test.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/build_realtime_prefix_probability_demo.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/collect_om_phase_metrics.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/verify_dump_match_v2.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/phase_time_profile.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/advantage_edge_feasibility.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/collect_snapshot_survival_bridge_metrics.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/phase_significance.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/verify_player_dump_match.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/collect_om_ladder_metrics.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/eval_snapshot_survival_bridge.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/analyze_o7_advantage_readout.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/generate_om_prediction_csvs.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/audit_spatial_feasibility.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/fixb_backup_tables.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/adv_analysis.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/paper_numbers_v2.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/analyze_o7_advantage_rank_bridge.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/analyze_graph_signal.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/v3_resolution_significance.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/bootstrap_om_paired_deltas.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/adv_precompute.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/rerun_v2.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/collect_rq4_baseline_metrics.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/smoke_snapshot_phase_contract.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/verify_dump_match.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/audit_o7_advantage_edge_shuffle.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/stamp_artifact_provenance.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/audit_o1_survival_capital.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/collect_rq4_graph_design_metrics.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/validate_genre_feature_manifest.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/mr_paired_significance.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/v3_phase_significance.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/aggregate_o7_advantage_readout.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/make_result_figures_v2.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/compare_phase_dumps_v1_v2.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/generate_dynamic_graph_example.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/diagnose_snapshot_relative_edge.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/audit_spatial_features.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/run_fixb_phase_etl.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/generate_team_phase_feature_example.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/check_feature_manifest.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/eval_snapshot_phase_checkpoint.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/projects/battle_royale/v3_tabular_baseline.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cohorts.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/pretraining.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/preprocess.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/temporal_prior.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/encoder.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/historical_prior.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/dataset.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/patches.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/inputs.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/indexed_dataset.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/build_world_model_g3.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/verify_world_model_historical_prior.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/train_world_model_g4.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/report_world_model_preprocess.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/finalize_world_model_g3.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/build_world_model_historical_prior.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/verify_world_model_preprocess.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/report_world_model_g4.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/world_model_preprocess.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/mine_world_model_short_transport.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/verify_world_model_encoder.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/report_world_model_g3.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/report_world_model_g2.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/world_model_toy_checks.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/audit_world_model_inputs.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/verify_world_model_g3.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/audit_world_model_g4.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/world_model/cli/train_world_model_g2.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/common/compat.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/common/paths.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/common/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/common/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/model_v4.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/bank_v3.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/evaluation.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/bank.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/dataset_v3.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/model.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/dataset.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/model_v3.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/build.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/diagnose_v4.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/report_v4.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/export_example.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/analyze_experiment_v2.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/pre_evaluation_diagnostics.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/audit.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/verify_model_v2.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/analyze_v3.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/audit_v3.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/transport_audit_v3.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/visualize_v4.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/experiment_v2.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/mobility_diagnostics_v2.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/generation_diagnostics_v2.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/build_v3.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/finish_v4.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/experiment_v3.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/report_experiment_v2.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/finalize_v4.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/parallel_replica_v2.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/finalize_v3.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/residual_drift_v4.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/audit_experiment_v2.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/state_figures_v3.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/experiment_v4.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/horizons_v4.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/finish_v3.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/verify_results_v2.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/train.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/coverage_v3.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/audit_v4.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/analyze_v4.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/report_v3.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/extract.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/prepare_v4.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/diagnose_v3.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/smoke.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/movement/cli/condition_diagnostics_v2.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/heterograph_case_extract.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/erangel_100m_extract.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/erangel_spatial_visualize.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/heterograph_case_build.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/heterograph_case_figure.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/erangel_100m_verify.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/erangel_100m_visualize.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/erangel_spatial_build.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/erangel_spatial_extract.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/erangel_spatial_patch_inventory.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/erangel_100m_viewer.html.template",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/erangel_spatial_viewer.html.template",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/erangel/erangel_100m_build.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/build_caldera_st_3d_scene.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/caldera_dataset_manager.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/render_caldera_single_agent_topdown.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/render_caldera_semantic_basemap.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/render_caldera_rq3_zbuffer_pov.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/export_caldera_trajectory_json.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/render_caldera_agent_experience_snapshot.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/extract_caldera_terrain_experience_features.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/render_caldera_blender_clay.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/render_caldera_rq3_clean_situation_panels.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/render_caldera_agent_pov_animation.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/build_caldera_map_mesh.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/caldera_ingest_geometry_catalog.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/make_caldera_rq3_feature_design_board.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/render_caldera_rq3_clean_pov_proxy.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/render_caldera_asset_snapshot.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/visualize_caldera_3d.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/caldera_ingest_players.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/extract_caldera_local_mesh.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/export_caldera_mesh_cache_obj.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/spatial/caldera/assemble_caldera_o6_construct_validation_artifacts.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/classify_collected_data.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/inspect_movement_schema.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/audit_decision_state_schema.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/audit_bot_trajectories.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/corpus_quality_index.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/quality/summarize_corpus_quality.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/schema_rq1.sql",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/etl.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/base_stage.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/habitat_feature_etl.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/phase_spatial_feature_etl.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/schema.sql",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/rq1_feature_etl.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/skill_rating_proxy_etl.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/skill_coverage_audit.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/snapshot_feature_etl.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/build_available.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/z_affordance_feature_etl.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/causal_cut.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/queries.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/conn.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/network_feature_etl.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/skill_proxy_etl.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/snapshot_queries.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/v2_view.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/phase_edge_etl.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/audit_raw.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/f0_feature_etl.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/stdb/patch_combat_zone_pass.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/preparation/update_data_availability_summary.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/preparation/build_research_cohort_flat.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/preparation/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/preparation/convert_raw_to_usable.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/preparation/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/preparation/build_data_availability_domains.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/preparation/import_research_cohort_to_br_exp.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/preparation/register_pubg_l1_ground.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/data/preparation/build_experiment_domain_datasets.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/train_snapshot_phase.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/feature_ablation.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/edge_modes.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_result_analysis.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/baselines.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/snapshot_encoder.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/config.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/eval_mr.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/mr_stgnn.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/eval_phase.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/edge_sanity.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/novelty_analysis.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/train_mr.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_wise_eval.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/dump_player_tier.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/snapshot_relative_edge.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/snapshot_tabular_baseline.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/dump_phase_tier.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/mr_dataset.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/dataset.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/dump_phase_tier_v2.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/run_domain_training.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/manifest_importance.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/snapshot_edge_controls.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/train.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/dyn_stgnn.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/snapshot_phase_survival.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/train_phase.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/infer.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/snapshot_phase_dataset.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/snapshot_baselines.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/provenance.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/eval.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/stgcn.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/bootstrap_ci.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/domain_ablation.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/calibration.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/seed_repeat_experiments.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_v2/labels.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_v2/grid.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_v2/events.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_v2/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_v2/features.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_v2/alive.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_v2/assemble.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_v2/phases.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_v2/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_v2/replay.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/phase_v2/source.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/sagong2025/plan.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/sagong2025/db.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/sagong2025/fit.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/sagong2025/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/sagong2025/features.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/sagong2025/hab.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/sagong2025/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/sagong2025/extract.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/sagong2025/__main__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/cohorts.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/experiment_matrix.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/models.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/factorized_data.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/advantage_edges.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/spec.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/edge_controls.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/adv_model.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/train.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/eval.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/v3/run_matrix.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/gatv2.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/cohorts.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/learning_curve.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/synthetic.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/extra.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/metrics.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/aggregate.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/paths.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/util.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/hgb.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/relations.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/arms.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/__init__.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/model.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/README.md",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/ecomodel.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/loss.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/player.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/train.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/supplement.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/derived.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/data.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "build/lib/pubg_lab/survival/ptr/run_matrix.py",
+    "action": "deleted",
+    "reason": "r4-generated wheel staging copy; implementation is preserved in its final role package"
+  },
+  {
+    "path": "tools/__pycache__/repository_release.cpython-311.pyc",
+    "action": "deleted",
+    "reason": "generated cache or superseded generated package index; active sources moved and indexes regenerated"
+  },
+  {
+    "path": "src/pubg_lab/survival/phase_v2/README.md",
+    "action": "deleted",
+    "reason": "generated cache or superseded generated package index; active sources moved and indexes regenerated"
+  },
+  {
+    "path": "src/pubg_lab/survival/sagong2025/README.md",
+    "action": "deleted",
+    "reason": "generated cache or superseded generated package index; active sources moved and indexes regenerated"
+  }
+]

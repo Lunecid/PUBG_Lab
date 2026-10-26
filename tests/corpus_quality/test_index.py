@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-spec = importlib.util.spec_from_file_location("quality_index", ROOT / "tools/corpus_quality_index.py")
+spec = importlib.util.spec_from_file_location("quality_index", ROOT / 'src/pubg_lab/data/quality/corpus_quality_index.py')
 index = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(index)
 

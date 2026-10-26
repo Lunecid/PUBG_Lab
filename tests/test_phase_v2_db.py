@@ -21,13 +21,13 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from model_stgcn.phase_v2 import alive as AL
-from model_stgcn.phase_v2 import assemble as AS
-from model_stgcn.phase_v2 import replay as RP
-from model_stgcn.phase_v2.phases import phases_of
-from model_stgcn.phase_v2.source import fetch_match_source
+import pubg_lab.survival.data.phase_v2.alive as AL
+import pubg_lab.survival.data.phase_v2.assemble as AS
+import pubg_lab.survival.data.phase_v2.replay as RP
+from pubg_lab.survival.data.phase_v2.phases import phases_of
+from pubg_lab.survival.data.phase_v2.source import fetch_match_source
 from tests.conftest import requires_db
-from tools.verify_dump_match_v2 import print_report, verify_record
+from projects.battle_royale.evaluation.contracts.verify_dump_match_v2 import print_report, verify_record
 
 PER_COHORT = int(os.environ.get("PHASE_V2_REPLAY_PER_COHORT", "17"))
 RESULT_JSON = Path(os.environ.get("PHASE_V2_REPLAY_JSON", "")) if os.environ.get("PHASE_V2_REPLAY_JSON") else None
@@ -35,7 +35,7 @@ RESULT_JSON = Path(os.environ.get("PHASE_V2_REPLAY_JSON", "")) if os.environ.get
 
 @pytest.fixture(scope="module")
 def cur():
-    from stdb.conn import connect
+    from pubg_lab.data.stdb.connection.conn import connect
 
     conn = connect()
     conn.set_session(readonly=True, autocommit=True)

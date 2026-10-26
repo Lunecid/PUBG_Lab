@@ -6,9 +6,9 @@ import numpy as np
 import pytest
 import torch
 import test_dataset
-from world_model.temporal_prior import TemporalPriorDataset,PastWorldEncoder
-from world_model.inputs import ConditionVocabulary
-from world_model.pretraining import PretrainHeads,pretrain_losses
+from pubg_lab.world_model.features.temporal_prior import TemporalPriorDataset, PastWorldEncoder
+from pubg_lab.world_model.features.inputs import ConditionVocabulary
+from pubg_lab.world_model.training.pretraining import PretrainHeads, pretrain_losses
 
 
 @pytest.fixture
@@ -100,7 +100,7 @@ def test_past_gradient_and_duplicate_guard(setup):
 def test_locked_mixture_schedule():
     from types import SimpleNamespace
     from collections import Counter
-    from tools.train_world_model_g4 import schedule,STRATA
+    from projects.world_model.training.train_world_model_g4 import schedule, STRATA
     samples=[SimpleNamespace(provenance=dict(stratum=st,match_id="m",team_id=1))
              for st in ("natural",)+STRATA]
     plan=schedule(samples,192,20261020,True)
@@ -124,7 +124,7 @@ def test_unlearned_change_flags_have_no_random_effect(setup):
 
 
 def test_metric_gives_each_team_then_match_equal_weight():
-    from tools.report_world_model_g4 import match_means
+    from projects.world_model.reporting.report_world_model_g4 import match_means
     rows=[dict(match_id="a",team_id=1,ADE30=x) for x in (1.,3.)]
     rows += [dict(match_id="a",team_id=2,ADE30=10.),
              dict(match_id="b",team_id=1,ADE30=20.),

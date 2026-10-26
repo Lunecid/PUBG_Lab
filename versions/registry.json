@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "repository_release": "2026.10.26-r4",
+  "repository_release": "2026.10.26-r5",
   "current_research_goal": "course paper -> FDG 2027; ToG is later extension",
   "version_axes": [
     "repository release",
@@ -17,11 +17,11 @@
         "snapshot-2026-04"
       ],
       "status": "historical-demo",
-      "paths": [
-        "legacy/"
-      ],
-      "entry": "legacy/README.md",
+      "entry": "archive/legacy_snapshot/README.md",
       "canonical_paths": [
+        "archive/legacy_snapshot/"
+      ],
+      "historical_paths": [
         "legacy/"
       ]
     },
@@ -33,16 +33,16 @@
         "PTR"
       ],
       "status": "preserved-research",
-      "paths": [
-        "model_stgcn/",
-        "stdb/",
-        "network_analysis/"
-      ],
       "entry": "docs/model_design/README.md",
       "canonical_paths": [
         "src/pubg_lab/survival/",
         "src/pubg_lab/data/stdb/",
         "src/pubg_lab/analysis/network/"
+      ],
+      "historical_paths": [
+        "model_stgcn/",
+        "stdb/",
+        "network_analysis/"
       ]
     },
     {
@@ -52,16 +52,16 @@
         "model-v2"
       ],
       "status": "superseded-preserved",
-      "paths": [
+      "entry": "src/pubg_lab/movement/README.md",
+      "canonical_paths": [
+        "src/pubg_lab/movement/data/bank.py",
+        "src/pubg_lab/movement/data/dataset.py",
+        "src/pubg_lab/movement/models/model.py"
+      ],
+      "historical_paths": [
         "movement_diffusion/bank.py",
         "movement_diffusion/dataset.py",
         "movement_diffusion/model.py"
-      ],
-      "entry": "movement_diffusion/README.md",
-      "canonical_paths": [
-        "src/pubg_lab/movement/bank.py",
-        "src/pubg_lab/movement/dataset.py",
-        "src/pubg_lab/movement/model.py"
       ]
     },
     {
@@ -70,16 +70,16 @@
         "V3"
       ],
       "status": "completed-development-experiment-preserved",
-      "paths": [
+      "entry": "docs/experiment_design/HETEROGRAPH_DIFFUSION_V3_REENTRY_ZONE_COMPARISON_2026-10-15.md",
+      "canonical_paths": [
+        "src/pubg_lab/movement/data/bank_v3.py",
+        "src/pubg_lab/movement/data/dataset_v3.py",
+        "src/pubg_lab/movement/models/model_v3.py"
+      ],
+      "historical_paths": [
         "movement_diffusion/bank_v3.py",
         "movement_diffusion/dataset_v3.py",
         "movement_diffusion/model_v3.py"
-      ],
-      "entry": "docs/experiment_design/HETEROGRAPH_DIFFUSION_V3_REENTRY_ZONE_COMPARISON_2026-10-15.md",
-      "canonical_paths": [
-        "src/pubg_lab/movement/bank_v3.py",
-        "src/pubg_lab/movement/dataset_v3.py",
-        "src/pubg_lab/movement/model_v3.py"
       ]
     },
     {
@@ -88,12 +88,12 @@
         "V4"
       ],
       "status": "development-result-not-adopted-as-final-improvement",
-      "paths": [
-        "movement_diffusion/model_v4.py"
-      ],
       "entry": "docs/experiment_design/HETEROGRAPH_DIFFUSION_V4_FORMATION_AUDIT_2026-10-15.md",
       "canonical_paths": [
-        "src/pubg_lab/movement/model_v4.py"
+        "src/pubg_lab/movement/models/model_v4.py"
+      ],
+      "historical_paths": [
+        "movement_diffusion/model_v4.py"
       ]
     },
     {
@@ -106,13 +106,14 @@
         "G4-v2"
       ],
       "status": "current-research-line-limited-experiments",
-      "paths": [
-        "world_model/",
-        "tests/world_model/"
-      ],
       "entry": "docs/experiment_design/PUBG_WORLD_MODEL_ARCHITECTURE_V3_2026-10-20.md",
       "canonical_paths": [
-        "src/pubg_lab/world_model/"
+        "src/pubg_lab/world_model/",
+        "projects/world_model/"
+      ],
+      "historical_paths": [
+        "world_model/",
+        "tests/world_model/"
       ]
     },
     {
@@ -122,12 +123,12 @@
         "overleaf"
       ],
       "status": "manuscript-history",
-      "paths": [
-        "paper/bigcomp2027/"
-      ],
       "entry": "docs/paper_writing/BIGCOMP2027_REVIEW_v11_2026-10-07.md",
       "canonical_paths": [
         "src/pubg_lab/survival/ptr/",
+        "paper/bigcomp2027/"
+      ],
+      "historical_paths": [
         "paper/bigcomp2027/"
       ]
     },
@@ -144,12 +145,12 @@
         "v20_submission"
       ],
       "status": "manuscript-history",
-      "paths": [
-        "paper/sac2027/"
-      ],
       "entry": "paper/sac2027/v20_submission/README_KO.md",
       "canonical_paths": [
-        "src/pubg_lab/projects/sac2027/",
+        "projects/sac2027/",
+        "paper/sac2027/"
+      ],
+      "historical_paths": [
         "paper/sac2027/"
       ]
     }
@@ -158,6 +159,22 @@
     "model_stgcn/splits.py",
     "tools/movement_diffusion/split_v3.py"
   ],
-  "canonical_code_root": "src/pubg_lab",
-  "compatibility_paths_are_not_implementation_roots": true
+  "canonical_code_roots": [
+    "src/pubg_lab",
+    "projects",
+    "apps"
+  ],
+  "root_forwarding_shims_allowed": false,
+  "current_project_paths": [
+    "projects/krafton_baseline/",
+    "projects/network_analysis/",
+    "projects/collector/",
+    "projects/data_preparation/",
+    "projects/world_model/",
+    "projects/movement/",
+    "projects/figures/",
+    "projects/spatial/",
+    "projects/sac2027/",
+    "projects/battle_royale/"
+  ]
 }

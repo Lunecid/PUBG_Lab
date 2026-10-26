@@ -1,0 +1,8 @@
+# projects.network_analysis
+
+network analysis package.
+
+Subpackages: `pipelines/`, `reporting/`, `studies/`.
+
+Import the canonical module path. `python -m pubg_lab list` lists explicit commands without executing them.
+Research inputs, completed evidence, and access restrictions follow the repository guidelines.

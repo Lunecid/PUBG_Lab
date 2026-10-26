@@ -1,0 +1,27 @@
+# PUBG STDB + DynamicSTGNN Requirements
+# 설치: pip install -r configs/environments/research.txt
+# 버전은 full-DB 재실험(21,824매치, 2026-06) 당시 로컬 환경 기준 고정.
+# 상한 없는 >= 핀은 재현성을 깨므로 ==를 사용한다 (CODE_REVIEW E12).
+
+# DB
+psycopg2-binary==2.9.11
+# Added during main integration; matches the existing local package, no install performed.
+python-dotenv==1.2.2
+
+# 수치 계산
+numpy==1.26.1
+scipy==1.12.0
+scikit-learn==1.7.0
+pandas==2.1.1
+
+# PyTorch (CPU 버전 - GPU 사용 시 공식 사이트에서 CUDA 버전 설치)
+torch==2.11.0
+torch_geometric==2.7.0
+
+# Network analysis sub-module (projects/network_analysis/) + 시각화
+networkx==3.2.1
+plotly==6.6.0
+matplotlib==3.8.0
+
+# 선택 의존성 (미설치 시 archive/legacy_snapshot/metrics.py가 fallback 경로 사용):
+#   scikit-survival  — C-index(IPCW)/cumulative dynamic AUC 정밀 계산

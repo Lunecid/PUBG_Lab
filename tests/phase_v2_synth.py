@@ -17,10 +17,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from model_stgcn.phase_v2.source import (
-    DAMAGE_DTYPES, GAME_STATE_DTYPES, GROGGY_DTYPES, ITEM_DTYPES, KILL_DTYPES, MatchSource, POS_DTYPES,
-    PHASE_EVENT_DTYPES,
-)
+from pubg_lab.survival.data.phase_v2.source import DAMAGE_DTYPES, GAME_STATE_DTYPES, GROGGY_DTYPES, ITEM_DTYPES, KILL_DTYPES, MatchSource, POS_DTYPES, PHASE_EVENT_DTYPES
 
 PHASE_EVENTS = [(90.0, 0.1), (330.0, 1.0), (600.0, 1.5), (720.0, 2.0), (810.0, 2.5), (930.0, 3.0), (990.0, 3.5), (1050.0, 4.0)]
 TEAMS = {11: ["a1", "a2"], 12: ["b1", "b2"], 13: ["d1", "d2"], 14: ["e1", "e2"], 15: ["c1", "c2"]}

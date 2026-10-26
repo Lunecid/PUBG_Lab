@@ -2,15 +2,8 @@ from __future__ import annotations
 
 import torch
 
-from model_stgcn.snapshot_baselines import (
-    SnapshotGRUNoGraphHazard,
-    SnapshotHierGRUNoGraphHazard,
-    SnapshotLastOnlyHazard,
-    SnapshotLSTMNoGraphHazard,
-    SnapshotTCNNoGraphHazard,
-    SnapshotTransformerNoGraphHazard,
-)
-from model_stgcn.snapshot_phase_dataset import snapshot_phase_collate
+from pubg_lab.survival.models.snapshot_baselines import SnapshotGRUNoGraphHazard, SnapshotHierGRUNoGraphHazard, SnapshotLastOnlyHazard, SnapshotLSTMNoGraphHazard, SnapshotTCNNoGraphHazard, SnapshotTransformerNoGraphHazard
+from pubg_lab.survival.data.snapshot_phase_dataset import snapshot_phase_collate
 
 
 def test_snapshot_last_only_baseline_forward_shape():

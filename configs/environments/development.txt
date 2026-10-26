@@ -1,0 +1,4 @@
+# 개발/테스트 의존성
+# 설치: pip install -r configs/environments/development.txt
+-r research.txt
+pytest==9.0.3

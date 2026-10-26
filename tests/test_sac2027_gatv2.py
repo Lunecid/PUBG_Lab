@@ -1,7 +1,7 @@
 import copy
 import torch
-from model_stgcn.ptr.gatv2 import SnapshotGATv2, graph_edges
-from model_stgcn.ptr.model import PTRConfig
+from pubg_lab.survival.ptr.models.gatv2 import SnapshotGATv2, graph_edges
+from pubg_lab.survival.ptr.models.model import PTRConfig
 
 
 def fixture():

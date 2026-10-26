@@ -14,8 +14,8 @@ KT = Path(__file__).resolve().parents[1] / "third_party" / "krafton_pubg_winprob
 if str(KT) not in sys.path:
     sys.path.insert(0, str(KT))
 
-from adaptation import schema as S  # noqa: E402
-from adaptation.features import compute_features  # noqa: E402
+import projects.krafton_baseline.data.schema as S  # noqa: E402
+from projects.krafton_baseline.data.features import compute_features  # noqa: E402
 
 torch = pytest.importorskip("torch")
 
@@ -382,7 +382,7 @@ def test_csv_inference_uses_57d_input_and_survival_direction(tmp_path):
 def test_token_only_backbone_has_no_position_zone_map_and_ignores_padding():
     """K2 (KRAFTON-tf-ourfeat): upstream's modules without the position / zone / map embeddings, same key padding mask."""
     _import_upstream()
-    from adaptation.ourfeat import TokenOnlyBackbone
+    from projects.krafton_baseline.models.ourfeat import TokenOnlyBackbone
 
     torch.manual_seed(0)
     bb = TokenOnlyBackbone(input_dim=153, embed_dim=16, num_heads=2, num_layers=2, dropout=0.0).eval()
@@ -398,7 +398,7 @@ def test_token_only_backbone_has_no_position_zone_map_and_ignores_padding():
 
 def test_step_loader_fills_an_epoch_by_repeating_shuffled_samples():
     _import_upstream()
-    from adaptation.ourfeat import StepLoader, TokenSampleSet
+    from projects.krafton_baseline.models.ourfeat import StepLoader, TokenSampleSet
 
     n_s = 10
     n = np.full(n_s, 3, dtype=np.int16)
@@ -419,7 +419,7 @@ def test_step_loader_fills_an_epoch_by_repeating_shuffled_samples():
 
 def test_feature_table_rows_cover_alive_at_phase_start_and_risk_set():
     """adaptation.kftable.table_rows: one row per team alive at the start of each cut phase, risk-set rows flagged, causal cut."""
-    from adaptation import kftable
+    import projects.krafton_baseline.data.kftable as kftable
 
     raw = make_raw(3, N=6, size=4)
     N = 6
@@ -437,7 +437,7 @@ def test_feature_table_rows_cover_alive_at_phase_start_and_risk_set():
     lab = {"match_id": "synthetic", "team_ids": np.arange(10, 10 + N), "team_death_s": death, "team_won": won, "phase_end_s": pe, "phase_start_s": ps,
            "phase_mask": pm, "target": target, "y": y}  # fmt: skip
     r = kftable.table_rows("synthetic", lab, raw, {"flags": {"first_state_w": 10.0}})
-    from model_stgcn.ptr.data import event_alive_mask
+    from pubg_lab.survival.ptr.data.data import event_alive_mask
 
     alive_start = event_alive_mask(lab).numpy()
     slots = [p for p in range(7) if pm[p]]
@@ -460,7 +460,7 @@ def test_feature_table_rows_cover_alive_at_phase_start_and_risk_set():
 # --------------------------------------------------------------------------- K3a / K3 (BCE objective, cut-phase bias)
 def _tiny_hazard_samples(seed: int = 0, n_s: int = 9, d: int = 12):
     """Synthetic cut samples (a TokenSampleSet + label tables) with a known risk set."""
-    from adaptation.ourfeat import TokenSampleSet
+    from projects.krafton_baseline.models.ourfeat import TokenSampleSet
 
     rng = np.random.RandomState(seed)
     n = rng.randint(3, 7, n_s).astype(np.int16)
@@ -491,7 +491,7 @@ def _tiny_hazard_samples(seed: int = 0, n_s: int = 9, d: int = 12):
 
 def test_k3_attach_labels_and_batch_encode_risk_rows():
     _import_upstream()
-    from adaptation.ourfeat_hazard import NO_LOSS, attach_labels
+    from projects.krafton_baseline.training.ourfeat_hazard import NO_LOSS, attach_labels
 
     ss, labs = _tiny_hazard_samples()
     hs = attach_labels(ss, labs)
@@ -516,7 +516,7 @@ def test_k3_attach_labels_and_batch_encode_risk_rows():
 
 def test_k3_phase_head_bias_and_gradient():
     _import_upstream()
-    from adaptation.ourfeat_hazard import PhaseHead
+    from projects.krafton_baseline.training.ourfeat_hazard import PhaseHead
     from src.models.heads import HazardHead
 
     torch.manual_seed(0)
@@ -536,9 +536,9 @@ def test_k3_phase_head_bias_and_gradient():
 
 def test_k3_init_intercepts_and_shared_initial_weights_with_k2():
     _import_upstream()
-    from adaptation import train as T
-    from adaptation.ourfeat import TokenOnlyBackbone
-    from adaptation.ourfeat_hazard import PhaseHead, build_models, logit
+    import projects.krafton_baseline.training.train as T
+    from projects.krafton_baseline.models.ourfeat import TokenOnlyBackbone
+    from projects.krafton_baseline.training.ourfeat_hazard import PhaseHead, build_models, logit
     from src.models.heads import get_head
 
     rates = np.array([0.2, 0.25, 0.3, 0.4, 0.45, 0.5, 0.55])
@@ -569,9 +569,9 @@ def test_k3_trainer_loss_masks_and_pooled_val_nll(tmp_path):
     _import_upstream()
     import torch.nn.functional as F
 
-    from adaptation import ourfeat as OF
-    from adaptation import train as T
-    from adaptation.ourfeat_hazard import BCETrainer, HazardSampleSet, PhaseHead, attach_labels, masked_bce, predict_logits
+    import projects.krafton_baseline.models.ourfeat as OF
+    import projects.krafton_baseline.training.train as T
+    from projects.krafton_baseline.training.ourfeat_hazard import BCETrainer, HazardSampleSet, PhaseHead, attach_labels, masked_bce, predict_logits
     from src.models.heads import HazardHead
 
     # masked BCE: only rows with a label >= 0 inside the valid mask count

@@ -2,9 +2,9 @@ import copy
 import numpy as np
 import pytest
 import torch
-from movement_diffusion.bank_v3 import actor_states,build_bank
-from movement_diffusion.dataset_v3 import TrajectoryDataset,collate
-from movement_diffusion.model_v3 import JointMotion
+from pubg_lab.movement.data.bank_v3 import actor_states, build_bank
+from pubg_lab.movement.data.dataset_v3 import TrajectoryDataset, collate
+from pubg_lab.movement.models.model_v3 import JointMotion
 
 def fixture():
  tables={k:[] for k in ['positions','item_equip','item_pickup','item_use','damage','groggy','kills','parachute_landing','game_states']}
@@ -66,7 +66,7 @@ def test_future_target_mutation_leaves_conditions():
  finally:b['target'][:]=saved
 
 def test_aircraft_and_stationary_mount_not_ground_vehicle():
- from movement_diffusion.bank_v3 import mode_of
+ from pubg_lab.movement.data.bank_v3 import mode_of
  assert mode_of({'vehicle_class':'BP_Motorglider_C','vehicle_type':'FlyingVehicle'})==8
  assert mode_of({'vehicle_class':'MortarPawn_C','vehicle_type':'Vehicle'})==9
  assert mode_of({'vehicle_class':'BP_Rubber_boat_C','vehicle_type':None})==3

@@ -1,12 +1,14 @@
-# pubg_lab
+# pubg_lab 재사용 라이브러리
 
-Responsibility: Canonical implementation package for the PUBG research monorepo.
-
-| Component | Responsibility |
+| 모듈 | 소유 책임 |
 |---|---|
-| `__main__.py` | Discover and explicitly run a registered research application. |
+| `survival/` | BR/PTR 생존 모델, 데이터 계약, 손실, 평가, 기준선 |
+| `world_model/` | 경기 표현의 데이터·특징·인코더·학습 목적 |
+| `movement/` | 경로 생성 데이터·모델 버전·평가 부품 |
+| `data/` | STDB 연결·질의·시간 정렬·스키마·자료 품질 |
+| `analysis/` | 재사용 네트워크 분석 부품 |
+| `common/` | 표준 라이브러리만 쓰는 저장소 경로 |
+| `repository/` | 데이터 실행 없이 수행하는 구조·릴리스 검사 |
 
-The implementation lives here. Old root paths are compatibility entry points.
-Import reusable components by their canonical `pubg_lab` path; invoke applications through `python -m pubg_lab run <command>`.
-Listing commands does not import applications, access data, or start services.
-Scientific contracts and completed evidence remain under the repository docs and original artifact paths.
+라이브러리는 `projects.*`에 의존하지 않는다. 실행 구성은 루트의 실제 `projects/` 폴더에 둔다.
+하위 폴더마다 README에 부품과 책임을 기록한다. 루트 전달용 Python 파일은 두지 않는다.

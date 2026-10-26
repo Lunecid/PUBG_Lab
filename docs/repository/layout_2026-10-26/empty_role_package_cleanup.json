@@ -1,0 +1,12 @@
+[
+  {
+    "path": "src/pubg_lab/survival/common/__init__.py",
+    "bytes": 25,
+    "reason": "Generated boundary/index with no remaining implementation"
+  },
+  {
+    "path": "src/pubg_lab/survival/common/README.md",
+    "bytes": 330,
+    "reason": "Generated boundary/index with no remaining implementation"
+  }
+]

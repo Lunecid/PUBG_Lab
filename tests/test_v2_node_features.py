@@ -18,16 +18,11 @@ import pytest
 from tests.conftest import requires_db
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-MANIFEST = REPO_ROOT / "model_stgcn" / "feature_manifests" / "pubg_representation_v2.json"
+MANIFEST = REPO_ROOT / 'src/pubg_lab/survival/features/manifests/pubg_representation_v2.json'
 
 
 def test_v2_specs_match_manifest_families():
-    from stdb.queries import (
-        PHASE_FEATURE_DIM,
-        PHASE_FEATURE_DIM_V2,
-        PHASE_NODE_FEATURE_NAMES,
-        PHASE_NODE_FEATURE_SPECS_V2,
-    )
+    from pubg_lab.data.stdb.queries.queries import PHASE_FEATURE_DIM, PHASE_FEATURE_DIM_V2, PHASE_NODE_FEATURE_NAMES, PHASE_NODE_FEATURE_SPECS_V2
 
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     f6 = manifest["families"]["f6_network_phase_role_tier1"]["columns"]
@@ -48,7 +43,7 @@ def test_v2_specs_match_manifest_families():
 
 @pytest.fixture(scope="module")
 def v2_match_pair():
-    from stdb.queries import fetch_phase_match_tensors, list_phase_eligible_match_ids
+    from pubg_lab.data.stdb.queries.queries import fetch_phase_match_tensors, list_phase_eligible_match_ids
 
     ids = list_phase_eligible_match_ids(None, None, 1)
     if not ids:
@@ -62,7 +57,7 @@ def v2_match_pair():
 
 @requires_db
 def test_flag_off_unchanged_and_flag_on_extends(v2_match_pair):
-    from stdb.queries import PHASE_FEATURE_DIM, PHASE_FEATURE_DIM_V2
+    from pubg_lab.data.stdb.queries.queries import PHASE_FEATURE_DIM, PHASE_FEATURE_DIM_V2
 
     base, v2 = v2_match_pair
     assert base.X.shape[-1] == PHASE_FEATURE_DIM
@@ -83,8 +78,8 @@ def test_flag_off_unchanged_and_flag_on_extends(v2_match_pair):
 
 @requires_db
 def test_v2_channels_match_tables(v2_match_pair):
-    from stdb.conn import get_cur
-    from stdb.queries import PHASE_FEATURE_DIM, PHASE_NODE_FEATURE_SPECS_V2
+    from pubg_lab.data.stdb.connection.conn import get_cur
+    from pubg_lab.data.stdb.queries.queries import PHASE_FEATURE_DIM, PHASE_NODE_FEATURE_SPECS_V2
 
     _base, v2 = v2_match_pair
     team_ids = [t for t in v2.team_ids if t]

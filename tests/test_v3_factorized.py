@@ -3,18 +3,11 @@ from __future__ import annotations
 import numpy as np
 import torch
 
-from model_stgcn.v3.factorized_data import _global_from_broadcast
-from model_stgcn.v3.experiment_matrix import EXPERIMENT_GROUPS
-from model_stgcn.v3.models import FactorizedMRGNN, FactorizedPhaseGNN, GRAPH_ENCODERS
-from model_stgcn.v3.run_matrix import _is_train_complete
-from model_stgcn.v3.spec import (
-    FEATURE_PRESETS,
-    GLOBAL_FEATURES,
-    OM_PRESET_FEATURES,
-    feature_names_for_preset,
-    expected_phase_feature_names,
-    split_feature_names,
-)
+from pubg_lab.survival.v3.data.factorized_data import _global_from_broadcast
+from pubg_lab.survival.v3.experiments.experiment_matrix import EXPERIMENT_GROUPS
+from pubg_lab.survival.v3.models.models import FactorizedMRGNN, FactorizedPhaseGNN, GRAPH_ENCODERS
+from pubg_lab.survival.v3.experiments.run_matrix import _is_train_complete
+from pubg_lab.survival.v3.data.spec import FEATURE_PRESETS, GLOBAL_FEATURES, OM_PRESET_FEATURES, feature_names_for_preset, expected_phase_feature_names, split_feature_names
 
 
 def test_v3_feature_split_has_node_and_global_roles():
@@ -47,7 +40,7 @@ def test_feature_presets_select_nonempty_node_and_global_features():
         assert split.global_dim > 0, preset
     assert "net_combat_out_degree" in feature_names_for_preset("network", names)
     assert "hab_crowding_pressure" in feature_names_for_preset("habitat", names)
-    assert "path_length_norm" in feature_names_for_preset("stdb", names)
+    assert "path_length_norm" in feature_names_for_preset('stdb', names)
     assert "net_combat_out_degree" not in feature_names_for_preset("base66", names)
 
 

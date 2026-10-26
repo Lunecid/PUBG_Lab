@@ -7,11 +7,11 @@ import pytest
 import torch
 
 import test_dataset
-from world_model.dataset import WorldDataset
-from world_model.indexed_dataset import IndexedWorldDataset
-from world_model.inputs import ConditionVocabulary, load_sample
-from world_model.pretraining import joint_gmm_nll, masked_mse, corrupt_health, pair_targets, PretrainHeads, PathProbe, pretrain_losses, supervised_targets
-from world_model.encoder import WorldEncoder
+from pubg_lab.world_model.data.dataset import WorldDataset
+from pubg_lab.world_model.data.indexed_dataset import IndexedWorldDataset
+from pubg_lab.world_model.features.inputs import ConditionVocabulary, load_sample
+from pubg_lab.world_model.training.pretraining import joint_gmm_nll, masked_mse, corrupt_health, pair_targets, PretrainHeads, PathProbe, pretrain_losses, supervised_targets
+from pubg_lab.world_model.models.encoder import WorldEncoder
 
 
 @pytest.fixture
@@ -144,7 +144,7 @@ def test_all_pretraining_heads_backpropagate_and_probe_can_fit(ds):
 
 
 def test_vectorized_audit_horizons_match_loader(ds):
-    from world_model.preprocess import targets_at
+    from pubg_lab.world_model.data.preprocess import targets_at
     b = ds.bank("fit")
     for k, ego in b["anchors"][::7]:
         expected = targets_at(b, int(k), int(ego))
@@ -159,7 +159,7 @@ def test_vectorized_audit_horizons_match_loader(ds):
 
 
 def test_metric_units_oracle_and_missing_labels(ds):
-    from tools.train_world_model_g2 import evaluate_prediction
+    from projects.world_model.training.train_world_model_g2 import evaluate_prediction
     s = load_sample(ds, "fit", 0, ConditionVocabulary.from_dataset(ds))
     y = supervised_targets(s)
     exact, _, _, _ = evaluate_prediction(s, y["delta"])

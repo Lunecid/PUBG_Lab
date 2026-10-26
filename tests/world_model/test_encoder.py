@@ -8,9 +8,9 @@ import pytest
 import torch
 
 import test_dataset
-from world_model.dataset import WorldDataset
-from world_model.inputs import ConditionVocabulary, adapt_graph, load_sample, collate_samples
-from world_model.encoder import WorldEncoder
+from pubg_lab.world_model.data.dataset import WorldDataset
+from pubg_lab.world_model.features.inputs import ConditionVocabulary, adapt_graph, load_sample, collate_samples
+from pubg_lab.world_model.models.encoder import WorldEncoder
 
 
 @pytest.fixture

@@ -1,0 +1,2126 @@
+{
+  "files": [
+    {
+      "old": "legacy/metrics.py",
+      "new": "archive/legacy_snapshot/metrics.py",
+      "bytes": 34984,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960968,
+      "sha256": "a2ef3adbdbe4bac19cb249fddf1d26cfd01a0097a257b3871b37f94f21ba3e97"
+    },
+    {
+      "old": "legacy/run_meta.py",
+      "new": "archive/legacy_snapshot/run_meta.py",
+      "bytes": 6364,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960978,
+      "sha256": "e1ae443c8d2f503486355004596ff68b45ac58b6d2c82412cdac73d605b1ada9"
+    },
+    {
+      "old": "legacy/simulate.py",
+      "new": "archive/legacy_snapshot/simulate.py",
+      "bytes": 33121,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960979,
+      "sha256": "fd23109df45a3774a46651b1cb3b5913fb5f2d26be05078ee5eaafd35b44180e"
+    },
+    {
+      "old": "legacy/visualize.py",
+      "new": "archive/legacy_snapshot/visualize.py",
+      "bytes": 33410,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960981,
+      "sha256": "86a16bfc7f237febf27031b4ba0ec6bb8199f00ab1474cae9ab1414818491d8a"
+    },
+    {
+      "old": "legacy/README.md",
+      "new": "archive/legacy_snapshot/README.md",
+      "bytes": 1860,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960960,
+      "sha256": "24dd74d7911fd7df54972d7f7c7daa6f50ae6015ff64867d178cb673148834f4"
+    },
+    {
+      "old": "legacy/dataset.py",
+      "new": "archive/legacy_snapshot/dataset.py",
+      "bytes": 41902,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960965,
+      "sha256": "ac1b356b8ddfb7723177bf547ed66059c0db56b544945c0ea3a74ac658aa9f8e"
+    },
+    {
+      "old": "legacy/train.py",
+      "new": "archive/legacy_snapshot/train.py",
+      "bytes": 28321,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960980,
+      "sha256": "6c0e709942790fee6fa58f32dba980b62964aa04222c01d74ace1d6811cbe619"
+    },
+    {
+      "old": "legacy/main.py",
+      "new": "archive/legacy_snapshot/main.py",
+      "bytes": 61178,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960967,
+      "sha256": "3515406873ee030cb49f15f1fbf8804696781fd9c04c96fc20429259d4f9f775"
+    },
+    {
+      "old": "legacy/result_viz.py",
+      "new": "archive/legacy_snapshot/result_viz.py",
+      "bytes": 22208,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960977,
+      "sha256": "bec4904321d6b07fc3192ab0b092542804921d4b6421a51e0523694947781a23"
+    },
+    {
+      "old": "legacy/explain.py",
+      "new": "archive/legacy_snapshot/explain.py",
+      "bytes": 16590,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960966,
+      "sha256": "c0b89d98b203ad088c75ba663b876f9d1ff6125ccc60b3c0dd00c9055f1473f8"
+    },
+    {
+      "old": "legacy/adapters/pubg_adapter.py",
+      "new": "archive/legacy_snapshot/adapters/pubg_adapter.py",
+      "bytes": 15575,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960964,
+      "sha256": "c4bf48b326e1ef667d1e00a877da5ed616c65b6d115b918fae84d596ab266693"
+    },
+    {
+      "old": "legacy/adapters/__init__.py",
+      "new": "archive/legacy_snapshot/adapters/__init__.py",
+      "bytes": 0,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960962,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "old": "legacy/adapters/base.py",
+      "new": "archive/legacy_snapshot/adapters/base.py",
+      "bytes": 15722,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960963,
+      "sha256": "1023e03cdba257c3da9cd901b5e4e0fac74ebff6c4e8ea655d1d5375c55228b3"
+    },
+    {
+      "old": "legacy/model/temporal.py",
+      "new": "archive/legacy_snapshot/model/temporal.py",
+      "bytes": 2843,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960976,
+      "sha256": "6bd28f6d01e55dfe059da6321a059f685dfd4c618969a23ec3fff952af2f8643"
+    },
+    {
+      "old": "legacy/model/hazard_head.py",
+      "new": "archive/legacy_snapshot/model/hazard_head.py",
+      "bytes": 4169,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960975,
+      "sha256": "f67a4ff6933f1e1b7758b116e6ab5da5d5bb83a3dfba2bc18a87303d5fc14d6c"
+    },
+    {
+      "old": "legacy/model/agent_encoder.py",
+      "new": "archive/legacy_snapshot/model/agent_encoder.py",
+      "bytes": 3975,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960971,
+      "sha256": "21f92dd865eefdb0390b2e129dbbdd6288971e259eb0d4c26331a42e5a0e9af4"
+    },
+    {
+      "old": "legacy/model/__init__.py",
+      "new": "archive/legacy_snapshot/model/__init__.py",
+      "bytes": 86,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960970,
+      "sha256": "4a13b4d2743dda486b8e52284431546c4be408287e5d0f3666a21231b573b1fe"
+    },
+    {
+      "old": "legacy/model/group_pooling.py",
+      "new": "archive/legacy_snapshot/model/group_pooling.py",
+      "bytes": 4139,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960974,
+      "sha256": "c81a519fc2816a70c91ca7fdedcaab462df9bbc0640b5b8a8d147686e67bcaf3"
+    },
+    {
+      "old": "legacy/model/arena_survival_net.py",
+      "new": "archive/legacy_snapshot/model/arena_survival_net.py",
+      "bytes": 16729,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960972,
+      "sha256": "cf0f7912d6f6715996e3ce99c1165c2537ea9cc70d4f7fc98fd4b9d19b17037a"
+    },
+    {
+      "old": "legacy/model/group_gnn.py",
+      "new": "archive/legacy_snapshot/model/group_gnn.py",
+      "bytes": 5962,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960973,
+      "sha256": "b74ebd2b00bcbc691b070f4e614a70f0a6a11b36997e181a6506042fe100f6e0"
+    },
+    {
+      "old": "webapp/tsconfig.node.json",
+      "new": "apps/webapp/tsconfig.node.json",
+      "bytes": 300,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964379,
+      "sha256": "dede9578dfcfee7b651272ea01506d68de86e57f1d26a37679e2abfb60e61027"
+    },
+    {
+      "old": "webapp/index.html",
+      "new": "apps/webapp/index.html",
+      "bytes": 957,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15719153,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/tsconfig.app.json",
+      "new": "apps/webapp/tsconfig.app.json",
+      "bytes": 605,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964377,
+      "sha256": "ca2c14322988d42c401854ebbbb55ae060fa1bc5d0091f899505591c79d70c80"
+    },
+    {
+      "old": "webapp/tsconfig.app.tsbuildinfo",
+      "new": "apps/webapp/tsconfig.app.tsbuildinfo",
+      "bytes": 1162,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 16711234,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/tailwind.config.ts",
+      "new": "apps/webapp/tailwind.config.ts",
+      "bytes": 1392,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964376,
+      "sha256": "9642beb3efc3834023ae042c3a9568bc8ff64fbf324b6f83ff9080f5d41fdf3a"
+    },
+    {
+      "old": "webapp/package-lock.json",
+      "new": "apps/webapp/package-lock.json",
+      "bytes": 113817,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964335,
+      "sha256": "44c539f92fb8f23e04d9ed4b8bba1e40dd5c348cc2d1649a95b5d6463ff79328"
+    },
+    {
+      "old": "webapp/package.json",
+      "new": "apps/webapp/package.json",
+      "bytes": 1046,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964336,
+      "sha256": "4b7a91a93245b0aca4653d3430acbd91d7a8be0ac6f191c0a2d6564b2f36364a"
+    },
+    {
+      "old": "webapp/tsconfig.json",
+      "new": "apps/webapp/tsconfig.json",
+      "bytes": 119,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964378,
+      "sha256": "770b4140bbb581e2dfd9ea9946ffc9c75a1d86ba7d2db5f77c83e37cbdf9d808"
+    },
+    {
+      "old": "webapp/vite.config.ts",
+      "new": "apps/webapp/vite.config.ts",
+      "bytes": 386,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964380,
+      "sha256": "cbf2a4842cb248afa395bb02b4b0336c6a4a3709a1ea9d0a0af6595d9412fe52"
+    },
+    {
+      "old": "webapp/tsconfig.node.tsbuildinfo",
+      "new": "apps/webapp/tsconfig.node.tsbuildinfo",
+      "bytes": 47,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 16711235,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/postcss.config.js",
+      "new": "apps/webapp/postcss.config.js",
+      "bytes": 81,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964337,
+      "sha256": "e32657baf631d7c5f4dc67b4b2ee0ec8e7d5b3c41860e09cddce7c0377cd80bc"
+    },
+    {
+      "old": "webapp/.claude/launch.json",
+      "new": "apps/webapp/.claude/launch.json",
+      "bytes": 182,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 16710412,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/maps/baltic_main.jpg",
+      "new": "apps/webapp/public/maps/baltic_main.jpg",
+      "bytes": 3855517,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964339,
+      "sha256": "dc9fb38d35ec00ee61ddd92fc505fe62f399492c71e37e48f68cc61a505eb6a6"
+    },
+    {
+      "old": "webapp/public/maps/baltic_main_2k.jpg",
+      "new": "apps/webapp/public/maps/baltic_main_2k.jpg",
+      "bytes": 1146636,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964340,
+      "sha256": "e991cafb0c89d21b476f2f09ed70c4af7dba700583d1e4743cd64c874ec1ef9b"
+    },
+    {
+      "old": "webapp/public/data/network_summary.json",
+      "new": "apps/webapp/public/data/network_summary.json",
+      "bytes": 1991,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 16682643,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/match_index.json",
+      "new": "apps/webapp/public/data/match_index.json",
+      "bytes": 7640,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 16683286,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/glossary.json",
+      "new": "apps/webapp/public/data/glossary.json",
+      "bytes": 2321,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 16682646,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/hypotheses.json",
+      "new": "apps/webapp/public/data/hypotheses.json",
+      "bytes": 6745,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15696293,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/methods.json",
+      "new": "apps/webapp/public/data/methods.json",
+      "bytes": 6294,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 16682647,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/phase_summary.json",
+      "new": "apps/webapp/public/data/phase_summary.json",
+      "bytes": 12353,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 16682645,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/index.json",
+      "new": "apps/webapp/public/data/index.json",
+      "bytes": 748,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15696295,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/strategy_summary.json",
+      "new": "apps/webapp/public/data/strategy_summary.json",
+      "bytes": 3701,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 16682644,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/3faf93bf-bd7b-4ff3-9e13-2083267f3556.json",
+      "new": "apps/webapp/public/data/matches/3faf93bf-bd7b-4ff3-9e13-2083267f3556.json",
+      "bytes": 317904,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15693196,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/19bddf7d-5676-48e4-9648-eb4050c560b1.json",
+      "new": "apps/webapp/public/data/matches/19bddf7d-5676-48e4-9648-eb4050c560b1.json",
+      "bytes": 309511,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15692633,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/3476fc8d-5345-4c65-9f5b-4f53b90bb9b5.json",
+      "new": "apps/webapp/public/data/matches/3476fc8d-5345-4c65-9f5b-4f53b90bb9b5.json",
+      "bytes": 266982,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15693030,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/439e1003-15bb-448d-a5b1-892bf69dddec.json",
+      "new": "apps/webapp/public/data/matches/439e1003-15bb-448d-a5b1-892bf69dddec.json",
+      "bytes": 204199,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15693244,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/236431be-c333-4285-be48-611160cc00ae.json",
+      "new": "apps/webapp/public/data/matches/236431be-c333-4285-be48-611160cc00ae.json",
+      "bytes": 271977,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15692791,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/1d225e79-0d8f-4ebc-ac23-6d26bd390f4c.json",
+      "new": "apps/webapp/public/data/matches/1d225e79-0d8f-4ebc-ac23-6d26bd390f4c.json",
+      "bytes": 277384,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15692704,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/0fe8958a-591e-4df8-b761-9ba314a47260.json",
+      "new": "apps/webapp/public/data/matches/0fe8958a-591e-4df8-b761-9ba314a47260.json",
+      "bytes": 232813,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15692503,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/2c917046-ab80-42f8-9072-573478377dbd.json",
+      "new": "apps/webapp/public/data/matches/2c917046-ab80-42f8-9072-573478377dbd.json",
+      "bytes": 294724,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15692916,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/1a5a9784-e022-460c-b51e-4cbd63ad749b.json",
+      "new": "apps/webapp/public/data/matches/1a5a9784-e022-460c-b51e-4cbd63ad749b.json",
+      "bytes": 240836,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15692644,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/2901036e-d981-45c7-9d9a-1d599ef9f102.json",
+      "new": "apps/webapp/public/data/matches/2901036e-d981-45c7-9d9a-1d599ef9f102.json",
+      "bytes": 295648,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15692867,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/220a6558-b78c-4280-a8eb-c879e60f5b69.json",
+      "new": "apps/webapp/public/data/matches/220a6558-b78c-4280-a8eb-c879e60f5b69.json",
+      "bytes": 273462,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15692768,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/118c07dc-5de8-47a8-9673-f17242c908a7.json",
+      "new": "apps/webapp/public/data/matches/118c07dc-5de8-47a8-9673-f17242c908a7.json",
+      "bytes": 301439,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15692527,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/33d8f4d3-df4a-4e4d-857c-c1bb112a8b0d.json",
+      "new": "apps/webapp/public/data/matches/33d8f4d3-df4a-4e4d-857c-c1bb112a8b0d.json",
+      "bytes": 326829,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15693021,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/0fb55555-2a46-4b13-b083-e1f877f3996e.json",
+      "new": "apps/webapp/public/data/matches/0fb55555-2a46-4b13-b083-e1f877f3996e.json",
+      "bytes": 315282,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15692497,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/2c020a2f-5b79-48d4-90c7-62cdd6523baf.json",
+      "new": "apps/webapp/public/data/matches/2c020a2f-5b79-48d4-90c7-62cdd6523baf.json",
+      "bytes": 214995,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15692904,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/02298f76-8f66-4156-85d9-1a82999b72b5.json",
+      "new": "apps/webapp/public/data/matches/02298f76-8f66-4156-85d9-1a82999b72b5.json",
+      "bytes": 239786,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15692312,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/3ffc0604-6681-4a8b-a95a-1b5fc91d17fe.json",
+      "new": "apps/webapp/public/data/matches/3ffc0604-6681-4a8b-a95a-1b5fc91d17fe.json",
+      "bytes": 377178,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15693198,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/36dae54a-035e-4650-8430-d5fe31570b9a.json",
+      "new": "apps/webapp/public/data/matches/36dae54a-035e-4650-8430-d5fe31570b9a.json",
+      "bytes": 231760,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15693070,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/2d01182a-ebee-48c4-a181-c854bf80d2d6.json",
+      "new": "apps/webapp/public/data/matches/2d01182a-ebee-48c4-a181-c854bf80d2d6.json",
+      "bytes": 271977,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15692922,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/241cbb2f-1340-4988-9e52-0cd3572a90c2.json",
+      "new": "apps/webapp/public/data/matches/241cbb2f-1340-4988-9e52-0cd3572a90c2.json",
+      "bytes": 331629,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15692799,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/07069513-a044-475e-bd5c-1d53e771f490.json",
+      "new": "apps/webapp/public/data/matches/07069513-a044-475e-bd5c-1d53e771f490.json",
+      "bytes": 276195,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15692385,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/36c471f9-aec7-48c9-8955-b2053d7d2a7c.json",
+      "new": "apps/webapp/public/data/matches/36c471f9-aec7-48c9-8955-b2053d7d2a7c.json",
+      "bytes": 221212,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15693069,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/33c0733d-9e65-4dde-808f-94cabe86e264.json",
+      "new": "apps/webapp/public/data/matches/33c0733d-9e65-4dde-808f-94cabe86e264.json",
+      "bytes": 325868,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15693019,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/1b22e54e-3fe3-4bba-b4dc-1bb8f1eb70db.json",
+      "new": "apps/webapp/public/data/matches/1b22e54e-3fe3-4bba-b4dc-1bb8f1eb70db.json",
+      "bytes": 247173,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15692658,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/1518b912-53bc-4b5a-a11b-eb78e70ae510.json",
+      "new": "apps/webapp/public/data/matches/1518b912-53bc-4b5a-a11b-eb78e70ae510.json",
+      "bytes": 268382,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15692580,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/0797f3cd-0cf4-4e88-9ef2-4e4efe67d662.json",
+      "new": "apps/webapp/public/data/matches/0797f3cd-0cf4-4e88-9ef2-4e4efe67d662.json",
+      "bytes": 296051,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15692391,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/34506b31-5887-451d-810c-6809370df5ca.json",
+      "new": "apps/webapp/public/data/matches/34506b31-5887-451d-810c-6809370df5ca.json",
+      "bytes": 250643,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15693027,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/3d123a3e-91b7-4c07-8fe2-06859ef6420a.json",
+      "new": "apps/webapp/public/data/matches/3d123a3e-91b7-4c07-8fe2-06859ef6420a.json",
+      "bytes": 341832,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15693155,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/2c38ea2e-391b-47fd-92dc-3ba05004cb0a.json",
+      "new": "apps/webapp/public/data/matches/2c38ea2e-391b-47fd-92dc-3ba05004cb0a.json",
+      "bytes": 319273,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15692908,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/public/data/matches/1e184b57-1780-41a4-b404-11fbc5317198.json",
+      "new": "apps/webapp/public/data/matches/1e184b57-1780-41a4-b404-11fbc5317198.json",
+      "bytes": 316721,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15692715,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/scripts/build-data.mjs",
+      "new": "apps/webapp/scripts/build-data.mjs",
+      "bytes": 38292,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964342,
+      "sha256": "111b9c7faf37bbc2d88661235c67804376dac855fd2cd8c2781dbf5813721ac3"
+    },
+    {
+      "old": "webapp/src/App.tsx",
+      "new": "apps/webapp/src/App.tsx",
+      "bytes": 1636,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964343,
+      "sha256": "16a879349cff3b0116fd266d790583fb3f29094f5cc73f40632d1b9cb0febf10"
+    },
+    {
+      "old": "webapp/src/main.tsx",
+      "new": "apps/webapp/src/main.tsx",
+      "bytes": 658,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964363,
+      "sha256": "8e6a984f37a944d3bd5f02d7ce08e5c308d162f997914a428581cd3ce2dd44a5"
+    },
+    {
+      "old": "webapp/src/styles/index.css",
+      "new": "apps/webapp/src/styles/index.css",
+      "bytes": 1524,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964375,
+      "sha256": "b37ef38b37f193ac561172068f556734475624491b3c4197a924239f3eee4fc7"
+    },
+    {
+      "old": "webapp/src/components/Nav.tsx",
+      "new": "apps/webapp/src/components/Nav.tsx",
+      "bytes": 1013,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964356,
+      "sha256": "7d5a5b9c0b49fdc4dcd8cff5113636cc8150d99d010f07941dc191362dacbc62"
+    },
+    {
+      "old": "webapp/src/components/MatchCard.tsx",
+      "new": "apps/webapp/src/components/MatchCard.tsx",
+      "bytes": 2758,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964355,
+      "sha256": "e7426770b80d8e9feafcbb72851bdfede9374c7987d99f1070c2e91f45640901"
+    },
+    {
+      "old": "webapp/src/components/Section.tsx",
+      "new": "apps/webapp/src/components/Section.tsx",
+      "bytes": 591,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964359,
+      "sha256": "cc6fbda031463da8a8a9da61e7e366a9da8b3786081f5bc6cee688469fb387e5"
+    },
+    {
+      "old": "webapp/src/components/StatCard.tsx",
+      "new": "apps/webapp/src/components/StatCard.tsx",
+      "bytes": 809,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964360,
+      "sha256": "1aa1d4cb726e90712fad4d3494e27c3626d2c6cb7e67422ba17ffc7a6a9f2931"
+    },
+    {
+      "old": "webapp/src/components/FormulaBlock.tsx",
+      "new": "apps/webapp/src/components/FormulaBlock.tsx",
+      "bytes": 495,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964350,
+      "sha256": "8c8feb43ab5f9953a7f670d29535fa222fec10d4301f59fb374737b657eca921"
+    },
+    {
+      "old": "webapp/src/components/SankeyTransitions.tsx",
+      "new": "apps/webapp/src/components/SankeyTransitions.tsx",
+      "bytes": 6138,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964358,
+      "sha256": "92e730a028c6c6a9e1f4c3f96e14fe24e040348c531a80f84d64dc168fda1a05"
+    },
+    {
+      "old": "webapp/src/components/QuadrantChart.tsx",
+      "new": "apps/webapp/src/components/QuadrantChart.tsx",
+      "bytes": 4012,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964357,
+      "sha256": "7f7b25353d7f19dfd21ab5b4fde2249fbf56f4c9f5c17564ea1ac8908d80bb2f"
+    },
+    {
+      "old": "webapp/src/components/Layout.tsx",
+      "new": "apps/webapp/src/components/Layout.tsx",
+      "bytes": 1340,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964353,
+      "sha256": "9534bdedef326497622017cdbb2de2b2cedf0ff724f3c1cd1e3d072c04d67933"
+    },
+    {
+      "old": "webapp/src/components/DataTable.tsx",
+      "new": "apps/webapp/src/components/DataTable.tsx",
+      "bytes": 2434,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964349,
+      "sha256": "248abac76119701acd2a200e4210b2093c56ac3f9a3ed5082126c015a50202ca"
+    },
+    {
+      "old": "webapp/src/components/HypothesisCard.tsx",
+      "new": "apps/webapp/src/components/HypothesisCard.tsx",
+      "bytes": 3680,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964352,
+      "sha256": "e71ff0609b68d049fa8809cb3ac8ea05ea8a6d137d6f85a656b77aa263d45b54"
+    },
+    {
+      "old": "webapp/src/components/Heatmap.tsx",
+      "new": "apps/webapp/src/components/Heatmap.tsx",
+      "bytes": 4885,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964351,
+      "sha256": "ddf6e279adb76bfdf39ee6ba4132a14b1f4e3bc1a36c9572acab3da9875e5a3a"
+    },
+    {
+      "old": "webapp/src/components/StrategyBadge.tsx",
+      "new": "apps/webapp/src/components/StrategyBadge.tsx",
+      "bytes": 795,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964361,
+      "sha256": "aa0266957e8eca20d558234c663710b748e5d4b3c169e4cf524b27d10b4efe18"
+    },
+    {
+      "old": "webapp/src/components/BarCompare.tsx",
+      "new": "apps/webapp/src/components/BarCompare.tsx",
+      "bytes": 3203,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964346,
+      "sha256": "c5690543a88c229dc576798a90c58b908b52e83d3303b8068de0eb81f510de1f"
+    },
+    {
+      "old": "webapp/src/components/Callout.tsx",
+      "new": "apps/webapp/src/components/Callout.tsx",
+      "bytes": 763,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964347,
+      "sha256": "248235e828397e5a0baf89d50220215797fc4d15c9184e53f63301eac0476d0d"
+    },
+    {
+      "old": "webapp/src/components/TimeControls.tsx",
+      "new": "apps/webapp/src/components/TimeControls.tsx",
+      "bytes": 9406,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964362,
+      "sha256": "ba4006f168abaddb3d7a5b066c17dd98d2d056fddc2d6c646df67c7846f91f5c"
+    },
+    {
+      "old": "webapp/src/components/CytoscapeNetwork.tsx",
+      "new": "apps/webapp/src/components/CytoscapeNetwork.tsx",
+      "bytes": 4937,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964348,
+      "sha256": "f7d738703e9b1ecef2336a3e0bbd7203227d3c81b1bbcade5a9ee8f1d4ed9573"
+    },
+    {
+      "old": "webapp/src/components/AnimatedNetwork.tsx",
+      "new": "apps/webapp/src/components/AnimatedNetwork.tsx",
+      "bytes": 17127,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964345,
+      "sha256": "2148eeb7fe10c4e765330e9aee10bea9a4fb1550ac523a35e9e48072bfb94928"
+    },
+    {
+      "old": "webapp/src/components/MapBackground.tsx",
+      "new": "apps/webapp/src/components/MapBackground.tsx",
+      "bytes": 1963,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964354,
+      "sha256": "7397d8fd62d35c7c5e6ee1fc2db5fdf17afa2bfcf6dfdee969011150666b69d8"
+    },
+    {
+      "old": "webapp/src/lib/data.ts",
+      "new": "apps/webapp/src/lib/data.ts",
+      "bytes": 2546,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 16683754,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/src/lib/useTimePlayer.ts",
+      "new": "apps/webapp/src/lib/useTimePlayer.ts",
+      "bytes": 2233,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 16684459,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/src/lib/usePanZoom.ts",
+      "new": "apps/webapp/src/lib/usePanZoom.ts",
+      "bytes": 4065,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15624898,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/src/lib/convexHull.ts",
+      "new": "apps/webapp/src/lib/convexHull.ts",
+      "bytes": 1491,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15624549,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/src/lib/types.ts",
+      "new": "apps/webapp/src/lib/types.ts",
+      "bytes": 8032,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 16709867,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/src/lib/format.ts",
+      "new": "apps/webapp/src/lib/format.ts",
+      "bytes": 1425,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 16683753,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/src/lib/phaseMarkers.ts",
+      "new": "apps/webapp/src/lib/phaseMarkers.ts",
+      "bytes": 1346,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 16710868,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/src/lib/forceLayout.ts",
+      "new": "apps/webapp/src/lib/forceLayout.ts",
+      "bytes": 4822,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15719264,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/src/lib/declarations.d.ts",
+      "new": "apps/webapp/src/lib/declarations.d.ts",
+      "bytes": 41,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15449044,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "webapp/src/routes/Explorer.tsx",
+      "new": "apps/webapp/src/routes/Explorer.tsx",
+      "bytes": 3682,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964365,
+      "sha256": "5670f5c219b5dd48679c188bb89521eaaf2c52347a9fa76f04e38a8e1e8c0239"
+    },
+    {
+      "old": "webapp/src/routes/Home.tsx",
+      "new": "apps/webapp/src/routes/Home.tsx",
+      "bytes": 8408,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964367,
+      "sha256": "3e7f9ce64ef4edffde535eaf38f2cf8b6b92268516eec456ef0f884c11bb68bb"
+    },
+    {
+      "old": "webapp/src/routes/Strategy.tsx",
+      "new": "apps/webapp/src/routes/Strategy.tsx",
+      "bytes": 12327,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964373,
+      "sha256": "dffa762f9153d9e37bbe77ef79b31a8f395030bbd0b54f7c2f223c14ce5253c1"
+    },
+    {
+      "old": "webapp/src/routes/MatchDetail.tsx",
+      "new": "apps/webapp/src/routes/MatchDetail.tsx",
+      "bytes": 9290,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964369,
+      "sha256": "4ef6870b0758268ab77eceab8b11b6ff81abf628347eb35ed1898048e1f0eba4"
+    },
+    {
+      "old": "webapp/src/routes/Hypotheses.tsx",
+      "new": "apps/webapp/src/routes/Hypotheses.tsx",
+      "bytes": 6748,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964368,
+      "sha256": "ffd9ef2b4f6d05e23ea83f39ef16e8aa97b11b35a1f4fa7b1cf6fb7aa59badfe"
+    },
+    {
+      "old": "webapp/src/routes/Phases.tsx",
+      "new": "apps/webapp/src/routes/Phases.tsx",
+      "bytes": 8267,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964372,
+      "sha256": "162cd5cd9df782cf613a275bf71c33b20fbf42f4ceaf2886a0ade802d6b4269e"
+    },
+    {
+      "old": "webapp/src/routes/Methods.tsx",
+      "new": "apps/webapp/src/routes/Methods.tsx",
+      "bytes": 4718,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964370,
+      "sha256": "f0a7e7bbb209804192d8f7842cfe2684405cb850ffffe38836030187b9c41cf3"
+    },
+    {
+      "old": "webapp/src/routes/Glossary.tsx",
+      "new": "apps/webapp/src/routes/Glossary.tsx",
+      "bytes": 2062,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964366,
+      "sha256": "b9bcf288a014e8c07eaa6bd8208defb76715612a004249a996b45e3ba72d0015"
+    },
+    {
+      "old": "webapp/src/routes/Network.tsx",
+      "new": "apps/webapp/src/routes/Network.tsx",
+      "bytes": 10022,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964371,
+      "sha256": "0537f3562ab9f32e62a2dfe9b1ccc643fbf51c7ac5e8718adbd9aa947733ed4d"
+    },
+    {
+      "old": "presentation_build/build.js",
+      "new": "apps/presentations/build.js",
+      "bytes": 43026,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963679,
+      "sha256": "6514b6fb80d3357ada75eeb5668525e9d27445b0631111e9777b33b6bc12e368"
+    },
+    {
+      "old": "presentation_build/package-lock.json",
+      "new": "apps/presentations/package-lock.json",
+      "bytes": 26540,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963682,
+      "sha256": "ab5cab07d418617a720346b06b79d39ea12027ed79e66c213b2ad9b55afd2308"
+    },
+    {
+      "old": "presentation_build/package.json",
+      "new": "apps/presentations/package.json",
+      "bytes": 388,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963683,
+      "sha256": "737628d498e164bcaf86f1976ed33d3485a16b66cf20692f22fd236df1a26ff6"
+    },
+    {
+      "old": "presentation_build/PUBG_STDB_STGNN.pptx",
+      "new": "apps/presentations/PUBG_STDB_STGNN.pptx",
+      "bytes": 383305,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 22026090,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "presentation_build/build_summary_en.js",
+      "new": "apps/presentations/build_summary_en.js",
+      "bytes": 17737,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963681,
+      "sha256": "ee16dd49fd7bdc33cb9041b354990f1b511bd516e148a6d87975b7d781d3a3fb"
+    },
+    {
+      "old": "presentation_build/second_pre.pptx",
+      "new": "apps/presentations/second_pre.pptx",
+      "bytes": 893595,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 25700014,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "presentation_build/build_intro_en_5min.js",
+      "new": "apps/presentations/build_intro_en_5min.js",
+      "bytes": 10849,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963680,
+      "sha256": "6d817072418c5794fc4a516df1972e6ff83a50ccda2e0cfd3774acf3b6d4e163"
+    },
+    {
+      "old": "presentation_build/PUBG_Research_Summary_EN.pptx",
+      "new": "apps/presentations/PUBG_Research_Summary_EN.pptx",
+      "bytes": 229341,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 25658021,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "presentation_build/summary_en_png/PUBG_Research_Summary_EN.pptx.png",
+      "new": "apps/presentations/summary_en_png/PUBG_Research_Summary_EN.pptx.png",
+      "bytes": 110896,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963694,
+      "sha256": "9d1ad802b8e7ab6fd8bdf77a97b703a693cad7a486f43a9cb6309fc4a4cb474f"
+    },
+    {
+      "old": "presentation_build/summary_en_png/slides/slides.001.png",
+      "new": "apps/presentations/summary_en_png/slides/slides.001.png",
+      "bytes": 35228,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963696,
+      "sha256": "ba6b83125ce4d993fa679b14a2c3e82854a7c0d90916593cd82fd93caa2ea454"
+    },
+    {
+      "old": "presentation_build/summary_en_png/slides/slides.002.png",
+      "new": "apps/presentations/summary_en_png/slides/slides.002.png",
+      "bytes": 61047,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963697,
+      "sha256": "5f784be2a9340461fa4347f7363f383ba076934108bcc4684bb6628500cea152"
+    },
+    {
+      "old": "presentation_build/summary_en_png/slides/slides.003.png",
+      "new": "apps/presentations/summary_en_png/slides/slides.003.png",
+      "bytes": 54009,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963698,
+      "sha256": "4a04dbf39ce856b656e7359d6aadadcd5c7429b9ed1434e307b119b1b2db357c"
+    },
+    {
+      "old": "presentation_build/summary_en_png/slides/slides.007.png",
+      "new": "apps/presentations/summary_en_png/slides/slides.007.png",
+      "bytes": 62502,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963702,
+      "sha256": "be0eb141b9e77564ba4fd4f6dce57efd14286a442ce171c10df39308e35ecc42"
+    },
+    {
+      "old": "presentation_build/summary_en_png/slides/slides.006.png",
+      "new": "apps/presentations/summary_en_png/slides/slides.006.png",
+      "bytes": 58730,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963701,
+      "sha256": "970c1d3c175360332bc6ec2240eca9578396abf9fe5ab1030fb3ddaa1bdd56d4"
+    },
+    {
+      "old": "presentation_build/summary_en_png/slides/slides.004.png",
+      "new": "apps/presentations/summary_en_png/slides/slides.004.png",
+      "bytes": 49179,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963699,
+      "sha256": "ad1cc0821559b239cd5542bfa422b4fccba6e7fe366ecfad2bc6e188c42ae3ea"
+    },
+    {
+      "old": "presentation_build/summary_en_png/slides/slides.010.png",
+      "new": "apps/presentations/summary_en_png/slides/slides.010.png",
+      "bytes": 56564,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963705,
+      "sha256": "02189094e1226fbf3e05d5f2dd8bb8c5c75e2b3e3f48d6a6a69ef76178ed16ca"
+    },
+    {
+      "old": "presentation_build/summary_en_png/slides/slides.005.png",
+      "new": "apps/presentations/summary_en_png/slides/slides.005.png",
+      "bytes": 60592,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963700,
+      "sha256": "5b0b58c7e578c565c0bb83ea1cc026bfba29519e8fa45acdd5d558af7edf5996"
+    },
+    {
+      "old": "presentation_build/summary_en_png/slides/slides.008.png",
+      "new": "apps/presentations/summary_en_png/slides/slides.008.png",
+      "bytes": 55141,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963703,
+      "sha256": "7a240e18db93759185bc9655ba58a73406efc844e457410e123754fa71cf7aab"
+    },
+    {
+      "old": "presentation_build/summary_en_png/slides/slides.009.png",
+      "new": "apps/presentations/summary_en_png/slides/slides.009.png",
+      "bytes": 48843,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963704,
+      "sha256": "fe662dd0d9d008170f07f3fe8b98eeec1d33f0679babb5a6d3f975602c97eba0"
+    },
+    {
+      "old": "presentation_build/qlprev/PUBG_STDB_STGNN.pptx.png",
+      "new": "apps/presentations/qlprev/PUBG_STDB_STGNN.pptx.png",
+      "bytes": 176390,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963685,
+      "sha256": "c86c33cd69f008b733b82490571226aaaa229450e205e946d76d12ee6d63ec72"
+    },
+    {
+      "old": "presentation_build/assets/stdb_phase_features.html",
+      "new": "apps/presentations/assets/stdb_phase_features.html",
+      "bytes": 34563,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 22350773,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "presentation_build/assets/demo_hero.png",
+      "new": "apps/presentations/assets/demo_hero.png",
+      "bytes": 218613,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963674,
+      "sha256": "e39924e949c81c87363c9625886269fc18c4a696220342613de7e4cc82c9fdb9"
+    },
+    {
+      "old": "presentation_build/assets/demo.json",
+      "new": "apps/presentations/assets/demo.json",
+      "bytes": 578795,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963673,
+      "sha256": "e7fab83af49fdcfda2afa4d759da89fa8cae532496cf7be0d9adf025a83b33b5"
+    },
+    {
+      "old": "presentation_build/assets/team_archetypes.csv",
+      "new": "apps/presentations/assets/team_archetypes.csv",
+      "bytes": 134548,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963678,
+      "sha256": "5fccb094344d70da780e487344c66fef969524f12d6af783879e07592486c03d"
+    },
+    {
+      "old": "presentation_build/assets/stdb_2d_animation.html",
+      "new": "apps/presentations/assets/stdb_2d_animation.html",
+      "bytes": 921058,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 22336473,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "presentation_build/assets/eval_table.json",
+      "new": "apps/presentations/assets/eval_table.json",
+      "bytes": 411,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963677,
+      "sha256": "35eddfcaa5c8170ae2097a0dbd3ee6fbfc5d3fa98f45d5cee0f3c131c797e4e1"
+    },
+    {
+      "old": "presentation_build/assets/elevation_check.png",
+      "new": "apps/presentations/assets/elevation_check.png",
+      "bytes": 3377,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963675,
+      "sha256": "4aa711cdd512695d6a6e025b0652ecaccd678710d1b6b5d439a4b6363cbb4a9b"
+    },
+    {
+      "old": "presentation_build/assets/demo.html",
+      "new": "apps/presentations/assets/demo.html",
+      "bytes": 1074597,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 22307074,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "presentation_build/assets/stdb_phase_trajectories.html",
+      "new": "apps/presentations/assets/stdb_phase_trajectories.html",
+      "bytes": 49243,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 22339714,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "presentation_build/assets/stdb_archetypes.html",
+      "new": "apps/presentations/assets/stdb_archetypes.html",
+      "bytes": 148339,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 22353812,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "presentation_build/assets/elevation_validation.png",
+      "new": "apps/presentations/assets/elevation_validation.png",
+      "bytes": 451145,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963676,
+      "sha256": "1588927a22ed59a595fa676e52e5bbb02cfb023d580392efcfb2deb2b7a27999"
+    },
+    {
+      "old": "presentation_build/assets/stdb_phase_graph_analysis.html",
+      "new": "apps/presentations/assets/stdb_phase_graph_analysis.html",
+      "bytes": 19701,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 22352505,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "presentation_build/slides_png/slides_png.001.png",
+      "new": "apps/presentations/slides_png/slides_png.001.png",
+      "bytes": 58482,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963687,
+      "sha256": "94732e9c37f29d38357dbf25bf20c0b2cfb0cfeff6d7b50a5ab12f2e07b8d1a3"
+    },
+    {
+      "old": "presentation_build/slides_png/slides_png.003.png",
+      "new": "apps/presentations/slides_png/slides_png.003.png",
+      "bytes": 84368,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963689,
+      "sha256": "f727752db2e77e22776e6ee19ce88e145535a1db8fcf3b0bbd29f69cd386a014"
+    },
+    {
+      "old": "presentation_build/slides_png/slides_png.002.png",
+      "new": "apps/presentations/slides_png/slides_png.002.png",
+      "bytes": 82287,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963688,
+      "sha256": "2bf760a7b25f01bd67a688dc9ac55f779653b2d326d416e79b5b002f9e9c67d2"
+    },
+    {
+      "old": "presentation_build/slides_png/slides_png.006.png",
+      "new": "apps/presentations/slides_png/slides_png.006.png",
+      "bytes": 87942,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963692,
+      "sha256": "93ed8259a54c37f6940b8a06ccba20634972a066de3b5404277be4b88c4c2d72"
+    },
+    {
+      "old": "presentation_build/slides_png/slides_png.005.png",
+      "new": "apps/presentations/slides_png/slides_png.005.png",
+      "bytes": 67616,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963691,
+      "sha256": "bdbe6216c6aa413162def99e42d853cfea03b9196453ebdaeb9d660f26d83a4b"
+    },
+    {
+      "old": "presentation_build/slides_png/slides_png.004.png",
+      "new": "apps/presentations/slides_png/slides_png.004.png",
+      "bytes": 88240,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963690,
+      "sha256": "f6c36bad2c697b5ae64f1a263f1bc44fcf6c2b5749997b3532e5cfed89673856"
+    },
+    {
+      "old": "design_handoff_network_basics_redesign/Network Basics Redesign.html",
+      "new": "archive/design_notes/network_basics/Network Basics Redesign.html",
+      "bytes": 8683,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 15717502,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "design_handoff_network_basics_redesign/README.md",
+      "new": "archive/design_notes/network_basics/README.md",
+      "bytes": 13071,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960595,
+      "sha256": "9f768f112b01546dc2b1be7dd486d27f3c37cb05ca04200a117ee686f31f8ca2"
+    },
+    {
+      "old": "design_handoff_network_basics_redesign/redesign/option-b-pudding.jsx",
+      "new": "archive/design_notes/network_basics/redesign/option-b-pudding.jsx",
+      "bytes": 23311,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960599,
+      "sha256": "fb83ead2e4b71c5e5b6d41c39b86bdedfb9aa5f5ddb6c78f658351256fd7f7df"
+    },
+    {
+      "old": "design_handoff_network_basics_redesign/redesign/option-c-fieldmanual.jsx",
+      "new": "archive/design_notes/network_basics/redesign/option-c-fieldmanual.jsx",
+      "bytes": 26660,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960600,
+      "sha256": "4a375677d4f7b11883cf65cb457c1c06cc604cfc7f230413905c40d743ded25c"
+    },
+    {
+      "old": "design_handoff_network_basics_redesign/redesign/design-canvas.jsx",
+      "new": "archive/design_notes/network_basics/redesign/design-canvas.jsx",
+      "bytes": 32334,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960597,
+      "sha256": "ced3ad1795977cf7dfbaaacd12bb09aae37576e727df212c506a5946feb1ca89"
+    },
+    {
+      "old": "design_handoff_network_basics_redesign/redesign/option-a-tufte.jsx",
+      "new": "archive/design_notes/network_basics/redesign/option-a-tufte.jsx",
+      "bytes": 22576,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64960598,
+      "sha256": "6fdba0523d22e05e9684b0bf05dc1dce77ed5163adc9a60eb0d4a38e8e27e18a"
+    },
+    {
+      "old": "world_model/README.md",
+      "new": "archive/project_notes/world_model/README.md",
+      "bytes": 7631,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964382,
+      "sha256": "9d643c12c6fecc11d2881f3754326ec4f31dfa44175b1459143ebd3e88b14460"
+    },
+    {
+      "old": "movement_diffusion/README.md",
+      "new": "archive/project_notes/movement/README.md",
+      "bytes": 18252,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963055,
+      "sha256": "131b96c74eca713b2c6ba7a37c264ff0cdc5d0286033f7493818d6e7e1f5f025"
+    },
+    {
+      "old": "movement_diffusion/requirements.txt",
+      "new": "projects/movement/configs/requirements.txt",
+      "bytes": 65,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963066,
+      "sha256": "16c462533bb1da85133065645918fc8ce5ef37208f96f6a7dcb5d22a1a90df15"
+    },
+    {
+      "old": "movement_diffusion/requirements-experiment.txt",
+      "new": "projects/movement/configs/requirements-experiment.txt",
+      "bytes": 54,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963065,
+      "sha256": "bf6b7e068793acb2b23d065aa6760025d4306dfa1c11cc415bb9bc08faec4b57"
+    },
+    {
+      "old": "tools/pubg_collector/requirements.txt",
+      "new": "projects/collector/requirements.txt",
+      "bytes": 55,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64957804,
+      "sha256": "7c66b881cda15a04715ae5cde035e1a125e8406f987d04cc0ab109caa34232c4"
+    },
+    {
+      "old": "tools/pubg_collector/.env.example",
+      "new": "projects/collector/.env.example",
+      "bytes": 133,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64957799,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "tools/erangel_spatial_requirements.txt",
+      "new": "projects/spatial/erangel/configs/requirements.txt",
+      "bytes": 85,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964203,
+      "sha256": "fd7367b15e21b1516a1082194cd1ba92442fb1e09a189deeb3cd98527a8c6559"
+    },
+    {
+      "old": "pubg_survival - pubg_survival - pubg.png",
+      "new": "docs/assets/pubg_schema.png",
+      "bytes": 327973,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 9984747,
+      "sha256": "a2384093c6160a8b5123e09a3735e5fd4f2313e1d7186a3a2d80f11c77b4750f"
+    },
+    {
+      "old": "stdb/schema_rq1.sql",
+      "new": "src/pubg_lab/data/stdb/schemas/schema_rq1.sql",
+      "bytes": 13182,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964006,
+      "sha256": "95116ab3788a39deb6d448f7bee02a4aafe227a70095f4fd4d086d4a66ec4227"
+    },
+    {
+      "old": "stdb/schema_audit.md",
+      "new": "projects/data_preparation/docs/schema_audit.md",
+      "bytes": 23646,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964004,
+      "sha256": "9c1402e05320e9768fe227bcf5b1e653cf6777fe681e81917b2fc9b14790e779"
+    },
+    {
+      "old": "stdb/schema.sql",
+      "new": "src/pubg_lab/data/stdb/schemas/schema.sql",
+      "bytes": 9330,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964003,
+      "sha256": "45f3a81327f45802c49591d8abff5eb03b1249b27a07f6ba55ec42165b51270b"
+    },
+    {
+      "old": "stdb/schema_br_layers.sql",
+      "new": "src/pubg_lab/data/stdb/schemas/schema_br_layers.sql",
+      "bytes": 19355,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964005,
+      "sha256": "57dd9bd947825d0847989a516d9aea058d14380dbeacbedfd90fdd3e009d087a"
+    },
+    {
+      "old": "stdb/migrations/2026-06-12_phase_indexes.sql",
+      "new": "src/pubg_lab/data/stdb/schemas/migrations/2026-06-12_phase_indexes.sql",
+      "bytes": 499,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963996,
+      "sha256": "c9bffc576b547cf65fc5da4045dc04e79b6bc0bf8aa500f4c14384c1373bee5d"
+    },
+    {
+      "old": "src/pubg_lab/data/stdb/schema_rq1.sql",
+      "new": "src/pubg_lab/data/stdb/schemas/schema_rq1.sql",
+      "bytes": 13182,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64987407,
+      "sha256": "95116ab3788a39deb6d448f7bee02a4aafe227a70095f4fd4d086d4a66ec4227"
+    },
+    {
+      "old": "src/pubg_lab/data/stdb/schema.sql",
+      "new": "src/pubg_lab/data/stdb/schemas/schema.sql",
+      "bytes": 9330,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64987406,
+      "sha256": "45f3a81327f45802c49591d8abff5eb03b1249b27a07f6ba55ec42165b51270b"
+    },
+    {
+      "old": "model_stgcn/feature_manifests/pubg_representation_v2.json",
+      "new": "src/pubg_lab/survival/features/manifests/pubg_representation_v2.json",
+      "bytes": 14487,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64962974,
+      "sha256": "85323310a87eedc73f96428a5eb923c108b36c27be5c3edf63944cca1ae7e2b1"
+    },
+    {
+      "old": "network_analysis/pubg_safe_zone_stdb_proposal_plain.md",
+      "new": "projects/network_analysis/docs/pubg_safe_zone_stdb_proposal_plain.md",
+      "bytes": 19299,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963100,
+      "sha256": "a4d4a44a341b1607dc4d4ed794e568136442aa4a58fb7f4d73be98679e94809f"
+    },
+    {
+      "old": "network_analysis/final_spatiotemporal_project_report.md",
+      "new": "projects/network_analysis/docs/final_spatiotemporal_project_report.md",
+      "bytes": 28010,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963079,
+      "sha256": "9d241c094b0e047b1203e8f9a87c2732d3f144f5eaf3c2b0af99eb14a7750686"
+    },
+    {
+      "old": "network_analysis/official_api_ppt_alignment_plan.md",
+      "new": "projects/network_analysis/docs/official_api_ppt_alignment_plan.md",
+      "bytes": 12363,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963097,
+      "sha256": "ce804ba5f1b41cbec7c7643e4f69b906a336b87a5162008d77e30cbaa27b0bdc"
+    },
+    {
+      "old": "network_analysis/PUBG_safe_zone_STDB_research_proposal.docx",
+      "new": "projects/network_analysis/docs/PUBG_safe_zone_STDB_research_proposal.docx",
+      "bytes": 43184,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963067,
+      "sha256": "487d201e9eb980f06007a9c77e07ff76e5a77af1aed55c7c9e1d75bfc1b0d399"
+    },
+    {
+      "old": "network_analysis/trajectory_literature_application.md",
+      "new": "projects/network_analysis/docs/trajectory_literature_application.md",
+      "bytes": 14563,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963108,
+      "sha256": "e7df93253c8768e900bdf44bd815e087b1a759fc2c48c2e1fdbdbbaaa90069d0"
+    },
+    {
+      "old": "network_analysis/habitat_contraction_model_addendum.md",
+      "new": "projects/network_analysis/docs/habitat_contraction_model_addendum.md",
+      "bytes": 10406,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963083,
+      "sha256": "0b606bed0ab41cff69f1be81370262b319409532c57c0107a70e05e48a4a7965"
+    },
+    {
+      "old": "network_analysis/current_focus_research_report.md",
+      "new": "projects/network_analysis/docs/current_focus_research_report.md",
+      "bytes": 13777,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963075,
+      "sha256": "4736719ad20b4bb3a9f329004b646733982ccab5c97574689dbe2544a5644704"
+    },
+    {
+      "old": "network_analysis/spatiotemporal_survival_proposal.md",
+      "new": "projects/network_analysis/docs/spatiotemporal_survival_proposal.md",
+      "bytes": 26349,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963103,
+      "sha256": "a8c434f0704baaa9d93a4495566e83d9cab8a98ccaea3872af4f1aebe8fa3d16"
+    },
+    {
+      "old": "tools/erangel_100m_viewer.html.template",
+      "new": "projects/spatial/erangel/resources/erangel_100m_viewer.html.template",
+      "bytes": 12572,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964198,
+      "sha256": "4df3e1ce0b5136e047a8fd00a24fdd2e4fbc1296e09e12b38622cd8c70c33448"
+    },
+    {
+      "old": "tools/erangel_spatial_viewer.html.template",
+      "new": "projects/spatial/erangel/resources/erangel_spatial_viewer.html.template",
+      "bytes": 10201,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64964204,
+      "sha256": "d942329521d1507e2b219b677aeb3f9f5974ad09f6daddaea12840cfa4697950"
+    },
+    {
+      "old": "src/pubg_lab/spatial/erangel/erangel_100m_viewer.html.template",
+      "new": "projects/spatial/erangel/resources/erangel_100m_viewer.html.template",
+      "bytes": 12572,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64987616,
+      "sha256": "4df3e1ce0b5136e047a8fd00a24fdd2e4fbc1296e09e12b38622cd8c70c33448"
+    },
+    {
+      "old": "src/pubg_lab/spatial/erangel/erangel_spatial_viewer.html.template",
+      "new": "projects/spatial/erangel/resources/erangel_spatial_viewer.html.template",
+      "bytes": 10201,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64987621,
+      "sha256": "d942329521d1507e2b219b677aeb3f9f5974ad09f6daddaea12840cfa4697950"
+    },
+    {
+      "old": "tools/movement_diffusion/viewer_v2.html",
+      "new": "projects/movement/viewers/viewer_v2.html",
+      "bytes": 15907,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 61541875,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "tools/movement_diffusion/viewer_v3.html",
+      "new": "projects/movement/viewers/viewer_v3.html",
+      "bytes": 11329,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 61548324,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "tools/movement_diffusion/viewer_v4.html",
+      "new": "projects/movement/viewers/viewer_v4.html",
+      "bytes": 7420,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 61575388,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "tools/heterograph_case_viewer.html",
+      "new": "projects/spatial/erangel/viewers/heterograph_case_viewer.html",
+      "bytes": 20780,
+      "tracked_before": false,
+      "ignored_before": true,
+      "inode_before": 61496550,
+      "content_access": "not read; metadata-only relocation"
+    },
+    {
+      "old": "scripts/run_mr_shuffle_robustness.sh",
+      "new": "projects/battle_royale/launchers/graph_controls/run_mr_shuffle_robustness.sh",
+      "bytes": 1541,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963960,
+      "sha256": "e1943f27538977fb0de3918cc5a3c5f9030220071347d9db716d6ce4b9726dd8"
+    },
+    {
+      "old": "scripts/run_full_db_edge_ablation.sh",
+      "new": "projects/battle_royale/launchers/graph_controls/run_full_db_edge_ablation.sh",
+      "bytes": 2345,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963953,
+      "sha256": "b0568d10a11fbcb9a04b3685da4f59869a338264fbe4bcb0c0a35ce94cc2876d"
+    },
+    {
+      "old": "scripts/run_full_db_reexperiment.sh",
+      "new": "projects/battle_royale/launchers/survival/run_full_db_reexperiment.sh",
+      "bytes": 928,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963955,
+      "sha256": "5a200f37536b7ddb3361743bea8ada1856f48c140cedfb9aa35a752e8c19f6b3"
+    },
+    {
+      "old": "scripts/run_seed_repeat.sh",
+      "new": "projects/battle_royale/launchers/robustness/run_seed_repeat.sh",
+      "bytes": 1625,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963962,
+      "sha256": "33339294ef553384a9d446cab4150c551c542de5bab3fa25702d119bc15278fd"
+    },
+    {
+      "old": "scripts/run_br_om_ladder_remaining_after_erangel.sh",
+      "new": "projects/battle_royale/launchers/survival/run_br_om_ladder_remaining_after_erangel.sh",
+      "bytes": 2004,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963947,
+      "sha256": "6192e75767ebc3c3229a0b606832eb42d2fc6014c1894013c90b82fc3a1aaafe"
+    },
+    {
+      "old": "scripts/run_adv_experiment.sh",
+      "new": "projects/battle_royale/launchers/survival/run_adv_experiment.sh",
+      "bytes": 1059,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963941,
+      "sha256": "94cb580026873c0a59b440bb1e20b7e21afff76ee88bbbf33860e2ea35767148"
+    },
+    {
+      "old": "scripts/run_v3_full_controls_matrix.sh",
+      "new": "projects/battle_royale/launchers/survival/run_v3_full_controls_matrix.sh",
+      "bytes": 656,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963971,
+      "sha256": "2a517aabc76770cb5f9d3a52cb2a80e74ef659569d82ef97a17018135d9d8bc0"
+    },
+    {
+      "old": "scripts/run_v3_graph_relation_seed_repeats.sh",
+      "new": "projects/battle_royale/launchers/graph_controls/run_v3_graph_relation_seed_repeats.sh",
+      "bytes": 1440,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963976,
+      "sha256": "a72ea6f3b64487b8c6f848f4e0ebd76f1cf3279d82c63d6e2d0af194454b3ac2"
+    },
+    {
+      "old": "scripts/run_mr_1map.sh",
+      "new": "projects/battle_royale/launchers/survival/run_mr_1map.sh",
+      "bytes": 1239,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963957,
+      "sha256": "77bf882c5332a1badfa7751e5e1fab1d879c4e8a0ecbe3d84e83d3d0558951a2"
+    },
+    {
+      "old": "scripts/run_br_rq4_hier_survival_required_cohorts.sh",
+      "new": "projects/battle_royale/launchers/survival/run_br_rq4_hier_survival_required_cohorts.sh",
+      "bytes": 8201,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963950,
+      "sha256": "a7749330e96d2304cf15e82c6078e6418c2a99e5f39f49394453d711f7fb1d19"
+    },
+    {
+      "old": "scripts/run_adv_nodeabs.sh",
+      "new": "projects/battle_royale/launchers/survival/run_adv_nodeabs.sh",
+      "bytes": 1018,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963943,
+      "sha256": "ed867e156a5176cb0e26db9ae7d3d824bd228ce54c110b88a125e3266a4a6162"
+    },
+    {
+      "old": "scripts/run_full_db_robustness.sh",
+      "new": "projects/battle_royale/launchers/robustness/run_full_db_robustness.sh",
+      "bytes": 2299,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963956,
+      "sha256": "0578ae2c0fc8c647efdb6db5290e22ff3427ca7e75bff2c7e673c75dd62dfe4c"
+    },
+    {
+      "old": "scripts/run_raw_to_usable_batch.sh",
+      "new": "projects/battle_royale/launchers/survival/run_raw_to_usable_batch.sh",
+      "bytes": 339,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963961,
+      "sha256": "1befc48834407f0edf0581a30646321c85b1b1cbbcec2494522926d8afb97185"
+    },
+    {
+      "old": "scripts/run_v3_erangel_required_followups.sh",
+      "new": "projects/battle_royale/launchers/survival/run_v3_erangel_required_followups.sh",
+      "bytes": 1493,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963969,
+      "sha256": "e38b4eaa89c17360acccb6211e4e77c3684d8b623a368c9d411ece732cb57cf3"
+    },
+    {
+      "old": "scripts/run_snapshot_narrow_full_matrix.sh",
+      "new": "projects/battle_royale/launchers/snapshot/run_snapshot_narrow_full_matrix.sh",
+      "bytes": 3438,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963964,
+      "sha256": "bf1a078704f99119bcfde81c8dfb380bea2cf4cd6d9b95c4ea695bf1af13418e"
+    },
+    {
+      "old": "scripts/run_snapshot_paper_st_feature_matrix.sh",
+      "new": "projects/battle_royale/launchers/snapshot/run_snapshot_paper_st_feature_matrix.sh",
+      "bytes": 8991,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963965,
+      "sha256": "d3660d74f0f0e1fc7126a709d30b72f320203c002606897abfdcfdcd52ff80ba"
+    },
+    {
+      "old": "scripts/v3_gen_resolution_preds.sh",
+      "new": "projects/battle_royale/launchers/survival/v3_gen_resolution_preds.sh",
+      "bytes": 1061,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963980,
+      "sha256": "67ee3c34c8720fbfaa91202e8f2f03ac76d8ffb9133844dfe43f0e3e059888fd"
+    },
+    {
+      "old": "scripts/run_adv_base.sh",
+      "new": "projects/battle_royale/launchers/survival/run_adv_base.sh",
+      "bytes": 1744,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963940,
+      "sha256": "3be09f2876cf3bfaf784deaf391ae01a895fd22923486a60a35250f83f6252ca"
+    },
+    {
+      "old": "scripts/overnight_runs.sh",
+      "new": "projects/battle_royale/launchers/survival/overnight_runs.sh",
+      "bytes": 1422,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963926,
+      "sha256": "f8ebe759c4e098f89fa04d5174d5c7e0e7846011aeb6c260a99c77c3bfd1a45e"
+    },
+    {
+      "old": "scripts/v3_gen_predictions.sh",
+      "new": "projects/battle_royale/launchers/survival/v3_gen_predictions.sh",
+      "bytes": 1165,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963979,
+      "sha256": "6bed6d39f6c09313b18718d86b186a17c2adb6be087bbd925fb33f8269f6bee2"
+    },
+    {
+      "old": "scripts/run_v3_feature_pilot_matrix.sh",
+      "new": "projects/battle_royale/launchers/survival/run_v3_feature_pilot_matrix.sh",
+      "bytes": 495,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963970,
+      "sha256": "db11cdc72c3208844d989921d7e5bdbb98a5e3f3f6cb53c4f279ed0dbb4b0000"
+    },
+    {
+      "old": "scripts/run_solo_duo.sh",
+      "new": "projects/battle_royale/launchers/survival/run_solo_duo.sh",
+      "bytes": 1644,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963966,
+      "sha256": "45e51d082b578e40835aee07ae50d2e0bf48ef7f6ac640c3797b4149a20decac"
+    },
+    {
+      "old": "scripts/run_v3_full_main_matrix.sh",
+      "new": "projects/battle_royale/launchers/survival/run_v3_full_main_matrix.sh",
+      "bytes": 624,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963974,
+      "sha256": "1ab82dc832a0c0b5bfe1eda2cecff49d68c13800b9513a35d81aff12e1eea279"
+    },
+    {
+      "old": "scripts/run_br_om_ladder_required_cohorts.sh",
+      "new": "projects/battle_royale/launchers/survival/run_br_om_ladder_required_cohorts.sh",
+      "bytes": 2774,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963948,
+      "sha256": "85174887b4f6e6dfd3d594b1ad096c6f62bd8c28e7094fb9722bf324baf7c6fe"
+    },
+    {
+      "old": "scripts/run_full_db_aux_ablation.sh",
+      "new": "projects/battle_royale/launchers/survival/run_full_db_aux_ablation.sh",
+      "bytes": 1431,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963952,
+      "sha256": "4d85d0b0ea8248e605d11532c01c1e0e15a7cb4aa55bdb2ea0db25a1785758f7"
+    },
+    {
+      "old": "scripts/run_br_om6z_required_cohorts.sh",
+      "new": "projects/battle_royale/launchers/survival/run_br_om6z_required_cohorts.sh",
+      "bytes": 3240,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963946,
+      "sha256": "386408a9051f7ee706cb7f29188cb67636be0a0ed34031c496a56b7cf29bfd0f"
+    },
+    {
+      "old": "scripts/run_br_o7_rank_bridge_analysis.sh",
+      "new": "projects/battle_royale/launchers/survival/run_br_o7_rank_bridge_analysis.sh",
+      "bytes": 966,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963945,
+      "sha256": "5e8c4e539040d77dacbca9f5e31835178db50cc2cac416c074790536e11f1db6"
+    },
+    {
+      "old": "scripts/run_mr_full_squad_seed_repeats.sh",
+      "new": "projects/battle_royale/launchers/robustness/run_mr_full_squad_seed_repeats.sh",
+      "bytes": 2370,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963959,
+      "sha256": "4217e4d152cf054fa300a0defe2e6009f56ac8c4b4cc1a7ddbf93af330d3e48c"
+    },
+    {
+      "old": "scripts/run_br_rq4_graph_design_required_cohorts.sh",
+      "new": "projects/battle_royale/launchers/graph_controls/run_br_rq4_graph_design_required_cohorts.sh",
+      "bytes": 3434,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963949,
+      "sha256": "268631abde3f0c22918cd59e9d48db4401c9e84aacbde761576d8935fb1d48e8"
+    },
+    {
+      "old": "scripts/run_v2_node_gnn.sh",
+      "new": "projects/battle_royale/launchers/survival/run_v2_node_gnn.sh",
+      "bytes": 3273,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963967,
+      "sha256": "4593543ad2084add10debe53601bb5efb092c5abacb975a48ce7ea99a497b858"
+    },
+    {
+      "old": "scripts/run_v3_full_graph_relation_matrix.sh",
+      "new": "projects/battle_royale/launchers/graph_controls/run_v3_full_graph_relation_matrix.sh",
+      "bytes": 751,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963973,
+      "sha256": "75d4cda072b7dbef9ac7b21c638723337e36399380f24fd8c1c71e7c3b20451d"
+    },
+    {
+      "old": "scripts/run_v3_core13_required_matrix.sh",
+      "new": "projects/battle_royale/launchers/survival/run_v3_core13_required_matrix.sh",
+      "bytes": 1636,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963968,
+      "sha256": "d4f19dccfd1f4b82525ca6865d7abfd8e3a69c525f692376f97a83a553a0bb6e"
+    },
+    {
+      "old": "scripts/run_v3_graph_relation_pilot_matrix.sh",
+      "new": "projects/battle_royale/launchers/graph_controls/run_v3_graph_relation_pilot_matrix.sh",
+      "bytes": 688,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963975,
+      "sha256": "8e5ab895c9fe1df6cd6bf03ef7d3cf37677456bd9ddcf4c4cf15e92b41ceeccf"
+    },
+    {
+      "old": "scripts/run_v3_full_feature_matrix.sh",
+      "new": "projects/battle_royale/launchers/survival/run_v3_full_feature_matrix.sh",
+      "bytes": 737,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963972,
+      "sha256": "91596e4e9d831b26738e352aa15b126e5a10b679e5468a1065713b49a903d113"
+    },
+    {
+      "old": "scripts/run_v3_pilot_matrix.sh",
+      "new": "projects/battle_royale/launchers/survival/run_v3_pilot_matrix.sh",
+      "bytes": 308,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963977,
+      "sha256": "b923783a3903e48973b28aca59a1dbbe924440a3347ae5a2fcaf57274b070784"
+    },
+    {
+      "old": "scripts/run_mr_full_squad.sh",
+      "new": "projects/battle_royale/launchers/survival/run_mr_full_squad.sh",
+      "bytes": 1255,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963958,
+      "sha256": "155754fea8593c55bf6ecaf2ec604e4091ee75d9c333906edc6ed792865c2da8"
+    },
+    {
+      "old": "scripts/rerun_full_db_suite.sh",
+      "new": "projects/battle_royale/launchers/survival/rerun_full_db_suite.sh",
+      "bytes": 3678,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963939,
+      "sha256": "624304d8cef987dfe0a3b4391adb629d7c453ca9d2d8b4a3ba11ada8400c3ee5"
+    },
+    {
+      "old": "scripts/run_snapshot_domain_channel_matrix.sh",
+      "new": "projects/battle_royale/launchers/snapshot/run_snapshot_domain_channel_matrix.sh",
+      "bytes": 7772,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963963,
+      "sha256": "40fdbf5568c8aa0ff6257c70991deae828c764d89ab6d2df3ae9f9a9d1a89baa"
+    },
+    {
+      "old": "scripts/run_br_rq4_prior_baseline_required_cohorts.sh",
+      "new": "projects/battle_royale/launchers/survival/run_br_rq4_prior_baseline_required_cohorts.sh",
+      "bytes": 3291,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963951,
+      "sha256": "be1ae4f09d280c1654c1c82eb2efbbdf02d2edbfae70ed41bb618820d91c24d2"
+    },
+    {
+      "old": "scripts/run_full_db_followup.sh",
+      "new": "projects/battle_royale/launchers/survival/run_full_db_followup.sh",
+      "bytes": 1683,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963954,
+      "sha256": "349b15adb501b66fce3a0e36f68f1f1cfcb88498b4334b71536e50ee1da1b14f"
+    },
+    {
+      "old": "scripts/run_br_o7_advantage_edge_early_readout.sh",
+      "new": "projects/battle_royale/launchers/graph_controls/run_br_o7_advantage_edge_early_readout.sh",
+      "bytes": 3993,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963944,
+      "sha256": "96afd746332e17aa8a477ff05b5dc6e8afc77da1850ec54474d1dffffb1c8f65"
+    },
+    {
+      "old": "scripts/run_adv_kablation.sh",
+      "new": "projects/battle_royale/launchers/survival/run_adv_kablation.sh",
+      "bytes": 1070,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963942,
+      "sha256": "49a0e86f6e4b859fa5bee02421aec1049aeb5a94dee407c2e5b4ca69ccebe441"
+    },
+    {
+      "old": "requirements.txt",
+      "new": "configs/environments/research.txt",
+      "bytes": 867,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963893,
+      "sha256": "05da649e130a79c05d2b8cd598b155084ad1c627b1ce0e7b9d0c49a467ebc0d5"
+    },
+    {
+      "old": "requirements-dev.txt",
+      "new": "configs/environments/development.txt",
+      "bytes": 109,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963892,
+      "sha256": "b2505e6fe8ea0eb050c57f4d06742c5e0636ec561968f1f63554cc02a7da98e2"
+    },
+    {
+      "old": "requirements-quality.txt",
+      "new": "configs/environments/quality.txt",
+      "bytes": 146,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64987258,
+      "sha256": "d9354c2d709930cbe6bf49de8f8aeb5146d9e1ae2e25ad03ca08427beb424626"
+    },
+    {
+      "old": "requirements-caldera.txt",
+      "new": "configs/environments/spatial.txt",
+      "bytes": 158,
+      "tracked_before": true,
+      "ignored_before": false,
+      "inode_before": 64963891,
+      "sha256": "4ce6441c19a77572abf9d202f501fbdb4a6dbcf01a2ebe6b02f4007d35bbf5af"
+    }
+  ],
+  "directory_moves": {
+    "legacy": "archive/legacy_snapshot",
+    "webapp": "apps/webapp",
+    "presentation_build": "apps/presentations",
+    "design_handoff_network_basics_redesign": "archive/design_notes/network_basics"
+  },
+  "frozen_research_artifact_roots_not_moved": [
+    "data",
+    "reports",
+    "paper",
+    "model_stgcn/checkpoints",
+    "model_stgcn/dumps",
+    "model_stgcn/experiment_datasets",
+    "output",
+    "third_party"
+  ]
+}

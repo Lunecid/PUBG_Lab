@@ -14,7 +14,7 @@ import pytest
 from scipy.stats import spearmanr
 from sklearn.metrics import average_precision_score, roc_auc_score
 
-from model_stgcn.ptr import metrics as M
+import pubg_lab.survival.ptr.evaluation.metrics as M
 
 
 def make_preds(n_matches=30, seed=0, signal=2.0, noise=1.0, round_scores=False):

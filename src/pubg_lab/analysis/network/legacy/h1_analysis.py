@@ -19,20 +19,20 @@ import numpy as np
 import networkx as nx
 from scipy.stats import pearsonr, spearmanr, linregress, ttest_ind, mannwhitneyu
 
-from pubg_lab.analysis.network.team_network import (
+from pubg_lab.analysis.network.features.team_network import (
     build_team_graph,
     build_early_team_graph,
     graph_globals,
     degree_distribution,
     adjacency_matrix,
 )
-from pubg_lab.analysis.network.team_centrality import (
+from pubg_lab.analysis.network.features.team_centrality import (
     compute_team_centralities,
     attach_centralities_to_rows,
     MEASURES,
 )
-from pubg_lab.analysis.network.community_detect import detect_for_frame
-from pubg_lab.analysis.network.db_loader import load_match_damage
+from pubg_lab.analysis.network.features.community_detect import detect_for_frame
+from pubg_lab.analysis.network.data.db_loader import load_match_damage
 
 
 # ============================================================

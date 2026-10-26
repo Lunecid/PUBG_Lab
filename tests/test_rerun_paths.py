@@ -11,8 +11,8 @@ import numpy as np
 import pytest
 import torch
 
-from model_stgcn.ptr import paths as P
-from model_stgcn.ptr.synthetic import write_cohort_dumps
+import pubg_lab.survival.ptr.data.paths as P
+from pubg_lab.survival.ptr.data.synthetic import write_cohort_dumps
 
 KT = Path(__file__).resolve().parents[1] / "third_party" / "krafton_pubg_winprob"
 if str(KT) not in sys.path:
@@ -83,9 +83,9 @@ def test_the_v2_roots_are_defined_in_one_place():
 
 
 def test_every_entry_point_defaults_to_the_v2_roots():
-    from model_stgcn.ptr import aggregate as A
-    from model_stgcn.ptr import run_matrix as RM
-    from model_stgcn.ptr import supplement as S
+    import pubg_lab.survival.ptr.evaluation.aggregate as A
+    import pubg_lab.survival.ptr.experiments.run_matrix as RM
+    import pubg_lab.survival.ptr.evaluation.supplement as S
 
     d = P.RerunPaths()
     rm = RM.parse_args([])
@@ -94,9 +94,9 @@ def test_every_entry_point_defaults_to_the_v2_roots():
     assert ag.runs_dir == str(d.runs) and ag.out_dir == str(d.results) and ag.dump_dir is None
     sp = S.parse_args([])
     assert sp.runs_dir == str(d.runs) and sp.results_dir == str(d.results)
-    from adaptation import h0_baseline as H0
-    from adaptation import h0_report as HR
-    from adaptation import run_all as RA
+    import projects.krafton_baseline.training.h0_baseline as H0
+    import projects.krafton_baseline.reporting.h0_report as HR
+    import projects.krafton_baseline.pipelines.run_all as RA
 
     b = H0.parse_args([])
     assert b.ckpt_dir == d.runs and b.dump_dir == d.dump and b.data_dir == d.krafton_data
@@ -106,13 +106,13 @@ def test_every_entry_point_defaults_to_the_v2_roots():
     assert a.out_dir == d.runs and a.data_dir == d.krafton_data and a.dump_dir == d.dump and a.table_dir == d.kf
     import importlib.util
 
-    spec = importlib.util.spec_from_file_location("mpt", Path(__file__).resolve().parents[1] / "paper/bigcomp2027/tables/make_paper_tables.py")
+    spec = importlib.util.spec_from_file_location("mpt", Path(__file__).resolve().parents[1] / "projects/battle_royale/reporting/make_paper_tables.py")
     mpt = importlib.util.module_from_spec(spec)
     sys.modules["mpt"] = mpt
     spec.loader.exec_module(mpt)
     m = mpt.parse_args([])
     assert m.results_dir == d.results and m.dump_dir is None
-    from model_stgcn.sagong2025 import __main__ as SG
+    import pubg_lab.survival.baselines.sagong2025.__main__ as SG
 
     assert (SG.DEFAULT_DUMP_DIR, SG.DEFAULT_PLAN_DIR, SG.DEFAULT_RUNS_DIR) == ("model_stgcn/dumps/bigcomp2027_phase_v2", "model_stgcn/dumps/bigcomp2027_sagong_v2",
                                                                               "model_stgcn/checkpoints/bigcomp2027_ptr_v2")  # fmt: skip
@@ -128,7 +128,7 @@ def test_name_version_reads_the_last_component_only():
 
 
 def test_dump_version_is_v1_without_the_key_and_v2_with_it(tmp_path):
-    assert P.dump_version(make_dump(tmp_path / "legacy")) == "v1"
+    assert P.dump_version(make_dump(tmp_path / 'archive/legacy_snapshot')) == "v1"
     v2 = make_dump(tmp_path / "bigcomp2027_phase_v2", version="v2")
     assert P.dump_version(v2) == "v2" and P.dump_version(v2, deep=True) == "v2"
     assert P.dump_version(tmp_path / "not_there_v2") == "v2" and P.dump_version(tmp_path / "not_there") == "unknown"  # a dump that is not built yet: its name
@@ -253,7 +253,7 @@ def test_a_valid_v2_dump_passes_the_meta_check_and_the_defects_are_named(tmp_pat
     assert any("features (the paper plan says 150)" in w for w in res["warnings"])  # the synthetic dump has far fewer columns: a warning, not an error
     assert P.main(["validate", str(v2), "--shallow"]) == 0 and P.main(["validate", str(v2)]) == 0
     # v1 and the leak marker
-    legacy = make_dump(tmp_path / "legacy")
+    legacy = make_dump(tmp_path / 'archive/legacy_snapshot')
     errs = P.validate_v2_dump(legacy)["errors"]
     assert any("population.json" in e for e in errs) and any("dump_manifest.json version is None" in e for e in errs) and any("meta['version']" in e for e in errs)
     assert any("node_mask_v2" in e for e in errs) or any("missing keys" in e for e in errs)
@@ -297,7 +297,7 @@ def test_paths_command_line(tmp_path, capsys):
 
 # --------------------------------------------------------------------------- the entry points refuse a mix
 def test_the_aggregator_refuses_a_v1_root_and_stamps_the_output_of_a_v2_run(tmp_path):
-    from model_stgcn.ptr import aggregate as A
+    import pubg_lab.survival.ptr.evaluation.aggregate as A
 
     v2 = make_dump(tmp_path / "dumps" / "bigcomp2027_phase_v2", version="v2")
     v1_runs = tmp_path / "checkpoints" / "bigcomp2027_ptr_v1"
@@ -317,9 +317,9 @@ def test_the_aggregator_refuses_a_v1_root_and_stamps_the_output_of_a_v2_run(tmp_
 
 
 def test_the_h0_modules_and_run_all_refuse_a_v1_root_next_to_the_v2_dump(tmp_path):
-    from adaptation import h0_baseline as H0
-    from adaptation import h0_report as HR
-    from adaptation import run_all as RA
+    import projects.krafton_baseline.training.h0_baseline as H0
+    import projects.krafton_baseline.reporting.h0_report as HR
+    import projects.krafton_baseline.pipelines.run_all as RA
 
     v2 = make_dump(tmp_path / "dumps" / "bigcomp2027_phase_v2", version="v2")
     v1 = tmp_path / "checkpoints" / "bigcomp2027_ptr_v1"
@@ -347,7 +347,7 @@ def test_the_h0_modules_and_run_all_refuse_a_v1_root_next_to_the_v2_dump(tmp_pat
 def test_make_paper_tables_refuses_v1_results_next_to_the_v2_dump(tmp_path):
     import importlib.util
 
-    spec = importlib.util.spec_from_file_location("mpt2", Path(__file__).resolve().parents[1] / "paper/bigcomp2027/tables/make_paper_tables.py")
+    spec = importlib.util.spec_from_file_location("mpt2", Path(__file__).resolve().parents[1] / "projects/battle_royale/reporting/make_paper_tables.py")
     mpt = importlib.util.module_from_spec(spec)
     sys.modules["mpt2"] = mpt
     spec.loader.exec_module(mpt)

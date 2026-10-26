@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from model_stgcn.sagong2025 import features as F
-from model_stgcn.sagong2025 import fit as T
+import pubg_lab.survival.baselines.sagong2025.features as F
+import pubg_lab.survival.baselines.sagong2025.fit as T
 
 T0 = 1000.0  # match start epoch: ep = W + T0
 WINDOWS = {1: (100.0, 300.0), 2: (310.0, 500.0)}  # cuts (E - 10): 290 and 490
@@ -66,7 +66,7 @@ def row(df, team, phase):
 
 
 def test_guard_equals_causal_cut_guard():
-    cc = pytest.importorskip("stdb.causal_cut")
+    cc = pytest.importorskip('pubg_lab.data.stdb.temporal.causal_cut')
     assert F.GUARD_S == cc.GUARD_S
 
 
@@ -267,7 +267,7 @@ def test_fit_stage_writes_ptr_format(tmp_path, kind):
     res = T.run_cohort(plan, "toy", out, seed=42, n_jobs=1, models=(kind,))
     name = T.MODELS[kind]
     d = out / "toy" / name / "seed42"
-    from model_stgcn.ptr import metrics as M
+    import pubg_lab.survival.ptr.evaluation.metrics as M
 
     for split in ("val", "test"):
         df = M.read_predictions(d / f"pred_{split}.csv")
@@ -296,7 +296,7 @@ def _toy_hab_table(plan, names=("zone_a", "hab_b")):
 
 def test_attach_hab_joins_by_key_and_checks_labels(tmp_path):
     pytest.importorskip("pyarrow")
-    from model_stgcn.sagong2025.hab import attach_hab
+    from pubg_lab.survival.baselines.sagong2025.hab import attach_hab
 
     plan = _synthetic_plan(tmp_path / "plan")
     _toy_hab_table(plan)
@@ -330,7 +330,7 @@ def test_hgb_hab_arm_writes_ptr_format(tmp_path):
 
 
 def test_hgb_control_is_the_hgb_cut_classifier():
-    hgb = pytest.importorskip("model_stgcn.ptr.hgb")
+    hgb = pytest.importorskip('pubg_lab.survival.ptr.models.hgb')
     own = T.make_model("hgb", 42, 2)
     assert own.get_params() == hgb.make_classifier(42).get_params()
     assert own.get_params()["early_stopping"] is False and own.get_params()["random_state"] == 42
@@ -339,7 +339,7 @@ def test_hgb_control_is_the_hgb_cut_classifier():
 def test_hgb_settings_must_equal_the_recorded_hgb_cut_run(tmp_path):
     import json
 
-    pytest.importorskip("model_stgcn.ptr.hgb")
+    pytest.importorskip('pubg_lab.survival.ptr.models.hgb')
     params = T.make_model("hgb", 42, 2).get_params()
     run = tmp_path / "toy" / "HGB-cut" / "seed42"
     run.mkdir(parents=True)

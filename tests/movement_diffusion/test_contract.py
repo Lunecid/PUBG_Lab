@@ -1,8 +1,8 @@
 import copy
 from pathlib import Path
 import numpy as np
-from movement_diffusion.bank import build_bank,read_raw,PRIVATE
-from movement_diffusion.dataset import TrajectoryDataset,NODE_TYPES,BASE_REL
+from pubg_lab.movement.data.bank import build_bank, read_raw, PRIVATE
+from pubg_lab.movement.data.dataset import TrajectoryDataset, NODE_TYPES, BASE_REL
 ROOT=Path(__file__).resolve().parents[2]/'data/processed/heterograph_diffusion_v1'
 
 def datasets():return TrajectoryDataset(ROOT,'train','observer'),TrajectoryDataset(ROOT,'train','server')
@@ -52,7 +52,7 @@ def test_equipment_ties_are_order_invariant():
  ds,_=datasets();r=ds.rows[int(ds.index[0,0])];raw=read_raw(ROOT/'raw'/f"{r['match_id']}.json.gz");a=build_bank(raw,ds.builder.vocab);raw['tables']['item_equip'].reverse();b=build_bank(raw,ds.builder.vocab);np.testing.assert_array_equal(a['items'],b['items']);np.testing.assert_array_equal(a['x'][:,:,17],b['x'][:,:,17])
 
 def test_perfect_joint_predictions_have_zero_error():
- from movement_diffusion.evaluation import metrics
+ from pubg_lab.movement.evaluation.evaluation import metrics
  ds,_=datasets();s=ds[len(ds)//3];pred=np.repeat(s['targets']['trajectory'][None],3,axis=0);m=metrics(pred,s['targets'],s['conditions']['current_presence']);assert m and all(abs(v)<1e-3 for v in m.values())
 
 def test_future_target_changes_do_not_change_conditions():

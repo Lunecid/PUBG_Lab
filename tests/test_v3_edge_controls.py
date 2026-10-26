@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import torch
 
-from model_stgcn.v3.adv_model import shuffle_adj
-from model_stgcn.v3.edge_controls import apply_phase_edge_control
+from pubg_lab.survival.v3.models.adv_model import shuffle_adj
+from pubg_lab.survival.v3.features.edge_controls import apply_phase_edge_control
 
 
 def _rows_as_tuples(x: torch.Tensor) -> list[tuple[float, ...]]:

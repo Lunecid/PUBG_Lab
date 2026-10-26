@@ -27,17 +27,17 @@ if str(KT) not in sys.path:
 torch = pytest.importorskip("torch")
 pd = pytest.importorskip("pandas")
 
-from adaptation import data as KD  # noqa: E402
-from adaptation import extract as E  # noqa: E402
-from adaptation import kftable as KF  # noqa: E402
-from adaptation import ourfeat as OF  # noqa: E402
-from adaptation import ourfeat_hazard as H3  # noqa: E402
-from adaptation import schema as S  # noqa: E402
-from adaptation import train as T1  # noqa: E402
-from adaptation.features import compute_features, member_alive_causal, team_alive_causal  # noqa: E402
-from adaptation.labels import check_label_version, compact_match, label_version  # noqa: E402
-from model_stgcn.ptr import data as D  # noqa: E402
-from model_stgcn.ptr import extra as EX  # noqa: E402
+import projects.krafton_baseline.data.data as KD  # noqa: E402
+import projects.krafton_baseline.data.extract as E  # noqa: E402
+import projects.krafton_baseline.data.kftable as KF  # noqa: E402
+import projects.krafton_baseline.models.ourfeat as OF  # noqa: E402
+import projects.krafton_baseline.training.ourfeat_hazard as H3  # noqa: E402
+import projects.krafton_baseline.data.schema as S  # noqa: E402
+import projects.krafton_baseline.training.train as T1  # noqa: E402
+from projects.krafton_baseline.data.features import compute_features, member_alive_causal, team_alive_causal  # noqa: E402
+from projects.krafton_baseline.data.labels import check_label_version, compact_match, label_version  # noqa: E402
+import pubg_lab.survival.ptr.data.data as D  # noqa: E402
+import pubg_lab.survival.ptr.data.extra as EX  # noqa: E402
 from tests.v2_fixtures import krafton_raw_from_source, synth_record  # noqa: E402
 
 CUT_SLOTS = (0, 1, 2)  # cuts 1..3 of the synthetic match: a = 590, 800, 980
@@ -55,7 +55,7 @@ def _extra(lab, raw):
 
 
 def _dump(recs):
-    from model_stgcn.phase_v2 import features as FT
+    import pubg_lab.survival.data.phase_v2.features as FT
 
     n = len(FT.FEATURE_NAMES)
     meta = {"feature_names": list(FT.FEATURE_NAMES), "feature_groups": {"zone": list(range(13))}, "version": "v2", "cohort": "synthetic",
@@ -116,7 +116,7 @@ def test_no_future_record_can_change_the_alive_status_or_the_features_at_a_cut()
 
 def test_member_alive_matches_the_producer_player_timeline_semantics(match):
     """A kill at exactly the cut is invisible at the cut (records < a_k); a healthy sample at the cut does not revive."""
-    from model_stgcn.phase_v2 import alive as AL
+    import pubg_lab.survival.data.phase_v2.alive as AL
 
     kills_w = np.array([100.0, 300.0])
     victim = np.array([0, 0])
@@ -187,7 +187,7 @@ def test_position_zone_and_kill_records_at_the_cut_are_not_read_either(match):
     f = compute_features(zone, np.array([t + 1e-6]))
     assert not np.array_equal(f["Zt"], base["Zt"])
     # a kill of a still-alive player exactly at the cut does not kill it at the cut (life is rebuilt from the records < t)
-    from adaptation.features import member_life
+    from projects.krafton_baseline.data.features import member_life
 
     kills = raw["kills"]
     w_raw = np.concatenate([kills["w_raw"], [t]])
@@ -494,14 +494,14 @@ def test_extra_join_accepts_the_v2_table_and_refuses_v1_tables_next_to_a_v2_dump
     assert np.isfinite(tok[0, 2]).all()  # the comeback token has features (a dead squad's snapshot values)
     assert EX.table_dump_version(tmp_path / "v2tab") == "v2"
     # a table without meta.json / with a v1 name counts as v1: refused next to a v2 dump, before anything is read
-    _write_table(tmp_path / "legacy", df, None)
+    _write_table(tmp_path / 'archive/legacy_snapshot', df, None)
     with pytest.raises(D.DumpVersionError, match="derived from a v1 dump but the .* dump is a v2 dump"):
-        EX.load_extra(tmp_path / "legacy", "c", {"train": dump, "val": dump, "test": dump})
+        EX.load_extra(tmp_path / 'archive/legacy_snapshot', "c", {"train": dump, "val": dump, "test": dump})
     _write_table(tmp_path / "v1tab", df, "v1")
     with pytest.raises(D.DumpVersionError):
         EX.load_extra(tmp_path / "v1tab", "c", {"train": dump, "val": dump, "test": dump})
     # ... and the other way round: a v2 table next to a v1 dump
-    from model_stgcn.ptr.synthetic import make_dump
+    from pubg_lab.survival.ptr.data.synthetic import make_dump
 
     v1 = make_dump(2, seed=3)
     with pytest.raises(D.DumpVersionError):
@@ -510,7 +510,7 @@ def test_extra_join_accepts_the_v2_table_and_refuses_v1_tables_next_to_a_v2_dump
 
 
 def test_hgb_kraftonfeat_rows_follow_the_v2_table_and_labels(match):
-    from adaptation import hgb_kraftonfeat as HK
+    import projects.krafton_baseline.training.hgb_kraftonfeat as HK
 
     _, rec, lab, raw = match
     df = _table_frame(match)
@@ -527,8 +527,8 @@ def test_hgb_kraftonfeat_rows_follow_the_v2_table_and_labels(match):
 def test_member_alive_uses_the_contracts_revive_rule_including_the_stale_health_guard():
     """A healthy sample 1.6 s after a kill is stale (the dead body still reports health); revive evidence is the first healthy
     sample >= 20 s after the kill (``alive.MIN_REVIVE_GAP_S``).  The status is the contract's, not a copy."""
-    from adaptation.features import member_life
-    from model_stgcn.phase_v2 import alive as AL
+    from projects.krafton_baseline.data.features import member_life
+    import pubg_lab.survival.data.phase_v2.alive as AL
 
     life = member_life(np.array([100.0]), np.array([0]), np.array([101.6, 119.0, 140.0, 200.0]), np.zeros(4, dtype=np.int64),
                        np.array([10.0, 5.0, 100.0, 100.0]))  # fmt: skip
@@ -542,7 +542,7 @@ def test_member_alive_uses_the_contracts_revive_rule_including_the_stale_health_
 
 
 def test_a_v2_label_with_a_stripped_mask_is_refused_not_rederived_from_T(match):
-    from model_stgcn.ptr.data import DumpVersionError
+    from pubg_lab.survival.ptr.data.data import DumpVersionError
 
     _, rec, lab, raw = match
     for strip in ("node_mask", "query_mask", "cut_t"):
@@ -579,8 +579,8 @@ def test_no_input_of_the_krafton_and_sagong_consumers_depends_on_a_phase_duratio
     12 Sagong inputs are counts, distances and ratios of positions, none is a rate or a duration (observed or scheduled)."""
     import re
 
-    from model_stgcn.sagong2025 import features as SF
-    from model_stgcn.sagong2025 import fit as SFIT
+    import pubg_lab.survival.baselines.sagong2025.features as SF
+    import pubg_lab.survival.baselines.sagong2025.fit as SFIT
 
     banned = re.compile(r"dur|per_min|(?<!survival_)rate|elapsed|speed|frac|time|phase_len|length")  # survival_rate = Eq. 4, not a rate per time
     assert [f for f in S.FEATURES if banned.search(f)] == [] and len(S.FEATURES) == 55

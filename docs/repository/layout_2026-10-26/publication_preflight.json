@@ -1,0 +1,20 @@
+{
+  "new_candidates": 788,
+  "forbidden_new_paths": [],
+  "template_rename_without_value_inspection": {
+    "old": "tools/pubg_collector/.env.example",
+    "new": "projects/collector/.env.example",
+    "already_tracked_public_example": true,
+    "metadata_unchanged": true,
+    "excluded_from_wheel_and_release_manifest": true,
+    "same_staged_git_blob_as_existing_public_template": true
+  },
+  "no_new_research_payload": true,
+  "staged_entries": 1835,
+  "forbidden_staged_paths": [],
+  "existing_frozen_tracked_changes": [],
+  "staged_diff_check": "passed",
+  "target": "main",
+  "source_branch": "codex/physical-project-layout-20261026",
+  "expected_main_base": "0a1941ad36676662076709f1696e0392b275c6b7"
+}

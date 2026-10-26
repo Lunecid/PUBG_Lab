@@ -1,0 +1,42 @@
+{
+  "mode": "--help only; no research functions called",
+  "results": [
+    {
+      "module": "pubg_lab.survival.training.train",
+      "returncode": 1,
+      "help_shown": false,
+      "stderr": "ModuleNotFoundError: private module requires its original public provenance dependency name (stack omitted to avoid quoting restricted source)"
+    },
+    {
+      "module": "pubg_lab.survival.evaluation.eval",
+      "returncode": 1,
+      "help_shown": false,
+      "stderr": "ModuleNotFoundError: private module requires its original public provenance dependency name (stack omitted to avoid quoting restricted source)"
+    },
+    {
+      "module": "pubg_lab.survival.v3.training.train",
+      "returncode": 1,
+      "help_shown": false,
+      "stderr": "ModuleNotFoundError: private module requires its original public provenance dependency name (stack omitted to avoid quoting restricted source)"
+    },
+    {
+      "module": "pubg_lab.survival.ptr.training.train",
+      "returncode": 0,
+      "help_shown": true,
+      "stderr": ""
+    },
+    {
+      "module": "projects.world_model.training.train_world_model_g2",
+      "returncode": 0,
+      "help_shown": true,
+      "stderr": ""
+    },
+    {
+      "module": "projects.world_model.training.train_world_model_g4",
+      "returncode": 0,
+      "help_shown": true,
+      "stderr": ""
+    }
+  ],
+  "phase": "before_private_api_boundary"
+}

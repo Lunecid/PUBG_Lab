@@ -16,9 +16,9 @@ import pytest
 from scipy.stats import norm
 from scipy.stats import t as t_dist
 
-from model_stgcn.ptr import aggregate as A
-from model_stgcn.ptr import metrics as M
-from model_stgcn.ptr.synthetic import write_prediction_runs
+import pubg_lab.survival.ptr.evaluation.aggregate as A
+import pubg_lab.survival.ptr.evaluation.metrics as M
+from pubg_lab.survival.ptr.data.synthetic import write_prediction_runs
 
 BASE = 0.9
 # latent hazard separation d' per arm.  Truth: phase axis +0.4, team axis +0 (hazard), relation +0.2 over its

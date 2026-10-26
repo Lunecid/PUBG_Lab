@@ -1,16 +1,17 @@
-"""Structural contracts: no database, model fitting, services or protected source access."""
+"""Physical layout contracts: no DB, services, fitting, or protected source access."""
 
 import ast
-import importlib.util
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
+import tempfile
 import types
 import unittest
+from unittest.mock import patch
 
 from pubg_lab.__main__ import command_catalog
-from pubg_lab.common.compat import redirect
 from pubg_lab.common.paths import REPO_ROOT, repository_root
 from pubg_lab.repository.check_structure import check
 
@@ -20,38 +21,17 @@ class CodebaseTests(unittest.TestCase):
         result = check()
         self.assertTrue(result["ok"], result["errors"])
 
-    def test_manifested_moves_have_single_implementation(self):
-        plan = json.loads(
-            (REPO_ROOT / "docs/repository/refactor_2026-10-26/move_plan.json").read_text()
-        )
-        destinations = []
-        for row in plan["files"]:
-            source = REPO_ROOT / row["new"]
-            shim = REPO_ROOT / row["old"]
-            self.assertTrue(source.is_file(), row["new"])
-            text = shim.read_text()
-            tree = ast.parse(text)
-            self.assertFalse(
-                any(isinstance(node, (ast.FunctionDef, ast.ClassDef)) for node in ast.walk(tree))
-            )
-            redirects = [
-                node
-                for node in ast.walk(tree)
-                if isinstance(node, ast.Call)
-                and isinstance(node.func, ast.Name)
-                and node.func.id == "_redirect"
-            ]
-            self.assertEqual(len(redirects), 1)
-            module = ".".join(Path(row["new"]).with_suffix("").parts[1:])
-            module = module.removesuffix(".__init__")
-            self.assertEqual(redirects[0].args[1].value, module)
-            destinations.append(row["new"])
-        self.assertEqual(len(destinations), len(set(destinations)))
+    def test_generated_root_shims_are_physically_removed(self):
+        plan = json.loads((REPO_ROOT / "docs/repository/layout_2026-10-26/plan.json").read_text())
+        for row in plan["delete_generated_shims"]:
+            self.assertFalse((REPO_ROOT / row["path"]).exists(), row["path"])
+        self.assertFalse((REPO_ROOT / "src/pubg_lab/common/compat.py").exists())
 
-    def test_private_modules_are_outside_canonical_package(self):
-        self.assertFalse(list((REPO_ROOT / "src").rglob("splits.py")))
-        self.assertFalse(list((REPO_ROOT / "src").rglob("split_v3.py")))
-        self.assertFalse(list((REPO_ROOT / "src").rglob(".env*")))
+    def test_private_modules_are_outside_distributable_packages(self):
+        for folder in ("src", "projects"):
+            self.assertFalse(list((REPO_ROOT / folder).rglob("splits.py")))
+            self.assertFalse(list((REPO_ROOT / folder).rglob("split_v3.py")))
+            self.assertFalse(list((REPO_ROOT / folder).rglob(".env")))
 
     def test_command_discovery_does_not_import_applications(self):
         before = set(sys.modules)
@@ -59,45 +39,61 @@ class CodebaseTests(unittest.TestCase):
         self.assertTrue(catalog)
         self.assertEqual(before, set(sys.modules))
         for record in catalog.values():
-            path = REPO_ROOT / "src" / (record["module"].replace(".", "/") + ".py")
+            prefix = "src/" if record["module"].startswith("pubg_lab.") else ""
+            path = REPO_ROOT / (prefix + record["module"].replace(".", "/") + ".py")
             self.assertTrue(path.is_file(), record)
+            self.assertEqual(path.relative_to(REPO_ROOT).as_posix(), record["source_path"])
 
-    def test_source_root_is_stable_from_other_working_directory(self):
-        output = subprocess.check_output(
-            [sys.executable, str(REPO_ROOT / "tools/repository_release.py"), "--help"],
-            cwd=REPO_ROOT.parent,
-            text=True,
-        )
+    def test_cli_resolves_workspace_from_an_unrelated_working_directory(self):
+        env = dict(os.environ, PYTHONPATH=os.pathsep.join([str(REPO_ROOT / "src"), str(REPO_ROOT)]))
+        with tempfile.TemporaryDirectory() as tmp:
+            output = subprocess.check_output(
+                [sys.executable, "-m", "pubg_lab.repository.repository_release", "--help"],
+                cwd=tmp,
+                env=env,
+                text=True,
+            )
         self.assertIn("snapshot", output)
         self.assertEqual(repository_root(), REPO_ROOT)
 
-    def test_spec_loader_and_normal_import_share_exported_objects(self):
-        # Use a stdlib-only migrated application; do not import models or data access.
-        name = "compat_quality_fixture"
-        spec = importlib.util.spec_from_file_location(
-            name, REPO_ROOT / "tools/corpus_quality_index.py"
+    def test_survival_source_is_grouped_by_role(self):
+        root = REPO_ROOT / "src/pubg_lab/survival"
+        self.assertEqual(
+            {p.name for p in root.glob("*.py")}, {"__init__.py", "config.py", "provenance.py"}
         )
-        legacy = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(legacy)
-        from pubg_lab.data.quality import corpus_quality_index
+        for path in (
+            "models/stgcn.py",
+            "models/snapshot_encoder.py",
+            "data/dataset.py",
+            "data/phase_v2/assemble.py",
+            "training/train.py",
+            "evaluation/eval.py",
+            "features/snapshot_edge_controls.py",
+            "baselines/sagong2025/features.py",
+        ):
+            self.assertTrue((root / path).is_file(), path)
 
-        self.assertIs(legacy.build, corpus_quality_index.build)
-        self.assertIs(sys.modules[name], corpus_quality_index)
+    def test_shared_resource_helpers_do_not_import_models_or_execution(self):
+        path = REPO_ROOT / "projects/world_model/common/resources.py"
+        tree = ast.parse(path.read_text())
+        names = {
+            node.name for node in tree.body if isinstance(node, (ast.FunctionDef, ast.ClassDef))
+        }
+        self.assertEqual(names, {"sha", "tensor_hash", "ResourceSampler"})
+        imports = [node.module for node in ast.walk(tree) if isinstance(node, ast.ImportFrom)]
+        self.assertFalse(
+            any(name.startswith(("projects.", "pubg_lab.")) for name in imports if name)
+        )
 
-    def test_compatibility_forwarding_does_not_copy_implementation(self):
-        target_name = "_pubg_target_fixture"
-        old_name = "_pubg_old_fixture"
-        target = types.ModuleType(target_name)
-        target.value = object()
-        sys.modules[target_name] = target
-        try:
-            namespace = {"__name__": old_name}
-            redirect(namespace, target_name)
-            self.assertIs(sys.modules[old_name], target)
-            self.assertIs(namespace["__getattr__"]("value"), target.value)
-        finally:
-            sys.modules.pop(old_name, None)
-            sys.modules.pop(target_name, None)
+    def test_private_boundary_reuses_public_functions_without_copying_or_calling(self):
+        from pubg_lab.survival.data import split_access
+
+        fake = types.ModuleType("model_stgcn.splits")
+        fake.split_ids = lambda: self.fail("private operation was executed")
+        with patch.dict(sys.modules, {"model_stgcn.splits": fake}):
+            self.assertIs(split_access.split_ids, fake.split_ids)
+            with self.assertRaises(AttributeError):
+                getattr(split_access, "unapproved_private_detail")
 
 
 if __name__ == "__main__":

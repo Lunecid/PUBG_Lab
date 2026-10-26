@@ -8,9 +8,8 @@ from unittest.mock import patch
 
 import numpy as np
 
-sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
-import erangel_100m_build as build
-from erangel_100m_extract import export_match
+from projects.spatial.erangel.geometry import erangel_100m_build as build
+from projects.spatial.erangel.ingestion.erangel_100m_extract import export_match
 
 
 class Cursor:

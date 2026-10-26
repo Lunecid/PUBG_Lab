@@ -1,0 +1,12 @@
+{
+  "reference": "paper/bigcomp2027/tables/make_paper_tables.py",
+  "active_copy": "projects/battle_royale/reporting/make_paper_tables.py",
+  "reference_sha256": "bc08828f10bfa791e06ba7d2f2251747d54a3d723a2a14ae0b987e832b639792",
+  "reference_bytes": 11980,
+  "reason": "Keep frozen paper source unchanged while canonical reporting code uses current modules and original paper asset defaults",
+  "active_sha256_before_format": "5752717184fadb20e85cfd081f2e64090af3d5a0ae804b0b0da86522b8679a4e",
+  "canonical_import_and_asset_defaults_only": true,
+  "definition_ast_unchanged": true,
+  "reference_bytes_unchanged": true,
+  "active_sha256_final": "12c9361b6f0f56bb67d4f79a99cadb205e41eb437695acc8cdaeaf41936e7711"
+}

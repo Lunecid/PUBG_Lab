@@ -27,16 +27,16 @@ if str(KT) not in sys.path:
 torch = pytest.importorskip("torch")
 pd = pytest.importorskip("pandas")
 
-from adaptation import data as KD  # noqa: E402
-from adaptation import extract as E  # noqa: E402
-from adaptation import labels as L  # noqa: E402
-from adaptation import ourfeat as OF  # noqa: E402
-from adaptation import ourfeat_hazard as H3  # noqa: E402
-from adaptation import summarize as SM  # noqa: E402
-from adaptation import train as T1  # noqa: E402
-from model_stgcn.ptr import data as D  # noqa: E402
-from model_stgcn.ptr import paths as P  # noqa: E402
-from model_stgcn.ptr.synthetic import make_dump  # noqa: E402
+import projects.krafton_baseline.data.data as KD  # noqa: E402
+import projects.krafton_baseline.data.extract as E  # noqa: E402
+import projects.krafton_baseline.data.labels as L  # noqa: E402
+import projects.krafton_baseline.models.ourfeat as OF  # noqa: E402
+import projects.krafton_baseline.training.ourfeat_hazard as H3  # noqa: E402
+import projects.krafton_baseline.reporting.summarize as SM  # noqa: E402
+import projects.krafton_baseline.training.train as T1  # noqa: E402
+import pubg_lab.survival.ptr.data.data as D  # noqa: E402
+import pubg_lab.survival.ptr.data.paths as P  # noqa: E402
+from pubg_lab.survival.ptr.data.synthetic import make_dump  # noqa: E402
 from tests.v2_fixtures import krafton_raw_from_source, make_v2_dump, synth_record  # noqa: E402
 
 SPLITS = ("train", "val", "test")
@@ -176,7 +176,7 @@ def _roots(tmp_path: Path, runs: str = "bigcomp2027_ptr_v2", results: str = "big
 def test_summarize_defaults_are_the_v2_roots_and_form_a_valid_pair():
     a = SM.parse_args([])
     assert a.ref == REPO / "reports" / "bigcomp2027_results_v2" / "arm_metrics_per_cohort.csv"
-    assert a.ckpt_dir == REPO / "model_stgcn" / "checkpoints" / "bigcomp2027_ptr_v2"
+    assert a.ckpt_dir == REPO / 'model_stgcn' / "checkpoints" / "bigcomp2027_ptr_v2"
     assert SM.check_sources(a.ckpt_dir, a.ref) == "v2"
 
 
@@ -249,7 +249,7 @@ def test_main_pairs_matching_versions_and_refuses_mixed_ones_before_reading(tmp_
 
 # =========================================================================== 3. native_metrics rows
 def _dump(recs):
-    from model_stgcn.phase_v2 import features as FT
+    import pubg_lab.survival.data.phase_v2.features as FT
 
     meta = {"feature_names": list(FT.FEATURE_NAMES), "feature_groups": {"zone": list(range(13))}, "version": "v2", "cohort": "synthetic",
             "split": "val", "zone_columns": list(D.ZONE_COLUMNS)}  # fmt: skip

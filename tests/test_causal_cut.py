@@ -38,12 +38,12 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from stdb import causal_cut as cc
-from stdb.etl import SNAPSHOT_HALF_WIN, SNAPSHOT_INTERVAL
+import pubg_lab.data.stdb.temporal.causal_cut as cc
+from pubg_lab.data.stdb.pipelines.etl import SNAPSHOT_HALF_WIN, SNAPSHOT_INTERVAL
 from tests.conftest import requires_db
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-STDB = REPO_ROOT / "stdb"
+STDB = REPO_ROOT / "src/pubg_lab/data/stdb"
 
 # phase-tier ETL modules named in the design (docs/experiment_design section 6) + the other phase-tier
 # consumers of grid snapshots / raw position windows found by grep.
@@ -397,14 +397,14 @@ def test_resampler_horizon_bound_holds_for_every_alignment():
 # --------------------------------------------------------------------------------------
 @pytest.mark.parametrize("fname", CUT_ETL_FILES)
 def test_etl_source_imports_the_guard(fname):
-    src = (STDB / fname).read_text(encoding="utf-8")
-    assert "stdb.causal_cut" in src, f"{fname} must use the shared Fix B / single-clock guard"
+    src = (STDB / "pipelines" / fname).read_text(encoding="utf-8")
+    assert 'pubg_lab.data.stdb.temporal.causal_cut' in src, f"{fname} must use the shared Fix B / single-clock guard"
     assert "fetch_clock_delta" in src, f"{fname} must estimate the per-match clock lag"
 
 
 def test_no_uncapped_or_clock_mixed_window_anywhere_in_stdb_sources():
     offenders = []
-    for path in sorted(STDB.glob("*.py")):
+    for path in sorted(STDB.rglob("*.py")):
         text = path.read_text(encoding="utf-8")
         for rx, what in ((UNCAPPED_GRID_JOIN, "uncapped grid join"), (CLOCK_MIXED_JOIN, "clock-mixed window")):
             for m in rx.finditer(text):
@@ -414,15 +414,7 @@ def test_no_uncapped_or_clock_mixed_window_anywhere_in_stdb_sources():
 
 
 def _rendered_sql() -> dict[str, str]:
-    from stdb import (
-        f0_feature_etl,
-        habitat_feature_etl,
-        patch_combat_zone_pass,
-        phase_edge_etl,
-        phase_spatial_feature_etl,
-        rq1_feature_etl,
-        z_affordance_feature_etl,
-    )
+    import pubg_lab.data.stdb.pipelines.f0_feature_etl as f0_feature_etl; import pubg_lab.data.stdb.pipelines.habitat_feature_etl as habitat_feature_etl; import pubg_lab.data.stdb.pipelines.patch_combat_zone_pass as patch_combat_zone_pass; import pubg_lab.data.stdb.pipelines.phase_edge_etl as phase_edge_etl; import pubg_lab.data.stdb.pipelines.phase_spatial_feature_etl as phase_spatial_feature_etl; import pubg_lab.data.stdb.pipelines.rq1_feature_etl as rq1_feature_etl; import pubg_lab.data.stdb.pipelines.z_affordance_feature_etl as z_affordance_feature_etl
 
     return {
         "spatial": _recorded_sql(phase_spatial_feature_etl.build_match, "m"),
@@ -482,7 +474,7 @@ def test_spatial_event_buckets_are_moved_onto_the_grid_clock():
 def test_network_etl_has_no_direct_grid_join():
     """Network features aggregate stdb.team_phase_edge_cache only; their causal guarantee
     is inherited from the capped edge cache (stdb/network_feature_etl.py docstring)."""
-    from stdb.network_feature_etl import BUILD_SQL
+    from pubg_lab.data.stdb.pipelines.network_feature_etl import BUILD_SQL
 
     sql = BUILD_SQL.lower()
     for grid_table in (
@@ -537,15 +529,7 @@ FIXB_TABLES = (
 
 def _rebuild_fixb_chain(cur, mid: str) -> None:
     """Same dependency order as tools/run_fixb_phase_etl.py."""
-    from stdb import (
-        f0_feature_etl,
-        habitat_feature_etl,
-        network_feature_etl,
-        phase_edge_etl,
-        phase_spatial_feature_etl,
-        rq1_feature_etl,
-        z_affordance_feature_etl,
-    )
+    import pubg_lab.data.stdb.pipelines.f0_feature_etl as f0_feature_etl; import pubg_lab.data.stdb.pipelines.habitat_feature_etl as habitat_feature_etl; import pubg_lab.data.stdb.pipelines.network_feature_etl as network_feature_etl; import pubg_lab.data.stdb.pipelines.phase_edge_etl as phase_edge_etl; import pubg_lab.data.stdb.pipelines.phase_spatial_feature_etl as phase_spatial_feature_etl; import pubg_lab.data.stdb.pipelines.rq1_feature_etl as rq1_feature_etl; import pubg_lab.data.stdb.pipelines.z_affordance_feature_etl as z_affordance_feature_etl
 
     rq1_feature_etl.build_match_phase_global(cur, mid)
     rq1_feature_etl.build_team_phase_state(cur, mid)
@@ -626,8 +610,8 @@ def fixb_cursor():
     """A cursor whose ``stdb.moving_objects`` / ``spatial_events`` / ``team_proximity`` point at
     session-local temp tables (the shared ones are empty and stay untouched); everything else is
     the real database inside a transaction that is rolled back."""
-    from stdb.base_stage import TempBaseCursor, create_temp_base_tables
-    from stdb.conn import connect
+    from pubg_lab.data.stdb.pipelines.base_stage import TempBaseCursor, create_temp_base_tables
+    from pubg_lab.data.stdb.connection.conn import connect
 
     conn = connect()
     try:
@@ -667,9 +651,9 @@ def test_clock_delta_matches_the_audit_definition(fixb_cursor):
 @requires_db
 def test_no_feature_row_reads_a_grid_snapshot_after_the_cut(fixb_cursor):
     """Perturb every grid row between the capped end and the next window; no Fix B row may change."""
-    from stdb.base_stage import analyze_temp_base_tables, reset_temp_base_tables, stage_base_rows
-    from stdb.habitat_feature_etl import BUILD_SQL as HABITAT_SQL
-    from stdb.habitat_feature_etl import EDGE_PRESSURE_M
+    from pubg_lab.data.stdb.pipelines.base_stage import analyze_temp_base_tables, reset_temp_base_tables, stage_base_rows
+    from pubg_lab.data.stdb.pipelines.habitat_feature_etl import BUILD_SQL as HABITAT_SQL
+    from pubg_lab.data.stdb.pipelines.habitat_feature_etl import EDGE_PRESSURE_M
 
     cur = fixb_cursor
     mids = _sample_match_ids(cur, 3)
@@ -725,7 +709,7 @@ def test_no_feature_row_reads_a_grid_snapshot_after_the_cut(fixb_cursor):
 @requires_db
 def test_state_position_window_is_shifted_and_capped(fixb_cursor):
     """team_phase_state.position_rows == independent count of raw position seconds in the window."""
-    from stdb.rq1_feature_etl import build_team_phase_state
+    from pubg_lab.data.stdb.pipelines.rq1_feature_etl import build_team_phase_state
 
     cur = fixb_cursor
     mids = _sample_match_ids(cur, 2)
@@ -762,8 +746,8 @@ def test_raised_delta_closes_the_look_ahead_on_real_drifting_matches():
     the plain median delta of the same matches does leak (so the test cannot pass vacuously)."""
     import json
 
-    from stdb.conn import connect
-    from tools.verify_dump_match import max_w_before, raw_positions
+    from pubg_lab.data.stdb.connection.conn import connect
+    from projects.battle_royale.evaluation.contracts.verify_dump_match import max_w_before, raw_positions
 
     split = json.loads(
         (REPO_ROOT / "model_stgcn/checkpoints/br_om_ladder_required_v1/miramar_desert_tpp_squad/split.json").read_text()

@@ -1,0 +1,16 @@
+{
+  "restricted_module": "model_stgcn/splits.py",
+  "body_not_read_hashed_or_modified": true,
+  "canonical_public_boundary": "src/pubg_lab/survival/data/split_access.py",
+  "public_functions": [
+    "split_ids",
+    "load_or_create_split",
+    "write_split_manifest"
+  ],
+  "public_dependency_alias": {
+    "model_stgcn.provenance": "pubg_lab.survival.provenance"
+  },
+  "reason": "Original protected module must remain in place; its original public dependency name must resolve without root forwarding files",
+  "research_calls_performed": false,
+  "smoke_check": "--help consumers import the public API; no split operation executes"
+}

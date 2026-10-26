@@ -1,0 +1,68 @@
+{
+  "relative_import_fixes": [
+    {
+      "path": "src/pubg_lab/movement/data/bank_v3.py",
+      "imports": 1
+    },
+    {
+      "path": "src/pubg_lab/movement/data/dataset.py",
+      "imports": 1
+    },
+    {
+      "path": "src/pubg_lab/movement/data/dataset_v3.py",
+      "imports": 1
+    },
+    {
+      "path": "src/pubg_lab/movement/models/model.py",
+      "imports": 1
+    },
+    {
+      "path": "src/pubg_lab/movement/models/model_v3.py",
+      "imports": 1
+    },
+    {
+      "path": "src/pubg_lab/movement/models/model_v4.py",
+      "imports": 1
+    },
+    {
+      "path": "src/pubg_lab/world_model/data/cohorts.py",
+      "imports": 2
+    },
+    {
+      "path": "src/pubg_lab/world_model/data/dataset.py",
+      "imports": 1
+    },
+    {
+      "path": "src/pubg_lab/world_model/models/encoder.py",
+      "imports": 1
+    },
+    {
+      "path": "src/pubg_lab/world_model/features/historical_prior.py",
+      "imports": 1
+    },
+    {
+      "path": "src/pubg_lab/world_model/data/indexed_dataset.py",
+      "imports": 1
+    },
+    {
+      "path": "src/pubg_lab/world_model/features/temporal_prior.py",
+      "imports": 5
+    }
+  ],
+  "additional_role_moves": {
+    "src/pubg_lab/analysis/network/legacy/report.py": "projects/network_analysis/reporting/report.py",
+    "src/pubg_lab/analysis/network/legacy/h1_report.py": "projects/network_analysis/reporting/h1_report.py",
+    "src/pubg_lab/analysis/network/legacy/run_report.py": "projects/network_analysis/pipelines/run_report.py",
+    "src/pubg_lab/analysis/network/legacy/run_h1.py": "projects/network_analysis/pipelines/run_h1.py"
+  },
+  "extracted": {
+    "source": "projects/world_model/evaluation/verify_world_model_encoder.py",
+    "destination": "projects/world_model/common/resources.py",
+    "symbols": [
+      "sha",
+      "tensor_hash",
+      "ResourceSampler"
+    ],
+    "definition_ast_unchanged": true
+  }
+}

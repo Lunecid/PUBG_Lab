@@ -4,12 +4,7 @@ import math
 
 import pandas as pd
 
-from tools.compare_rq4_board_baselines import (
-    build_sign_count,
-    evaluate_board_scores,
-    filter_common_score_universe,
-    summarize_board_scores,
-)
+from projects.battle_royale.evaluation.rq4.compare_rq4_board_baselines import build_sign_count, evaluate_board_scores, filter_common_score_universe, summarize_board_scores
 
 
 def _row(variant: str, phase: int, team: int, risk: float, adv: float, hazard: int, top10: int) -> dict:

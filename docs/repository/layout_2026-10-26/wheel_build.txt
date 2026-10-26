@@ -1,0 +1,10 @@
+WARNING: The directory '/Users/lunecid/Library/Caches/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+Processing /Users/lunecid/project/PUBG
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: pubg-lab
+  Building wheel for pubg-lab (pyproject.toml): started
+  Building wheel for pubg-lab (pyproject.toml): finished with status 'done'
+  Created wheel for pubg-lab: filename=pubg_lab-2026.10.26.post5-py3-none-any.whl size=2023481 sha256=5f56042a200c35a5712616925cc56f3d595784c003fe3e899b462bc94df959b4
+  Stored in directory: /private/var/folders/66/342vpg5s7nl1pq7pvs3vq8bh0000gn/T/pip-ephem-wheel-cache-ku4v4mpt/wheels/17/35/fc/2e718df2e01a0b83262c89d4c147b2d7d3a92996d51d119689
+Successfully built pubg-lab

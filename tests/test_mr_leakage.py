@@ -12,8 +12,8 @@ from __future__ import annotations
 import numpy as np
 import torch
 
-from model_stgcn.mr_stgnn import mr_survival_targets
-from model_stgcn.snapshot_encoder import SnapshotEncoder, pool_snapshots_to_phase
+from pubg_lab.survival.models.mr_stgnn import mr_survival_targets
+from pubg_lab.survival.models.snapshot_encoder import SnapshotEncoder, pool_snapshots_to_phase
 from tests.conftest import requires_db
 
 
@@ -84,9 +84,9 @@ def test_survival_targets_label_only_future_deaths():
 @requires_db
 def test_combat_edges_attributed_to_past_window():
     """combat 엣지는 event_t in (t-10, t] (과거)에 귀속 — 미래 event 삭제해도 snapshot 그래프 불변."""
-    from stdb.conn import connect
-    from stdb.snapshot_feature_etl import apply_schema, build_match as build_feat
-    from stdb.snapshot_queries import fetch_snapshot_match_tensors
+    from pubg_lab.data.stdb.connection.conn import connect
+    from pubg_lab.data.stdb.pipelines.snapshot_feature_etl import apply_schema, build_match as build_feat
+    from pubg_lab.data.stdb.queries.snapshot_queries import fetch_snapshot_match_tensors
 
     apply_schema()
     conn = connect()

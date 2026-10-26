@@ -15,7 +15,7 @@ import pytest
 import torch
 import torch.nn.functional as F
 
-from model_stgcn.ptr.loss import hazard_bce, pairwise_rank_loss, ptr_loss
+from pubg_lab.survival.ptr.training.loss import hazard_bce, pairwise_rank_loss, ptr_loss
 
 
 def softplus(x):

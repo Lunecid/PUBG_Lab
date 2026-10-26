@@ -17,8 +17,8 @@ import numpy as np
 import pytest
 import torch
 
-from model_stgcn import dump_phase_tier as D
-from stdb import causal_cut
+import pubg_lab.survival.data.dump_phase_tier as D
+import pubg_lab.data.stdb.temporal.causal_cut as causal_cut
 from tests.conftest import requires_db
 
 F = D.N_FEATURES
@@ -164,7 +164,7 @@ def test_replaced_features_are_the_four_alive_player_columns():
 
 
 def test_zone_columns_match_the_ptr_data_layer_when_present():
-    ptr_data = pytest.importorskip("model_stgcn.ptr.data")
+    ptr_data = pytest.importorskip('pubg_lab.survival.ptr.data.data')
     assert tuple(D.ZONE_COLUMNS) == tuple(ptr_data.ZONE_COLUMNS)
 
 
@@ -599,7 +599,7 @@ def test_build_meta_documents_one_clock_replaced_features_and_population():
 
 @pytest.mark.parametrize("labels", ["v2", "pipeline"])
 def test_dump_passes_the_ptr_validator_and_roundtrips_with_safe_load(tmp_path, labels):
-    ptr_data = pytest.importorskip("model_stgcn.ptr.data")
+    ptr_data = pytest.importorskip('pubg_lab.survival.ptr.data.data')
     matches = []
     for k in range(3):
         m = D.assemble_match(_raw(match_id=f"m-{k}"), map_size_m=MAP)
@@ -650,7 +650,7 @@ def test_stale_check_flags_missing_and_old_rows():
 # ------------------------------------------------------------------------------ DB-gated
 @requires_db
 def test_population_on_the_real_split_manifests():
-    from stdb.conn import connect
+    from pubg_lab.data.stdb.connection.conn import connect
 
     conn = connect()
     try:
@@ -674,8 +674,8 @@ def test_population_on_the_real_split_manifests():
 @requires_db
 def test_one_real_match_passes_the_independent_verifier():
     """Build the dump entry of one Erangel match and re-derive every number with independent SQL."""
-    from stdb.conn import connect
-    from tools.verify_dump_match import verify
+    from pubg_lab.data.stdb.connection.conn import connect
+    from projects.battle_royale.evaluation.contracts.verify_dump_match import verify
 
     marker = Path("model_stgcn/etl_runs/fixb_2026-10-05/fixb_since.txt")
     since = marker.read_text(encoding="utf-8").strip() if marker.exists() else None

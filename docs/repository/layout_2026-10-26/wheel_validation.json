@@ -1,0 +1,25 @@
+{
+  "wheel_name": "pubg_lab-2026.10.26.post5-py3-none-any.whl",
+  "bytes": 2023481,
+  "sha256": "5f56042a200c35a5712616925cc56f3d595784c003fe3e899b462bc94df959b4",
+  "files": 688,
+  "python_files": 507,
+  "all_packaged_python_and_shell_bytes_match_current_source": true,
+  "forbidden_entries": [],
+  "isolated_import_returncode": 0,
+  "isolated_imports": {
+    "imports": [
+      "pubg_lab.__main__",
+      "pubg_lab.survival.models.stgcn",
+      "pubg_lab.survival.ptr.models.model",
+      "pubg_lab.survival.v3.models.models",
+      "pubg_lab.world_model.models.encoder",
+      "pubg_lab.world_model.features.temporal_prior",
+      "pubg_lab.movement.models.model_v4",
+      "projects.world_model.common.resources",
+      "projects.krafton_baseline.common.commands"
+    ],
+    "catalog_commands": 302,
+    "repository_source_on_sys_path": false
+  }
+}

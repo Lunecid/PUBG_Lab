@@ -1,0 +1,55 @@
+{
+  "reason": "Required application entry and reusable library source existed locally but broad lib/ and index ignores hid them; no local research data added",
+  "files": [
+    {
+      "path": "apps/webapp/index.html",
+      "bytes": 957,
+      "sha256": "224b967453d72824766a64b33e0e31458491c155b023d71458431f2c400e1825"
+    },
+    {
+      "path": "apps/webapp/src/lib/data.ts",
+      "bytes": 2546,
+      "sha256": "5f5c7b00827ada5617bee79077a34a467b218bbe74998d54250f37f9837ebd3e"
+    },
+    {
+      "path": "apps/webapp/src/lib/useTimePlayer.ts",
+      "bytes": 2233,
+      "sha256": "aa045d6561961f4299de1902e4abde981f13c9926e8aae7664c8acfc03a552e1"
+    },
+    {
+      "path": "apps/webapp/src/lib/usePanZoom.ts",
+      "bytes": 4065,
+      "sha256": "e51a62989aef217e671ceaafbaf393a203d4873500329f9800471e0d23652b13"
+    },
+    {
+      "path": "apps/webapp/src/lib/convexHull.ts",
+      "bytes": 1491,
+      "sha256": "a8438ff0c2d25c51b2d8f0c5edcedf05a10026c6e196d63bc0089a7a0f685b9d"
+    },
+    {
+      "path": "apps/webapp/src/lib/types.ts",
+      "bytes": 8032,
+      "sha256": "740a4e11d977cec68778b9533ac5b4306fe64ddedc26b44546b95760b8405af1"
+    },
+    {
+      "path": "apps/webapp/src/lib/format.ts",
+      "bytes": 1425,
+      "sha256": "315b75b41c3d3278e41195bfa6889af8339cc29e09f2db57d5dce7785d9a220f"
+    },
+    {
+      "path": "apps/webapp/src/lib/phaseMarkers.ts",
+      "bytes": 1346,
+      "sha256": "40530d1aeb09bf460053594168d7f8b0f833e2618474fc2d591e3eb77a429800"
+    },
+    {
+      "path": "apps/webapp/src/lib/forceLayout.ts",
+      "bytes": 4822,
+      "sha256": "595abd7e424a4a4fd1be40af2bf6debf13f709d057350b68d430812cf2fde804"
+    },
+    {
+      "path": "apps/webapp/src/lib/declarations.d.ts",
+      "bytes": 41,
+      "sha256": "073171cff3410b65b7ff69e0d481579487088da630699cc202de1756aae443bb"
+    }
+  ]
+}

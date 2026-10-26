@@ -1,9 +1,14 @@
 {
-  "schema_version": 1,
-  "layout": "src/pubg_lab",
+  "schema_version": 2,
+  "layout": {
+    "reusable_libraries": "src/pubg_lab",
+    "project_applications": "projects",
+    "user_applications": "apps",
+    "historical_source": "archive"
+  },
   "domains": {
     "common": {
-      "responsibility": "Repository paths and compatibility execution only",
+      "responsibility": "Repository paths; Python standard library only",
       "dependencies": "Python standard library only"
     },
     "data": {
@@ -11,32 +16,20 @@
       "dependencies": "Shared infrastructure and scientific source contracts"
     },
     "world_model": {
-      "responsibility": "World-model inputs, encoder components, pretraining and owned CLI",
+      "responsibility": "World-model data, features, encoders and objectives",
       "dependencies": "Shared infrastructure, typed graph inputs and approved data views"
     },
     "movement": {
-      "responsibility": "Joint player/team movement models, datasets, metrics and owned CLI",
+      "responsibility": "Joint movement data, model versions and evaluation primitives",
       "dependencies": "Shared infrastructure and spatial/data components"
     },
     "survival": {
       "responsibility": "BR/PTR/survival representation and model components",
       "dependencies": "Data contracts; private split access remains outside the public package"
     },
-    "spatial": {
-      "responsibility": "Erangel and Caldera spatial preparation and visualization",
-      "dependencies": "Shared workspace paths and explicit data inputs"
-    },
     "analysis": {
-      "responsibility": "Network-analysis features, metrics and application orchestration",
+      "responsibility": "Reusable network-analysis data, features, reports and historical analysis primitives",
       "dependencies": "Scientific datasets and shared infrastructure"
-    },
-    "collectors": {
-      "responsibility": "Explicitly invoked data-collection applications",
-      "dependencies": "Operational API and DB configuration; never started by package discovery"
-    },
-    "projects": {
-      "responsibility": "SAC, BR and figure applications composing reusable components",
-      "dependencies": "Domain libraries; do not become dependencies of common infrastructure"
     },
     "repository": {
       "responsibility": "Release inventory and static codebase checks",
@@ -48,12 +41,50 @@
     "reports",
     "paper",
     "third_party",
-    "legacy",
-    "versions/releases"
+    "archive/legacy_snapshot",
+    "versions/releases",
+    "model_stgcn/checkpoints",
+    "model_stgcn/dumps",
+    "model_stgcn/experiment_datasets",
+    "model_stgcn/etl_runs",
+    "output"
   ],
   "private_source_exceptions": [
     "model_stgcn/splits.py",
     "tools/movement_diffusion/split_v3.py"
   ],
-  "research_values_remain_in_original_component_definitions": true
+  "research_values_remain_in_original_component_definitions": true,
+  "projects": {
+    "network_analysis": {
+      "responsibility": "network analysis explicitly invoked applications"
+    },
+    "collector": {
+      "responsibility": "collector explicitly invoked applications"
+    },
+    "data_preparation": {
+      "responsibility": "data preparation explicitly invoked applications"
+    },
+    "world_model": {
+      "responsibility": "world model explicitly invoked applications"
+    },
+    "movement": {
+      "responsibility": "movement explicitly invoked applications"
+    },
+    "figures": {
+      "responsibility": "figures explicitly invoked applications"
+    },
+    "spatial": {
+      "responsibility": "spatial explicitly invoked applications"
+    },
+    "sac2027": {
+      "responsibility": "sac2027 explicitly invoked applications"
+    },
+    "battle_royale": {
+      "responsibility": "battle royale explicitly invoked applications"
+    },
+    "krafton_baseline": {
+      "responsibility": "Local adapters composing pinned KRAFTON reference code; immutable original source stays in third_party"
+    }
+  },
+  "root_forwarding_shims_allowed": false
 }

@@ -1,0 +1,38 @@
+[
+  {
+    "old": "src/pubg_lab/survival/ptr/common/gatv2.py",
+    "new": "src/pubg_lab/survival/ptr/models/gatv2.py",
+    "bytes": 3555,
+    "reason": "Align model architectures, experiment orchestration and inference with their actual role"
+  },
+  {
+    "old": "src/pubg_lab/survival/ptr/common/synthetic.py",
+    "new": "src/pubg_lab/survival/ptr/data/synthetic.py",
+    "bytes": 37727,
+    "reason": "Align model architectures, experiment orchestration and inference with their actual role"
+  },
+  {
+    "old": "src/pubg_lab/survival/v3/data/models.py",
+    "new": "src/pubg_lab/survival/v3/models/models.py",
+    "bytes": 22443,
+    "reason": "Align model architectures, experiment orchestration and inference with their actual role"
+  },
+  {
+    "old": "src/pubg_lab/survival/v3/data/run_matrix.py",
+    "new": "src/pubg_lab/survival/v3/experiments/run_matrix.py",
+    "bytes": 12056,
+    "reason": "Align model architectures, experiment orchestration and inference with their actual role"
+  },
+  {
+    "old": "src/pubg_lab/survival/v3/data/experiment_matrix.py",
+    "new": "src/pubg_lab/survival/v3/experiments/experiment_matrix.py",
+    "bytes": 13282,
+    "reason": "Align model architectures, experiment orchestration and inference with their actual role"
+  },
+  {
+    "old": "src/pubg_lab/survival/common/infer.py",
+    "new": "src/pubg_lab/survival/inference/infer.py",
+    "bytes": 20873,
+    "reason": "Align model architectures, experiment orchestration and inference with their actual role"
+  }
+]

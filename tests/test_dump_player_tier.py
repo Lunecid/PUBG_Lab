@@ -14,8 +14,8 @@ import numpy as np
 import pytest
 import torch
 
-from model_stgcn import dump_phase_tier as D
-from model_stgcn import dump_player_tier as PT
+import pubg_lab.survival.data.dump_phase_tier as D
+import pubg_lab.survival.data.dump_player_tier as PT
 from tests.conftest import requires_db
 
 SIZE = 8000.0
@@ -370,8 +370,8 @@ def test_dump_is_deterministic_and_has_no_hidden_state():
 @requires_db
 def test_one_real_erangel_match_passes_the_independent_verifier():
     """Raw fetch -> assembly -> tools/verify_player_dump_match.verify (plain SQL + python loops)."""
-    from stdb.conn import connect
-    from tools.verify_player_dump_match import verify
+    from pubg_lab.data.stdb.connection.conn import connect
+    from projects.battle_royale.evaluation.contracts.verify_player_dump_match import verify
 
     phase_path = Path("model_stgcn/dumps/bigcomp2027_phase_v1/erangel_tpp_squad/test.pt")
     if not phase_path.exists():

@@ -45,7 +45,7 @@ def _hgb_of(pipeline):
 
 
 def test_snapshot_tabular_hgb_has_no_early_stopping():
-    from model_stgcn import snapshot_tabular_baseline as sb
+    import pubg_lab.survival.baselines.snapshot_tabular_baseline as sb
 
     args = argparse.Namespace(
         max_iter=40, learning_rate=0.1, l2_regularization=0.0, seed=42, n_estimators=10, n_jobs=1
@@ -55,14 +55,14 @@ def test_snapshot_tabular_hgb_has_no_early_stopping():
 
 
 def test_feature_ablation_hgb_has_no_early_stopping():
-    from model_stgcn import feature_ablation as fa
+    import pubg_lab.survival.experiments.feature_ablation as fa
 
     model = _hgb_of(fa._classifier(["a", "b"], learner="hgb"))
     assert model.get_params()["early_stopping"] is False
 
 
 def test_snapshot_tabular_rows_have_a_fixed_order():
-    from model_stgcn import snapshot_tabular_baseline as sb
+    import pubg_lab.survival.baselines.snapshot_tabular_baseline as sb
 
     sql = " ".join(sb._snapshot_tabular_sql().split())
     assert "ROW_NUMBER() OVER (ORDER BY l.match_id, l.team_id, l.cut_phase) AS rid" in sql
@@ -71,7 +71,7 @@ def test_snapshot_tabular_rows_have_a_fixed_order():
 
 
 def test_feature_ablation_rows_are_ordered_and_limited_to_phases_1_to_7(monkeypatch):
-    from model_stgcn import feature_ablation as fa
+    import pubg_lab.survival.experiments.feature_ablation as fa
 
     seen: list[str] = []
     monkeypatch.setattr(fa, "connect", lambda *a, **k: _FakeConn(seen))
@@ -88,7 +88,7 @@ def test_two_fits_on_shuffled_rows_agree(learner):
     """With early stopping off the HGB fit depends only on the data, not on a hidden split."""
     import numpy as np
 
-    from model_stgcn import feature_ablation as fa
+    import pubg_lab.survival.experiments.feature_ablation as fa
 
     rng = np.random.default_rng(0)
     n = 12_000  # > 10_000 would have switched 'auto' early stopping on

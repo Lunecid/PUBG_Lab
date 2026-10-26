@@ -8,8 +8,8 @@ import unittest
 import numpy as np
 
 from test_preprocess import fixture
-from world_model.preprocess import build_bank
-from world_model.dataset import WorldDataset
+from pubg_lab.world_model.data.preprocess import build_bank
+from pubg_lab.world_model.data.dataset import WorldDataset
 
 
 class DatasetTests(unittest.TestCase):

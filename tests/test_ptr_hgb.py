@@ -16,9 +16,9 @@ import pandas as pd
 import pytest
 import torch
 
-from model_stgcn.ptr import hgb as H
-from model_stgcn.ptr import metrics as M
-from model_stgcn.ptr.synthetic import make_dump, write_cohort_dumps
+import pubg_lab.survival.ptr.models.hgb as H
+import pubg_lab.survival.ptr.evaluation.metrics as M
+from pubg_lab.survival.ptr.data.synthetic import make_dump, write_cohort_dumps
 
 LABEL_KEYS = {"v2": ("y_hazard_v2", "target_mask_v2"), "pipeline": ("y_hazard", "target_mask")}
 
@@ -447,7 +447,7 @@ def test_hgb_config_hash_is_stamped_and_follows_its_inputs(tmp_path):
         assert H.config_hash(H.parse_args(other)) != h0, flag
     assert H.config_hash(H.parse_args(argv + ["--threads", "1"])) == h0  # threads never change a result
     # the same configuration as a neural run is a different hash (kind is part of it)
-    from model_stgcn.ptr import train as T
+    import pubg_lab.survival.ptr.training.train as T
 
     neural = T.parse_args(["--dump-dir", str(root), "--cohort", "hc", "--arm", "M00", "--seed", "42", "--out-dir", "x"])
     assert T.config_hash(neural) != h0

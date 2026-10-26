@@ -5,7 +5,9 @@ if not __package__:
     import sys as _pkg_sys
     from pathlib import Path as _PackagePath
 
-    _pkg_sys.path.insert(0, str(_PackagePath(__file__).resolve().parents[3]))
+    _workspace = _PackagePath(__file__).resolve().parents[4]
+    _pkg_sys.path.insert(0, str(_workspace))
+    _pkg_sys.path.insert(0, str(_workspace / "src"))
 
 from pubg_lab.common.paths import REPO_ROOT
 import csv

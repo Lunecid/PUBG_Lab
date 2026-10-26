@@ -1,0 +1,4 @@
+# Optional Caldera/OpenUSD tooling.
+# Keep separate from research.txt so the core PUBG experiments remain stable.
+usd-core==25.11
+psycopg2-binary==2.9.11

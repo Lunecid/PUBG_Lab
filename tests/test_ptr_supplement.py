@@ -10,9 +10,9 @@ import pytest
 from scipy import stats
 from sklearn.metrics import roc_auc_score
 
-from model_stgcn.ptr import aggregate as A
-from model_stgcn.ptr import metrics as M
-from model_stgcn.ptr import supplement as S
+import pubg_lab.survival.ptr.evaluation.aggregate as A
+import pubg_lab.survival.ptr.evaluation.metrics as M
+import pubg_lab.survival.ptr.evaluation.supplement as S
 from tests.test_ptr_metrics import make_preds
 
 
@@ -252,7 +252,7 @@ def _aggregated(tmp_path, *, n_boot=40, seed=0, **kw):
 
 
 def test_the_supplement_follows_the_decomposition_of_the_aggregator():
-    from model_stgcn.ptr import supplement as S2
+    import pubg_lab.survival.ptr.evaluation.supplement as S2
 
     assert S2.E2_DECOMP == tuple(name for _, _, _, name in A.DECOMP_STEPS) and len(S2.E2_DECOMP) == 10  # steps (a)-(g) and the rank auxiliary loss group
     assert S2.E2_RQ2 == tuple(name for _, _, name in A.RQ2_ROWS) and len(S2.E2_RQ2) == 10
@@ -264,8 +264,8 @@ def test_the_supplement_follows_the_decomposition_of_the_aggregator():
 
 
 def test_defaults_are_the_v2_roots_and_the_bootstrap_follows_the_aggregator(tmp_path):
-    from model_stgcn.ptr import paths as P
-    from model_stgcn.ptr import supplement as S2
+    import pubg_lab.survival.ptr.data.paths as P
+    import pubg_lab.survival.ptr.evaluation.supplement as S2
 
     a = S2.parse_args([])
     assert a.runs_dir == str(P.RUNS_DIR) and a.results_dir == str(P.RESULTS_DIR) and a.out_dir is None and a.n_boot is None and a.seed is None
@@ -279,7 +279,7 @@ def test_defaults_are_the_v2_roots_and_the_bootstrap_follows_the_aggregator(tmp_
 
 
 def test_the_e1_contrasts_reproduce_the_aggregators_numbers_and_every_decomposition_row_gets_the_within_match_phase_metric(tmp_path):
-    from model_stgcn.ptr import supplement as S2
+    import pubg_lab.survival.ptr.evaluation.supplement as S2
 
     root, results, agg = _aggregated(tmp_path, n_boot=40, seed=0)
     out = tmp_path / "supp"
@@ -310,7 +310,7 @@ def test_the_e1_contrasts_reproduce_the_aggregators_numbers_and_every_decomposit
 
 
 def test_the_supplement_refuses_an_aggregator_output_of_other_runs_or_another_bootstrap(tmp_path):
-    from model_stgcn.ptr import supplement as S2
+    import pubg_lab.survival.ptr.evaluation.supplement as S2
 
     root, results, _ = _aggregated(tmp_path, n_boot=30, seed=0)
     with pytest.raises(ValueError, match="differ from the aggregator's"):  # other resamples: the bootstrap SEs do not reproduce
@@ -323,7 +323,7 @@ def test_the_supplement_refuses_an_aggregator_output_of_other_runs_or_another_bo
 
 
 def test_arms_without_a_prediction_file_are_skipped_and_named(tmp_path):
-    from model_stgcn.ptr import supplement as S2
+    import pubg_lab.survival.ptr.evaluation.supplement as S2
 
     root, results, _ = _aggregated(tmp_path, n_boot=30, seed=0)
     import shutil
@@ -338,8 +338,8 @@ def test_arms_without_a_prediction_file_are_skipped_and_named(tmp_path):
 
 
 def test_the_supplement_refuses_a_v1_root_next_to_a_v2_dump(tmp_path, capsys):
-    from model_stgcn.ptr import supplement as S2
-    from model_stgcn.ptr.synthetic import write_cohort_dumps
+    import pubg_lab.survival.ptr.evaluation.supplement as S2
+    from pubg_lab.survival.ptr.data.synthetic import write_cohort_dumps
 
     v2 = tmp_path / "dumps" / "bigcomp2027_phase_v2"
     write_cohort_dumps(v2, "c_alpha", sizes={"train": 4, "val": 3, "test": 3}, seed=1)
@@ -358,7 +358,7 @@ def test_pool_dl_degenerate_contrast_is_its_common_value():
     """A contrast with zero standard error in every cohort (identical rankings by construction) pools to its value, no p-value."""
     import numpy as np
 
-    from model_stgcn.ptr import supplement as S
+    import pubg_lab.survival.ptr.evaluation.supplement as S
 
     r = S.pool_dl(np.zeros(12), np.zeros(12))
     assert r["k"] == 0 and r["theta"] == 0.0 and r["ci95_low"] == r["ci95_high"] == 0.0 and np.isnan(r["p_one_sided"])

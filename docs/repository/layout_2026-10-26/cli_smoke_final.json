@@ -1,0 +1,41 @@
+{
+  "mode": "--help only; no research functions called; restricted stack content omitted",
+  "results": [
+    {
+      "module": "pubg_lab.survival.training.train",
+      "returncode": 0,
+      "help_shown": true,
+      "error_summary": []
+    },
+    {
+      "module": "pubg_lab.survival.evaluation.eval",
+      "returncode": 0,
+      "help_shown": true,
+      "error_summary": []
+    },
+    {
+      "module": "pubg_lab.survival.v3.training.train",
+      "returncode": 0,
+      "help_shown": true,
+      "error_summary": []
+    },
+    {
+      "module": "pubg_lab.survival.ptr.training.train",
+      "returncode": 0,
+      "help_shown": true,
+      "error_summary": []
+    },
+    {
+      "module": "projects.world_model.training.train_world_model_g2",
+      "returncode": 0,
+      "help_shown": true,
+      "error_summary": []
+    },
+    {
+      "module": "projects.world_model.training.train_world_model_g4",
+      "returncode": 0,
+      "help_shown": true,
+      "error_summary": []
+    }
+  ]
+}

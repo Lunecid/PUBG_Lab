@@ -1,0 +1,20 @@
+PYTHONPATH=src:. python3 -m pubg_lab.repository.check_structure
+{"checked_files": 507, "dependency_edges": {"analysis": [], "common": [], "data": ["common"], "movement": ["common"], "repository": ["common"], "survival": ["common", "data"], "world_model": []}, "ok": true, "errors": []}
+/private/tmp/pubg-code-quality-20261026/bin/ruff format --check src projects tests/architecture
+508 files already formatted
+/private/tmp/pubg-code-quality-20261026/bin/ruff check src projects tests/architecture
+All checks passed!
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. python3 -m unittest discover -s tests/architecture -v
+test_cli_resolves_workspace_from_an_unrelated_working_directory (test_codebase.CodebaseTests.test_cli_resolves_workspace_from_an_unrelated_working_directory) ... ok
+test_command_discovery_does_not_import_applications (test_codebase.CodebaseTests.test_command_discovery_does_not_import_applications) ... ok
+test_generated_root_shims_are_physically_removed (test_codebase.CodebaseTests.test_generated_root_shims_are_physically_removed) ... ok
+test_implementation_has_ownership_and_import_boundaries (test_codebase.CodebaseTests.test_implementation_has_ownership_and_import_boundaries) ... ok
+test_private_boundary_reuses_public_functions_without_copying_or_calling (test_codebase.CodebaseTests.test_private_boundary_reuses_public_functions_without_copying_or_calling) ... ok
+test_private_modules_are_outside_distributable_packages (test_codebase.CodebaseTests.test_private_modules_are_outside_distributable_packages) ... ok
+test_shared_resource_helpers_do_not_import_models_or_execution (test_codebase.CodebaseTests.test_shared_resource_helpers_do_not_import_models_or_execution) ... ok
+test_survival_source_is_grouped_by_role (test_codebase.CodebaseTests.test_survival_source_is_grouped_by_role) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 2.448s
+
+OK

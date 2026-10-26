@@ -1,0 +1,2050 @@
+{
+  "asset_files": 234,
+  "asset_checks": [
+    {
+      "old": "legacy/metrics.py",
+      "new": "archive/legacy_snapshot/metrics.py",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "legacy/run_meta.py",
+      "new": "archive/legacy_snapshot/run_meta.py",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "legacy/simulate.py",
+      "new": "archive/legacy_snapshot/simulate.py",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "legacy/visualize.py",
+      "new": "archive/legacy_snapshot/visualize.py",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "legacy/README.md",
+      "new": "archive/legacy_snapshot/README.md",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "legacy/dataset.py",
+      "new": "archive/legacy_snapshot/dataset.py",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "legacy/train.py",
+      "new": "archive/legacy_snapshot/train.py",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "legacy/main.py",
+      "new": "archive/legacy_snapshot/main.py",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "legacy/result_viz.py",
+      "new": "archive/legacy_snapshot/result_viz.py",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "legacy/explain.py",
+      "new": "archive/legacy_snapshot/explain.py",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "legacy/adapters/pubg_adapter.py",
+      "new": "archive/legacy_snapshot/adapters/pubg_adapter.py",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "legacy/adapters/__init__.py",
+      "new": "archive/legacy_snapshot/adapters/__init__.py",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "legacy/adapters/base.py",
+      "new": "archive/legacy_snapshot/adapters/base.py",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "legacy/model/temporal.py",
+      "new": "archive/legacy_snapshot/model/temporal.py",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "legacy/model/hazard_head.py",
+      "new": "archive/legacy_snapshot/model/hazard_head.py",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "legacy/model/agent_encoder.py",
+      "new": "archive/legacy_snapshot/model/agent_encoder.py",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "legacy/model/__init__.py",
+      "new": "archive/legacy_snapshot/model/__init__.py",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "legacy/model/group_pooling.py",
+      "new": "archive/legacy_snapshot/model/group_pooling.py",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "legacy/model/arena_survival_net.py",
+      "new": "archive/legacy_snapshot/model/arena_survival_net.py",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "legacy/model/group_gnn.py",
+      "new": "archive/legacy_snapshot/model/group_gnn.py",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/tsconfig.node.json",
+      "new": "apps/webapp/tsconfig.node.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/index.html",
+      "new": "apps/webapp/index.html",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/tsconfig.app.json",
+      "new": "apps/webapp/tsconfig.app.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/tsconfig.app.tsbuildinfo",
+      "new": "apps/webapp/tsconfig.app.tsbuildinfo",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "webapp/tailwind.config.ts",
+      "new": "apps/webapp/tailwind.config.ts",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/package-lock.json",
+      "new": "apps/webapp/package-lock.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/package.json",
+      "new": "apps/webapp/package.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/tsconfig.json",
+      "new": "apps/webapp/tsconfig.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/vite.config.ts",
+      "new": "apps/webapp/vite.config.ts",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/tsconfig.node.tsbuildinfo",
+      "new": "apps/webapp/tsconfig.node.tsbuildinfo",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "webapp/postcss.config.js",
+      "new": "apps/webapp/postcss.config.js",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/.claude/launch.json",
+      "new": "apps/webapp/.claude/launch.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/maps/baltic_main.jpg",
+      "new": "apps/webapp/public/maps/baltic_main.jpg",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/maps/baltic_main_2k.jpg",
+      "new": "apps/webapp/public/maps/baltic_main_2k.jpg",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/network_summary.json",
+      "new": "apps/webapp/public/data/network_summary.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/match_index.json",
+      "new": "apps/webapp/public/data/match_index.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/glossary.json",
+      "new": "apps/webapp/public/data/glossary.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/hypotheses.json",
+      "new": "apps/webapp/public/data/hypotheses.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/methods.json",
+      "new": "apps/webapp/public/data/methods.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/phase_summary.json",
+      "new": "apps/webapp/public/data/phase_summary.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/index.json",
+      "new": "apps/webapp/public/data/index.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/strategy_summary.json",
+      "new": "apps/webapp/public/data/strategy_summary.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/3faf93bf-bd7b-4ff3-9e13-2083267f3556.json",
+      "new": "apps/webapp/public/data/matches/3faf93bf-bd7b-4ff3-9e13-2083267f3556.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/19bddf7d-5676-48e4-9648-eb4050c560b1.json",
+      "new": "apps/webapp/public/data/matches/19bddf7d-5676-48e4-9648-eb4050c560b1.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/3476fc8d-5345-4c65-9f5b-4f53b90bb9b5.json",
+      "new": "apps/webapp/public/data/matches/3476fc8d-5345-4c65-9f5b-4f53b90bb9b5.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/439e1003-15bb-448d-a5b1-892bf69dddec.json",
+      "new": "apps/webapp/public/data/matches/439e1003-15bb-448d-a5b1-892bf69dddec.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/236431be-c333-4285-be48-611160cc00ae.json",
+      "new": "apps/webapp/public/data/matches/236431be-c333-4285-be48-611160cc00ae.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/1d225e79-0d8f-4ebc-ac23-6d26bd390f4c.json",
+      "new": "apps/webapp/public/data/matches/1d225e79-0d8f-4ebc-ac23-6d26bd390f4c.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/0fe8958a-591e-4df8-b761-9ba314a47260.json",
+      "new": "apps/webapp/public/data/matches/0fe8958a-591e-4df8-b761-9ba314a47260.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/2c917046-ab80-42f8-9072-573478377dbd.json",
+      "new": "apps/webapp/public/data/matches/2c917046-ab80-42f8-9072-573478377dbd.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/1a5a9784-e022-460c-b51e-4cbd63ad749b.json",
+      "new": "apps/webapp/public/data/matches/1a5a9784-e022-460c-b51e-4cbd63ad749b.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/2901036e-d981-45c7-9d9a-1d599ef9f102.json",
+      "new": "apps/webapp/public/data/matches/2901036e-d981-45c7-9d9a-1d599ef9f102.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/220a6558-b78c-4280-a8eb-c879e60f5b69.json",
+      "new": "apps/webapp/public/data/matches/220a6558-b78c-4280-a8eb-c879e60f5b69.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/118c07dc-5de8-47a8-9673-f17242c908a7.json",
+      "new": "apps/webapp/public/data/matches/118c07dc-5de8-47a8-9673-f17242c908a7.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/33d8f4d3-df4a-4e4d-857c-c1bb112a8b0d.json",
+      "new": "apps/webapp/public/data/matches/33d8f4d3-df4a-4e4d-857c-c1bb112a8b0d.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/0fb55555-2a46-4b13-b083-e1f877f3996e.json",
+      "new": "apps/webapp/public/data/matches/0fb55555-2a46-4b13-b083-e1f877f3996e.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/2c020a2f-5b79-48d4-90c7-62cdd6523baf.json",
+      "new": "apps/webapp/public/data/matches/2c020a2f-5b79-48d4-90c7-62cdd6523baf.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/02298f76-8f66-4156-85d9-1a82999b72b5.json",
+      "new": "apps/webapp/public/data/matches/02298f76-8f66-4156-85d9-1a82999b72b5.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/3ffc0604-6681-4a8b-a95a-1b5fc91d17fe.json",
+      "new": "apps/webapp/public/data/matches/3ffc0604-6681-4a8b-a95a-1b5fc91d17fe.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/36dae54a-035e-4650-8430-d5fe31570b9a.json",
+      "new": "apps/webapp/public/data/matches/36dae54a-035e-4650-8430-d5fe31570b9a.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/2d01182a-ebee-48c4-a181-c854bf80d2d6.json",
+      "new": "apps/webapp/public/data/matches/2d01182a-ebee-48c4-a181-c854bf80d2d6.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/241cbb2f-1340-4988-9e52-0cd3572a90c2.json",
+      "new": "apps/webapp/public/data/matches/241cbb2f-1340-4988-9e52-0cd3572a90c2.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/07069513-a044-475e-bd5c-1d53e771f490.json",
+      "new": "apps/webapp/public/data/matches/07069513-a044-475e-bd5c-1d53e771f490.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/36c471f9-aec7-48c9-8955-b2053d7d2a7c.json",
+      "new": "apps/webapp/public/data/matches/36c471f9-aec7-48c9-8955-b2053d7d2a7c.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/33c0733d-9e65-4dde-808f-94cabe86e264.json",
+      "new": "apps/webapp/public/data/matches/33c0733d-9e65-4dde-808f-94cabe86e264.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/1b22e54e-3fe3-4bba-b4dc-1bb8f1eb70db.json",
+      "new": "apps/webapp/public/data/matches/1b22e54e-3fe3-4bba-b4dc-1bb8f1eb70db.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/1518b912-53bc-4b5a-a11b-eb78e70ae510.json",
+      "new": "apps/webapp/public/data/matches/1518b912-53bc-4b5a-a11b-eb78e70ae510.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/0797f3cd-0cf4-4e88-9ef2-4e4efe67d662.json",
+      "new": "apps/webapp/public/data/matches/0797f3cd-0cf4-4e88-9ef2-4e4efe67d662.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/34506b31-5887-451d-810c-6809370df5ca.json",
+      "new": "apps/webapp/public/data/matches/34506b31-5887-451d-810c-6809370df5ca.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/3d123a3e-91b7-4c07-8fe2-06859ef6420a.json",
+      "new": "apps/webapp/public/data/matches/3d123a3e-91b7-4c07-8fe2-06859ef6420a.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/2c38ea2e-391b-47fd-92dc-3ba05004cb0a.json",
+      "new": "apps/webapp/public/data/matches/2c38ea2e-391b-47fd-92dc-3ba05004cb0a.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/public/data/matches/1e184b57-1780-41a4-b404-11fbc5317198.json",
+      "new": "apps/webapp/public/data/matches/1e184b57-1780-41a4-b404-11fbc5317198.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/scripts/build-data.mjs",
+      "new": "apps/webapp/scripts/build-data.mjs",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "webapp/src/App.tsx",
+      "new": "apps/webapp/src/App.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/main.tsx",
+      "new": "apps/webapp/src/main.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/styles/index.css",
+      "new": "apps/webapp/src/styles/index.css",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/components/Nav.tsx",
+      "new": "apps/webapp/src/components/Nav.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/components/MatchCard.tsx",
+      "new": "apps/webapp/src/components/MatchCard.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/components/Section.tsx",
+      "new": "apps/webapp/src/components/Section.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/components/StatCard.tsx",
+      "new": "apps/webapp/src/components/StatCard.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/components/FormulaBlock.tsx",
+      "new": "apps/webapp/src/components/FormulaBlock.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/components/SankeyTransitions.tsx",
+      "new": "apps/webapp/src/components/SankeyTransitions.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/components/QuadrantChart.tsx",
+      "new": "apps/webapp/src/components/QuadrantChart.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/components/Layout.tsx",
+      "new": "apps/webapp/src/components/Layout.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/components/DataTable.tsx",
+      "new": "apps/webapp/src/components/DataTable.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/components/HypothesisCard.tsx",
+      "new": "apps/webapp/src/components/HypothesisCard.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/components/Heatmap.tsx",
+      "new": "apps/webapp/src/components/Heatmap.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/components/StrategyBadge.tsx",
+      "new": "apps/webapp/src/components/StrategyBadge.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/components/BarCompare.tsx",
+      "new": "apps/webapp/src/components/BarCompare.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/components/Callout.tsx",
+      "new": "apps/webapp/src/components/Callout.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/components/TimeControls.tsx",
+      "new": "apps/webapp/src/components/TimeControls.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/components/CytoscapeNetwork.tsx",
+      "new": "apps/webapp/src/components/CytoscapeNetwork.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/components/AnimatedNetwork.tsx",
+      "new": "apps/webapp/src/components/AnimatedNetwork.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/components/MapBackground.tsx",
+      "new": "apps/webapp/src/components/MapBackground.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/lib/data.ts",
+      "new": "apps/webapp/src/lib/data.ts",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/lib/useTimePlayer.ts",
+      "new": "apps/webapp/src/lib/useTimePlayer.ts",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/lib/usePanZoom.ts",
+      "new": "apps/webapp/src/lib/usePanZoom.ts",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/lib/convexHull.ts",
+      "new": "apps/webapp/src/lib/convexHull.ts",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/lib/types.ts",
+      "new": "apps/webapp/src/lib/types.ts",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/lib/format.ts",
+      "new": "apps/webapp/src/lib/format.ts",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/lib/phaseMarkers.ts",
+      "new": "apps/webapp/src/lib/phaseMarkers.ts",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/lib/forceLayout.ts",
+      "new": "apps/webapp/src/lib/forceLayout.ts",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/lib/declarations.d.ts",
+      "new": "apps/webapp/src/lib/declarations.d.ts",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/routes/Explorer.tsx",
+      "new": "apps/webapp/src/routes/Explorer.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/routes/Home.tsx",
+      "new": "apps/webapp/src/routes/Home.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/routes/Strategy.tsx",
+      "new": "apps/webapp/src/routes/Strategy.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/routes/MatchDetail.tsx",
+      "new": "apps/webapp/src/routes/MatchDetail.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/routes/Hypotheses.tsx",
+      "new": "apps/webapp/src/routes/Hypotheses.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/routes/Phases.tsx",
+      "new": "apps/webapp/src/routes/Phases.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/routes/Methods.tsx",
+      "new": "apps/webapp/src/routes/Methods.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/routes/Glossary.tsx",
+      "new": "apps/webapp/src/routes/Glossary.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "webapp/src/routes/Network.tsx",
+      "new": "apps/webapp/src/routes/Network.tsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "presentation_build/build.js",
+      "new": "apps/presentations/build.js",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/package-lock.json",
+      "new": "apps/presentations/package-lock.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/package.json",
+      "new": "apps/presentations/package.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/PUBG_STDB_STGNN.pptx",
+      "new": "apps/presentations/PUBG_STDB_STGNN.pptx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/build_summary_en.js",
+      "new": "apps/presentations/build_summary_en.js",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/second_pre.pptx",
+      "new": "apps/presentations/second_pre.pptx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/build_intro_en_5min.js",
+      "new": "apps/presentations/build_intro_en_5min.js",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/PUBG_Research_Summary_EN.pptx",
+      "new": "apps/presentations/PUBG_Research_Summary_EN.pptx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/summary_en_png/PUBG_Research_Summary_EN.pptx.png",
+      "new": "apps/presentations/summary_en_png/PUBG_Research_Summary_EN.pptx.png",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/summary_en_png/slides/slides.001.png",
+      "new": "apps/presentations/summary_en_png/slides/slides.001.png",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/summary_en_png/slides/slides.002.png",
+      "new": "apps/presentations/summary_en_png/slides/slides.002.png",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/summary_en_png/slides/slides.003.png",
+      "new": "apps/presentations/summary_en_png/slides/slides.003.png",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/summary_en_png/slides/slides.007.png",
+      "new": "apps/presentations/summary_en_png/slides/slides.007.png",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/summary_en_png/slides/slides.006.png",
+      "new": "apps/presentations/summary_en_png/slides/slides.006.png",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/summary_en_png/slides/slides.004.png",
+      "new": "apps/presentations/summary_en_png/slides/slides.004.png",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/summary_en_png/slides/slides.010.png",
+      "new": "apps/presentations/summary_en_png/slides/slides.010.png",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/summary_en_png/slides/slides.005.png",
+      "new": "apps/presentations/summary_en_png/slides/slides.005.png",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/summary_en_png/slides/slides.008.png",
+      "new": "apps/presentations/summary_en_png/slides/slides.008.png",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/summary_en_png/slides/slides.009.png",
+      "new": "apps/presentations/summary_en_png/slides/slides.009.png",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/qlprev/PUBG_STDB_STGNN.pptx.png",
+      "new": "apps/presentations/qlprev/PUBG_STDB_STGNN.pptx.png",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/assets/stdb_phase_features.html",
+      "new": "apps/presentations/assets/stdb_phase_features.html",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/assets/demo_hero.png",
+      "new": "apps/presentations/assets/demo_hero.png",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/assets/demo.json",
+      "new": "apps/presentations/assets/demo.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/assets/team_archetypes.csv",
+      "new": "apps/presentations/assets/team_archetypes.csv",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/assets/stdb_2d_animation.html",
+      "new": "apps/presentations/assets/stdb_2d_animation.html",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/assets/eval_table.json",
+      "new": "apps/presentations/assets/eval_table.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/assets/elevation_check.png",
+      "new": "apps/presentations/assets/elevation_check.png",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/assets/demo.html",
+      "new": "apps/presentations/assets/demo.html",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/assets/stdb_phase_trajectories.html",
+      "new": "apps/presentations/assets/stdb_phase_trajectories.html",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/assets/stdb_archetypes.html",
+      "new": "apps/presentations/assets/stdb_archetypes.html",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/assets/elevation_validation.png",
+      "new": "apps/presentations/assets/elevation_validation.png",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/assets/stdb_phase_graph_analysis.html",
+      "new": "apps/presentations/assets/stdb_phase_graph_analysis.html",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/slides_png/slides_png.001.png",
+      "new": "apps/presentations/slides_png/slides_png.001.png",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/slides_png/slides_png.003.png",
+      "new": "apps/presentations/slides_png/slides_png.003.png",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/slides_png/slides_png.002.png",
+      "new": "apps/presentations/slides_png/slides_png.002.png",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/slides_png/slides_png.006.png",
+      "new": "apps/presentations/slides_png/slides_png.006.png",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/slides_png/slides_png.005.png",
+      "new": "apps/presentations/slides_png/slides_png.005.png",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "presentation_build/slides_png/slides_png.004.png",
+      "new": "apps/presentations/slides_png/slides_png.004.png",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "design_handoff_network_basics_redesign/Network Basics Redesign.html",
+      "new": "archive/design_notes/network_basics/Network Basics Redesign.html",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "design_handoff_network_basics_redesign/README.md",
+      "new": "archive/design_notes/network_basics/README.md",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "design_handoff_network_basics_redesign/redesign/option-b-pudding.jsx",
+      "new": "archive/design_notes/network_basics/redesign/option-b-pudding.jsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "design_handoff_network_basics_redesign/redesign/option-c-fieldmanual.jsx",
+      "new": "archive/design_notes/network_basics/redesign/option-c-fieldmanual.jsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "design_handoff_network_basics_redesign/redesign/design-canvas.jsx",
+      "new": "archive/design_notes/network_basics/redesign/design-canvas.jsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "design_handoff_network_basics_redesign/redesign/option-a-tufte.jsx",
+      "new": "archive/design_notes/network_basics/redesign/option-a-tufte.jsx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "world_model/README.md",
+      "new": "archive/project_notes/world_model/README.md",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "movement_diffusion/README.md",
+      "new": "archive/project_notes/movement/README.md",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "movement_diffusion/requirements.txt",
+      "new": "projects/movement/configs/requirements.txt",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "movement_diffusion/requirements-experiment.txt",
+      "new": "projects/movement/configs/requirements-experiment.txt",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "tools/pubg_collector/requirements.txt",
+      "new": "projects/collector/requirements.txt",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "tools/pubg_collector/.env.example",
+      "new": "projects/collector/.env.example",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "tools/erangel_spatial_requirements.txt",
+      "new": "projects/spatial/erangel/configs/requirements.txt",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "pubg_survival - pubg_survival - pubg.png",
+      "new": "docs/assets/pubg_schema.png",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "stdb/schema_rq1.sql",
+      "new": "src/pubg_lab/data/stdb/schemas/schema_rq1.sql",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "stdb/schema_audit.md",
+      "new": "projects/data_preparation/docs/schema_audit.md",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "stdb/schema.sql",
+      "new": "src/pubg_lab/data/stdb/schemas/schema.sql",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "stdb/schema_br_layers.sql",
+      "new": "src/pubg_lab/data/stdb/schemas/schema_br_layers.sql",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "stdb/migrations/2026-06-12_phase_indexes.sql",
+      "new": "src/pubg_lab/data/stdb/schemas/migrations/2026-06-12_phase_indexes.sql",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "src/pubg_lab/data/stdb/schema_rq1.sql",
+      "new": "src/pubg_lab/data/stdb/schemas/schema_rq1.sql",
+      "exists": true,
+      "same_inode": false,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "src/pubg_lab/data/stdb/schema.sql",
+      "new": "src/pubg_lab/data/stdb/schemas/schema.sql",
+      "exists": true,
+      "same_inode": false,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "model_stgcn/feature_manifests/pubg_representation_v2.json",
+      "new": "src/pubg_lab/survival/features/manifests/pubg_representation_v2.json",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "network_analysis/pubg_safe_zone_stdb_proposal_plain.md",
+      "new": "projects/network_analysis/docs/pubg_safe_zone_stdb_proposal_plain.md",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "network_analysis/final_spatiotemporal_project_report.md",
+      "new": "projects/network_analysis/docs/final_spatiotemporal_project_report.md",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "network_analysis/official_api_ppt_alignment_plan.md",
+      "new": "projects/network_analysis/docs/official_api_ppt_alignment_plan.md",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "network_analysis/PUBG_safe_zone_STDB_research_proposal.docx",
+      "new": "projects/network_analysis/docs/PUBG_safe_zone_STDB_research_proposal.docx",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "network_analysis/trajectory_literature_application.md",
+      "new": "projects/network_analysis/docs/trajectory_literature_application.md",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "network_analysis/habitat_contraction_model_addendum.md",
+      "new": "projects/network_analysis/docs/habitat_contraction_model_addendum.md",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "network_analysis/current_focus_research_report.md",
+      "new": "projects/network_analysis/docs/current_focus_research_report.md",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "network_analysis/spatiotemporal_survival_proposal.md",
+      "new": "projects/network_analysis/docs/spatiotemporal_survival_proposal.md",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "tools/erangel_100m_viewer.html.template",
+      "new": "projects/spatial/erangel/resources/erangel_100m_viewer.html.template",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "tools/erangel_spatial_viewer.html.template",
+      "new": "projects/spatial/erangel/resources/erangel_spatial_viewer.html.template",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "src/pubg_lab/spatial/erangel/erangel_100m_viewer.html.template",
+      "new": "projects/spatial/erangel/resources/erangel_100m_viewer.html.template",
+      "exists": true,
+      "same_inode": false,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "src/pubg_lab/spatial/erangel/erangel_spatial_viewer.html.template",
+      "new": "projects/spatial/erangel/resources/erangel_spatial_viewer.html.template",
+      "exists": true,
+      "same_inode": false,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "tools/movement_diffusion/viewer_v2.html",
+      "new": "projects/movement/viewers/viewer_v2.html",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "tools/movement_diffusion/viewer_v3.html",
+      "new": "projects/movement/viewers/viewer_v3.html",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "tools/movement_diffusion/viewer_v4.html",
+      "new": "projects/movement/viewers/viewer_v4.html",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "tools/heterograph_case_viewer.html",
+      "new": "projects/spatial/erangel/viewers/heterograph_case_viewer.html",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "expected_source_update": false
+    },
+    {
+      "old": "scripts/run_mr_shuffle_robustness.sh",
+      "new": "projects/battle_royale/launchers/graph_controls/run_mr_shuffle_robustness.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_full_db_edge_ablation.sh",
+      "new": "projects/battle_royale/launchers/graph_controls/run_full_db_edge_ablation.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_full_db_reexperiment.sh",
+      "new": "projects/battle_royale/launchers/survival/run_full_db_reexperiment.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_seed_repeat.sh",
+      "new": "projects/battle_royale/launchers/robustness/run_seed_repeat.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_br_om_ladder_remaining_after_erangel.sh",
+      "new": "projects/battle_royale/launchers/survival/run_br_om_ladder_remaining_after_erangel.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_adv_experiment.sh",
+      "new": "projects/battle_royale/launchers/survival/run_adv_experiment.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_v3_full_controls_matrix.sh",
+      "new": "projects/battle_royale/launchers/survival/run_v3_full_controls_matrix.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_v3_graph_relation_seed_repeats.sh",
+      "new": "projects/battle_royale/launchers/graph_controls/run_v3_graph_relation_seed_repeats.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_mr_1map.sh",
+      "new": "projects/battle_royale/launchers/survival/run_mr_1map.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_br_rq4_hier_survival_required_cohorts.sh",
+      "new": "projects/battle_royale/launchers/survival/run_br_rq4_hier_survival_required_cohorts.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_adv_nodeabs.sh",
+      "new": "projects/battle_royale/launchers/survival/run_adv_nodeabs.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_full_db_robustness.sh",
+      "new": "projects/battle_royale/launchers/robustness/run_full_db_robustness.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_raw_to_usable_batch.sh",
+      "new": "projects/battle_royale/launchers/survival/run_raw_to_usable_batch.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_v3_erangel_required_followups.sh",
+      "new": "projects/battle_royale/launchers/survival/run_v3_erangel_required_followups.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_snapshot_narrow_full_matrix.sh",
+      "new": "projects/battle_royale/launchers/snapshot/run_snapshot_narrow_full_matrix.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_snapshot_paper_st_feature_matrix.sh",
+      "new": "projects/battle_royale/launchers/snapshot/run_snapshot_paper_st_feature_matrix.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/v3_gen_resolution_preds.sh",
+      "new": "projects/battle_royale/launchers/survival/v3_gen_resolution_preds.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_adv_base.sh",
+      "new": "projects/battle_royale/launchers/survival/run_adv_base.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/overnight_runs.sh",
+      "new": "projects/battle_royale/launchers/survival/overnight_runs.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/v3_gen_predictions.sh",
+      "new": "projects/battle_royale/launchers/survival/v3_gen_predictions.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_v3_feature_pilot_matrix.sh",
+      "new": "projects/battle_royale/launchers/survival/run_v3_feature_pilot_matrix.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_solo_duo.sh",
+      "new": "projects/battle_royale/launchers/survival/run_solo_duo.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_v3_full_main_matrix.sh",
+      "new": "projects/battle_royale/launchers/survival/run_v3_full_main_matrix.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_br_om_ladder_required_cohorts.sh",
+      "new": "projects/battle_royale/launchers/survival/run_br_om_ladder_required_cohorts.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_full_db_aux_ablation.sh",
+      "new": "projects/battle_royale/launchers/survival/run_full_db_aux_ablation.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_br_om6z_required_cohorts.sh",
+      "new": "projects/battle_royale/launchers/survival/run_br_om6z_required_cohorts.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_br_o7_rank_bridge_analysis.sh",
+      "new": "projects/battle_royale/launchers/survival/run_br_o7_rank_bridge_analysis.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_mr_full_squad_seed_repeats.sh",
+      "new": "projects/battle_royale/launchers/robustness/run_mr_full_squad_seed_repeats.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_br_rq4_graph_design_required_cohorts.sh",
+      "new": "projects/battle_royale/launchers/graph_controls/run_br_rq4_graph_design_required_cohorts.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_v2_node_gnn.sh",
+      "new": "projects/battle_royale/launchers/survival/run_v2_node_gnn.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_v3_full_graph_relation_matrix.sh",
+      "new": "projects/battle_royale/launchers/graph_controls/run_v3_full_graph_relation_matrix.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_v3_core13_required_matrix.sh",
+      "new": "projects/battle_royale/launchers/survival/run_v3_core13_required_matrix.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_v3_graph_relation_pilot_matrix.sh",
+      "new": "projects/battle_royale/launchers/graph_controls/run_v3_graph_relation_pilot_matrix.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_v3_full_feature_matrix.sh",
+      "new": "projects/battle_royale/launchers/survival/run_v3_full_feature_matrix.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_v3_pilot_matrix.sh",
+      "new": "projects/battle_royale/launchers/survival/run_v3_pilot_matrix.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_mr_full_squad.sh",
+      "new": "projects/battle_royale/launchers/survival/run_mr_full_squad.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/rerun_full_db_suite.sh",
+      "new": "projects/battle_royale/launchers/survival/rerun_full_db_suite.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_snapshot_domain_channel_matrix.sh",
+      "new": "projects/battle_royale/launchers/snapshot/run_snapshot_domain_channel_matrix.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_br_rq4_prior_baseline_required_cohorts.sh",
+      "new": "projects/battle_royale/launchers/survival/run_br_rq4_prior_baseline_required_cohorts.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_full_db_followup.sh",
+      "new": "projects/battle_royale/launchers/survival/run_full_db_followup.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_br_o7_advantage_edge_early_readout.sh",
+      "new": "projects/battle_royale/launchers/graph_controls/run_br_o7_advantage_edge_early_readout.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "scripts/run_adv_kablation.sh",
+      "new": "projects/battle_royale/launchers/survival/run_adv_kablation.sh",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "requirements.txt",
+      "new": "configs/environments/research.txt",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "requirements-dev.txt",
+      "new": "configs/environments/development.txt",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    },
+    {
+      "old": "requirements-quality.txt",
+      "new": "configs/environments/quality.txt",
+      "exists": true,
+      "same_inode": true,
+      "same_size": true,
+      "same_bytes": true,
+      "expected_source_update": true
+    },
+    {
+      "old": "requirements-caldera.txt",
+      "new": "configs/environments/spatial.txt",
+      "exists": true,
+      "same_inode": true,
+      "same_size": false,
+      "same_bytes": false,
+      "expected_source_update": true
+    }
+  ],
+  "unexpected_asset_changes": [],
+  "existing_frozen_tracked_changes": [],
+  "private_sources_exist_without_body_access": true,
+  "raw_data_content_not_inspected": true,
+  "ok": true
+}

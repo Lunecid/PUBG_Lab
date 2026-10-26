@@ -17,14 +17,14 @@ import pandas as pd
 import pytest
 import torch
 
-from model_stgcn.ptr import data as D
-from model_stgcn.ptr import extra as X
-from model_stgcn.ptr import hgb as H
-from model_stgcn.ptr import metrics as M
-from model_stgcn.ptr import train as T
-from model_stgcn.ptr.arms import ARMS, MAIN_ARMS, UNION_ARMS, get_arm
-from model_stgcn.ptr.synthetic import make_dump, make_extra_table, write_cohort_dumps, write_extra_tables
-from model_stgcn.ptr.util import code_fingerprint, config_hash as util_hash, dump_fingerprint
+import pubg_lab.survival.ptr.data.data as D
+import pubg_lab.survival.ptr.data.extra as X
+import pubg_lab.survival.ptr.models.hgb as H
+import pubg_lab.survival.ptr.evaluation.metrics as M
+import pubg_lab.survival.ptr.training.train as T
+from pubg_lab.survival.ptr.models.arms import ARMS, MAIN_ARMS, UNION_ARMS, get_arm
+from pubg_lab.survival.ptr.data.synthetic import make_dump, make_extra_table, write_cohort_dumps, write_extra_tables
+from pubg_lab.survival.ptr.common.util import code_fingerprint, config_hash as util_hash, dump_fingerprint
 
 SMALL = ["--d-model", "32", "--n-heads", "4", "--n-layers", "2"]
 KEYS = ["match_id", "team_id", "phase"]
@@ -655,7 +655,7 @@ def test_hgb_config_hash_covers_the_extra_set_and_the_files_but_only_for_union(c
 
 
 def test_code_fingerprint_covers_the_extra_module():
-    from model_stgcn.ptr.util import RESULT_MODULES
+    from pubg_lab.survival.ptr.common.util import RESULT_MODULES
 
     assert "extra" in RESULT_MODULES
 
@@ -746,7 +746,7 @@ def test_prepare_with_a_train_subsample_joins_and_standardises_the_subsample_onl
 def test_last_slot_tokens_have_no_cut_and_cannot_move_any_prediction(cohort_dir, extra_dir, tmp_path):
     """The only alive tokens without a table row are those of the last slot (no cut after it); whatever they carry, the
     outputs of the cut slots do not change (phase axis is causal), and the last slot itself has no targets."""
-    from model_stgcn.ptr.model import PTRFormer
+    from pubg_lab.survival.ptr.models.model import PTRFormer
 
     prep = T.prepare(T.parse_args(train_cli(cohort_dir, tmp_path, "M11R-union", "--extra-features", str(extra_dir), *SMALL)))
     ds = prep.datasets["test"]

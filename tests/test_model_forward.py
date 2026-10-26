@@ -34,7 +34,7 @@ def _make_inputs(n_alive=12, n_phase=5, B=2, T=8, E=3, N=32, F=66, seed=0):
 
 @pytest.fixture(scope="module")
 def model():
-    from model_stgcn.dyn_stgnn import DynamicSTGNN
+    from pubg_lab.survival.models.dyn_stgnn import DynamicSTGNN
 
     torch.manual_seed(0)
     return DynamicSTGNN(in_features=66).eval()

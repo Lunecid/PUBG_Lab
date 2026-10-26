@@ -12,11 +12,11 @@ from pathlib import Path
 
 import pytest
 
-from model_stgcn.ptr import hgb as H
-from model_stgcn.ptr import run_matrix as RM
-from model_stgcn.ptr import train as T
-from model_stgcn.ptr.arms import EXPLORATORY_ARMS, MAIN_ARMS
-from model_stgcn.ptr.synthetic import write_cohort_dumps, write_extra_tables
+import pubg_lab.survival.ptr.models.hgb as H
+import pubg_lab.survival.ptr.experiments.run_matrix as RM
+import pubg_lab.survival.ptr.training.train as T
+from pubg_lab.survival.ptr.models.arms import EXPLORATORY_ARMS, MAIN_ARMS
+from pubg_lab.survival.ptr.data.synthetic import write_cohort_dumps, write_extra_tables
 
 LARGE = ("erangel_tpp_squad", "taego_tpp_squad")
 SMALL_COHORTS = ["karakin_tpp_squad", "paramo_tpp_squad", "erangel_fpp_squad", "taego_fpp_squad", "taego_tpp_duo",
@@ -96,7 +96,7 @@ def test_run_arguments_reproduce_the_clis_config_hash(tmp_path):
     neural = RM.RunSpec("neural", "karakin_tpp_squad", "M11RZ", 42, "main")
     hgb = RM.RunSpec("hgb", "karakin_tpp_squad", "HGB-lag", 42, "hgb")
     a, b = RM.build_argv(neural, st), RM.build_argv(hgb, st)
-    assert a[1:3] == ["-m", "model_stgcn.ptr.train"] and b[1:3] == ["-m", "model_stgcn.ptr.hgb"]
+    assert a[1:3] == ["-m", 'pubg_lab.survival.ptr.training.train'] and b[1:3] == ["-m", 'pubg_lab.survival.ptr.models.hgb']
     assert a[a.index("--arm") + 1] == "M11RZ" and b[b.index("--variant") + 1] == "HGB-lag"
     assert a[a.index("--max-epochs") + 1] == "2" and "--max-epochs" not in b  # HGB has no epochs
     assert a[a.index("--labels") + 1] == "v2" and a[a.index("--device") + 1] == "cpu"
@@ -375,7 +375,7 @@ def test_real_subprocess_runs_end_to_end_resume_and_failure(tmp_path):
     assert RM.main(argv) == 0
     assert {r["status"] for r in read_status(out)} == {"skipped_done"}
     # the paired utility accepts the matrix's outputs (identical rows between neural and HGB runs)
-    from model_stgcn.ptr import metrics as M
+    import pubg_lab.survival.ptr.evaluation.metrics as M
 
     res = M.paired_bootstrap(
         out / "karakin_tpp_squad" / "M00" / "seed42" / "pred_test.csv",
@@ -420,7 +420,7 @@ def test_population_json_drives_the_projection(tmp_path, capsys):
 
 # --------------------------------------------------------------------------- stage 2 (player layer)
 def test_stage_two_plan_argv_and_hash(tmp_path, capsys):
-    from model_stgcn.ptr.synthetic import write_player_dumps
+    from pubg_lab.survival.ptr.data.synthetic import write_player_dumps
 
     root = tmp_path / "dumps"
     for c in ("karakin_tpp_squad", "paramo_tpp_squad"):
@@ -456,7 +456,7 @@ def test_stage_two_plan_argv_and_hash(tmp_path, capsys):
 
 
 def test_stage_two_real_subprocess_run_writes_the_player_arm(tmp_path):
-    from model_stgcn.ptr.synthetic import write_player_dumps
+    from pubg_lab.survival.ptr.data.synthetic import write_player_dumps
 
     root = tmp_path / "dumps"
     write_cohort_dumps(root / "bigcomp2027_phase_v1", "karakin_tpp_squad", sizes={"train": 6, "val": 3, "test": 3}, seed=1)
@@ -606,14 +606,14 @@ def v2_marked_dump(tmp_path, names=("karakin_tpp_squad", "paramo_tpp_squad")):
 
 
 def test_defaults_are_the_v2_roots_and_the_kf_table_follows_the_dump_version(tmp_path):
-    from model_stgcn.ptr import paths as P
+    import pubg_lab.survival.ptr.data.paths as P
 
     a = RM.parse_args([])
     assert a.dump_dir == str(P.DUMP_DIR) and a.out_dir == str(P.RUNS_DIR) and a.extra_features is None
     assert P.kf_dir_for(P.DUMP_DIR) == P.KF_DIR  # the union runs of the v2 dump read the v2 table, never the v1 one next to it
     v2 = v2_marked_dump(tmp_path)
     assert P.kf_dir_for(v2) == tmp_path / "dumps" / "bigcomp2027_kraftonfeat_v2"
-    assert P.kf_dir_for(tiny_dump(tmp_path / "legacy")) == tmp_path / "legacy" / "bigcomp2027_kraftonfeat_v1"  # a legacy dump keeps its v1 table
+    assert P.kf_dir_for(tiny_dump(tmp_path / 'archive/legacy_snapshot')) == tmp_path / 'archive/legacy_snapshot/bigcomp2027_kraftonfeat_v1'  # a legacy dump keeps its v1 table
 
 
 def test_a_v1_root_next_to_a_v2_dump_is_refused_before_anything_runs(tmp_path, fake):
@@ -631,7 +631,7 @@ def test_a_v1_root_next_to_a_v2_dump_is_refused_before_anything_runs(tmp_path, f
     (renamed / "karakin_tpp_squad" / "M00" / "seed42").mkdir(parents=True)
     with pytest.raises(SystemExit, match="no version evidence"):
         RM.main(["--dump-dir", str(v2), "--out-dir", str(renamed), "--dry-run"], popen=fake)
-    from model_stgcn.ptr import paths as P
+    import pubg_lab.survival.ptr.data.paths as P
 
     P.write_stamp(renamed, version="v2")
     assert RM.main(["--dump-dir", str(v2), "--out-dir", str(renamed), "--dry-run"], popen=fake) == 0
@@ -660,12 +660,12 @@ def test_stage_2_never_pairs_a_v1_player_dump_with_a_v2_dump(tmp_path, fake):
     assert RM.main(["--dump-dir", str(v2), "--out-dir", str(out), "--stage2", "--player-dump-dir", str(tmp_path / "dumps" / "bigcomp2027_player_v2"), "--dry-run"], popen=fake) == 0
     assert RM.main(["--dump-dir", str(v2), "--out-dir", str(out), "--dry-run"], popen=fake) == 0
     # a legacy (v1) dump keeps its v1 player dump
-    legacy = tiny_dump(tmp_path / "legacy")
+    legacy = tiny_dump(tmp_path / 'archive/legacy_snapshot')
     assert RM.main(["--dump-dir", str(legacy), "--out-dir", str(tmp_path / "legacy_out"), "--stage2", "--dry-run"], popen=fake) == 0
 
 
 def test_the_run_directory_is_stamped_for_a_v2_dump_and_a_legacy_run_stays_untouched(tmp_path, fake):
-    from model_stgcn.ptr import paths as P
+    import pubg_lab.survival.ptr.data.paths as P
 
     v2 = v2_marked_dump(tmp_path)
     out = tmp_path / "checkpoints" / "bigcomp2027_ptr_v2"
@@ -678,10 +678,10 @@ def test_the_run_directory_is_stamped_for_a_v2_dump_and_a_legacy_run_stays_untou
     assert RM.main(["--dump-dir", str(v2), "--out-dir", str(out), "--workers", "2", "--poll-seconds", "0", "--only", "arm=M00"], popen=fake) == 0
     assert (out / P.STAMP_NAME).read_text() == first
     # the aggregator and the other readers still see a plain run directory (the stamp is a file, not a cohort)
-    from model_stgcn.ptr import aggregate as A
+    import pubg_lab.survival.ptr.evaluation.aggregate as A
 
     assert [p.name for p in A.scan_runs(out)[0]] == []  # no pred files from the fake runner: nothing to scan, and the stamp did not break the scan
-    legacy = tiny_dump(tmp_path / "legacy")
+    legacy = tiny_dump(tmp_path / 'archive/legacy_snapshot')
     lout = tmp_path / "legacy_out"
     assert RM.main(["--dump-dir", str(legacy), "--out-dir", str(lout), "--workers", "2", "--poll-seconds", "0", "--only", "arm=M00"], popen=fake) == 0
     assert not (lout / P.STAMP_NAME).exists()  # legacy roots stay byte-identical
@@ -694,7 +694,7 @@ def test_a_v1_metrics_file_or_status_file_is_never_reused_in_a_v2_root(tmp_path,
     run = out / "karakin_tpp_squad" / "M00" / "seed42"
     run.mkdir(parents=True)
     (run / "metrics.json").write_text(json.dumps({"config_hash": "0123456789abcdef", "labels": "v2"}))
-    from model_stgcn.ptr import paths as P
+    import pubg_lab.survival.ptr.data.paths as P
 
     P.write_stamp(out, version="v2")
     base = ["--dump-dir", str(v2), "--out-dir", str(out), "--dry-run", "--only", "arm=M00"]

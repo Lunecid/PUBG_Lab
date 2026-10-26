@@ -1,7 +1,7 @@
 import numpy as np
 import torch
-from movement_diffusion.model_v4 import center_relative,pair_loss,FormationRegressor,FormationDiffusion
-from movement_diffusion.dataset_v3 import TrajectoryDataset,collate
+from pubg_lab.movement.models.model_v4 import center_relative, pair_loss, FormationRegressor, FormationDiffusion
+from pubg_lab.movement.data.dataset_v3 import TrajectoryDataset, collate
 
 def test_center_relative_round_trip_and_padding():
  p=torch.tensor([[True,True,True,False]]);x=torch.randn(1,4,3,2);c,r=center_relative(x,p)
